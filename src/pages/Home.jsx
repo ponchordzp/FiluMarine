@@ -99,11 +99,11 @@ export default function Home() {
         </div>
         
         {/* Footer */}
-        <footer className="bg-slate-900 text-white py-12">
+        <footer className="bg-[#0c2340] text-white py-12">
           <div className="max-w-6xl mx-auto px-6 text-center">
             <h3 className="text-2xl font-light mb-2">Ready for your adventure?</h3>
-            <p className="text-slate-400 mb-6">Book now and create unforgettable memories in Ixtapa-Zihuatanejo</p>
-            <p className="text-sm text-slate-500">© 2026 Ixtapa Premium Expeditions. All rights reserved.</p>
+            <p className="text-[#1e88e5]/80 mb-6">Book now and create unforgettable memories in Ixtapa-Zihuatanejo</p>
+            <p className="text-sm text-white/50">© 2026 Filu Marine. All rights reserved.</p>
           </div>
         </footer>
       </div>

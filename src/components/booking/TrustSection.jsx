@@ -20,7 +20,7 @@ const comparison = [
 
 export default function TrustSection() {
   return (
-    <section className="py-20 md:py-28 bg-[#f8f6f3]">
+    <section className="py-20 md:py-28 bg-[#f0f5f9]">
       <div className="max-w-6xl mx-auto px-6">
         {/* Trust Points */}
         <motion.div 
@@ -48,8 +48,8 @@ export default function TrustSection() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
               className="bg-white rounded-2xl p-6 text-center shadow-sm"
             >
-              <div className="w-14 h-14 bg-sky-50 rounded-xl flex items-center justify-center mx-auto mb-4">
-                <point.icon className="h-7 w-7 text-sky-600" />
+              <div className="w-14 h-14 bg-[#1e88e5]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <point.icon className="h-7 w-7 text-[#1e88e5]" />
               </div>
               <h3 className="font-semibold text-slate-800 mb-1">{point.title}</h3>
               <p className="text-sm text-slate-500">{point.desc}</p>
@@ -57,49 +57,7 @@ export default function TrustSection() {
           ))}
         </div>
 
-        {/* Boat Images */}
-        <div className="grid md:grid-cols-3 gap-4 mb-20">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            className="md:col-span-2 aspect-[16/10] rounded-2xl overflow-hidden"
-          >
-            <img 
-              src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80" 
-              alt="Premium fishing boat"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-          <div className="grid grid-rows-2 gap-4">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="rounded-2xl overflow-hidden"
-            >
-              <img 
-                src="https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=600&q=80" 
-                alt="Fishing experience"
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="rounded-2xl overflow-hidden"
-            >
-              <img 
-                src="https://images.unsplash.com/photo-1476673160081-cf065607f449?w=600&q=80" 
-                alt="Ocean view"
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-          </div>
-        </div>
+
 
         {/* Comparison */}
         <motion.div

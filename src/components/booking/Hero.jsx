@@ -1,10 +1,10 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { ChevronDown, MessageCircle } from 'lucide-react';
+import { ChevronDown, MessageCircle, Anchor } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Hero({ onScrollToExperiences }) {
-  const whatsappLink = "https://wa.me/5217551234567?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20in%20Ixtapa.";
+  const whatsappLink = "https://wa.me/5217551234567?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine.";
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -15,7 +15,7 @@ export default function Hero({ onScrollToExperiences }) {
           backgroundImage: `url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80')`,
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0c2340]/80 via-[#0c2340]/60 to-[#0c2340]/90" />
       </div>
 
       {/* Content */}
@@ -25,11 +25,23 @@ export default function Hero({ onScrollToExperiences }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <p className="text-sky-300 text-sm tracking-[0.3em] uppercase mb-4 font-medium">
+          {/* Logo */}
+          <div className="mb-8">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <Anchor className="h-10 w-10 text-[#1e88e5]" />
+              <h2 className="text-4xl md:text-5xl font-bold text-white tracking-wide">FILU</h2>
+              <span className="text-2xl md:text-3xl font-light text-white/80">Marine</span>
+            </div>
+            <p className="text-[#1e88e5]/80 text-xs tracking-[0.4em] uppercase font-medium">
+              Foxtrot • India • Lima • Uniform
+            </p>
+          </div>
+
+          <p className="text-[#1e88e5] text-sm tracking-[0.3em] uppercase mb-4 font-medium">
             Ixtapa-Zihuatanejo, Mexico
           </p>
           
-          <h1 className="text-4xl md:text-6xl font-light text-white leading-tight mb-6">
+          <h1 className="text-3xl md:text-5xl font-light text-white leading-tight mb-6">
             Premium Fishing & Leisure
             <span className="block font-semibold">Expeditions in Ixtapa</span>
           </h1>
@@ -42,7 +54,7 @@ export default function Hero({ onScrollToExperiences }) {
             <Button 
               size="lg"
               onClick={onScrollToExperiences}
-              className="bg-white text-slate-900 hover:bg-white/90 px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
+              className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
             >
               Choose Your Experience
               <ChevronDown className="ml-2 h-5 w-5" />
@@ -50,9 +62,8 @@ export default function Hero({ onScrollToExperiences }) {
             
             <Button 
               size="lg"
-              variant="outline"
               asChild
-              className="border-white/30 text-white hover:bg-white/10 px-8 py-6 text-base font-medium rounded-full backdrop-blur-sm"
+              className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
             >
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="mr-2 h-5 w-5" />
