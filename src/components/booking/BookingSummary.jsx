@@ -3,13 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Calendar, Clock, Users, CreditCard, Building, MessageCircle, Check, Shield } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Users, CreditCard, Building, Check, Shield, Car } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
 const addOnOptions = [
   { id: 'drinks_catering', title: 'Premium Drinks & Catering', price: 75 },
-  { id: 'snorkel_equipment', title: 'Snorkel Equipment', price: 25 },
   { id: 'celebration_package', title: 'Celebration Package', price: 100 },
 ];
 
@@ -27,7 +26,8 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
     return sum + (addOn?.price || 0);
   }, 0);
 
-  const totalPrice = experience.price + addOnsTotal;
+  const taxiFee = bookingData.taxi_fee || 0;
+  const totalPrice = experience.price + addOnsTotal + taxiFee;
   const deposit = Math.round(totalPrice * 0.4);
   const remaining = totalPrice - deposit;
 
@@ -115,6 +115,12 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                       <Users className="h-4 w-4 text-slate-400" />
                       <span className="text-slate-600">{bookingData.guests} guest{bookingData.guests > 1 ? 's' : ''}</span>
                     </div>
+                    {bookingData.needs_taxi && (
+                      <div className="flex items-center gap-3 text-sm">
+                        <Car className="h-4 w-4 text-slate-400" />
+                        <span className="text-slate-600">Taxi pickup included</span>
+                      </div>
+                    )}
                   </div>
 
                   {bookingData.add_ons?.length > 0 && (
@@ -149,22 +155,28 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                       <span className="text-slate-800">${addOnsTotal}</span>
                     </div>
                   )}
+                  {taxiFee > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600">Taxi pickup</span>
+                      <span className="text-slate-800">${taxiFee}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-semibold pt-3 border-t border-slate-100">
                     <span className="text-slate-800">Total</span>
                     <span className="text-slate-800">${totalPrice}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 p-4 bg-sky-50 rounded-xl">
-                  <p className="text-sm font-medium text-sky-800 mb-2">Payment Schedule</p>
+                <div className="mt-4 p-4 bg-[#1e88e5]/10 rounded-xl">
+                  <p className="text-sm font-medium text-[#0c2340] mb-2">Payment Schedule</p>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-sky-700">Deposit (40%) - due today</span>
-                      <span className="font-semibold text-sky-800">${deposit}</span>
+                      <span className="text-[#0c2340]/80">Deposit (40%) - due today</span>
+                      <span className="font-semibold text-[#0c2340]">${deposit}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sky-700">Balance (60%) - on arrival</span>
-                      <span className="text-sky-700">${remaining}</span>
+                      <span className="text-[#0c2340]/80">Balance (60%) - on arrival</span>
+                      <span className="text-[#0c2340]/80">${remaining}</span>
                     </div>
                   </div>
                 </div>
@@ -220,65 +232,64 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                 </div>
               </div>
 
-              {/* Payment Method */}
+              {/* Payment Method - Deposit */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="font-semibold text-slate-800 mb-4">Payment Method</h3>
+                <h3 className="font-semibold text-slate-800 mb-2">Deposit Payment (40%)</h3>
+                <p className="text-sm text-slate-500 mb-4">Non-refundable reservation fee: <span className="font-semibold text-slate-700">${deposit}</span></p>
                 
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                   <div className="space-y-3">
                     <label 
                       className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        paymentMethod === 'card' ? 'border-sky-500 bg-sky-50' : 'border-slate-100 hover:border-slate-200'
-                      }`}
-                    >
-                      <RadioGroupItem value="card" id="card" />
-                      <CreditCard className={`h-5 w-5 ${paymentMethod === 'card' ? 'text-sky-600' : 'text-slate-400'}`} />
-                      <div>
-                        <p className={`font-medium ${paymentMethod === 'card' ? 'text-sky-700' : 'text-slate-700'}`}>
-                          Credit / Debit Card
-                        </p>
-                        <p className="text-sm text-slate-500">Secure online payment</p>
-                      </div>
-                    </label>
-
-                    <label 
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        paymentMethod === 'bank_transfer' ? 'border-sky-500 bg-sky-50' : 'border-slate-100 hover:border-slate-200'
+                        paymentMethod === 'bank_transfer' ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-slate-100 hover:border-slate-200'
                       }`}
                     >
                       <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                      <Building className={`h-5 w-5 ${paymentMethod === 'bank_transfer' ? 'text-sky-600' : 'text-slate-400'}`} />
+                      <Building className={`h-5 w-5 ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
                       <div>
-                        <p className={`font-medium ${paymentMethod === 'bank_transfer' ? 'text-sky-700' : 'text-slate-700'}`}>
-                          Bank Transfer
+                        <p className={`font-medium ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
+                          Direct Deposit
                         </p>
-                        <p className="text-sm text-slate-500">We'll send payment details via email</p>
+                        <p className="text-sm text-slate-500">Bank transfer - details sent via email</p>
                       </div>
                     </label>
 
                     <label 
                       className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        paymentMethod === 'whatsapp' ? 'border-sky-500 bg-sky-50' : 'border-slate-100 hover:border-slate-200'
+                        paymentMethod === 'paypal' ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-slate-100 hover:border-slate-200'
                       }`}
                     >
-                      <RadioGroupItem value="whatsapp" id="whatsapp" />
-                      <MessageCircle className={`h-5 w-5 ${paymentMethod === 'whatsapp' ? 'text-sky-600' : 'text-slate-400'}`} />
+                      <RadioGroupItem value="paypal" id="paypal" />
+                      <CreditCard className={`h-5 w-5 ${paymentMethod === 'paypal' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
                       <div>
-                        <p className={`font-medium ${paymentMethod === 'whatsapp' ? 'text-sky-700' : 'text-slate-700'}`}>
-                          WhatsApp Confirmation
+                        <p className={`font-medium ${paymentMethod === 'paypal' ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
+                          PayPal
                         </p>
-                        <p className="text-sm text-slate-500">Coordinate payment directly with us</p>
+                        <p className="text-sm text-slate-500">Secure payment via PayPal</p>
                       </div>
                     </label>
                   </div>
                 </RadioGroup>
               </div>
 
+              {/* Remaining Balance Info */}
+              <div className="bg-[#f0f5f9] rounded-2xl p-6">
+                <h3 className="font-semibold text-slate-800 mb-2">Remaining Balance (60%)</h3>
+                <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining}</span></p>
+                <p className="text-sm text-slate-600 mb-3">Payment options available on the day of your trip:</p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">Direct Deposit</span>
+                  <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">PayPal</span>
+                  <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">Credit Card</span>
+                  <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">Cash</span>
+                </div>
+              </div>
+
               {/* Confirm Button */}
               <Button
                 onClick={handleConfirm}
                 disabled={isSubmitting}
-                className="w-full bg-sky-600 hover:bg-sky-700 text-white py-6 rounded-xl font-medium text-lg transition-all disabled:opacity-50"
+                className="w-full bg-[#1e88e5] hover:bg-[#1976d2] text-white py-6 rounded-xl font-medium text-lg transition-all disabled:opacity-50"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">

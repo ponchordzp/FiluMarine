@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, AlertTriangle, Users, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, Clock, AlertTriangle, Users, Minus, Plus, Car, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, addDays, isBefore, startOfDay } from 'date-fns';
 
@@ -28,6 +28,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const [selectedDate, setSelectedDate] = useState(bookingData.date ? new Date(bookingData.date) : null);
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
   const [guests, setGuests] = useState(bookingData.guests || 2);
+  const [needsTaxi, setNeedsTaxi] = useState(bookingData.needs_taxi || false);
 
   const availableSlots = timeSlots[experience.id] || [];
   const today = startOfDay(new Date());
@@ -44,6 +45,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       date: format(selectedDate, 'yyyy-MM-dd'),
       time_slot: selectedTime,
       guests,
+      needs_taxi: needsTaxi,
+      taxi_fee: needsTaxi ? 20 : 0,
     });
     onContinue();
   };
@@ -172,6 +175,36 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 </div>
                 <p className="text-xs text-slate-500 mt-3">Maximum 6 guests per trip</p>
               </div>
+
+              {/* Taxi Option */}
+              <button
+                onClick={() => setNeedsTaxi(!needsTaxi)}
+                className={`w-full bg-white rounded-2xl p-6 shadow-sm text-left border-2 transition-all ${
+                  needsTaxi ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-transparent'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                      needsTaxi ? 'bg-[#1e88e5]' : 'bg-slate-100'
+                    }`}>
+                      <Car className={`h-6 w-6 ${needsTaxi ? 'text-white' : 'text-slate-500'}`} />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-800">Need a taxi pickup?</h3>
+                      <p className="text-sm text-slate-500">From your hotel or residence to the dock</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`font-semibold ${needsTaxi ? 'text-[#1e88e5]' : 'text-slate-600'}`}>+$20</span>
+                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                      needsTaxi ? 'border-[#1e88e5] bg-[#1e88e5]' : 'border-slate-300'
+                    }`}>
+                      {needsTaxi && <Check className="h-4 w-4 text-white" />}
+                    </div>
+                  </div>
+                </div>
+              </button>
             </div>
           </div>
 
