@@ -27,14 +27,36 @@ export default function Hero({ onScrollToExperiences }) {
         >
           {/* Logo */}
           <div className="mb-8">
-            <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="flex items-center justify-center gap-3 mb-3">
               <Anchor className="h-10 w-10 text-[#1e88e5]" />
               <h2 className="text-4xl md:text-5xl font-bold text-white tracking-wide">FILU</h2>
               <span className="text-2xl md:text-3xl font-light text-white/80">Marine</span>
             </div>
-            <p className="text-[#1e88e5]/80 text-xs tracking-[0.4em] uppercase font-medium">
-              Foxtrot • India • Lima • Uniform
-            </p>
+            {/* Nautical Flags: F-I-L-U */}
+            <div className="flex items-center justify-center gap-2">
+              {/* F - Foxtrot: White diamond on red */}
+              <div className="w-8 h-6 bg-red-600 relative flex items-center justify-center">
+                <div className="w-4 h-4 bg-white transform rotate-45"></div>
+              </div>
+              {/* I - India: Yellow circle on black */}
+              <div className="w-8 h-6 bg-black flex items-center justify-center">
+                <div className="w-4 h-4 bg-yellow-400 rounded-full"></div>
+              </div>
+              {/* L - Lima: Yellow and black quarters */}
+              <div className="w-8 h-6 grid grid-cols-2 grid-rows-2">
+                <div className="bg-yellow-400"></div>
+                <div className="bg-black"></div>
+                <div className="bg-black"></div>
+                <div className="bg-yellow-400"></div>
+              </div>
+              {/* U - Uniform: Red and white quarters */}
+              <div className="w-8 h-6 grid grid-cols-2 grid-rows-2">
+                <div className="bg-red-600"></div>
+                <div className="bg-white"></div>
+                <div className="bg-white"></div>
+                <div className="bg-red-600"></div>
+              </div>
+            </div>
           </div>
 
           <p className="text-[#1e88e5] text-sm tracking-[0.3em] uppercase mb-4 font-medium">

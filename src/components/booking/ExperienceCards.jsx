@@ -76,7 +76,7 @@ export default function ExperienceCards({ onSelectExperience }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500"
+              className="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
                 <img 
@@ -98,10 +98,10 @@ export default function ExperienceCards({ onSelectExperience }) {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-6 flex flex-col h-full">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-xl font-semibold text-slate-800">{exp.title}</h3>
-                  <exp.icon className="h-6 w-6 text-sky-500 flex-shrink-0 ml-2" />
+                  <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
                 </div>
                 
                 <p className="text-slate-600 text-sm mb-4">{exp.description}</p>
@@ -124,12 +124,14 @@ export default function ExperienceCards({ onSelectExperience }) {
                   </div>
                 </div>
 
-                <Button 
-                  onClick={() => onSelectExperience(exp)}
-                  className="w-full mt-5 bg-slate-900 hover:bg-slate-800 text-white py-6 rounded-xl font-medium transition-all hover:scale-[1.02]"
-                >
-                  Select This Experience
-                </Button>
+                <div className="mt-auto pt-5">
+                  <Button 
+                    onClick={() => onSelectExperience(exp)}
+                    className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-6 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                  >
+                    Select This Experience
+                  </Button>
+                </div>
               </div>
             </motion.div>
           ))}
