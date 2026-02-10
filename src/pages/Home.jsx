@@ -5,6 +5,7 @@ import Hero from '@/components/booking/Hero';
 import TrustSection from '@/components/booking/TrustSection';
 import ExperienceCards from '@/components/booking/ExperienceCards';
 import BookingCalendar from '@/components/booking/BookingCalendar';
+import PickupLocation from '@/components/booking/PickupLocation';
 import AddOns from '@/components/booking/AddOns';
 import BookingSummary from '@/components/booking/BookingSummary';
 import Confirmation from '@/components/booking/Confirmation';
@@ -15,28 +16,28 @@ const experiences = {
     title: 'Half-Day Sport Fishing',
     duration: '5 hours',
     price: 450,
-    image: 'https://images.unsplash.com/photo-1545450660-3378a7f3a364?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
   },
   full_day_fishing: {
     id: 'full_day_fishing',
     title: 'Full-Day Sport Fishing',
     duration: '8 hours',
     price: 750,
-    image: 'https://images.unsplash.com/photo-1516942440-4d5a88c93ad4?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
   },
   snorkeling: {
     id: 'snorkeling',
     title: 'Snorkeling Expedition',
     duration: '4 hours',
     price: 350,
-    image: 'https://images.unsplash.com/photo-1682687982501-1e58ab814714?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&q=80',
   },
   coastal_leisure: {
     id: 'coastal_leisure',
     title: 'Coastal Leisure / Sunset Tour',
     duration: '3 hours',
     price: 300,
-    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1476673160081-cf065607f449?w=800&q=80',
   },
 };
 
@@ -50,7 +51,7 @@ const generateConfirmationCode = () => {
 };
 
 export default function Home() {
-  const [step, setStep] = useState('landing'); // landing, calendar, addons, summary, confirmation
+  const [step, setStep] = useState('landing'); // landing, calendar, pickup, addons, summary, confirmation
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [bookingData, setBookingData] = useState({});
   const [confirmedBooking, setConfirmedBooking] = useState(null);
@@ -115,6 +116,19 @@ export default function Home() {
       <BookingCalendar 
         experience={selectedExperience}
         onBack={() => setStep('landing')}
+        onContinue={() => setStep('pickup')}
+        bookingData={bookingData}
+        setBookingData={setBookingData}
+      />
+    );
+  }
+
+  // Pickup location step
+  if (step === 'pickup') {
+    return (
+      <PickupLocation 
+        experience={selectedExperience}
+        onBack={() => setStep('calendar')}
         onContinue={() => setStep('addons')}
         bookingData={bookingData}
         setBookingData={setBookingData}
@@ -127,7 +141,7 @@ export default function Home() {
     return (
       <AddOns 
         experience={selectedExperience}
-        onBack={() => setStep('calendar')}
+        onBack={() => setStep('pickup')}
         onContinue={() => setStep('summary')}
         bookingData={bookingData}
         setBookingData={setBookingData}

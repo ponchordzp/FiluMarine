@@ -12,7 +12,7 @@ const whatToBring = [
 ];
 
 export default function Confirmation({ booking, experience }) {
-  const whatsappLink = "https://wa.me/521234567890?text=Hello,%20I%20have%20a%20booking%20" + booking.confirmation_code;
+  const whatsappLink = "https://wa.me/5217551234567?text=Hello!%20I%20have%20a%20booking%20with%20confirmation%20code:%20" + booking.confirmation_code;
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-sky-50 to-white py-12 md:py-20">

@@ -4,7 +4,7 @@ import { ChevronDown, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Hero({ onScrollToExperiences }) {
-  const whatsappLink = "https://wa.me/521234567890?text=Hello,%20I'm%20interested%20in%20booking%20a%20boat%20experience";
+  const whatsappLink = "https://wa.me/5217551234567?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20in%20Ixtapa.";
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -12,7 +12,7 @@ export default function Hero({ onScrollToExperiences }) {
       <div 
         className="absolute inset-0 bg-cover bg-center"
         style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1920&q=80')`,
+          backgroundImage: `url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80')`,
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-slate-900/80" />

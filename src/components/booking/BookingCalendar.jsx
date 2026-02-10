@@ -182,7 +182,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               disabled={!selectedDate || !selectedTime}
               className="w-full md:w-auto md:min-w-[200px] bg-slate-900 hover:bg-slate-800 text-white py-6 rounded-xl font-medium transition-all disabled:opacity-50"
             >
-              Continue to Extras
+              Continue to Pickup Location
             </Button>
           </div>
         </motion.div>

@@ -67,7 +67,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
             className="flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to date selection</span>
+            <span>Back to pickup location</span>
           </button>
 
           <div className="text-center mb-10">

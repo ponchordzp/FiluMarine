@@ -66,7 +66,7 @@ export default function TrustSection() {
             className="md:col-span-2 aspect-[16/10] rounded-2xl overflow-hidden"
           >
             <img 
-              src="https://images.unsplash.com/photo-1605281317010-fe5ffe798166?w=1200&q=80" 
+              src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200&q=80" 
               alt="Premium fishing boat"
               className="w-full h-full object-cover"
             />
@@ -80,7 +80,7 @@ export default function TrustSection() {
               className="rounded-2xl overflow-hidden"
             >
               <img 
-                src="https://images.unsplash.com/photo-1534575180804-e08dd9e16be9?w=600&q=80" 
+                src="https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=600&q=80" 
                 alt="Fishing experience"
                 className="w-full h-full object-cover"
               />
@@ -93,7 +93,7 @@ export default function TrustSection() {
               className="rounded-2xl overflow-hidden"
             >
               <img 
-                src="https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=600&q=80" 
+                src="https://images.unsplash.com/photo-1476673160081-cf065607f449?w=600&q=80" 
                 alt="Ocean view"
                 className="w-full h-full object-cover"
               />
