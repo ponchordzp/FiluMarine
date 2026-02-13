@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, AlertTriangle, Users, Minus, Plus, Car, Check } from 'lucide-react';
+import { ArrowLeft, Clock, AlertTriangle, Users, Minus, Plus, Car, Check, Anchor } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format, addDays, isBefore, startOfDay, isSameDay } from 'date-fns';
+import { format, addDays, isBefore, startOfDay, isSameDay, isToday } from 'date-fns';
 import { base44 } from '@/api/base44Client';
 
 const timeSlots = {
@@ -25,16 +25,37 @@ const timeSlots = {
   ],
 };
 
+const boats = [
+  {
+    id: 'filu',
+    name: 'FILU',
+    type: '25ft Sea Fox',
+    multiplier: 1,
+    forLeisure: false,
+  },
+  {
+    id: 'tycoon',
+    name: 'TYCOON',
+    type: '55ft Azimut Yacht',
+    multiplier: 3.2,
+    forLeisure: true,
+  },
+];
+
 export default function BookingCalendar({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const [selectedDate, setSelectedDate] = useState(bookingData.date ? new Date(bookingData.date) : null);
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
   const [guests, setGuests] = useState(bookingData.guests || 2);
   const [needsTaxi, setNeedsTaxi] = useState(bookingData.needs_taxi || false);
+  const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || null);
   const [blockedDates, setBlockedDates] = useState([]);
 
   const availableSlots = timeSlots[experience.id] || [];
   const today = startOfDay(new Date());
-  const minDate = addDays(today, 1);
+  const minDate = today;
+  
+  const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'extended_fishing';
+  const availableBoats = isLeisureExperience ? boats : boats.filter(b => !b.forLeisure);
 
   React.useEffect(() => {
     const fetchBlockedDates = async () => {
@@ -54,6 +75,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   };
 
   const handleContinue = () => {
+    const boat = boats.find(b => b.id === selectedBoat);
     setBookingData({
       ...bookingData,
       date: format(selectedDate, 'yyyy-MM-dd'),
@@ -61,6 +83,9 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       guests,
       needs_taxi: needsTaxi,
       taxi_fee: needsTaxi ? 20 : 0,
+      boat_id: selectedBoat,
+      boat_name: boat.name,
+      boat_multiplier: boat.multiplier,
     });
     onContinue();
   };
@@ -109,10 +134,16 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 selected={selectedDate}
                 onSelect={handleDateSelect}
                 disabled={(date) => {
-                  if (isBefore(date, minDate)) return true;
+                  if (isBefore(date, minDate) && !isToday(date)) return true;
                   return blockedDates.some(blocked => isSameDay(blocked, date));
                 }}
                 className="rounded-lg"
+                modifiers={{
+                  past: (date) => isBefore(date, today) && !isToday(date),
+                }}
+                modifiersStyles={{
+                  past: { color: '#cbd5e1', textDecoration: 'line-through' },
+                }}
               />
               
               <div className="mt-4 p-3 bg-amber-50 rounded-xl flex gap-3 items-start">
@@ -123,8 +154,45 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               </div>
             </div>
 
-            {/* Time & Guests */}
+            {/* Boat Selection & Time & Guests */}
             <div className="space-y-6">
+              {/* Boat Selection */}
+              <div className="bg-white rounded-2xl p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Boat</h3>
+                <div className="space-y-3">
+                  {availableBoats.map((boat) => {
+                    const boatPrice = Math.round(experience.price * boat.multiplier);
+                    return (
+                      <button
+                        key={boat.id}
+                        onClick={() => setSelectedBoat(boat.id)}
+                        className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
+                          selectedBoat === boat.id
+                            ? 'border-[#1e88e5] bg-[#1e88e5]/5'
+                            : 'border-slate-100 hover:border-slate-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Anchor className={`h-5 w-5 ${selectedBoat === boat.id ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
+                          <div className="text-left">
+                            <p className={`font-medium ${selectedBoat === boat.id ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
+                              {boat.name}
+                            </p>
+                            <p className="text-sm text-slate-500">{boat.type} • ${boatPrice.toLocaleString()} MXN</p>
+                          </div>
+                        </div>
+                        {selectedBoat === boat.id && (
+                          <div className="w-5 h-5 bg-[#1e88e5] rounded-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
               {/* Time Slots */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Time</h3>
@@ -229,7 +297,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
           <div className="mt-8">
             <Button
               onClick={handleContinue}
-              disabled={!selectedDate || !selectedTime}
+              disabled={!selectedDate || !selectedTime || !selectedBoat}
               className="w-full md:w-auto md:min-w-[200px] bg-slate-900 hover:bg-slate-800 text-white py-6 rounded-xl font-medium transition-all disabled:opacity-50"
             >
               Continue to Pickup Location

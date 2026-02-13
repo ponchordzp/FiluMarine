@@ -105,7 +105,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                     </p>
                   </div>
                   <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full">
-                    <span className="text-slate-800 font-semibold">${exp.price.toLocaleString()} MXN</span>
+                    <span className="text-slate-800 font-semibold">From ${exp.price.toLocaleString()} MXN</span>
                   </div>
                 </div>
               </div>
@@ -195,7 +195,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                   <span>{extendedExperience.idealFor}</span>
                 </div>
                 <div className="bg-[#1e88e5]/10 px-4 py-2 rounded-full">
-                  <span className="text-[#1e88e5] font-semibold text-lg">${extendedExperience.price.toLocaleString()} MXN</span>
+                  <span className="text-[#1e88e5] font-semibold text-lg">From ${extendedExperience.price.toLocaleString()} MXN</span>
                 </div>
               </div>
 

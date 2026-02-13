@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Globe, Moon, Sun } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,8 +8,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function LanguageSwitcher({ currentLanguage, onLanguageChange, darkMode, onDarkModeToggle }) {
+export default function LanguageSwitcher({ currentLanguage, onLanguageChange }) {
   const [selectedLang, setSelectedLang] = useState(currentLanguage);
+  const [isOpen, setIsOpen] = useState(false);
+  
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'es', name: 'Español', flag: '🇲🇽' },
@@ -21,26 +23,18 @@ export default function LanguageSwitcher({ currentLanguage, onLanguageChange, da
   const handleApply = () => {
     localStorage.setItem('preferred-language', selectedLang);
     onLanguageChange(selectedLang);
+    setIsOpen(false);
     window.location.reload();
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex gap-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onDarkModeToggle}
-        className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-md hover:bg-white dark:hover:bg-slate-800"
-      >
-        {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-      </Button>
-      
-      <DropdownMenu>
+    <div className="fixed top-4 right-4 z-50">
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
             size="sm"
-            className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm shadow-md hover:bg-white dark:hover:bg-slate-800"
+            className="bg-white/90 backdrop-blur-sm shadow-md hover:bg-white"
           >
             <Globe className="h-4 w-4 mr-2" />
             <span className="mr-1">{currentLang.flag}</span>
@@ -52,7 +46,7 @@ export default function LanguageSwitcher({ currentLanguage, onLanguageChange, da
             <DropdownMenuItem
               key={lang.code}
               onClick={() => setSelectedLang(lang.code)}
-              className={selectedLang === lang.code ? 'bg-slate-100 dark:bg-slate-700' : ''}
+              className={selectedLang === lang.code ? 'bg-slate-100' : ''}
             >
               <span className="mr-2">{lang.flag}</span>
               {lang.name}

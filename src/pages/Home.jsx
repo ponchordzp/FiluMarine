@@ -72,28 +72,7 @@ export default function Home() {
     }
     return 'en';
   });
-  const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('dark-mode') === 'true';
-    }
-    return false;
-  });
-  
   const experiencesRef = useRef(null);
-
-  React.useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [darkMode]);
-
-  const toggleDarkMode = () => {
-    const newMode = !darkMode;
-    setDarkMode(newMode);
-    localStorage.setItem('dark-mode', newMode.toString());
-  };
 
   const createBookingMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
@@ -129,9 +108,10 @@ export default function Home() {
   if (step === 'landing') {
     return (
       <div className="min-h-screen">
-        <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} darkMode={darkMode} onDarkModeToggle={toggleDarkMode} />
+        <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} />
         <Hero onScrollToExperiences={scrollToExperiences} />
         <BoatBenefits />
+        <Fleet />
         <div ref={experiencesRef}>
           <ExperienceCards onSelectExperience={handleSelectExperience} />
         </div>

@@ -146,8 +146,8 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-600">Experience</span>
-                    <span className="text-slate-800">${experience.price.toLocaleString()} MXN</span>
+                    <span className="text-slate-600">Experience ({bookingData.boat_name})</span>
+                    <span className="text-slate-800">${basePrice.toLocaleString()} MXN</span>
                   </div>
                   {addOnsTotal > 0 && (
                     <div className="flex justify-between text-sm">
