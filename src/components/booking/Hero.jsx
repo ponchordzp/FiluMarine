@@ -27,7 +27,7 @@ export default function Hero({ onScrollToExperiences }) {
         >
           {/* Logo */}
           <div className="mb-8">
-            <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="flex items-center justify-center gap-1 mb-3">
               <Anchor className="h-10 w-10 text-[#1e88e5]" />
               <h2 className="text-4xl md:text-5xl font-bold text-white tracking-wide">FILU</h2>
               <span className="text-2xl md:text-3xl font-light text-white/80">Marine</span>

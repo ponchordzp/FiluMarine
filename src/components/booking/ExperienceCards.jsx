@@ -117,21 +117,19 @@ export default function ExperienceCards({ onSelectExperience }) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+                <div className="flex items-center justify-between pt-4 border-t border-slate-100 mb-4">
                   <div className="flex items-center gap-2 text-sm text-slate-500">
                     <Users className="h-4 w-4" />
                     <span>Ideal for: {exp.idealFor}</span>
                   </div>
                 </div>
 
-                <div className="mt-auto pt-5">
-                  <Button 
-                    onClick={() => onSelectExperience(exp)}
-                    className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-6 rounded-xl font-medium transition-all hover:scale-[1.02]"
-                  >
-                    Select This Experience
-                  </Button>
-                </div>
+                <Button 
+                  onClick={() => onSelectExperience(exp)}
+                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-6 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                >
+                  Select This Experience
+                </Button>
               </div>
             </motion.div>
           ))}
