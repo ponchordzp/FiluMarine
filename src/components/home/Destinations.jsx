@@ -5,43 +5,51 @@ import { motion } from 'framer-motion';
 const destinations = [
   {
     name: 'Playa Las Gatas',
-    description: 'Crystal-clear waters perfect for snorkeling',
+    description: 'Protected cove with crystal-clear waters, ideal for snorkeling and diving. Home to vibrant marine life and coral formations.',
     image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800',
+    link: 'https://www.ixtapazihuatanejo.travel/playas/las-gatas',
   },
   {
-    name: 'La Isla',
-    description: 'Secluded island paradise with pristine beaches',
+    name: 'La Isla (Isla Ixtapa)',
+    description: 'Pristine island accessible by boat, featuring beautiful beaches, snorkeling spots, and wildlife observation opportunities.',
     image: 'https://images.unsplash.com/photo-1506953823976-52e1fdc0149a?w=800',
+    link: 'https://www.ixtapazihuatanejo.travel/playas/la-isla',
   },
   {
     name: 'Zihuatanejo Bay',
-    description: 'Picturesque bay with charming coastal views',
+    description: 'Charming traditional fishing village with a picturesque bay, colorful streets, and authentic local culture.',
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+    link: 'https://www.ixtapazihuatanejo.travel/',
   },
   {
-    name: 'Manzanillo',
-    description: 'Beautiful beach with excellent fishing spots',
+    name: 'Playa La Ropa',
+    description: 'Long crescent beach with calm waters, perfect for swimming and water sports. Lined with beachfront restaurants.',
     image: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800',
+    link: 'https://www.ixtapazihuatanejo.travel/playas/la-ropa',
   },
   {
     name: 'Playa Quieta',
-    description: 'Calm waters ideal for families and relaxation',
+    description: 'Tranquil beach with gentle waves, ideal for families. Gateway to Isla Ixtapa with calm, swimmable waters.',
     image: 'https://images.unsplash.com/photo-1519046904884-53103b34b206?w=800',
+    link: 'https://www.ixtapazihuatanejo.travel/playas/playa-quieta',
   },
   {
     name: 'Troncones Beach',
-    description: 'Surf paradise with stunning coastal scenery',
+    description: 'Laid-back surf town with consistent waves for all levels. Known for its bohemian vibe and beautiful sunset views.',
     image: 'https://images.unsplash.com/photo-1473496169904-658ba7c44d8a?w=800',
+    link: 'https://www.ixtapazihuatanejo.travel/playas/troncones',
   },
   {
     name: 'La Saladita Beach',
-    description: 'World-class surf break and pristine nature',
+    description: 'World-renowned left-hand point break, one of Mexico\'s best surf spots. Long rides and consistent waves year-round.',
     image: 'https://images.unsplash.com/photo-1483683804023-6ccdb62f86ef?w=800',
+    link: 'https://www.ixtapazihuatanejo.travel/playas/la-saladita',
   },
   {
     name: 'Barra de Potosí',
-    description: 'Lagoon and ocean paradise for nature lovers',
+    description: 'Unique ecosystem where lagoon meets ocean. Mangrove sanctuary with bird watching, kayaking, and pristine beaches.',
     image: 'https://images.unsplash.com/photo-1535024966711-67607dc2d48e?w=800',
+    link: 'https://www.ixtapazihuatanejo.travel/',
   },
 ];
 
@@ -60,13 +68,16 @@ export default function Destinations() {
 
         <div className="grid md:grid-cols-4 gap-4">
           {destinations.map((dest, i) => (
-            <motion.div
+            <motion.a
               key={i}
+              href={dest.link}
+              target="_blank"
+              rel="noopener noreferrer"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="group relative rounded-2xl overflow-hidden aspect-[3/4] cursor-pointer"
+              className="group relative rounded-2xl overflow-hidden aspect-[3/4] cursor-pointer block"
             >
               <img
                 src={dest.image}
@@ -79,9 +90,9 @@ export default function Destinations() {
                   <MapPin className="h-4 w-4 text-[#1e88e5]" />
                   <h3 className="font-semibold text-sm">{dest.name}</h3>
                 </div>
-                <p className="text-xs text-white/80">{dest.description}</p>
+                <p className="text-xs text-white/80 line-clamp-2">{dest.description}</p>
               </div>
-            </motion.div>
+            </motion.a>
           ))}
         </div>
       </div>
