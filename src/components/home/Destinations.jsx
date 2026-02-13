@@ -48,8 +48,8 @@ const destinations = [
   {
     name: 'Barra de Potosí',
     description: 'Unique ecosystem where lagoon meets ocean. Mangrove sanctuary with bird watching, kayaking, and pristine beaches.',
-    image: 'https://images.unsplash.com/photo-1535024966711-67607dc2d48e?w=800',
-    link: 'https://www.ixtapazihuatanejo.travel/',
+    image: 'https://www.ixtapazihuatanejo.travel/wp-content/uploads/2023/06/lagunas-barra-potosi-zihuatanejo-1.jpg',
+    link: 'https://www.ixtapazihuatanejo.travel/actividad/visita-barra-de-potosi',
   },
 ];
 
