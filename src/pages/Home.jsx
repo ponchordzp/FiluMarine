@@ -161,14 +161,71 @@ export default function Home() {
     `;
     
     try {
+      // Send confirmation email to guest
       await base44.integrations.Core.SendEmail({
         from_name: 'Filu Marine',
         to: data.guest_email,
         subject: `Booking Confirmed - ${confirmationCode}`,
         body: emailBody
       });
+
+      // Send notification to management
+      const managementEmailBody = `
+        <h2>New Booking Received - Filu Marine</h2>
+        <h3>Confirmation Code: ${confirmationCode}</h3>
+        
+        <h3>Booking Details:</h3>
+        <ul>
+          <li><strong>Experience:</strong> ${experience.title}</li>
+          <li><strong>Date:</strong> ${format(new Date(data.date), 'EEEE, MMMM d, yyyy')}</li>
+          <li><strong>Time:</strong> ${data.time_slot}</li>
+          <li><strong>Guests:</strong> ${data.guests}</li>
+          <li><strong>Boat:</strong> ${data.boat_name}</li>
+          <li><strong>Pickup Location:</strong> ${data.pickup_location || 'Marina Ixtapa'}</li>
+          ${data.taxi_needed ? '<li><strong>Taxi Needed:</strong> Yes</li>' : ''}
+        </ul>
+        
+        <h3>Guest Information:</h3>
+        <ul>
+          <li><strong>Name:</strong> ${data.guest_name}</li>
+          <li><strong>Email:</strong> ${data.guest_email}</li>
+          <li><strong>Phone:</strong> ${data.guest_phone}</li>
+        </ul>
+        
+        <h3>Payment:</h3>
+        <ul>
+          <li><strong>Total Price:</strong> $${data.total_price.toLocaleString()} MXN</li>
+          <li><strong>Deposit:</strong> $${data.deposit_paid.toLocaleString()} MXN</li>
+          <li><strong>Payment Method:</strong> ${data.payment_method}</li>
+        </ul>
+        
+        ${data.add_ons && data.add_ons.length > 0 ? `
+        <h3>Add-ons:</h3>
+        <ul>
+          ${data.add_ons.map(addon => `<li>${addon}</li>`).join('')}
+        </ul>
+        ` : ''}
+        
+        ${data.special_requests ? `
+        <h3>Special Requests:</h3>
+        <p>${data.special_requests}</p>
+        ` : ''}
+      `;
+      
+      await base44.integrations.Core.SendEmail({
+        from_name: 'Filu Marine Booking System',
+        to: 'arodriguezpenam@gmail.com',
+        subject: `New Booking: ${confirmationCode} - ${experience.title}`,
+        body: managementEmailBody
+      });
+
+      // Send WhatsApp notification (note: this creates a message URL that can be used)
+      const whatsappMessage = `*NEW BOOKING - FILU MARINE*%0A%0A*Confirmation:* ${confirmationCode}%0A*Experience:* ${experience.title}%0A*Date:* ${format(new Date(data.date), 'EEEE, MMMM d, yyyy')}%0A*Time:* ${data.time_slot}%0A*Guests:* ${data.guests}%0A*Boat:* ${data.boat_name}%0A${data.taxi_needed ? '*Taxi Needed:* Yes%0A' : ''}%0A*Guest:* ${data.guest_name}%0A*Phone:* ${data.guest_phone}%0A*Total:* $${data.total_price.toLocaleString()} MXN`;
+      
+      // Open WhatsApp link in new window (this will notify management)
+      window.open(`https://wa.me/5215513782169?text=${whatsappMessage}`, '_blank');
     } catch (error) {
-      console.error('Error sending confirmation email:', error);
+      console.error('Error sending notifications:', error);
     }
     
     createBookingMutation.mutate(bookingPayload);
