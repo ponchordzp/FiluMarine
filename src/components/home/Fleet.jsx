@@ -78,7 +78,7 @@ export default function Fleet() {
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <p className="text-white/80 text-sm mb-3">{boat.description}</p>
                 
                 <p className="text-white/80 mb-4 flex items-center gap-2">
