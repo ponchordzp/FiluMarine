@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
+import { format } from 'date-fns';
 import Hero from '@/components/booking/Hero';
 import ExperienceCards from '@/components/booking/ExperienceCards';
 import BoatBenefits from '@/components/home/BoatBenefits';
