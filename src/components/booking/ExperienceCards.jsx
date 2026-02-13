@@ -200,7 +200,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                 </div>
               </div>
 
-              <div className="p-6 flex flex-col flex-grow">
+              <div className="p-4 sm:p-6 flex flex-col flex-grow">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
                   <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
