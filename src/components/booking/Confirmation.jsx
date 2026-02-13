@@ -11,7 +11,7 @@ const whatToBring = [
   { icon: Droplets, text: 'Towel & change of clothes' },
 ];
 
-export default function Confirmation({ booking, experience }) {
+export default function Confirmation({ booking, experience, onBackToMain }) {
   const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I%20have%20a%20booking%20with%20confirmation%20code:%20" + booking.confirmation_code;
 
   return (
@@ -156,6 +156,23 @@ export default function Confirmation({ booking, experience }) {
             alt="WhatsApp QR Code" 
             className="w-32 h-32 mx-auto mt-4"
           />
+        </motion.div>
+
+        {/* Back to Main Page */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+          className="text-center mt-8"
+        >
+          <Button
+            onClick={onBackToMain}
+            variant="outline"
+            size="lg"
+            className="px-8 py-6 rounded-full font-medium"
+          >
+            Back to Main Page
+          </Button>
         </motion.div>
       </div>
     </section>

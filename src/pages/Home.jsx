@@ -116,7 +116,68 @@ export default function Home() {
       status: 'pending',
     };
     
+    // Send confirmation email
+    const experience = experiences[data.experience_type];
+    const emailBody = `
+      <h2>Booking Confirmed - Filu Marine</h2>
+      <p>Thank you for booking with Filu Marine! Your adventure awaits.</p>
+      
+      <h3>Confirmation Code: ${confirmationCode}</h3>
+      
+      <h3>Booking Details:</h3>
+      <ul>
+        <li><strong>Experience:</strong> ${experience.title}</li>
+        <li><strong>Date:</strong> ${format(new Date(data.date), 'EEEE, MMMM d, yyyy')}</li>
+        <li><strong>Time:</strong> ${data.time_slot}</li>
+        <li><strong>Guests:</strong> ${data.guests}</li>
+        <li><strong>Boat:</strong> ${data.boat_name}</li>
+        <li><strong>Pickup Location:</strong> ${data.pickup_location || 'Marina Ixtapa'}</li>
+      </ul>
+      
+      <h3>Meeting Point:</h3>
+      <p><strong>Marina Ixtapa</strong><br/>
+      Dock #12, near the main entrance. Look for the boat with our logo.<br/>
+      Please arrive <strong>15 minutes before</strong> your scheduled departure time.</p>
+      
+      <h3>What to Bring:</h3>
+      <ul>
+        <li>Sunscreen & sunglasses</li>
+        <li>Light, comfortable clothing</li>
+        <li>Camera (waterproof recommended)</li>
+        <li>Towel & change of clothes</li>
+      </ul>
+      
+      <h3>Weather & Safety Policy:</h3>
+      <p>Your safety is our priority. If weather conditions are unsuitable, we will contact you to reschedule at no extra cost. Final decision is made by our captain on the day of departure.</p>
+      
+      <h3>Questions?</h3>
+      <p>Contact us on WhatsApp: +52 55 1378 2169</p>
+      <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/fc470a313_image.png" alt="WhatsApp QR Code" style="width: 150px; height: 150px;"/>
+      
+      <p>We look forward to seeing you!</p>
+      <p><em>- Filu Marine Team</em></p>
+    `;
+    
+    try {
+      await base44.integrations.Core.SendEmail({
+        from_name: 'Filu Marine',
+        to: data.guest_email,
+        subject: `Booking Confirmed - ${confirmationCode}`,
+        body: emailBody
+      });
+    } catch (error) {
+      console.error('Error sending confirmation email:', error);
+    }
+    
     createBookingMutation.mutate(bookingPayload);
+  };
+  
+  const handleBackToMain = () => {
+    setStep('landing');
+    setSelectedExperience(null);
+    setBookingData({});
+    setConfirmedBooking(null);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Landing page view
@@ -216,6 +277,7 @@ export default function Home() {
       <Confirmation 
         booking={confirmedBooking}
         experience={experiences[confirmedBooking.experience_type]}
+        onBackToMain={handleBackToMain}
       />
     );
   }
