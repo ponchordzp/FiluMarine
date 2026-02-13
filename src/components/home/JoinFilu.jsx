@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Anchor, Mail, Phone, Ship, CheckCircle } from 'lucide-react';
+import { Anchor, Ship, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 
@@ -13,6 +14,9 @@ export default function JoinFilu() {
     email: '',
     phone: '',
     boat_type: '',
+    boat_size: '',
+    boat_status: '',
+    boat_year: '',
     boat_name: '',
     location: '',
     message: '',
@@ -35,6 +39,9 @@ Name: ${formData.name}
 Email: ${formData.email}
 Phone: ${formData.phone}
 Boat Type: ${formData.boat_type}
+Boat Size: ${formData.boat_size} feet
+Boat Condition: ${formData.boat_status}
+Year Manufactured: ${formData.boat_year}
 Boat Name: ${formData.boat_name}
 Location: ${formData.location}
 
@@ -49,6 +56,9 @@ ${formData.message}
         email: '',
         phone: '',
         boat_type: '',
+        boat_size: '',
+        boat_status: '',
+        boat_year: '',
         boat_name: '',
         location: '',
         message: '',
@@ -62,7 +72,7 @@ ${formData.message}
 
   if (submitted) {
     return (
-      <section className="py-16 md:py-24 bg-[#0c2340]">
+      <section className="py-12 md:py-16 bg-[#0c2340]">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -157,15 +167,64 @@ ${formData.message}
               </div>
             </div>
 
+            <div className="grid md:grid-cols-3 gap-6">
+              <div>
+                <Label htmlFor="boat_size" className="text-white mb-2 block">Boat Size (feet) *</Label>
+                <Select value={formData.boat_size} onValueChange={(value) => setFormData({ ...formData, boat_size: value })} required>
+                  <SelectTrigger className="bg-white/10 border-white/30 text-white">
+                    <SelectValue placeholder="Select size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="20-25">20-25 feet</SelectItem>
+                    <SelectItem value="26-30">26-30 feet</SelectItem>
+                    <SelectItem value="31-35">31-35 feet</SelectItem>
+                    <SelectItem value="36-40">36-40 feet</SelectItem>
+                    <SelectItem value="41-50">41-50 feet</SelectItem>
+                    <SelectItem value="51-60">51-60 feet</SelectItem>
+                    <SelectItem value="60+">60+ feet</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="boat_status" className="text-white mb-2 block">Boat Condition *</Label>
+                <Select value={formData.boat_status} onValueChange={(value) => setFormData({ ...formData, boat_status: value })} required>
+                  <SelectTrigger className="bg-white/10 border-white/30 text-white">
+                    <SelectValue placeholder="Select condition" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="excellent">Excellent</SelectItem>
+                    <SelectItem value="very-good">Very Good</SelectItem>
+                    <SelectItem value="good">Good</SelectItem>
+                    <SelectItem value="fair">Fair</SelectItem>
+                    <SelectItem value="needs-work">Needs Work</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="boat_year" className="text-white mb-2 block">Year Manufactured *</Label>
+                <Select value={formData.boat_year} onValueChange={(value) => setFormData({ ...formData, boat_year: value })} required>
+                  <SelectTrigger className="bg-white/10 border-white/30 text-white">
+                    <SelectValue placeholder="Select year" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 35 }, (_, i) => 2026 - i).map(year => (
+                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <Label htmlFor="boat_name" className="text-white mb-2 block">Boat Name</Label>
+                <Label htmlFor="boat_name" className="text-white mb-2 block">Boat Name *</Label>
                 <Input
                   id="boat_name"
+                  required
                   value={formData.boat_name}
                   onChange={(e) => setFormData({...formData, boat_name: e.target.value})}
                   className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                  placeholder="Optional"
+                  placeholder="Your boat's name"
                 />
               </div>
               <div>
@@ -182,9 +241,10 @@ ${formData.message}
             </div>
 
             <div>
-              <Label htmlFor="message" className="text-white mb-2 block">Tell us about your boat and experience</Label>
+              <Label htmlFor="message" className="text-white mb-2 block">Tell us about your boat and experience *</Label>
               <Textarea
                 id="message"
+                required
                 value={formData.message}
                 onChange={(e) => setFormData({...formData, message: e.target.value})}
                 className="bg-white/10 border-white/30 text-white placeholder:text-white/50 min-h-[120px]"
@@ -210,6 +270,21 @@ ${formData.message}
               )}
             </Button>
           </form>
+
+          <div className="mt-8 pt-8 border-t border-white/10 text-center">
+            <Button 
+              size="lg"
+              asChild
+              className="bg-emerald-600 text-white hover:bg-emerald-700 px-8 py-6 text-base font-medium rounded-full shadow-xl transition-all hover:scale-105"
+            >
+              <a href="tel:+525513782169">
+                <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Call Us!
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     </section>
