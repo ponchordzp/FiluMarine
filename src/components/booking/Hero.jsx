@@ -82,23 +82,16 @@ export default function Hero({ onScrollToExperiences }) {
               <ChevronDown className="ml-2 h-5 w-5" />
             </Button>
             
-            <div className="flex flex-col items-center gap-2">
-              <Button 
-                size="lg"
-                asChild
-                className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
-              >
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <MessageCircle className="mr-2 h-5 w-5" />
-                  Contact via WhatsApp
-                </a>
-              </Button>
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/fc470a313_image.png" 
-                alt="WhatsApp QR Code" 
-                className="w-24 h-24 mt-2"
-              />
-            </div>
+            <Button 
+              size="lg"
+              asChild
+              className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
+            >
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="mr-2 h-5 w-5" />
+                Contact via WhatsApp
+              </a>
+            </Button>
           </div>
         </motion.div>
 
