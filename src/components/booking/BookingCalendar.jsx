@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Clock, AlertTriangle, Users, Minus, Plus, Car, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { format, addDays, isBefore, startOfDay } from 'date-fns';
+import { format, addDays, isBefore, startOfDay, isSameDay } from 'date-fns';
+import { base44 } from '@/api/base44Client';
 
 const timeSlots = {
   half_day_fishing: [
@@ -29,10 +30,23 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
   const [guests, setGuests] = useState(bookingData.guests || 2);
   const [needsTaxi, setNeedsTaxi] = useState(bookingData.needs_taxi || false);
+  const [blockedDates, setBlockedDates] = useState([]);
 
   const availableSlots = timeSlots[experience.id] || [];
   const today = startOfDay(new Date());
   const minDate = addDays(today, 1);
+
+  React.useEffect(() => {
+    const fetchBlockedDates = async () => {
+      try {
+        const blocked = await base44.entities.BlockedDate.list();
+        setBlockedDates(blocked.map(b => new Date(b.date)));
+      } catch (error) {
+        console.error('Error fetching blocked dates:', error);
+      }
+    };
+    fetchBlockedDates();
+  }, []);
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
@@ -94,7 +108,10 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 mode="single"
                 selected={selectedDate}
                 onSelect={handleDateSelect}
-                disabled={(date) => isBefore(date, minDate)}
+                disabled={(date) => {
+                  if (isBefore(date, minDate)) return true;
+                  return blockedDates.some(blocked => isSameDay(blocked, date));
+                }}
                 className="rounded-lg"
               />
               
