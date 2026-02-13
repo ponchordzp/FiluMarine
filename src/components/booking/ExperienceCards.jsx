@@ -12,18 +12,7 @@ const regularExperiences = [
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
     includes: ['Fishing equipment', 'Bait & tackle', 'Ice & cooler', 'Gas included'],
     idealFor: 'First-timers & families',
-    description: 'Morning or afternoon trip targeting Mahi-Mahi, Roosterfish, and Jack Crevalle.',
-    icon: Fish,
-  },
-  {
-    id: 'full_day_fishing',
-    title: 'Full-Day Sport Fishing',
-    duration: '8 hours',
-    price: 15999,
-    image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
-    includes: ['Premium gear', 'Bait & tackle', 'Lunch & drinks', 'Gas included'],
-    idealFor: 'Serious anglers',
-    description: 'Offshore adventure for Sailfish, Marlin, Tuna. Reach the best fishing grounds.',
+    description: 'Morning trip targeting Mahi-Mahi, Roosterfish, and Jack Crevalle.',
     icon: Fish,
   },
   {
@@ -39,14 +28,39 @@ const regularExperiences = [
   },
   {
     id: 'coastal_leisure',
-    title: 'Coastal Leisure / Sunset Tour',
+    title: 'Coastal Leisure Tour',
     duration: '5 hours',
     price: 9599,
     image: 'https://images.unsplash.com/photo-1476673160081-cf065607f449?w=800&q=80',
-    includes: ['Drinks & snacks', 'Music system', 'Seating', 'Gas included'],
+    includes: ['Drinks & snacks', 'Music system', 'Seating', 'Gas included', 'Restaurant stops available'],
     idealFor: 'Relaxation & celebrations',
-    description: 'Scenic cruise along the coastline with stunning sunset views.',
+    description: 'Scenic coastal cruise with optional restaurant visits via panga delivery from select locations.',
     icon: Sun,
+  },
+  {
+    id: 'sunset_tour',
+    title: 'Sunset Tour',
+    duration: '5 hours',
+    price: 9599,
+    image: 'https://images.unsplash.com/photo-1495954484750-af469f2f9be5?w=800&q=80',
+    includes: ['Drinks & snacks', 'Music system', 'Seating', 'Gas included', 'Restaurant stops available'],
+    idealFor: 'Romantic & celebrations',
+    description: 'Evening cruise with stunning Pacific sunset views. Restaurant visits available via panga delivery.',
+    icon: Sun,
+  },
+];
+
+const fullDayExperiences = [
+  {
+    id: 'full_day_fishing',
+    title: 'Full-Day Sport Fishing',
+    duration: '8 hours',
+    price: 15999,
+    image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
+    includes: ['Premium gear', 'Bait & tackle', 'Lunch & drinks', 'Gas included'],
+    idealFor: 'Serious anglers',
+    description: 'Offshore adventure for Sailfish, Marlin, Tuna. Reach the best fishing grounds.',
+    icon: Fish,
   },
 ];
 
@@ -56,9 +70,9 @@ const extendedExperience = {
   duration: '10 hours',
   price: 20000,
   image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
-  includes: ['Premium gear', 'All equipment', 'Full meals & drinks', 'Gas included', 'Starlink & CCTV'],
+  includes: ['Premium gear', 'All equipment', 'Full meals & drinks', 'Gas included', 'Starlink & CCTV', 'Restaurant stops available'],
   idealFor: 'All adventures',
-  description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration and relaxation.',
+  description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration with restaurant visits.',
   icon: Fish,
 };
 
@@ -145,10 +159,75 @@ export default function ExperienceCards({ onSelectExperience }) {
               </div>
             </motion.div>
           ))}
-        </div>
+          </div>
 
-        {/* Extended Experience - Full Width */}
-        <motion.div
+          {/* Full Day Experiences - Full Width */}
+          {fullDayExperiences.map((exp, i) => (
+          <motion.div
+            key={exp.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1 }}
+            className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 mb-4"
+          >
+            <div className="md:flex">
+              <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden">
+                <img 
+                  src={exp.image} 
+                  alt={exp.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent" />
+              </div>
+              <div className="md:w-1/2 p-6 flex flex-col justify-center">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="text-2xl font-semibold text-white">{exp.title}</h3>
+                    <p className="text-sm text-white/70 flex items-center gap-1 mt-1">
+                      <Clock className="h-4 w-4" />
+                      {exp.duration}
+                    </p>
+                  </div>
+                  <exp.icon className="h-8 w-8 text-[#1e88e5] flex-shrink-0 ml-2" />
+                </div>
+
+                <p className="text-white/80 text-sm mb-3">{exp.description}</p>
+
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1.5">Includes</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {exp.includes.map((item, idx) => (
+                      <span key={idx} className="text-xs bg-white/10 text-white/80 px-2.5 py-1 rounded-full border border-white/20">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2 text-sm text-white/70">
+                    <Users className="h-4 w-4" />
+                    <span>{exp.idealFor}</span>
+                  </div>
+                  <div className="bg-white/95 px-4 py-2 rounded-full shadow-sm">
+                    <span className="text-[#0c2340] font-semibold text-lg">From ${exp.price.toLocaleString()} MXN</span>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={() => onSelectExperience(exp)}
+                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                >
+                  Select This Experience
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+          ))}
+
+          {/* Extended Experience - Full Width */}
+          <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

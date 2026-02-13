@@ -44,10 +44,17 @@ const experiences = {
   },
   coastal_leisure: {
     id: 'coastal_leisure',
-    title: 'Coastal Leisure / Sunset Tour',
+    title: 'Coastal Leisure Tour',
     duration: '5 hours',
     price: 9599,
     image: 'https://images.unsplash.com/photo-1476673160081-cf065607f449?w=800&q=80',
+  },
+  sunset_tour: {
+    id: 'sunset_tour',
+    title: 'Sunset Tour',
+    duration: '5 hours',
+    price: 9599,
+    image: 'https://images.unsplash.com/photo-1495954484750-af469f2f9be5?w=800&q=80',
   },
 };
 

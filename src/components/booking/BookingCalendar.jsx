@@ -9,19 +9,25 @@ import { base44 } from '@/api/base44Client';
 
 const timeSlots = {
   half_day_fishing: [
-    { time: '6:00 AM', label: 'Early Morning' },
-    { time: '2:00 PM', label: 'Afternoon' },
+    { time: '7:00 AM', label: 'Morning Departure' },
+    { time: '8:00 AM', label: 'Morning Departure' },
   ],
   full_day_fishing: [
-    { time: '6:00 AM', label: 'Full Day Start' },
+    { time: '7:00 AM', label: 'Morning Departure' },
+    { time: '8:00 AM', label: 'Morning Departure' },
+  ],
+  extended_fishing: [
+    { time: '7:00 AM', label: 'Morning Departure' },
   ],
   snorkeling: [
-    { time: '7:00 AM', label: 'Morning' },
-    { time: '2:00 PM', label: 'Afternoon' },
+    { time: '9:00 AM', label: 'Morning' },
+    { time: '12:00 PM', label: 'Afternoon' },
   ],
   coastal_leisure: [
-    { time: '2:00 PM', label: 'Afternoon' },
-    { time: '4:00 PM', label: 'Sunset' },
+    { time: '12:30 PM', label: 'Afternoon Departure' },
+  ],
+  sunset_tour: [
+    { time: '2:30 PM', label: 'Sunset Departure' },
   ],
 };
 
@@ -56,7 +62,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const today = startOfDay(new Date());
   const minDate = today;
   
-  const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'extended_fishing';
+  const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   const availableBoats = isLeisureExperience ? boats : boats.filter(b => !b.forLeisure);
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;

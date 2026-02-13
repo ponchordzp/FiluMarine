@@ -1,5 +1,5 @@
 import React from 'react';
-import { Anchor, Users, Gauge, Shield, Wifi, Video } from 'lucide-react';
+import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const fleet = [
@@ -16,6 +16,7 @@ const fleet = [
       { icon: Shield, text: 'Safety-first design' },
       { icon: Wifi, text: 'Starlink connectivity' },
       { icon: Video, text: 'CCTV safety system' },
+      { icon: Zap, text: 'Premium audio system' },
     ],
   },
   {
@@ -31,6 +32,7 @@ const fleet = [
       { icon: Shield, text: 'Premium comfort' },
       { icon: Wifi, text: 'Starlink connectivity' },
       { icon: Video, text: 'CCTV safety system' },
+      { icon: Zap, text: 'Premium audio system' },
     ],
   },
 ];
