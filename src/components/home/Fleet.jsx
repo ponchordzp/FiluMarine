@@ -8,7 +8,7 @@ const fleet = [
     type: 'Sea Fox Center Console',
     size: '25ft',
     description: 'High-performance center console designed for serious sport fishing and coastal adventures. Features twin engines for speed and reliability.',
-    image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',
+    image: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/3e48387ed_image.png',
     capacity: 'Up to 6 guests',
     strengths: [
       { icon: Gauge, text: 'Perfect for sport fishing' },
@@ -24,7 +24,7 @@ const fleet = [
     type: 'Azimut Yacht',
     size: '55ft',
     description: 'Pristine luxury yacht perfect for extended leisure trips. Includes ceviche, 24 beers, and a bottle of your choice. Spacious interior with full amenities.',
-    image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&q=80',
+    image: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/ac63db837_image.png',
     capacity: 'Up to 12 guests',
     strengths: [
       { icon: Anchor, text: 'Luxury leisure cruising' },
