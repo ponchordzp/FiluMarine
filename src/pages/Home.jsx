@@ -31,7 +31,7 @@ const experiences = {
   },
   extended_fishing: {
     id: 'extended_fishing',
-    title: 'Extended Sport Fishing',
+    title: 'Full Day Expedition',
     duration: '12 hours',
     price: 20000,
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
@@ -72,8 +72,28 @@ export default function Home() {
     }
     return 'en';
   });
+  const [darkMode, setDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('dark-mode') === 'true';
+    }
+    return false;
+  });
   
   const experiencesRef = useRef(null);
+
+  React.useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  const toggleDarkMode = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    localStorage.setItem('dark-mode', newMode.toString());
+  };
 
   const createBookingMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
@@ -109,7 +129,7 @@ export default function Home() {
   if (step === 'landing') {
     return (
       <div className="min-h-screen">
-        <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} />
+        <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} darkMode={darkMode} onDarkModeToggle={toggleDarkMode} />
         <Hero onScrollToExperiences={scrollToExperiences} />
         <TrustSection />
         <BoatBenefits />

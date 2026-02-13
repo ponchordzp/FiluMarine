@@ -90,7 +90,7 @@ ${formData.message}
   }
 
   return (
-    <section className="py-16 md:py-24 bg-[#0c2340]">
+    <section className="py-12 md:py-16 bg-[#0c2340]">
       <div className="max-w-4xl mx-auto px-6">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
