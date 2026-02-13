@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Calendar, Clock, Users, CreditCard, Building, Check, Shield, Car } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Users, CreditCard, Building, Check, Shield, Car, ChevronDown, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 
@@ -14,12 +14,15 @@ const addOnOptions = [
 
 export default function BookingSummary({ experience, onBack, onConfirm, bookingData, setBookingData, isSubmitting }) {
   const [paymentMethod, setPaymentMethod] = useState(bookingData.payment_method || 'card');
+  const [showBankDetails, setShowBankDetails] = useState(false);
   const [guestInfo, setGuestInfo] = useState({
     name: bookingData.guest_name || '',
     email: bookingData.guest_email || '',
     phone: bookingData.guest_phone || '',
   });
   const [errors, setErrors] = useState({});
+  
+  const whatsappLink = `https://wa.me/525513782169?text=Hello!%20I%20have%20made%20a%20direct%20deposit%20for%20booking%20with%20confirmation%20code:%20${bookingData.confirmation_code || 'PENDING'}`;
 
   const addOnsTotal = (bookingData.add_ons || []).reduce((sum, id) => {
     const addOn = addOnOptions.find(a => a.id === id);
@@ -239,22 +242,71 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                 <h3 className="font-semibold text-slate-800 mb-2">Deposit Payment (40%)</h3>
                 <p className="text-sm text-slate-500 mb-4">Non-refundable reservation fee: <span className="font-semibold text-slate-700">${deposit.toLocaleString()} MXN</span></p>
                 
-                <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                <RadioGroup value={paymentMethod} onValueChange={(val) => { setPaymentMethod(val); setShowBankDetails(val === 'bank_transfer'); }}>
                   <div className="space-y-3">
-                    <label 
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        paymentMethod === 'bank_transfer' ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-slate-100 hover:border-slate-200'
-                      }`}
-                    >
-                      <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                      <Building className={`h-5 w-5 ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
-                      <div>
-                        <p className={`font-medium ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
-                          Direct Deposit
-                        </p>
-                        <p className="text-sm text-slate-500">Bank transfer - details sent via email</p>
-                      </div>
-                    </label>
+                    <div>
+                      <label 
+                        className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          paymentMethod === 'bank_transfer' ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-slate-100 hover:border-slate-200'
+                        }`}
+                      >
+                        <RadioGroupItem value="bank_transfer" id="bank_transfer" />
+                        <Building className={`h-5 w-5 ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
+                        <div className="flex-1">
+                          <p className={`font-medium ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
+                            Direct Deposit
+                          </p>
+                          <p className="text-sm text-slate-500">Bank transfer</p>
+                        </div>
+                        <ChevronDown className={`h-5 w-5 transition-transform ${showBankDetails ? 'rotate-180' : ''} ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
+                      </label>
+                      
+                      {showBankDetails && paymentMethod === 'bank_transfer' && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200"
+                        >
+                          <h4 className="font-semibold text-slate-800 mb-3">Bank Details</h4>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Bank:</span>
+                              <span className="font-medium text-slate-800">BBVA</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Cuenta CLABE:</span>
+                              <span className="font-mono font-medium text-slate-800">012180 004713413911</span>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
+                            <p className="text-xs text-amber-800 mb-2">
+                              <strong>Important:</strong> After making the deposit, please contact us via WhatsApp to confirm:
+                            </p>
+                            <ul className="text-xs text-amber-700 list-disc list-inside space-y-1 mb-3">
+                              <li>Send screenshot of the transfer</li>
+                              <li>Include the transfer amount</li>
+                              <li>Include your confirmation code</li>
+                            </ul>
+                            <a 
+                              href={whatsappLink} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-800 font-medium text-sm"
+                            >
+                              <MessageCircle className="h-4 w-4" />
+                              WhatsApp: +52 55 1378 2169
+                            </a>
+                            <img 
+                              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/fc470a313_image.png" 
+                              alt="WhatsApp QR Code" 
+                              className="w-24 h-24 mx-auto mt-3"
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
 
                     <label 
                       className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${

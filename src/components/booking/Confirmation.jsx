@@ -12,7 +12,7 @@ const whatToBring = [
 ];
 
 export default function Confirmation({ booking, experience }) {
-  const whatsappLink = "https://wa.me/5217551234567?text=Hello!%20I%20have%20a%20booking%20with%20confirmation%20code:%20" + booking.confirmation_code;
+  const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I%20have%20a%20booking%20with%20confirmation%20code:%20" + booking.confirmation_code;
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-sky-50 to-white py-12 md:py-20">
@@ -151,6 +151,11 @@ export default function Confirmation({ booking, experience }) {
               Contact us on WhatsApp
             </a>
           </Button>
+          <img 
+            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/fc470a313_image.png" 
+            alt="WhatsApp QR Code" 
+            className="w-32 h-32 mx-auto mt-4"
+          />
         </motion.div>
       </div>
     </section>

@@ -4,7 +4,7 @@ import { ChevronDown, MessageCircle, Anchor } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Hero({ onScrollToExperiences }) {
-  const whatsappLink = "https://wa.me/5215513782169?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine.";
+  const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine.";
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -82,16 +82,23 @@ export default function Hero({ onScrollToExperiences }) {
               <ChevronDown className="ml-2 h-5 w-5" />
             </Button>
             
-            <Button 
-              size="lg"
-              asChild
-              className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
-            >
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <MessageCircle className="mr-2 h-5 w-5" />
-                Contact via WhatsApp
-              </a>
-            </Button>
+            <div className="flex flex-col items-center gap-2">
+              <Button 
+                size="lg"
+                asChild
+                className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
+              >
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                  <MessageCircle className="mr-2 h-5 w-5" />
+                  Contact via WhatsApp
+                </a>
+              </Button>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/fc470a313_image.png" 
+                alt="WhatsApp QR Code" 
+                className="w-24 h-24 mt-2"
+              />
+            </div>
           </div>
         </motion.div>
 
