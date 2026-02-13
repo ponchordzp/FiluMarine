@@ -9,11 +9,6 @@ const benefits = [
     description: 'Center console design offers better speed, agility, and fuel efficiency',
   },
   {
-    icon: Shield,
-    title: '360° Safety',
-    description: 'Unobstructed visibility and easy access to all sides for maximum safety',
-  },
-  {
     icon: Anchor,
     title: 'Stable & Smooth',
     description: 'Balanced weight distribution provides exceptional stability in all conditions',
