@@ -308,17 +308,7 @@ export default function ExperienceCards({ onSelectExperience }) {
           </motion.div>
         </div>
 
-        {/* Extra Hours Legend */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-6 text-center"
-          >
-          <p className="text-sm text-white/90 bg-white/10 border border-white/20 rounded-xl px-4 py-3 inline-block backdrop-blur-sm">
-            ⏱️ <span className="font-semibold">Extra hours:</span> Additional time beyond scheduled duration is <span className="font-semibold">$2,500 MXN per hour</span>
-          </p>
-        </motion.div>
+
       </div>
     </section>
   );
