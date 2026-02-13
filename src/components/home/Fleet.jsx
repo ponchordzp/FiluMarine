@@ -39,7 +39,7 @@ const fleet = [
 
 export default function Fleet() {
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-b from-[#1a4a6a] to-[#2c5a7a]">
+    <section className="py-8 md:py-12 bg-gradient-to-b from-[#0a1929] to-[#0c2340] border-t border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
