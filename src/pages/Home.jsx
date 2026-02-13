@@ -187,6 +187,7 @@ export default function Home() {
       <div className="min-h-screen">
         <div id="google_translate_element" className="fixed top-0 left-0 right-0 z-50"></div>
         <Hero onScrollToExperiences={scrollToExperiences} />
+        <IntroSection />
         <BoatBenefits />
         <Fleet />
         <div ref={experiencesRef}>
