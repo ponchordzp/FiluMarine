@@ -4,6 +4,10 @@ import { useMutation } from '@tanstack/react-query';
 import Hero from '@/components/booking/Hero';
 import TrustSection from '@/components/booking/TrustSection';
 import ExperienceCards from '@/components/booking/ExperienceCards';
+import BoatBenefits from '@/components/home/BoatBenefits';
+import Destinations from '@/components/home/Destinations';
+import JoinFilu from '@/components/home/JoinFilu';
+import LanguageSwitcher from '@/components/home/LanguageSwitcher';
 import BookingCalendar from '@/components/booking/BookingCalendar';
 import PickupLocation from '@/components/booking/PickupLocation';
 import AddOns from '@/components/booking/AddOns';
@@ -55,6 +59,7 @@ export default function Home() {
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [bookingData, setBookingData] = useState({});
   const [confirmedBooking, setConfirmedBooking] = useState(null);
+  const [language, setLanguage] = useState('en');
   
   const experiencesRef = useRef(null);
 
@@ -92,11 +97,15 @@ export default function Home() {
   if (step === 'landing') {
     return (
       <div className="min-h-screen">
+        <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} />
         <Hero onScrollToExperiences={scrollToExperiences} />
         <TrustSection />
+        <BoatBenefits />
         <div ref={experiencesRef}>
           <ExperienceCards onSelectExperience={handleSelectExperience} />
         </div>
+        <Destinations />
+        <JoinFilu />
         
         {/* Footer */}
         <footer className="bg-[#0c2340] text-white py-12">
