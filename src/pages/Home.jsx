@@ -7,7 +7,6 @@ import BoatBenefits from '@/components/home/BoatBenefits';
 import Fleet from '@/components/home/Fleet';
 import Destinations from '@/components/home/Destinations';
 import JoinFilu from '@/components/home/JoinFilu';
-import LanguageSwitcher from '@/components/home/LanguageSwitcher';
 import BookingCalendar from '@/components/booking/BookingCalendar';
 import PickupLocation from '@/components/booking/PickupLocation';
 import AddOns from '@/components/booking/AddOns';
@@ -32,7 +31,7 @@ const experiences = {
   extended_fishing: {
     id: 'extended_fishing',
     title: 'Full Day Expedition',
-    duration: '12 hours',
+    duration: '10 hours',
     price: 20000,
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
   },
@@ -66,12 +65,6 @@ export default function Home() {
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [bookingData, setBookingData] = useState({});
   const [confirmedBooking, setConfirmedBooking] = useState(null);
-  const [language, setLanguage] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('preferred-language') || 'en';
-    }
-    return 'en';
-  });
   const experiencesRef = useRef(null);
 
   React.useEffect(() => {
@@ -123,8 +116,7 @@ export default function Home() {
   if (step === 'landing') {
     return (
       <div className="min-h-screen">
-        <div id="google_translate_element" className="fixed top-4 left-4 z-50"></div>
-        <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} />
+        <div id="google_translate_element" className="fixed top-0 left-0 right-0 z-50"></div>
         <Hero onScrollToExperiences={scrollToExperiences} />
         <BoatBenefits />
         <Fleet />

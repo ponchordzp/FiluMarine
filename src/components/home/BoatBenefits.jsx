@@ -37,13 +37,13 @@ const benefits = [
 
 export default function BoatBenefits() {
   return (
-    <section className="py-12 md:py-16 bg-white">
+    <section className="py-12 md:py-16 bg-gradient-to-b from-[#0a1929] to-[#0c2340]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-light text-slate-800 mb-4">
+          <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
             Why <span className="font-semibold">Choose Us?</span>
           </h2>
-          <p className="text-slate-600 max-w-2xl mx-auto">
+          <p className="text-white/80 max-w-2xl mx-auto">
             Premium vessels, experienced crew, and unforgettable experiences
           </p>
         </div>
@@ -56,13 +56,13 @@ export default function BoatBenefits() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-gradient-to-br from-[#f8f6f3] to-white p-6 rounded-2xl border border-slate-100 hover:shadow-lg transition-all"
+              className="bg-white/10 backdrop-blur-sm p-6 rounded-2xl border border-white/20 hover:bg-white/15 transition-all"
             >
-              <div className="w-12 h-12 bg-[#1e88e5]/10 rounded-xl flex items-center justify-center mb-4">
+              <div className="w-12 h-12 bg-[#1e88e5]/30 rounded-xl flex items-center justify-center mb-4">
                 <benefit.icon className="h-6 w-6 text-[#1e88e5]" />
               </div>
-              <h3 className="text-lg font-semibold text-slate-800 mb-2">{benefit.title}</h3>
-              <p className="text-sm text-slate-600">{benefit.description}</p>
+              <h3 className="text-lg font-semibold text-white mb-2">{benefit.title}</h3>
+              <p className="text-sm text-white/70">{benefit.description}</p>
             </motion.div>
           ))}
         </div>

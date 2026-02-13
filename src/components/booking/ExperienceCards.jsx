@@ -53,18 +53,18 @@ const regularExperiences = [
 const extendedExperience = {
   id: 'extended_fishing',
   title: 'Full Day Expedition',
-  duration: '12 hours',
+  duration: '10 hours',
   price: 20000,
   image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
   includes: ['Premium gear', 'All equipment', 'Full meals & drinks', 'Gas included', 'Starlink & CCTV'],
   idealFor: 'All adventures',
-  description: 'Ultimate 12-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration and relaxation.',
+  description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration and relaxation.',
   icon: Fish,
 };
 
 export default function ExperienceCards({ onSelectExperience }) {
   return (
-    <section className="py-12 md:py-16 bg-white">
+    <section className="py-12 md:py-16 bg-gradient-to-b from-[#1a3a52] to-[#0c2340]">
       <div className="max-w-6xl mx-auto px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -72,10 +72,10 @@ export default function ExperienceCards({ onSelectExperience }) {
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <h2 className="text-3xl md:text-4xl font-light text-slate-800 mb-4">
+          <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
             Choose Your <span className="font-semibold">Experience</span>
           </h2>
-          <p className="text-slate-600 text-lg max-w-xl mx-auto">
+          <p className="text-white/80 text-lg max-w-xl mx-auto">
             Select the perfect adventure for your group
           </p>
         </motion.div>
@@ -88,7 +88,7 @@ export default function ExperienceCards({ onSelectExperience }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col"
+              className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 flex flex-col"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
                 <img 
@@ -104,33 +104,33 @@ export default function ExperienceCards({ onSelectExperience }) {
                       {exp.duration}
                     </p>
                   </div>
-                  <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full">
-                    <span className="text-slate-800 font-semibold">From ${exp.price.toLocaleString()} MXN</span>
+                  <div className="bg-[#1e88e5]/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                    <span className="text-[#0c2340] font-semibold">From ${exp.price.toLocaleString()} MXN</span>
                   </div>
                 </div>
               </div>
 
               <div className="p-6 flex flex-col">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-semibold text-slate-800">{exp.title}</h3>
+                  <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
                   <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
                 </div>
-                
-                <p className="text-slate-600 text-sm mb-3">{exp.description}</p>
+
+                <p className="text-white/80 text-sm mb-3">{exp.description}</p>
 
                 <div className="mb-3">
-                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">Includes</p>
+                  <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1.5">Includes</p>
                   <div className="flex flex-wrap gap-1.5">
                     {exp.includes.map((item, idx) => (
-                      <span key={idx} className="text-xs bg-slate-50 text-slate-600 px-2.5 py-1 rounded-full">
+                      <span key={idx} className="text-xs bg-white/10 text-white/80 px-2.5 py-1 rounded-full border border-white/20">
                         {item}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-100 mb-3">
-                  <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="flex items-center justify-between pt-3 border-t border-white/20 mb-3">
+                  <div className="flex items-center gap-2 text-sm text-white/70">
                     <Users className="h-4 w-4" />
                     <span>{exp.idealFor}</span>
                   </div>
@@ -153,7 +153,7 @@ export default function ExperienceCards({ onSelectExperience }) {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
-          className="group bg-white rounded-3xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500"
+          className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500"
         >
           <div className="md:flex">
             <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden">
@@ -167,22 +167,22 @@ export default function ExperienceCards({ onSelectExperience }) {
             <div className="md:w-1/2 p-6 flex flex-col justify-center">
               <div className="flex items-start justify-between mb-2">
                 <div>
-                  <h3 className="text-2xl font-semibold text-slate-800">{extendedExperience.title}</h3>
-                  <p className="text-sm text-slate-500 flex items-center gap-1 mt-1">
+                  <h3 className="text-2xl font-semibold text-white">{extendedExperience.title}</h3>
+                  <p className="text-sm text-white/70 flex items-center gap-1 mt-1">
                     <Clock className="h-4 w-4" />
                     {extendedExperience.duration}
                   </p>
                 </div>
                 <extendedExperience.icon className="h-8 w-8 text-[#1e88e5] flex-shrink-0 ml-2" />
               </div>
-              
-              <p className="text-slate-600 text-sm mb-3">{extendedExperience.description}</p>
+
+              <p className="text-white/80 text-sm mb-3">{extendedExperience.description}</p>
 
               <div className="mb-3">
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">Includes</p>
+                <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1.5">Includes</p>
                 <div className="flex flex-wrap gap-1.5">
                   {extendedExperience.includes.map((item, idx) => (
-                    <span key={idx} className="text-xs bg-slate-50 text-slate-600 px-2.5 py-1 rounded-full">
+                    <span key={idx} className="text-xs bg-white/10 text-white/80 px-2.5 py-1 rounded-full border border-white/20">
                       {item}
                     </span>
                   ))}
@@ -190,12 +190,12 @@ export default function ExperienceCards({ onSelectExperience }) {
               </div>
 
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 text-sm text-slate-500">
+                <div className="flex items-center gap-2 text-sm text-white/70">
                   <Users className="h-4 w-4" />
                   <span>{extendedExperience.idealFor}</span>
                 </div>
                 <div className="bg-[#1e88e5]/10 px-4 py-2 rounded-full">
-                  <span className="text-[#1e88e5] font-semibold text-lg">From ${extendedExperience.price.toLocaleString()} MXN</span>
+                  <span className="text-[#0c2340] font-semibold text-lg">From ${extendedExperience.price.toLocaleString()} MXN</span>
                 </div>
               </div>
 
@@ -215,8 +215,8 @@ export default function ExperienceCards({ onSelectExperience }) {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           className="mt-6 text-center"
-        >
-          <p className="text-sm text-slate-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 inline-block">
+          >
+          <p className="text-sm text-white/90 bg-white/10 border border-white/20 rounded-xl px-4 py-3 inline-block backdrop-blur-sm">
             ⏱️ <span className="font-semibold">Extra hours:</span> Additional time beyond scheduled duration is <span className="font-semibold">$2,500 MXN per hour</span>
           </p>
         </motion.div>

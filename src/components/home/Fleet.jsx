@@ -37,7 +37,7 @@ const fleet = [
 
 export default function Fleet() {
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-b from-white to-[#f8f6f3]">
+    <section className="py-12 md:py-16 bg-gradient-to-b from-[#0c2340] to-[#1a3a52]">
       <div className="max-w-6xl mx-auto px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -45,10 +45,10 @@ export default function Fleet() {
           viewport={{ once: true }}
           className="text-center mb-10"
         >
-          <h2 className="text-3xl md:text-4xl font-light text-slate-800 mb-4">
+          <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
             Our <span className="font-semibold">Fleet</span>
           </h2>
-          <p className="text-slate-600 text-lg max-w-xl mx-auto">
+          <p className="text-white/80 text-lg max-w-xl mx-auto">
             Two exceptional vessels for every type of adventure
           </p>
         </motion.div>
@@ -61,7 +61,7 @@ export default function Fleet() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-500"
+              className="bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
                 <img 
@@ -77,16 +77,16 @@ export default function Fleet() {
               </div>
 
               <div className="p-6">
-                <p className="text-slate-600 text-sm mb-3">{boat.description}</p>
+                <p className="text-white/80 text-sm mb-3">{boat.description}</p>
                 
-                <p className="text-slate-600 mb-4 flex items-center gap-2">
+                <p className="text-white/80 mb-4 flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   {boat.capacity}
                 </p>
 
                 <div className="space-y-2">
                   {boat.strengths.map((strength, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-slate-700">
+                    <div key={idx} className="flex items-center gap-3 text-white">
                       <strength.icon className="h-5 w-5 text-[#1e88e5] flex-shrink-0" />
                       <span className="text-sm">{strength.text}</span>
                     </div>
