@@ -84,7 +84,7 @@ const extendedExperience = {
 
 export default function ExperienceCards({ onSelectExperience }) {
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-b from-[#1a3a52] to-[#0c2340]">
+    <section className="py-8 md:py-12 bg-gradient-to-b from-[#2c5a7a] to-[#3a6a8a]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

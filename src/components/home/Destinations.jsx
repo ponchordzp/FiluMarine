@@ -55,7 +55,7 @@ const destinations = [
 
 export default function Destinations() {
   return (
-    <section className="py-12 md:py-16 bg-gradient-to-b from-[#0c2340] to-[#1a3a52]">
+    <section className="py-8 md:py-12 bg-gradient-to-b from-[#3a6a8a] to-[#4A7A9A]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-light text-white mb-4">

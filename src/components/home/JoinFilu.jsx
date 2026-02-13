@@ -75,7 +75,7 @@ ${formData.message}
 
   if (submitted) {
     return (
-      <section className="py-12 md:py-16 bg-[#0c2340]">
+      <section className="py-8 md:py-12 bg-gradient-to-b from-[#4A7A9A] to-[#5A8AAA]">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -103,7 +103,7 @@ ${formData.message}
   }
 
   return (
-    <section className="py-12 md:py-16 bg-[#0c2340]">
+    <section className="py-8 md:py-12 bg-gradient-to-b from-[#4A7A9A] to-[#5A8AAA]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
