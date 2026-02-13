@@ -32,6 +32,7 @@ const boats = [
     type: '25ft Sea Fox',
     multiplier: 1,
     forLeisure: false,
+    maxGuests: 6,
   },
   {
     id: 'tycoon',
@@ -39,6 +40,7 @@ const boats = [
     type: '55ft Azimut Yacht',
     multiplier: 3.2,
     forLeisure: true,
+    maxGuests: 12,
   },
 ];
 
@@ -56,6 +58,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'extended_fishing';
   const availableBoats = isLeisureExperience ? boats : boats.filter(b => !b.forLeisure);
+  const currentBoat = boats.find(b => b.id === selectedBoat);
+  const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 
   React.useEffect(() => {
     const fetchBlockedDates = async () => {
@@ -251,14 +255,17 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     </button>
                     <span className="text-xl font-semibold w-8 text-center">{guests}</span>
                     <button
-                      onClick={() => setGuests(Math.min(6, guests + 1))}
+                      onClick={() => setGuests(Math.min(maxGuests, guests + 1))}
                       className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors"
+                      disabled={!selectedBoat}
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-                <p className="text-xs text-slate-500 mt-3">Maximum 6 guests per trip</p>
+                <p className="text-xs text-slate-500 mt-3">
+                  {selectedBoat ? `Maximum ${maxGuests} guests per trip` : 'Please select a boat first'}
+                </p>
               </div>
 
               {/* Taxi Option */}
