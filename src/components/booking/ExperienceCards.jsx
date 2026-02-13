@@ -169,37 +169,41 @@ export default function ExperienceCards({ onSelectExperience }) {
               </div>
             </motion.div>
           ))}
-          </div>
 
-          {/* Full Day Sport Fishing - Full Width */}
+          {/* Full Day Experiences */}
           {fullDayExperiences.map((exp, i) => (
-          <motion.div
-            key={exp.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 mb-4"
-          >
-            <div className="md:flex md:h-full">
-              <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden md:min-h-full">
+            <motion.div
+              key={exp.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: (regularExperiences.length + i) * 0.1 }}
+              className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 flex flex-col"
+            >
+              <div className="aspect-[16/9] relative overflow-hidden">
                 <img 
                   src={exp.image} 
                   alt={exp.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent" />
-              </div>
-              <div className="md:w-1/2 p-6 flex flex-col justify-center md:min-h-full">
-                <div className="flex items-start justify-between mb-2">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                   <div>
-                    <h3 className="text-2xl font-semibold text-white">{exp.title}</h3>
-                    <p className="text-sm text-white/70 flex items-center gap-1 mt-1">
+                    <p className="text-white/80 text-sm flex items-center gap-1">
                       <Clock className="h-4 w-4" />
                       {exp.duration}
                     </p>
                   </div>
-                  <exp.icon className="h-8 w-8 text-[#1e88e5] flex-shrink-0 ml-2" />
+                  <div className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+                    <span className="text-[#0c2340] font-semibold">From ${exp.price.toLocaleString()} MXN</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-6 flex flex-col">
+                <div className="flex items-start justify-between mb-2">
+                  <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
+                  <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
                 </div>
 
                 <p className="text-white/80 text-sm mb-3">{exp.description}</p>
@@ -215,18 +219,15 @@ export default function ExperienceCards({ onSelectExperience }) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
                   <div className="flex items-center gap-2 text-sm text-white/70">
                     <Users className="h-4 w-4" />
                     <span>{exp.idealFor}</span>
                   </div>
-                  <div className="bg-white/95 px-4 py-2 rounded-full shadow-sm">
-                    <span className="text-[#0c2340] font-semibold text-lg">From ${exp.price.toLocaleString()} MXN</span>
+                  <div className="flex items-center gap-2 text-xs text-white/60">
+                    <Anchor className="h-3 w-3" />
+                    <span>Available boats: {exp.availableBoats}</span>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-white/60 mb-4">
-                  <Anchor className="h-3 w-3" />
-                  <span>Available boats: {exp.availableBoats}</span>
                 </div>
 
                 <Button 
@@ -236,37 +237,41 @@ export default function ExperienceCards({ onSelectExperience }) {
                   Select This Experience
                 </Button>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
           ))}
 
-          {/* Extended Experience - Full Width */}
+          {/* Extended Experience */}
           <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.4 }}
-          className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500"
-        >
-          <div className="md:flex md:h-full">
-            <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden md:min-h-full">
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: (regularExperiences.length + fullDayExperiences.length) * 0.1 }}
+            className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 flex flex-col"
+          >
+            <div className="aspect-[16/9] relative overflow-hidden">
               <img 
                 src={extendedExperience.image} 
                 alt={extendedExperience.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent" />
-            </div>
-            <div className="md:w-1/2 p-6 flex flex-col justify-center md:min-h-full">
-              <div className="flex items-start justify-between mb-2">
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                 <div>
-                  <h3 className="text-2xl font-semibold text-white">{extendedExperience.title}</h3>
-                  <p className="text-sm text-white/70 flex items-center gap-1 mt-1">
+                  <p className="text-white/80 text-sm flex items-center gap-1">
                     <Clock className="h-4 w-4" />
                     {extendedExperience.duration}
                   </p>
                 </div>
-                <extendedExperience.icon className="h-8 w-8 text-[#1e88e5] flex-shrink-0 ml-2" />
+                <div className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
+                  <span className="text-[#0c2340] font-semibold">From ${extendedExperience.price.toLocaleString()} MXN</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 flex flex-col">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="text-xl font-semibold text-white">{extendedExperience.title}</h3>
+                <extendedExperience.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
               </div>
 
               <p className="text-white/80 text-sm mb-3">{extendedExperience.description}</p>
@@ -282,18 +287,15 @@ export default function ExperienceCards({ onSelectExperience }) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
                 <div className="flex items-center gap-2 text-sm text-white/70">
                   <Users className="h-4 w-4" />
                   <span>{extendedExperience.idealFor}</span>
                 </div>
-                <div className="bg-white/95 px-4 py-2 rounded-full shadow-sm">
-                  <span className="text-[#0c2340] font-semibold text-lg">From ${extendedExperience.price.toLocaleString()} MXN</span>
+                <div className="flex items-center gap-2 text-xs text-white/60">
+                  <Anchor className="h-3 w-3" />
+                  <span>Available boats: {extendedExperience.availableBoats}</span>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-white/60 mb-4">
-                <Anchor className="h-3 w-3" />
-                <span>Available boats: {extendedExperience.availableBoats}</span>
               </div>
 
               <Button 
@@ -303,8 +305,8 @@ export default function ExperienceCards({ onSelectExperience }) {
                 Select This Experience
               </Button>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* Extra Hours Legend */}
         <motion.div
