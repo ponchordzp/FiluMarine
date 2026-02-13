@@ -181,8 +181,8 @@ export default function ExperienceCards({ onSelectExperience }) {
             transition={{ delay: 0.4 }}
             className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 mb-4"
           >
-            <div className="md:flex">
-              <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden">
+            <div className="md:flex md:h-full">
+              <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden md:min-h-full">
                 <img 
                   src={exp.image} 
                   alt={exp.title}
@@ -190,7 +190,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent" />
               </div>
-              <div className="md:w-1/2 p-6 flex flex-col justify-center">
+              <div className="md:w-1/2 p-6 flex flex-col justify-center md:min-h-full">
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <h3 className="text-2xl font-semibold text-white">{exp.title}</h3>
@@ -248,8 +248,8 @@ export default function ExperienceCards({ onSelectExperience }) {
           transition={{ delay: 0.4 }}
           className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500"
         >
-          <div className="md:flex">
-            <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden">
+          <div className="md:flex md:h-full">
+            <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden md:min-h-full">
               <img 
                 src={extendedExperience.image} 
                 alt={extendedExperience.title}
@@ -257,7 +257,7 @@ export default function ExperienceCards({ onSelectExperience }) {
               />
               <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent" />
             </div>
-            <div className="md:w-1/2 p-6 flex flex-col justify-center">
+            <div className="md:w-1/2 p-6 flex flex-col justify-center md:min-h-full">
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h3 className="text-2xl font-semibold text-white">{extendedExperience.title}</h3>
