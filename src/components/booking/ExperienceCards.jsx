@@ -130,7 +130,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                 </div>
               </div>
 
-              <div className="p-6 flex flex-col">
+              <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
                   <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
@@ -162,7 +162,7 @@ export default function ExperienceCards({ onSelectExperience }) {
 
                 <Button 
                   onClick={() => onSelectExperience(exp)}
-                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02] mt-auto"
                 >
                   Select This Experience
                 </Button>
@@ -200,7 +200,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                 </div>
               </div>
 
-              <div className="p-6 flex flex-col">
+              <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
                   <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
@@ -232,7 +232,7 @@ export default function ExperienceCards({ onSelectExperience }) {
 
                 <Button 
                   onClick={() => onSelectExperience(exp)}
-                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02] mt-auto"
                 >
                   Select This Experience
                 </Button>
