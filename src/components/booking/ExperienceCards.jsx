@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, Users, Fish, Waves, Sun, Camera } from 'lucide-react';
+import { Clock, Users, Fish, Waves, Sun, Camera, Anchor } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 
@@ -14,6 +14,7 @@ const regularExperiences = [
     idealFor: 'First-timers & families',
     description: 'Morning trip targeting Mahi-Mahi, Roosterfish, and Jack Crevalle.',
     icon: Fish,
+    availableBoats: 'FILU',
   },
   {
     id: 'snorkeling',
@@ -25,6 +26,7 @@ const regularExperiences = [
     idealFor: 'Couples & families',
     description: 'Explore Playa Las Gatas and hidden coves with vibrant marine life.',
     icon: Waves,
+    availableBoats: 'FILU, TYCOON',
   },
   {
     id: 'coastal_leisure',
@@ -36,6 +38,7 @@ const regularExperiences = [
     idealFor: 'Relaxation & celebrations',
     description: 'Scenic coastal cruise with optional restaurant visits via panga delivery from select locations.',
     icon: Sun,
+    availableBoats: 'FILU, TYCOON',
   },
   {
     id: 'sunset_tour',
@@ -47,6 +50,7 @@ const regularExperiences = [
     idealFor: 'Romantic & celebrations',
     description: 'Evening cruise with stunning Pacific sunset views. Restaurant visits available via panga delivery.',
     icon: Sun,
+    availableBoats: 'FILU, TYCOON',
   },
 ];
 
@@ -61,6 +65,7 @@ const fullDayExperiences = [
     idealFor: 'Serious anglers',
     description: 'Offshore adventure for Sailfish, Marlin, Tuna. Reach the best fishing grounds.',
     icon: Fish,
+    availableBoats: 'FILU',
   },
 ];
 
@@ -74,6 +79,7 @@ const extendedExperience = {
   idealFor: 'All adventures',
   description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration with restaurant visits.',
   icon: Fish,
+  availableBoats: 'FILU, TYCOON',
 };
 
 export default function ExperienceCards({ onSelectExperience }) {
@@ -143,10 +149,14 @@ export default function ExperienceCards({ onSelectExperience }) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-white/20 mb-3">
+                <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
                   <div className="flex items-center gap-2 text-sm text-white/70">
                     <Users className="h-4 w-4" />
                     <span>{exp.idealFor}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-white/60">
+                    <Anchor className="h-3 w-3" />
+                    <span>Available boats: {exp.availableBoats}</span>
                   </div>
                 </div>
 
@@ -205,7 +215,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 text-sm text-white/70">
                     <Users className="h-4 w-4" />
                     <span>{exp.idealFor}</span>
@@ -213,6 +223,10 @@ export default function ExperienceCards({ onSelectExperience }) {
                   <div className="bg-white/95 px-4 py-2 rounded-full shadow-sm">
                     <span className="text-[#0c2340] font-semibold text-lg">From ${exp.price.toLocaleString()} MXN</span>
                   </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-white/60 mb-4">
+                  <Anchor className="h-3 w-3" />
+                  <span>Available boats: {exp.availableBoats}</span>
                 </div>
 
                 <Button 
@@ -268,7 +282,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2 text-sm text-white/70">
                   <Users className="h-4 w-4" />
                   <span>{extendedExperience.idealFor}</span>
@@ -276,6 +290,10 @@ export default function ExperienceCards({ onSelectExperience }) {
                 <div className="bg-white/95 px-4 py-2 rounded-full shadow-sm">
                   <span className="text-[#0c2340] font-semibold text-lg">From ${extendedExperience.price.toLocaleString()} MXN</span>
                 </div>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-white/60 mb-4">
+                <Anchor className="h-3 w-3" />
+                <span>Available boats: {extendedExperience.availableBoats}</span>
               </div>
 
               <Button 

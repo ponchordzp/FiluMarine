@@ -115,6 +115,10 @@ body {
   color: white !important;
 }
 
+.goog-te-gadget-simple .goog-te-menu-value span:first-child {
+  color: white !important;
+}
+
 .goog-te-gadget-icon {
   display: none !important;
 }
