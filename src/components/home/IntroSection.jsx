@@ -14,12 +14,12 @@ export default function IntroSection() {
           className="text-center"
         >
           <h2 className="text-4xl md:text-5xl font-light text-white mb-6">
-            Welcome to <span className="font-bold text-[#1e88e5]">FILU Marine</span>
+            Welcome to <span className="font-bold text-white">FILU Marine</span>
           </h2>
           
           <p className="text-xl md:text-2xl text-white leading-relaxed mb-8 max-w-3xl mx-auto">
             Experience the Pacific Ocean like never before. Premium boats, professional crew, and unmatched pricing 
-            make <span className="font-semibold text-[#1e88e5]">FILU Marine the smartest choice</span> for your Ixtapa adventure.
+            make <span className="font-semibold text-white">FILU Marine the smartest choice</span> for your Ixtapa adventure.
           </p>
 
           <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-white/10 mb-10">

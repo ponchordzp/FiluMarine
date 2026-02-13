@@ -43,7 +43,7 @@ export default function BoatBenefits() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-6 [&>*:nth-last-child(-n+2)]:md:col-start-auto [&>*:nth-last-child(2)]:md:ml-auto [&>*:nth-last-child(1)]:md:mr-auto max-w-[calc(66.666%+0.75rem)] md:max-w-none mx-auto">
           {benefits.map((benefit, i) => (
             <motion.div
               key={i}
