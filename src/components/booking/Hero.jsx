@@ -8,15 +8,8 @@ export default function Hero({ onScrollToExperiences }) {
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80')`,
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0c2340]/80 via-[#0c2340]/60 to-[#0c2340]/90" />
-      </div>
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0c2340] via-[#1a3a52] to-[#0c2340]" />
 
       {/* Content */}
       <div className="relative z-10 px-6 py-20 text-center max-w-3xl mx-auto">
