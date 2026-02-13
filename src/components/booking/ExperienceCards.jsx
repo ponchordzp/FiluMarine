@@ -85,7 +85,7 @@ const extendedExperience = {
 export default function ExperienceCards({ onSelectExperience }) {
   return (
     <section className="py-12 md:py-16 bg-gradient-to-b from-[#1a3a52] to-[#0c2340]">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -268,7 +268,7 @@ export default function ExperienceCards({ onSelectExperience }) {
               </div>
             </div>
 
-            <div className="p-6 flex flex-col">
+            <div className="p-4 sm:p-6 flex flex-col">
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-xl font-semibold text-white">{extendedExperience.title}</h3>
                 <extendedExperience.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />

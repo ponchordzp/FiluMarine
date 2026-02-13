@@ -19,7 +19,7 @@ export default function Hero({ onScrollToExperiences }) {
       </div>
 
       {/* Content */}
-      <div className="relative z-10 px-6 py-20 text-center max-w-3xl mx-auto">
+      <div className="relative z-10 px-4 sm:px-6 py-20 text-center max-w-3xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

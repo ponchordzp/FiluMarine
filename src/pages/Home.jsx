@@ -197,7 +197,7 @@ export default function Home() {
         
         {/* Footer */}
         <footer className="bg-[#0c2340] text-white py-12">
-          <div className="max-w-6xl mx-auto px-6 text-center">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
             <h3 className="text-2xl font-light mb-2">Ready for your adventure?</h3>
             <p className="text-[#1e88e5]/80 mb-6">Book now and create unforgettable memories in Ixtapa-Zihuatanejo</p>
             <a 

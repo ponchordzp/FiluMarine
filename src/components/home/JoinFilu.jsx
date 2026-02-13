@@ -14,6 +14,7 @@ export default function JoinFilu() {
     email: '',
     phone: '',
     boat_type: '',
+    boat_model: '',
     boat_size: '',
     boat_status: '',
     boat_year: '',
@@ -39,6 +40,7 @@ Name: ${formData.name}
 Email: ${formData.email}
 Phone: ${formData.phone}
 Boat Type: ${formData.boat_type}
+Boat Model: ${formData.boat_model}
 Boat Size: ${formData.boat_size} feet
 Boat Condition: ${formData.boat_status}
 Year Manufactured: ${formData.boat_year}
@@ -56,6 +58,7 @@ ${formData.message}
         email: '',
         phone: '',
         boat_type: '',
+        boat_model: '',
         boat_size: '',
         boat_status: '',
         boat_year: '',
@@ -101,7 +104,7 @@ ${formData.message}
 
   return (
     <section className="py-12 md:py-16 bg-[#0c2340]">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Anchor className="h-8 w-8 text-[#1e88e5]" />
@@ -114,7 +117,7 @@ ${formData.message}
           </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
+        <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-4 sm:p-8 border border-white/20">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
@@ -165,6 +168,18 @@ ${formData.message}
                   placeholder="e.g., Center Console, Yacht, etc."
                 />
               </div>
+            </div>
+
+            <div>
+              <Label htmlFor="boat_model" className="text-white mb-2 block">Boat Model *</Label>
+              <Input
+                id="boat_model"
+                required
+                value={formData.boat_model}
+                onChange={(e) => setFormData({...formData, boat_model: e.target.value})}
+                className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
+                placeholder="e.g., Sunseeker Predator 75"
+              />
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
