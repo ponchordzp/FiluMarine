@@ -171,73 +171,73 @@ export default function ExperienceCards({ onSelectExperience }) {
           ))}
           </div>
 
-          {/* Full Day Experiences - Full Width */}
+          {/* Full Day Sport Fishing - Full Width */}
           {fullDayExperiences.map((exp, i) => (
-            <motion.div
-              key={exp.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 mb-4"
-            >
-              <div className="md:flex">
-                <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden">
-                  <img 
-                    src={exp.image} 
-                    alt={exp.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent" />
-                </div>
-                <div className="md:w-1/2 p-6 flex flex-col justify-center">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="text-2xl font-semibold text-white">{exp.title}</h3>
-                      <p className="text-sm text-white/70 flex items-center gap-1 mt-1">
-                        <Clock className="h-4 w-4" />
-                        {exp.duration}
-                      </p>
-                    </div>
-                    <exp.icon className="h-8 w-8 text-[#1e88e5] flex-shrink-0 ml-2" />
-                  </div>
-
-                  <p className="text-white/80 text-sm mb-3">{exp.description}</p>
-
-                  <div className="mb-3">
-                    <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1.5">Includes</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {exp.includes.map((item, idx) => (
-                        <span key={idx} className="text-xs bg-white/10 text-white/80 px-2.5 py-1 rounded-full border border-white/20">
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <Users className="h-4 w-4" />
-                      <span>{exp.idealFor}</span>
-                    </div>
-                    <div className="bg-white/95 px-4 py-2 rounded-full shadow-sm">
-                      <span className="text-[#0c2340] font-semibold text-lg">From ${exp.price.toLocaleString()} MXN</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-white/60 mb-4">
-                    <Anchor className="h-3 w-3" />
-                    <span>Available boats: {exp.availableBoats}</span>
-                  </div>
-
-                  <Button 
-                    onClick={() => onSelectExperience(exp)}
-                    className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02]"
-                  >
-                    Select This Experience
-                  </Button>
-                </div>
+          <motion.div
+            key={exp.id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 mb-4"
+          >
+            <div className="md:flex">
+              <div className="md:w-1/2 aspect-[16/9] md:aspect-auto relative overflow-hidden">
+                <img 
+                  src={exp.image} 
+                  alt={exp.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-slate-900/60 to-transparent" />
               </div>
-            </motion.div>
+              <div className="md:w-1/2 p-6 flex flex-col justify-center">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="text-2xl font-semibold text-white">{exp.title}</h3>
+                    <p className="text-sm text-white/70 flex items-center gap-1 mt-1">
+                      <Clock className="h-4 w-4" />
+                      {exp.duration}
+                    </p>
+                  </div>
+                  <exp.icon className="h-8 w-8 text-[#1e88e5] flex-shrink-0 ml-2" />
+                </div>
+
+                <p className="text-white/80 text-sm mb-3">{exp.description}</p>
+
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1.5">Includes</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {exp.includes.map((item, idx) => (
+                      <span key={idx} className="text-xs bg-white/10 text-white/80 px-2.5 py-1 rounded-full border border-white/20">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2 text-sm text-white/70">
+                    <Users className="h-4 w-4" />
+                    <span>{exp.idealFor}</span>
+                  </div>
+                  <div className="bg-white/95 px-4 py-2 rounded-full shadow-sm">
+                    <span className="text-[#0c2340] font-semibold text-lg">From ${exp.price.toLocaleString()} MXN</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-white/60 mb-4">
+                  <Anchor className="h-3 w-3" />
+                  <span>Available boats: {exp.availableBoats}</span>
+                </div>
+
+                <Button 
+                  onClick={() => onSelectExperience(exp)}
+                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                >
+                  Select This Experience
+                </Button>
+              </div>
+            </div>
+          </motion.div>
           ))}
 
           {/* Extended Experience - Full Width */}
