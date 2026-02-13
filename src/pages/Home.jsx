@@ -62,7 +62,7 @@ const generateConfirmationCode = () => {
 };
 
 export default function Home() {
-  const [step, setStep] = useState('landing'); // landing, calendar, pickup, addons, summary, confirmation
+  const [step, setStep] = useState('landing'); // landing, boat_selector, calendar, pickup, addons, summary, confirmation
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [bookingData, setBookingData] = useState({});
   const [confirmedBooking, setConfirmedBooking] = useState(null);
@@ -131,7 +131,6 @@ export default function Home() {
       <div className="min-h-screen">
         <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} darkMode={darkMode} onDarkModeToggle={toggleDarkMode} />
         <Hero onScrollToExperiences={scrollToExperiences} />
-        <TrustSection />
         <BoatBenefits />
         <div ref={experiencesRef}>
           <ExperienceCards onSelectExperience={handleSelectExperience} />

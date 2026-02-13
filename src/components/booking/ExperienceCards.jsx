@@ -56,9 +56,9 @@ const extendedExperience = {
   duration: '12 hours',
   price: 20000,
   image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
-  includes: ['Premium gear', 'Bait & tackle', 'Full meals & drinks', 'Gas included'],
-  idealFor: 'Expert anglers',
-  description: 'Ultimate deep-sea expedition. Maximum time on the water for trophy catches. Perfect for reaching the most exclusive fishing grounds.',
+  includes: ['Premium gear', 'All equipment', 'Full meals & drinks', 'Gas included', 'Starlink & CCTV'],
+  idealFor: 'All adventures',
+  description: 'Ultimate 12-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration and relaxation.',
   icon: Fish,
 };
 
