@@ -34,11 +34,11 @@ export default function LanguageSwitcher({ currentLanguage, onLanguageChange }) 
           <Button
             variant="ghost"
             size="sm"
-            className="bg-white/90 backdrop-blur-sm shadow-md hover:bg-white"
+            className="bg-white/90 backdrop-blur-sm shadow-md hover:bg-white text-[#0c2340]"
           >
-            <Globe className="h-4 w-4 mr-2" />
+            <Globe className="h-4 w-4 mr-2 text-[#0c2340]" />
             <span className="mr-1">{currentLang.flag}</span>
-            {currentLang.code.toUpperCase()}
+            <span className="text-[#0c2340]">{currentLang.code.toUpperCase()}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">

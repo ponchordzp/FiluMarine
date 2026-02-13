@@ -19,14 +19,14 @@ const experiences = {
     id: 'half_day_fishing',
     title: 'Half-Day Sport Fishing',
     duration: '5 hours',
-    price: 8500,
+    price: 9999,
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
   },
   full_day_fishing: {
     id: 'full_day_fishing',
     title: 'Full-Day Sport Fishing',
     duration: '8 hours',
-    price: 14000,
+    price: 15999,
     image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
   },
   extended_fishing: {
@@ -39,15 +39,15 @@ const experiences = {
   snorkeling: {
     id: 'snorkeling',
     title: 'Snorkeling Expedition',
-    duration: '4 hours',
-    price: 6500,
+    duration: '5 hours',
+    price: 9599,
     image: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&q=80',
   },
   coastal_leisure: {
     id: 'coastal_leisure',
     title: 'Coastal Leisure / Sunset Tour',
-    duration: '3 hours',
-    price: 5500,
+    duration: '5 hours',
+    price: 9599,
     image: 'https://images.unsplash.com/photo-1476673160081-cf065607f449?w=800&q=80',
   },
 };
@@ -73,6 +73,21 @@ export default function Home() {
     return 'en';
   });
   const experiencesRef = useRef(null);
+
+  React.useEffect(() => {
+    // Load Google Translate script
+    const script = document.createElement('script');
+    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    script.async = true;
+    document.body.appendChild(script);
+
+    window.googleTranslateElementInit = () => {
+      new window.google.translate.TranslateElement(
+        { pageLanguage: 'en', includedLanguages: 'en,es,fr' },
+        'google_translate_element'
+      );
+    };
+  }, []);
 
   const createBookingMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
@@ -108,6 +123,7 @@ export default function Home() {
   if (step === 'landing') {
     return (
       <div className="min-h-screen">
+        <div id="google_translate_element" className="fixed top-4 left-4 z-50"></div>
         <LanguageSwitcher currentLanguage={language} onLanguageChange={setLanguage} />
         <Hero onScrollToExperiences={scrollToExperiences} />
         <BoatBenefits />

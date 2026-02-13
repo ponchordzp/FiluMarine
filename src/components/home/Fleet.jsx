@@ -7,7 +7,7 @@ const fleet = [
     name: 'FILU',
     type: 'Sea Fox Center Console',
     size: '25ft',
-    year: '2005',
+    description: 'High-performance center console designed for serious sport fishing and coastal adventures. Features twin engines for speed and reliability.',
     image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',
     capacity: 'Up to 6 guests',
     strengths: [
@@ -22,9 +22,9 @@ const fleet = [
     name: 'TYCOON',
     type: 'Azimut Yacht',
     size: '55ft',
-    year: '2002',
+    description: 'Pristine luxury yacht perfect for extended leisure trips. Includes ceviche, 24 beers, and a bottle of your choice. Spacious interior with full amenities.',
     image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800&q=80',
-    capacity: 'Up to 10 guests',
+    capacity: 'Up to 12 guests',
     strengths: [
       { icon: Anchor, text: 'Luxury leisure cruising' },
       { icon: Users, text: 'Spacious cabin & deck' },
@@ -72,11 +72,13 @@ export default function Fleet() {
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
                   <h3 className="text-2xl font-bold text-white mb-1">{boat.name}</h3>
-                  <p className="text-white/80 text-sm">{boat.type} • {boat.size} • {boat.year}</p>
+                  <p className="text-white/80 text-sm">{boat.type} • {boat.size}</p>
                 </div>
               </div>
 
               <div className="p-6">
+                <p className="text-slate-600 text-sm mb-3">{boat.description}</p>
+                
                 <p className="text-slate-600 mb-4 flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   {boat.capacity}
