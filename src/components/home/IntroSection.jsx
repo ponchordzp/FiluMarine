@@ -27,8 +27,8 @@ export default function IntroSection() {
               Our <span className="font-semibold">Mission</span>
             </h3>
             <p className="text-lg md:text-xl text-white leading-relaxed max-w-3xl mx-auto">
-              To deliver world-class ocean experiences at prices that everyone can afford, 
-              while <span className="font-semibold text-white">never compromising on safety, quality, or your peace of mind</span>.
+              To deliver world-class ocean experiences at the best locations within Ixtapa-Zihuatanejo for a great price, 
+              without compromising on safety, quality, or your peace of mind.
             </p>
           </div>
 
