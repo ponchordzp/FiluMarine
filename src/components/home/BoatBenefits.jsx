@@ -41,10 +41,10 @@ export default function BoatBenefits() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-light text-slate-800 mb-4">
-            Why a <span className="font-semibold">Center Console</span> Boat?
+            Why <span className="font-semibold">Choose Us?</span>
           </h2>
           <p className="text-slate-600 max-w-2xl mx-auto">
-            Experience the perfect combination of performance, safety, and versatility
+            Premium vessels, experienced crew, and unforgettable experiences
           </p>
         </div>
 

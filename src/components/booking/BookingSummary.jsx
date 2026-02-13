@@ -27,7 +27,9 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   }, 0);
 
   const taxiFee = bookingData.taxi_fee || 0;
-  const totalPrice = experience.price + addOnsTotal + taxiFee;
+  const boatMultiplier = bookingData.boat_multiplier || 1;
+  const basePrice = Math.round(experience.price * boatMultiplier);
+  const totalPrice = basePrice + addOnsTotal + taxiFee;
   const deposit = Math.round(totalPrice * 0.4);
   const remaining = totalPrice - deposit;
 
