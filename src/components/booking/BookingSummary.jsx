@@ -308,7 +308,11 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                       )}
                     </div>
 
-                    <label 
+                    <a
+                      href="https://www.paypal.com/paypalme/ponchordzp"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setPaymentMethod('paypal')}
                       className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                         paymentMethod === 'paypal' ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-slate-100 hover:border-slate-200'
                       }`}
@@ -317,11 +321,11 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                       <CreditCard className={`h-5 w-5 ${paymentMethod === 'paypal' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
                       <div>
                         <p className={`font-medium ${paymentMethod === 'paypal' ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
-                          PayPal
+                          PayPal (@ponchordzp)
                         </p>
-                        <p className="text-sm text-slate-500">Secure payment via PayPal</p>
+                        <p className="text-sm text-slate-500">Click to pay via PayPal</p>
                       </div>
-                    </label>
+                    </a>
                   </div>
                 </RadioGroup>
               </div>

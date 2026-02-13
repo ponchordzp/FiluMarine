@@ -57,10 +57,12 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const [needsTaxi, setNeedsTaxi] = useState(bookingData.needs_taxi || false);
   const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || null);
   const [blockedDates, setBlockedDates] = useState([]);
+  const [existingBookings, setExistingBookings] = useState([]);
 
   const availableSlots = timeSlots[experience.id] || [];
   const today = startOfDay(new Date());
-  const minDate = today;
+  const tomorrow = addDays(today, 1);
+  const minDate = tomorrow;
   
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   const availableBoats = isLeisureExperience ? boats : boats.filter(b => !b.forLeisure);
@@ -78,6 +80,19 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     };
     fetchBlockedDates();
   }, []);
+
+  React.useEffect(() => {
+    const fetchBookings = async () => {
+      if (!selectedBoat) return;
+      try {
+        const bookings = await base44.entities.Booking.list();
+        setExistingBookings(bookings);
+      } catch (error) {
+        console.error('Error fetching bookings:', error);
+      }
+    };
+    fetchBookings();
+  }, [selectedBoat]);
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
@@ -144,8 +159,21 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 selected={selectedDate}
                 onSelect={handleDateSelect}
                 disabled={(date) => {
-                  if (isBefore(date, minDate) && !isToday(date)) return true;
-                  return blockedDates.some(blocked => isSameDay(blocked, date));
+                  if (isBefore(date, minDate)) return true;
+                  if (blockedDates.some(blocked => isSameDay(blocked, date))) return true;
+                  
+                  // Check if selected boat is already booked on this date
+                  if (selectedBoat) {
+                    const boat = boats.find(b => b.id === selectedBoat);
+                    const dateStr = format(date, 'yyyy-MM-dd');
+                    return existingBookings.some(
+                      booking => booking.boat_name === boat.name && 
+                                 booking.date === dateStr && 
+                                 booking.status !== 'cancelled'
+                    );
+                  }
+                  
+                  return false;
                 }}
                 className="rounded-lg"
                 modifiers={{
