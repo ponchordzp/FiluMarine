@@ -147,23 +147,23 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600">Experience</span>
-                    <span className="text-slate-800">${experience.price}</span>
+                    <span className="text-slate-800">${experience.price.toLocaleString()} MXN</span>
                   </div>
                   {addOnsTotal > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600">Add-ons</span>
-                      <span className="text-slate-800">${addOnsTotal}</span>
+                      <span className="text-slate-800">${addOnsTotal.toLocaleString()} MXN</span>
                     </div>
                   )}
                   {taxiFee > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600">Taxi pickup</span>
-                      <span className="text-slate-800">${taxiFee}</span>
+                      <span className="text-slate-800">${taxiFee} MXN</span>
                     </div>
                   )}
                   <div className="flex justify-between font-semibold pt-3 border-t border-slate-100">
                     <span className="text-slate-800">Total</span>
-                    <span className="text-slate-800">${totalPrice}</span>
+                    <span className="text-slate-800">${totalPrice.toLocaleString()} MXN</span>
                   </div>
                 </div>
 
@@ -172,11 +172,11 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-[#0c2340]/80">Deposit (40%) - due today</span>
-                      <span className="font-semibold text-[#0c2340]">${deposit}</span>
+                      <span className="font-semibold text-[#0c2340]">${deposit.toLocaleString()} MXN</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[#0c2340]/80">Balance (60%) - on arrival</span>
-                      <span className="text-[#0c2340]/80">${remaining}</span>
+                      <span className="text-[#0c2340]/80">${remaining.toLocaleString()} MXN</span>
                     </div>
                   </div>
                 </div>
@@ -235,7 +235,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               {/* Payment Method - Deposit */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
                 <h3 className="font-semibold text-slate-800 mb-2">Deposit Payment (40%)</h3>
-                <p className="text-sm text-slate-500 mb-4">Non-refundable reservation fee: <span className="font-semibold text-slate-700">${deposit}</span></p>
+                <p className="text-sm text-slate-500 mb-4">Non-refundable reservation fee: <span className="font-semibold text-slate-700">${deposit.toLocaleString()} MXN</span></p>
                 
                 <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                   <div className="space-y-3">
@@ -275,7 +275,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               {/* Remaining Balance Info */}
               <div className="bg-[#f0f5f9] rounded-2xl p-6">
                 <h3 className="font-semibold text-slate-800 mb-2">Remaining Balance (60%)</h3>
-                <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining}</span></p>
+                <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining.toLocaleString()} MXN</span></p>
                 <p className="text-sm text-slate-600 mb-3">Payment options available on the day of your trip:</p>
                 <div className="flex flex-wrap gap-2">
                   <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">Direct Deposit</span>
@@ -299,7 +299,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                 ) : (
                   <span className="flex items-center gap-2">
                     <Check className="h-5 w-5" />
-                    Confirm Booking - Pay ${deposit} Deposit
+                    Confirm Booking - Pay ${deposit.toLocaleString()} MXN Deposit
                   </span>
                 )}
               </Button>

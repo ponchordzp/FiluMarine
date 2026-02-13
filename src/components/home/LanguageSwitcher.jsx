@@ -17,6 +17,12 @@ export default function LanguageSwitcher({ currentLanguage, onLanguageChange }) 
 
   const currentLang = languages.find(l => l.code === currentLanguage) || languages[0];
 
+  const handleLanguageChange = (langCode) => {
+    onLanguageChange(langCode);
+    // Store in localStorage
+    localStorage.setItem('preferred-language', langCode);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -34,7 +40,7 @@ export default function LanguageSwitcher({ currentLanguage, onLanguageChange }) 
         {languages.map((lang) => (
           <DropdownMenuItem
             key={lang.code}
-            onClick={() => onLanguageChange(lang.code)}
+            onClick={() => handleLanguageChange(lang.code)}
             className={currentLanguage === lang.code ? 'bg-slate-100' : ''}
           >
             <span className="mr-2">{lang.flag}</span>

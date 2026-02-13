@@ -8,44 +8,55 @@ const experiences = [
     id: 'half_day_fishing',
     title: 'Half-Day Sport Fishing',
     duration: '5 hours',
-    price: 450,
+    price: 8500,
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
-    includes: ['All fishing equipment', 'Bait & tackle', 'Ice & cooler', 'Bottled water'],
+    includes: ['Fishing equipment', 'Bait & tackle', 'Ice & cooler'],
     idealFor: 'First-timers & families',
-    description: 'Perfect morning or afternoon trip targeting local species like Mahi-Mahi, Roosterfish, and Jack Crevalle.',
+    description: 'Morning or afternoon trip targeting Mahi-Mahi, Roosterfish, and Jack Crevalle.',
     icon: Fish,
   },
   {
     id: 'full_day_fishing',
     title: 'Full-Day Sport Fishing',
     duration: '8 hours',
-    price: 750,
+    price: 14000,
     image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
-    includes: ['Premium fishing gear', 'Bait & tackle', 'Lunch & drinks', 'Ice & cooler'],
+    includes: ['Premium gear', 'Bait & tackle', 'Lunch & drinks'],
     idealFor: 'Serious anglers',
-    description: 'Extended offshore adventure for Sailfish, Marlin, Tuna, and more. Reach the best fishing grounds.',
+    description: 'Offshore adventure for Sailfish, Marlin, Tuna. Reach the best fishing grounds.',
+    icon: Fish,
+  },
+  {
+    id: 'extended_fishing',
+    title: 'Extended Sport Fishing',
+    duration: '12 hours',
+    price: 20000,
+    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
+    includes: ['Premium gear', 'Bait & tackle', 'Full meals & drinks'],
+    idealFor: 'Expert anglers',
+    description: 'Ultimate deep-sea expedition. Maximum time on the water for trophy catches.',
     icon: Fish,
   },
   {
     id: 'snorkeling',
     title: 'Snorkeling Expedition',
     duration: '4 hours',
-    price: 350,
+    price: 6500,
     image: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&q=80',
-    includes: ['Snorkel equipment', 'Life vests', 'Fresh fruit & drinks', 'Towels'],
+    includes: ['Snorkel equipment', 'Life vests', 'Drinks'],
     idealFor: 'Couples & families',
-    description: 'Explore crystal-clear waters at Playa Las Gatas and hidden coves with abundant marine life.',
+    description: 'Explore Playa Las Gatas and hidden coves with vibrant marine life.',
     icon: Waves,
   },
   {
     id: 'coastal_leisure',
     title: 'Coastal Leisure / Sunset Tour',
     duration: '3 hours',
-    price: 300,
+    price: 5500,
     image: 'https://images.unsplash.com/photo-1476673160081-cf065607f449?w=800&q=80',
-    includes: ['Drinks & snacks', 'Music system', 'Comfortable seating', 'Photo opportunities'],
+    includes: ['Drinks & snacks', 'Music system', 'Seating'],
     idealFor: 'Relaxation & celebrations',
-    description: 'Scenic cruise along the coastline with stunning sunset views. Perfect for special occasions.',
+    description: 'Scenic cruise along the coastline with stunning sunset views.',
     icon: Sun,
   },
 ];
@@ -93,40 +104,40 @@ export default function ExperienceCards({ onSelectExperience }) {
                     </p>
                   </div>
                   <div className="bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full">
-                    <span className="text-slate-800 font-semibold">From ${exp.price}</span>
+                    <span className="text-slate-800 font-semibold">${exp.price.toLocaleString()} MXN</span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 flex flex-col h-full">
-                <div className="flex items-start justify-between mb-3">
+              <div className="p-6 flex flex-col">
+                <div className="flex items-start justify-between mb-2">
                   <h3 className="text-xl font-semibold text-slate-800">{exp.title}</h3>
                   <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
                 </div>
                 
-                <p className="text-slate-600 text-sm mb-4">{exp.description}</p>
+                <p className="text-slate-600 text-sm mb-3">{exp.description}</p>
 
-                <div className="mb-4">
-                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">What's included</p>
-                  <div className="flex flex-wrap gap-2">
+                <div className="mb-3">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-1.5">Includes</p>
+                  <div className="flex flex-wrap gap-1.5">
                     {exp.includes.map((item, idx) => (
-                      <span key={idx} className="text-xs bg-slate-50 text-slate-600 px-3 py-1 rounded-full">
+                      <span key={idx} className="text-xs bg-slate-50 text-slate-600 px-2.5 py-1 rounded-full">
                         {item}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-slate-100 mb-4">
+                <div className="flex items-center justify-between pt-3 border-t border-slate-100 mb-3">
                   <div className="flex items-center gap-2 text-sm text-slate-500">
                     <Users className="h-4 w-4" />
-                    <span>Ideal for: {exp.idealFor}</span>
+                    <span>{exp.idealFor}</span>
                   </div>
                 </div>
 
                 <Button 
                   onClick={() => onSelectExperience(exp)}
-                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-6 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                  className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02]"
                 >
                   Select This Experience
                 </Button>
