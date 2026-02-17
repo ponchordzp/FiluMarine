@@ -295,18 +295,20 @@ export default function Home() {
             <div className="mt-8 pt-8 border-t border-white/10">
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <Link 
+                  to={createPageUrl('BookingSearch')}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#1e88e5] hover:bg-[#1976d2] border border-[#1e88e5] rounded-lg text-sm transition-colors font-medium"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  Find My Booking
+                </Link>
+                <Link 
                   to={createPageUrl('AdminBookings')}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-sm transition-colors"
                 >
                   <Settings className="h-4 w-4" />
-                  Booking Management
-                </Link>
-                <Link 
-                  to={createPageUrl('AdminDates')}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-sm transition-colors"
-                >
-                  <Calendar className="h-4 w-4" />
-                  Manage Blocked Dates
+                  Admin Panel
                 </Link>
               </div>
             </div>
