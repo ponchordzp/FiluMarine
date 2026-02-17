@@ -1,0 +1,529 @@
+import React, { useState } from 'react';
+import { base44 } from '@/api/base44Client';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter } from 'lucide-react';
+import { format } from 'date-fns';
+import { motion } from 'framer-motion';
+
+const statusColors = {
+  pending: 'bg-amber-100 text-amber-800',
+  confirmed: 'bg-emerald-100 text-emerald-800',
+  cancelled: 'bg-red-100 text-red-800',
+  completed: 'bg-blue-100 text-blue-800',
+};
+
+const statusIcons = {
+  pending: Clock,
+  confirmed: CheckCircle2,
+  cancelled: XCircle,
+  completed: CheckCircle2,
+};
+
+export default function AdminBookings() {
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateFilter, setDateFilter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [blockDate, setBlockDate] = useState(null);
+  const [blockReason, setBlockReason] = useState('');
+
+  const queryClient = useQueryClient();
+
+  const { data: bookings = [], isLoading } = useQuery({
+    queryKey: ['admin-bookings'],
+    queryFn: () => base44.entities.Booking.list('-created_date'),
+  });
+
+  const { data: blockedDates = [] } = useQuery({
+    queryKey: ['blocked-dates'],
+    queryFn: () => base44.entities.BlockedDate.list(),
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.Booking.update(id, { status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+    },
+  });
+
+  const blockDateMutation = useMutation({
+    mutationFn: (data) => base44.entities.BlockedDate.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blocked-dates'] });
+      setBlockDate(null);
+      setBlockReason('');
+    },
+  });
+
+  const unblockDateMutation = useMutation({
+    mutationFn: (id) => base44.entities.BlockedDate.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blocked-dates'] });
+    },
+  });
+
+  const filteredBookings = bookings.filter(booking => {
+    if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
+    if (dateFilter && booking.date !== dateFilter) return false;
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      return (
+        booking.guest_name?.toLowerCase().includes(search) ||
+        booking.guest_email?.toLowerCase().includes(search) ||
+        booking.confirmation_code?.toLowerCase().includes(search)
+      );
+    }
+    return true;
+  });
+
+  const handleStatusChange = (bookingId, newStatus) => {
+    updateStatusMutation.mutate({ id: bookingId, status: newStatus });
+  };
+
+  const handleBlockDate = () => {
+    if (!blockDate) return;
+    blockDateMutation.mutate({
+      date: format(blockDate, 'yyyy-MM-dd'),
+      reason: blockReason || 'Blocked by admin',
+    });
+  };
+
+  const stats = {
+    total: bookings.length,
+    pending: bookings.filter(b => b.status === 'pending').length,
+    confirmed: bookings.filter(b => b.status === 'confirmed').length,
+    completed: bookings.filter(b => b.status === 'completed').length,
+    cancelled: bookings.filter(b => b.status === 'cancelled').length,
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-slate-300 border-t-slate-800 rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-slate-600">Loading bookings...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50">
+      <div className="bg-gradient-to-r from-[#0c2340] to-[#1e88e5] text-white py-12">
+        <div className="max-w-7xl mx-auto px-6">
+          <h1 className="text-4xl font-bold mb-2">Booking Management</h1>
+          <p className="text-white/80">View and manage all customer bookings</p>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 -mt-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
+                <p className="text-sm text-slate-500">Total Bookings</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
+                <p className="text-sm text-slate-500">Pending</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-emerald-600">{stats.confirmed}</p>
+                <p className="text-sm text-slate-500">Confirmed</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-blue-600">{stats.completed}</p>
+                <p className="text-sm text-slate-500">Completed</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-red-600">{stats.cancelled}</p>
+                <p className="text-sm text-slate-500">Cancelled</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="bookings" className="space-y-6">
+          <TabsList className="bg-white border shadow-sm">
+            <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="blocked-dates">Blocked Dates</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="bookings" className="space-y-6">
+            {/* Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Filter className="h-5 w-5" />
+                  Filters
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div>
+                    <Label>Search</Label>
+                    <Input
+                      placeholder="Name, email, code..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Status</Label>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Statuses</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="confirmed">Confirmed</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Date</Label>
+                    <Input
+                      type="date"
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setStatusFilter('all');
+                        setDateFilter('');
+                        setSearchTerm('');
+                      }}
+                    >
+                      Clear Filters
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bookings List */}
+            <div className="space-y-4">
+              {filteredBookings.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <p className="text-slate-500">No bookings found</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                filteredBookings.map((booking) => {
+                  const StatusIcon = statusIcons[booking.status];
+                  return (
+                    <motion.div
+                      key={booking.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <Card className="hover:shadow-lg transition-shadow">
+                        <CardContent className="p-6">
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-start gap-3">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="font-semibold text-lg text-slate-800">
+                                      {booking.guest_name}
+                                    </h3>
+                                    <Badge className={statusColors[booking.status]}>
+                                      <StatusIcon className="h-3 w-3 mr-1" />
+                                      {booking.status}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-slate-500 mb-2">
+                                    Code: <span className="font-mono font-semibold">{booking.confirmation_code}</span>
+                                  </p>
+                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                      <CalendarIcon className="h-4 w-4" />
+                                      {format(new Date(booking.date), 'MMM d, yyyy')}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                      <Clock className="h-4 w-4" />
+                                      {booking.time_slot}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                      <Users className="h-4 w-4" />
+                                      {booking.guests} guests
+                                    </div>
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                      <DollarSign className="h-4 w-4" />
+                                      ${booking.total_price?.toLocaleString()} MXN
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button variant="outline" size="sm" onClick={() => setSelectedBooking(booking)}>
+                                    <Info className="h-4 w-4 mr-2" />
+                                    View Details
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                  <DialogHeader>
+                                    <DialogTitle>Booking Details</DialogTitle>
+                                  </DialogHeader>
+                                  {selectedBooking && (
+                                    <div className="space-y-6">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <Label className="text-slate-500">Guest Name</Label>
+                                          <p className="font-medium">{selectedBooking.guest_name}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Status</Label>
+                                          <div className="mt-1">
+                                            <Badge className={statusColors[selectedBooking.status]}>
+                                              {selectedBooking.status}
+                                            </Badge>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Email</Label>
+                                          <p className="font-medium flex items-center gap-2">
+                                            <Mail className="h-4 w-4" />
+                                            {selectedBooking.guest_email}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Phone</Label>
+                                          <p className="font-medium flex items-center gap-2">
+                                            <Phone className="h-4 w-4" />
+                                            {selectedBooking.guest_phone}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Experience</Label>
+                                          <p className="font-medium">{selectedBooking.experience_type?.replace(/_/g, ' ')}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Boat</Label>
+                                          <p className="font-medium">{selectedBooking.boat_name || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Date</Label>
+                                          <p className="font-medium">{format(new Date(selectedBooking.date), 'EEEE, MMMM d, yyyy')}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Time</Label>
+                                          <p className="font-medium">{selectedBooking.time_slot}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Guests</Label>
+                                          <p className="font-medium">{selectedBooking.guests}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Total Price</Label>
+                                          <p className="font-medium">${selectedBooking.total_price?.toLocaleString()} MXN</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Deposit Paid</Label>
+                                          <p className="font-medium">${selectedBooking.deposit_paid?.toLocaleString()} MXN</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Payment Method</Label>
+                                          <p className="font-medium">{selectedBooking.payment_method}</p>
+                                        </div>
+                                      </div>
+                                      {selectedBooking.add_ons?.length > 0 && (
+                                        <div>
+                                          <Label className="text-slate-500">Add-ons</Label>
+                                          <ul className="mt-1 list-disc list-inside">
+                                            {selectedBooking.add_ons.map((addon, i) => (
+                                              <li key={i} className="text-sm">{addon.replace(/_/g, ' ')}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                      {selectedBooking.special_requests && (
+                                        <div>
+                                          <Label className="text-slate-500">Special Requests</Label>
+                                          <p className="mt-1 text-sm bg-slate-50 p-3 rounded-lg">{selectedBooking.special_requests}</p>
+                                        </div>
+                                      )}
+                                      <div>
+                                        <Label className="text-slate-500 mb-2 block">Change Status</Label>
+                                        <div className="flex gap-2 flex-wrap">
+                                          <Button
+                                            size="sm"
+                                            variant={selectedBooking.status === 'pending' ? 'default' : 'outline'}
+                                            onClick={() => handleStatusChange(selectedBooking.id, 'pending')}
+                                          >
+                                            Pending
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant={selectedBooking.status === 'confirmed' ? 'default' : 'outline'}
+                                            onClick={() => handleStatusChange(selectedBooking.id, 'confirmed')}
+                                          >
+                                            Confirmed
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant={selectedBooking.status === 'completed' ? 'default' : 'outline'}
+                                            onClick={() => handleStatusChange(selectedBooking.id, 'completed')}
+                                          >
+                                            Completed
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant={selectedBooking.status === 'cancelled' ? 'default' : 'outline'}
+                                            onClick={() => handleStatusChange(selectedBooking.id, 'cancelled')}
+                                          >
+                                            Cancelled
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </DialogContent>
+                              </Dialog>
+
+                              <Select
+                                value={booking.status}
+                                onValueChange={(value) => handleStatusChange(booking.id, value)}
+                              >
+                                <SelectTrigger className="w-[140px]">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pending">Pending</SelectItem>
+                                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                                  <SelectItem value="completed">Completed</SelectItem>
+                                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  );
+                })
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="blocked-dates" className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Block New Date */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Plus className="h-5 w-5" />
+                    Block New Date
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Select Date</Label>
+                    <Calendar
+                      mode="single"
+                      selected={blockDate}
+                      onSelect={setBlockDate}
+                      className="rounded-md border"
+                    />
+                  </div>
+                  <div>
+                    <Label>Reason (optional)</Label>
+                    <Textarea
+                      placeholder="Weather, maintenance, etc..."
+                      value={blockReason}
+                      onChange={(e) => setBlockReason(e.target.value)}
+                    />
+                  </div>
+                  <Button
+                    onClick={handleBlockDate}
+                    disabled={!blockDate}
+                    className="w-full"
+                  >
+                    <Ban className="h-4 w-4 mr-2" />
+                    Block Date
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Blocked Dates List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Currently Blocked Dates</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                    {blockedDates.length === 0 ? (
+                      <p className="text-slate-500 text-center py-8">No blocked dates</p>
+                    ) : (
+                      blockedDates.map((blocked) => (
+                        <div
+                          key={blocked.id}
+                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
+                        >
+                          <div>
+                            <p className="font-medium text-slate-800">
+                              {format(new Date(blocked.date), 'EEEE, MMMM d, yyyy')}
+                            </p>
+                            {blocked.reason && (
+                              <p className="text-sm text-slate-500">{blocked.reason}</p>
+                            )}
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => unblockDateMutation.mutate(blocked.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </div>
+  );
+}

@@ -49,11 +49,13 @@
  */
 import AdminDates from './pages/AdminDates';
 import Home from './pages/Home';
+import AdminBookings from './pages/AdminBookings';
 
 
 export const PAGES = {
     "AdminDates": AdminDates,
     "Home": Home,
+    "AdminBookings": AdminBookings,
 }
 
 export const pagesConfig = {
