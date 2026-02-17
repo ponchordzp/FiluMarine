@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import AdminAuth from '@/components/AdminAuth';
 
 const statusColors = {
   pending: 'bg-amber-100 text-amber-800',
@@ -118,6 +119,7 @@ export default function AdminBookings() {
   }
 
   return (
+    <AdminAuth>
     <div className="min-h-screen bg-slate-50">
       <div className="bg-gradient-to-r from-[#0c2340] to-[#1e88e5] text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
@@ -525,5 +527,6 @@ export default function AdminBookings() {
         </Tabs>
       </div>
     </div>
+    </AdminAuth>
   );
 }

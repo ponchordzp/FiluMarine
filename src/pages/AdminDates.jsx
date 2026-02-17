@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, Trash2, Plus } from 'lucide-react';
 import { format } from 'date-fns';
+import AdminAuth from '@/components/AdminAuth';
 
 export default function AdminDatesPage() {
   const [newDate, setNewDate] = useState('');
@@ -40,6 +41,7 @@ export default function AdminDatesPage() {
   };
 
   return (
+    <AdminAuth>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
@@ -124,5 +126,6 @@ export default function AdminDatesPage() {
         </div>
       </div>
     </div>
+    </AdminAuth>
   );
 }

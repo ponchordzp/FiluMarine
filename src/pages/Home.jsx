@@ -2,6 +2,9 @@ import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
+import { Settings, Calendar } from 'lucide-react';
 import Hero from '@/components/booking/Hero';
 import IntroSection from '@/components/home/IntroSection';
 import ExperienceCards from '@/components/booking/ExperienceCards';
@@ -287,6 +290,27 @@ export default function Home() {
               alt="WhatsApp QR Code" 
               className="w-32 h-32 mx-auto mt-4"
             />
+            
+            {/* Admin Links */}
+            <div className="mt-8 pt-8 border-t border-white/10">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <Link 
+                  to={createPageUrl('AdminBookings')}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-sm transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                  Booking Management
+                </Link>
+                <Link 
+                  to={createPageUrl('AdminDates')}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-sm transition-colors"
+                >
+                  <Calendar className="h-4 w-4" />
+                  Manage Blocked Dates
+                </Link>
+              </div>
+            </div>
+            
             <p className="text-sm text-white/50 mt-4">© 2026 Filu Marine. All rights reserved.</p>
           </div>
         </footer>
