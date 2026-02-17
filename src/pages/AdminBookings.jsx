@@ -35,10 +35,12 @@ const statusIcons = {
 export default function AdminBookings() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
-  const [dateFilter, setDateFilter] = useState('');
+  const [boatFilter, setBoatFilter] = useState('all');
+  const [dateRangeFilter, setDateRangeFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [blockDate, setBlockDate] = useState(null);
   const [blockReason, setBlockReason] = useState('');
+  const [blockBoat, setBlockBoat] = useState('both');
 
   const queryClient = useQueryClient();
 
@@ -65,6 +67,7 @@ export default function AdminBookings() {
       queryClient.invalidateQueries({ queryKey: ['blocked-dates'] });
       setBlockDate(null);
       setBlockReason('');
+      setBlockBoat('both');
     },
   });
 
@@ -77,7 +80,19 @@ export default function AdminBookings() {
 
   const filteredBookings = bookings.filter(booking => {
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
-    if (dateFilter && booking.date !== dateFilter) return false;
+    if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
+    
+    // Date range filter
+    if (dateRangeFilter !== 'all') {
+      const bookingDate = new Date(booking.date);
+      const now = new Date();
+      const daysDiff = Math.floor((now - bookingDate) / (1000 * 60 * 60 * 24));
+      
+      if (dateRangeFilter === 'week' && daysDiff > 7) return false;
+      if (dateRangeFilter === 'month' && daysDiff > 30) return false;
+      if (dateRangeFilter === 'year' && daysDiff > 365) return false;
+    }
+    
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
       return (
@@ -98,6 +113,7 @@ export default function AdminBookings() {
     blockDateMutation.mutate({
       date: format(blockDate, 'yyyy-MM-dd'),
       reason: blockReason || 'Blocked by admin',
+      boat_name: blockBoat,
     });
   };
 
@@ -198,7 +214,7 @@ export default function AdminBookings() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-4 gap-4">
+                <div className="grid md:grid-cols-5 gap-4">
                   <div>
                     <Label>Search</Label>
                     <Input
@@ -223,19 +239,39 @@ export default function AdminBookings() {
                     </Select>
                   </div>
                   <div>
-                    <Label>Date</Label>
-                    <Input
-                      type="date"
-                      value={dateFilter}
-                      onChange={(e) => setDateFilter(e.target.value)}
-                    />
+                    <Label>Boat</Label>
+                    <Select value={boatFilter} onValueChange={setBoatFilter}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Boats</SelectItem>
+                        <SelectItem value="FILU">FILU</SelectItem>
+                        <SelectItem value="TYCOON">TYCOON</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Time Range</Label>
+                    <Select value={dateRangeFilter} onValueChange={setDateRangeFilter}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Time</SelectItem>
+                        <SelectItem value="week">Last 7 Days</SelectItem>
+                        <SelectItem value="month">Last 30 Days</SelectItem>
+                        <SelectItem value="year">Last Year</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="flex items-end">
                     <Button
                       variant="outline"
                       onClick={() => {
                         setStatusFilter('all');
-                        setDateFilter('');
+                        setBoatFilter('all');
+                        setDateRangeFilter('all');
                         setSearchTerm('');
                       }}
                     >
@@ -278,9 +314,16 @@ export default function AdminBookings() {
                                       {booking.status}
                                     </Badge>
                                   </div>
-                                  <p className="text-sm text-slate-500 mb-2">
-                                    Code: <span className="font-mono font-semibold">{booking.confirmation_code}</span>
-                                  </p>
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <p className="text-sm text-slate-500">
+                                      Code: <span className="font-mono font-semibold">{booking.confirmation_code}</span>
+                                    </p>
+                                    {booking.boat_name && (
+                                      <span className="text-xs px-2 py-1 rounded-full bg-[#1e88e5]/10 text-[#1e88e5] font-medium">
+                                        {booking.boat_name}
+                                      </span>
+                                    )}
+                                  </div>
                                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                                     <div className="flex items-center gap-2 text-slate-600">
                                       <CalendarIcon className="h-4 w-4" />
@@ -377,6 +420,22 @@ export default function AdminBookings() {
                                           <p className="font-medium">{selectedBooking.payment_method}</p>
                                         </div>
                                       </div>
+                                      
+                                      {selectedBooking.payment_screenshot && (
+                                        <div>
+                                          <Label className="text-slate-500">Payment Screenshot</Label>
+                                          <div className="mt-2">
+                                            <a href={selectedBooking.payment_screenshot} target="_blank" rel="noopener noreferrer">
+                                              <img 
+                                                src={selectedBooking.payment_screenshot} 
+                                                alt="Payment proof" 
+                                                className="w-full max-w-md h-48 object-cover rounded-lg border hover:opacity-80 transition-opacity cursor-pointer"
+                                              />
+                                            </a>
+                                          </div>
+                                        </div>
+                                      )}
+                                      
                                       {selectedBooking.add_ons?.length > 0 && (
                                         <div>
                                           <Label className="text-slate-500">Add-ons</Label>
@@ -475,6 +534,19 @@ export default function AdminBookings() {
                       onSelect={setBlockDate}
                       className="rounded-md border"
                     />
+                  </div>
+                  <div>
+                    <Label>Boat</Label>
+                    <Select value={blockBoat} onValueChange={setBlockBoat}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="both">Both Boats</SelectItem>
+                        <SelectItem value="FILU">FILU</SelectItem>
+                        <SelectItem value="TYCOON">TYCOON</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Reason (optional)</Label>
