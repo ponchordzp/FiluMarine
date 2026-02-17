@@ -37,8 +37,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const whatsappLink = `https://wa.me/525513782169?text=Hello!%20I%20have%20made%20a%20direct%20deposit%20for%20booking%20with%20confirmation%20code:%20${bookingData.confirmation_code || 'PENDING'}`;
 
   const addOnsTotal = (bookingData.add_ons || []).reduce((sum, id) => {
-    const addOn = addOnOptions.find(a => a.id === id);
-    return sum + (addOn?.price || 0);
+    return sum + getAddOnPrice(id, bookingData.boat_name);
   }, 0);
 
   const taxiFee = bookingData.taxi_fee || 0;
@@ -172,11 +171,12 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                     <div className="pt-4 border-t border-slate-100">
                       <p className="text-sm font-medium text-slate-500 mb-2">Add-ons</p>
                       {bookingData.add_ons.map(id => {
-                        const addOn = addOnOptions.find(a => a.id === id);
-                        return addOn ? (
+                        const price = getAddOnPrice(id, bookingData.boat_name);
+                        const title = addOnTitles[id];
+                        return title ? (
                           <div key={id} className="flex justify-between text-sm">
-                            <span className="text-slate-600">{addOn.title}</span>
-                            <span className="text-slate-800">${addOn.price}</span>
+                            <span className="text-slate-600">{title}</span>
+                            <span className="text-slate-800">${price.toLocaleString()} MXN</span>
                           </div>
                         ) : null;
                       })}
