@@ -132,7 +132,7 @@ export default function Home() {
       <h3>Booking Details:</h3>
       <ul>
         <li><strong>Experience:</strong> ${experience.title}</li>
-        <li><strong>Date:</strong> ${format(new Date(data.date), 'EEEE, MMMM d, yyyy')}</li>
+        <li><strong>Date:</strong> ${format(parseISO(data.date), 'EEEE, MMMM d, yyyy')}</li>
         <li><strong>Time:</strong> ${data.time_slot}</li>
         <li><strong>Guests:</strong> ${data.guests}</li>
         <li><strong>Boat:</strong> ${data.boat_name}</li>
