@@ -14,7 +14,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter, ArrowLeft } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
 import AdminAuth from '@/components/AdminAuth';
 
@@ -337,11 +337,11 @@ export default function AdminBookings() {
                                   <div className="space-y-2 text-sm">
                                     <div className="flex items-center gap-2 text-slate-600">
                                       <CalendarIcon className="h-4 w-4" />
-                                      <span><strong>Scheduled:</strong> {format(new Date(booking.date), 'MMM d, yyyy')}</span>
+                                      <span><strong>Scheduled:</strong> {format(parseISO(booking.date), 'MMM d, yyyy')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-slate-600">
                                       <Clock className="h-4 w-4" />
-                                      <span><strong>Booked on:</strong> {format(new Date(booking.created_date), 'MMM d, yyyy h:mm a')}</span>
+                                      <span><strong>Booked on:</strong> {format(parseISO(booking.created_date), 'MMM d, yyyy h:mm a')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-slate-600">
                                       <Clock className="h-4 w-4" />
@@ -411,11 +411,11 @@ export default function AdminBookings() {
                                         </div>
                                         <div>
                                           <Label className="text-slate-500">Scheduled Date</Label>
-                                          <p className="font-medium">{format(new Date(selectedBooking.date), 'EEEE, MMMM d, yyyy')}</p>
+                                          <p className="font-medium">{format(parseISO(selectedBooking.date), 'EEEE, MMMM d, yyyy')}</p>
                                         </div>
                                         <div>
                                           <Label className="text-slate-500">Booking Created</Label>
-                                          <p className="font-medium">{format(new Date(selectedBooking.created_date), 'MMM d, yyyy h:mm a')}</p>
+                                          <p className="font-medium">{format(parseISO(selectedBooking.created_date), 'MMM d, yyyy h:mm a')}</p>
                                         </div>
                                         <div>
                                           <Label className="text-slate-500">Time</Label>
@@ -633,18 +633,18 @@ export default function AdminBookings() {
                               </div>
                               <div className="grid grid-cols-2 gap-2 text-sm">
                                 <div className="flex items-center gap-1 text-slate-600">
-                                  <CalendarIcon className="h-3 w-3" />
-                                  <div>
-                                    <p className="text-xs text-slate-500">Scheduled:</p>
-                                    <p className="font-medium">{format(new Date(booking.date), 'MMM d')}</p>
-                                  </div>
+                                <CalendarIcon className="h-3 w-3" />
+                                <div>
+                                  <p className="text-xs text-slate-500">Scheduled:</p>
+                                  <p className="font-medium">{format(parseISO(booking.date), 'MMM d')}</p>
+                                </div>
                                 </div>
                                 <div className="flex items-center gap-1 text-slate-600">
-                                  <Clock className="h-3 w-3" />
-                                  <div>
-                                    <p className="text-xs text-slate-500">Booked:</p>
-                                    <p className="font-medium">{format(new Date(booking.created_date), 'MMM d')}</p>
-                                  </div>
+                                <Clock className="h-3 w-3" />
+                                <div>
+                                  <p className="text-xs text-slate-500">Booked:</p>
+                                  <p className="font-medium">{format(parseISO(booking.created_date), 'MMM d')}</p>
+                                </div>
                                 </div>
                                 <div className="flex items-center gap-1 text-slate-600">
                                   <Clock className="h-3 w-3" />
@@ -922,7 +922,7 @@ export default function AdminBookings() {
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
                               <p className="font-medium text-slate-800">
-                                {format(new Date(blocked.date), 'EEEE, MMMM d, yyyy')}
+                                {format(parseISO(blocked.date), 'EEEE, MMMM d, yyyy')}
                               </p>
                               <span className={`text-xs px-2 py-1 rounded-full ${
                                 blocked.boat_name === 'both' ? 'bg-slate-200 text-slate-700' :
