@@ -159,10 +159,21 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 onSelect={handleDateSelect}
                 disabled={(date) => {
                   if (isBefore(date, minDate)) return true;
-                  if (blockedDates.some(blocked => isSameDay(blocked, date))) return true;
+                  
+                  const dateStr = format(date, 'yyyy-MM-dd');
+                  const currentBoat = boats.find(b => b.id === selectedBoat);
+                  
+                  // Check if this date is blocked for the selected boat
+                  const isBlockedForBoat = blockedDates.some(blocked => {
+                    if (!isSameDay(blocked, date)) return false;
+                    const blockedDate = blocked.date ? new Date(blocked.date) : blocked;
+                    const blockBoatName = blocked.boat_name || 'both';
+                    return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
+                  });
+                  
+                  if (isBlockedForBoat) return true;
                   
                   // Check if any boat is already booked on this date (blocking the entire day)
-                  const dateStr = format(date, 'yyyy-MM-dd');
                   const isBooked = existingBookings.some(
                     booking => booking.date === dateStr && booking.status !== 'cancelled'
                   );
@@ -172,7 +183,14 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 className="rounded-lg"
                 modifiers={{
                   past: (date) => isBefore(date, today) && !isToday(date),
-                  blocked: (date) => blockedDates.some(blocked => isSameDay(blocked, date)),
+                  blocked: (date) => {
+                    const currentBoat = boats.find(b => b.id === selectedBoat);
+                    return blockedDates.some(blocked => {
+                      if (!isSameDay(blocked, date)) return false;
+                      const blockBoatName = blocked.boat_name || 'both';
+                      return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
+                    });
+                  },
                 }}
                 modifiersStyles={{
                   past: { color: '#cbd5e1', textDecoration: 'line-through' },
