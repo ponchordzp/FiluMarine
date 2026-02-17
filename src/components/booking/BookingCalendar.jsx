@@ -61,8 +61,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
 
   const availableSlots = timeSlots[experience.id] || [];
   const today = startOfDay(new Date());
-  const tomorrow = addDays(today, 1);
-  const minDate = tomorrow;
+  const minDate = addDays(today, 1); // Only allow booking from tomorrow onwards
   
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   const availableBoats = isLeisureExperience ? boats : boats.filter(b => !b.forLeisure);
@@ -73,7 +72,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     const fetchBlockedDates = async () => {
       try {
         const blocked = await base44.entities.BlockedDate.list();
-        setBlockedDates(blocked.map(b => new Date(b.date)));
+        setBlockedDates(blocked); // Keep full objects to access boat_name
       } catch (error) {
         console.error('Error fetching blocked dates:', error);
       }
@@ -165,20 +164,25 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   
                   // Check if this date is blocked for the selected boat
                   const isBlockedForBoat = blockedDates.some(blocked => {
-                    if (!isSameDay(blocked, date)) return false;
-                    const blockedDate = blocked.date ? new Date(blocked.date) : blocked;
+                    const blockedDate = new Date(blocked.date);
+                    if (!isSameDay(blockedDate, date)) return false;
                     const blockBoatName = blocked.boat_name || 'both';
                     return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
                   });
                   
                   if (isBlockedForBoat) return true;
                   
-                  // Check if any boat is already booked on this date (blocking the entire day)
-                  const isBooked = existingBookings.some(
-                    booking => booking.date === dateStr && booking.status !== 'cancelled'
-                  );
+                  // Check if the selected boat is already booked on this specific date
+                  if (currentBoat) {
+                    const isBoatBooked = existingBookings.some(
+                      booking => booking.date === dateStr && 
+                                 booking.boat_name === currentBoat.name && 
+                                 booking.status !== 'cancelled'
+                    );
+                    if (isBoatBooked) return true;
+                  }
                   
-                  return isBooked;
+                  return false;
                 }}
                 className="rounded-lg"
                 modifiers={{
@@ -186,7 +190,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   blocked: (date) => {
                     const currentBoat = boats.find(b => b.id === selectedBoat);
                     return blockedDates.some(blocked => {
-                      if (!isSameDay(blocked, date)) return false;
+                      const blockedDate = new Date(blocked.date);
+                      if (!isSameDay(blockedDate, date)) return false;
                       const blockBoatName = blocked.boat_name || 'both';
                       return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
                     });

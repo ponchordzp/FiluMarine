@@ -41,6 +41,7 @@ export default function AdminBookings() {
   const [blockDate, setBlockDate] = useState(null);
   const [blockReason, setBlockReason] = useState('');
   const [blockBoat, setBlockBoat] = useState('both');
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -201,6 +202,7 @@ export default function AdminBookings() {
         <Tabs defaultValue="bookings" className="space-y-6">
           <TabsList className="bg-white border shadow-sm">
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
+            <TabsTrigger value="booked-dates">Booked Dates</TabsTrigger>
             <TabsTrigger value="blocked-dates">Blocked Dates</TabsTrigger>
           </TabsList>
 
@@ -515,6 +517,261 @@ export default function AdminBookings() {
             </div>
           </TabsContent>
 
+          <TabsContent value="booked-dates" className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Calendar View */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5" />
+                    Booked Dates Calendar
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Calendar
+                    mode="single"
+                    selected={selectedCalendarDate}
+                    onSelect={setSelectedCalendarDate}
+                    className="rounded-md border"
+                    modifiers={{
+                      booked: (date) => {
+                        const dateStr = format(date, 'yyyy-MM-dd');
+                        return bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
+                      },
+                    }}
+                    modifiersStyles={{
+                      booked: { 
+                        backgroundColor: '#dbeafe', 
+                        color: '#1e40af',
+                        fontWeight: 'bold',
+                      },
+                    }}
+                  />
+                  <div className="p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
+                    <p className="font-medium mb-1">Legend:</p>
+                    <p>🔵 Blue dates = Bookings exist</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Bookings for Selected Date */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>
+                    {selectedCalendarDate 
+                      ? `Bookings for ${format(selectedCalendarDate, 'MMM d, yyyy')}`
+                      : 'Select a Date'}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                    {!selectedCalendarDate ? (
+                      <p className="text-slate-500 text-center py-8">Select a date to view bookings</p>
+                    ) : (() => {
+                      const dateStr = format(selectedCalendarDate, 'yyyy-MM-dd');
+                      const dateBookings = bookings.filter(b => b.date === dateStr && b.status !== 'cancelled');
+                      
+                      return dateBookings.length === 0 ? (
+                        <p className="text-slate-500 text-center py-8">No bookings for this date</p>
+                      ) : (
+                        dateBookings.map((booking) => {
+                          const StatusIcon = statusIcons[booking.status];
+                          return (
+                            <div
+                              key={booking.id}
+                              className="p-4 bg-slate-50 rounded-lg space-y-2 border-l-4 border-blue-500"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <p className="font-semibold text-slate-800">{booking.guest_name}</p>
+                                  <p className="text-xs text-slate-500 font-mono">{booking.confirmation_code}</p>
+                                </div>
+                                <Badge className={statusColors[booking.status]}>
+                                  <StatusIcon className="h-3 w-3 mr-1" />
+                                  {booking.status}
+                                </Badge>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="flex items-center gap-1 text-slate-600">
+                                  <Clock className="h-3 w-3" />
+                                  {booking.time_slot}
+                                </div>
+                                <div className="flex items-center gap-1 text-slate-600">
+                                  <Users className="h-3 w-3" />
+                                  {booking.guests} guests
+                                </div>
+                              </div>
+                              {booking.boat_name && (
+                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[#1e88e5]/10 text-[#1e88e5] font-medium">
+                                  {booking.boat_name}
+                                </span>
+                              )}
+                              <div className="flex items-center gap-2 text-sm">
+                                <Mail className="h-3 w-3 text-slate-400" />
+                                <span className="text-slate-600">{booking.guest_email}</span>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Phone className="h-3 w-3 text-slate-400" />
+                                <span className="text-slate-600">{booking.guest_phone}</span>
+                              </div>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="w-full mt-2"
+                                    onClick={() => setSelectedBooking(booking)}
+                                  >
+                                    <Info className="h-3 w-3 mr-2" />
+                                    Full Details
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                                  <DialogHeader>
+                                    <DialogTitle>Booking Details</DialogTitle>
+                                  </DialogHeader>
+                                  {selectedBooking && (
+                                    <div className="space-y-6">
+                                      <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                          <Label className="text-slate-500">Guest Name</Label>
+                                          <p className="font-medium">{selectedBooking.guest_name}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Status</Label>
+                                          <div className="mt-1">
+                                            <Badge className={statusColors[selectedBooking.status]}>
+                                              {selectedBooking.status}
+                                            </Badge>
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Email</Label>
+                                          <p className="font-medium flex items-center gap-2">
+                                            <Mail className="h-4 w-4" />
+                                            {selectedBooking.guest_email}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Phone</Label>
+                                          <p className="font-medium flex items-center gap-2">
+                                            <Phone className="h-4 w-4" />
+                                            {selectedBooking.guest_phone}
+                                          </p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Experience</Label>
+                                          <p className="font-medium">{selectedBooking.experience_type?.replace(/_/g, ' ')}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Boat</Label>
+                                          <p className="font-medium">{selectedBooking.boat_name || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Date</Label>
+                                          <p className="font-medium">{format(new Date(selectedBooking.date), 'EEEE, MMMM d, yyyy')}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Time</Label>
+                                          <p className="font-medium">{selectedBooking.time_slot}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Guests</Label>
+                                          <p className="font-medium">{selectedBooking.guests}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Total Price</Label>
+                                          <p className="font-medium">${selectedBooking.total_price?.toLocaleString()} MXN</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Deposit Paid</Label>
+                                          <p className="font-medium">${selectedBooking.deposit_paid?.toLocaleString()} MXN</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Payment Method</Label>
+                                          <p className="font-medium">{selectedBooking.payment_method}</p>
+                                        </div>
+                                      </div>
+                                      
+                                      {selectedBooking.payment_screenshot && (
+                                        <div>
+                                          <Label className="text-slate-500">Payment Screenshot</Label>
+                                          <div className="mt-2">
+                                            <a href={selectedBooking.payment_screenshot} target="_blank" rel="noopener noreferrer">
+                                              <img 
+                                                src={selectedBooking.payment_screenshot} 
+                                                alt="Payment proof" 
+                                                className="w-full max-w-md h-48 object-cover rounded-lg border hover:opacity-80 transition-opacity cursor-pointer"
+                                              />
+                                            </a>
+                                          </div>
+                                        </div>
+                                      )}
+                                      
+                                      {selectedBooking.add_ons?.length > 0 && (
+                                        <div>
+                                          <Label className="text-slate-500">Add-ons</Label>
+                                          <ul className="mt-1 list-disc list-inside">
+                                            {selectedBooking.add_ons.map((addon, i) => (
+                                              <li key={i} className="text-sm">{addon.replace(/_/g, ' ')}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+                                      {selectedBooking.special_requests && (
+                                        <div>
+                                          <Label className="text-slate-500">Special Requests</Label>
+                                          <p className="mt-1 text-sm bg-slate-50 p-3 rounded-lg">{selectedBooking.special_requests}</p>
+                                        </div>
+                                      )}
+                                      <div>
+                                        <Label className="text-slate-500 mb-2 block">Change Status</Label>
+                                        <div className="flex gap-2 flex-wrap">
+                                          <Button
+                                            size="sm"
+                                            variant={selectedBooking.status === 'pending' ? 'default' : 'outline'}
+                                            onClick={() => handleStatusChange(selectedBooking.id, 'pending')}
+                                          >
+                                            Pending
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant={selectedBooking.status === 'confirmed' ? 'default' : 'outline'}
+                                            onClick={() => handleStatusChange(selectedBooking.id, 'confirmed')}
+                                          >
+                                            Confirmed
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant={selectedBooking.status === 'completed' ? 'default' : 'outline'}
+                                            onClick={() => handleStatusChange(selectedBooking.id, 'completed')}
+                                          >
+                                            Completed
+                                          </Button>
+                                          <Button
+                                            size="sm"
+                                            variant={selectedBooking.status === 'cancelled' ? 'default' : 'outline'}
+                                            onClick={() => handleStatusChange(selectedBooking.id, 'cancelled')}
+                                          >
+                                            Cancelled
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          );
+                        })
+                      );
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
           <TabsContent value="blocked-dates" className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               {/* Block New Date */}
@@ -582,12 +839,21 @@ export default function AdminBookings() {
                           key={blocked.id}
                           className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
                         >
-                          <div>
-                            <p className="font-medium text-slate-800">
-                              {format(new Date(blocked.date), 'EEEE, MMMM d, yyyy')}
-                            </p>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className="font-medium text-slate-800">
+                                {format(new Date(blocked.date), 'EEEE, MMMM d, yyyy')}
+                              </p>
+                              <span className={`text-xs px-2 py-1 rounded-full ${
+                                blocked.boat_name === 'both' ? 'bg-slate-200 text-slate-700' :
+                                blocked.boat_name === 'FILU' ? 'bg-blue-100 text-blue-700' :
+                                'bg-purple-100 text-purple-700'
+                              }`}>
+                                {blocked.boat_name || 'both'}
+                              </span>
+                            </div>
                             {blocked.reason && (
-                              <p className="text-sm text-slate-500">{blocked.reason}</p>
+                              <p className="text-sm text-slate-500 mt-1">{blocked.reason}</p>
                             )}
                           </div>
                           <Button
