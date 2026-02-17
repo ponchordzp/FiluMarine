@@ -334,14 +334,18 @@ export default function AdminBookings() {
                                       </span>
                                     )}
                                   </div>
-                                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                  <div className="space-y-2 text-sm">
                                     <div className="flex items-center gap-2 text-slate-600">
                                       <CalendarIcon className="h-4 w-4" />
-                                      {format(new Date(booking.date), 'MMM d, yyyy')}
+                                      <span><strong>Scheduled:</strong> {format(new Date(booking.date), 'MMM d, yyyy')}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-slate-600">
                                       <Clock className="h-4 w-4" />
-                                      {booking.time_slot}
+                                      <span><strong>Booked on:</strong> {format(new Date(booking.created_date), 'MMM d, yyyy h:mm a')}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-slate-600">
+                                      <Clock className="h-4 w-4" />
+                                      <span><strong>Time:</strong> {booking.time_slot}</span>
                                     </div>
                                     <div className="flex items-center gap-2 text-slate-600">
                                       <Users className="h-4 w-4" />
