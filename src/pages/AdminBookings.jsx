@@ -797,7 +797,24 @@ export default function AdminBookings() {
                       selected={blockDate}
                       onSelect={setBlockDate}
                       className="rounded-md border"
+                      modifiers={{
+                        blocked: (date) => {
+                          const dateStr = format(date, 'yyyy-MM-dd');
+                          return blockedDates.some(b => b.date === dateStr);
+                        },
+                      }}
+                      modifiersStyles={{
+                        blocked: { 
+                          backgroundColor: '#fee2e2', 
+                          color: '#991b1b',
+                          fontWeight: 'bold',
+                        },
+                      }}
                     />
+                  </div>
+                  <div className="p-3 bg-red-50 rounded-lg text-sm text-red-800">
+                    <p className="font-medium mb-1">Legend:</p>
+                    <p>🔴 Red dates = Blocked</p>
                   </div>
                   <div>
                     <Label>Boat</Label>
