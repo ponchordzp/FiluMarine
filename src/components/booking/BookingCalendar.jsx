@@ -157,44 +157,56 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 selected={selectedDate}
                 onSelect={handleDateSelect}
                 disabled={(date) => {
+                  // Only allow dates from tomorrow onwards
                   if (isBefore(date, minDate)) return true;
+                  
+                  // Must select a boat first to check availability
+                  if (!selectedBoat) return false;
                   
                   const dateStr = format(date, 'yyyy-MM-dd');
                   const currentBoat = boats.find(b => b.id === selectedBoat);
                   
-                  // Check if this date is blocked for the selected boat
+                  // Check if this exact date is blocked for the selected boat
                   const isBlockedForBoat = blockedDates.some(blocked => {
-                    const blockedDate = new Date(blocked.date);
-                    if (!isSameDay(blockedDate, date)) return false;
+                    if (blocked.date !== dateStr) return false;
                     const blockBoatName = blocked.boat_name || 'both';
                     return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
                   });
                   
                   if (isBlockedForBoat) return true;
                   
-                  // Check if the selected boat is already booked on this specific date
-                  if (currentBoat) {
-                    const isBoatBooked = existingBookings.some(
+                  // Check if the selected boat is already booked on this exact date only
+                  const isBoatBooked = existingBookings.some(
+                    booking => booking.date === dateStr && 
+                               booking.boat_name === currentBoat.name && 
+                               booking.status !== 'cancelled'
+                  );
+                  
+                  return isBoatBooked;
+                }}
+                className="rounded-lg"
+                modifiers={{
+                  past: (date) => isBefore(date, minDate),
+                  blocked: (date) => {
+                    if (!selectedBoat) return false;
+                    const dateStr = format(date, 'yyyy-MM-dd');
+                    const currentBoat = boats.find(b => b.id === selectedBoat);
+                    
+                    // Check blocked dates
+                    const isBlocked = blockedDates.some(blocked => {
+                      if (blocked.date !== dateStr) return false;
+                      const blockBoatName = blocked.boat_name || 'both';
+                      return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
+                    });
+                    
+                    // Check booked dates
+                    const isBooked = existingBookings.some(
                       booking => booking.date === dateStr && 
                                  booking.boat_name === currentBoat.name && 
                                  booking.status !== 'cancelled'
                     );
-                    if (isBoatBooked) return true;
-                  }
-                  
-                  return false;
-                }}
-                className="rounded-lg"
-                modifiers={{
-                  past: (date) => isBefore(date, today) && !isToday(date),
-                  blocked: (date) => {
-                    const currentBoat = boats.find(b => b.id === selectedBoat);
-                    return blockedDates.some(blocked => {
-                      const blockedDate = new Date(blocked.date);
-                      if (!isSameDay(blockedDate, date)) return false;
-                      const blockBoatName = blocked.boat_name || 'both';
-                      return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
-                    });
+                    
+                    return isBlocked || isBooked;
                   },
                 }}
                 modifiersStyles={{

@@ -79,6 +79,14 @@ export default function AdminBookings() {
     },
   });
 
+  const deleteBookingMutation = useMutation({
+    mutationFn: (id) => base44.entities.Booking.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      setSelectedCalendarDate(null);
+    },
+  });
+
   const filteredBookings = bookings.filter(booking => {
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
@@ -353,7 +361,7 @@ export default function AdminBookings() {
                                 <DialogTrigger asChild>
                                   <Button variant="outline" size="sm" onClick={() => setSelectedBooking(booking)}>
                                     <Info className="h-4 w-4 mr-2" />
-                                    View Details
+                                    Details
                                   </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -506,6 +514,18 @@ export default function AdminBookings() {
                                   <SelectItem value="cancelled">Cancelled</SelectItem>
                                 </SelectContent>
                               </Select>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                  if (window.confirm(`Delete booking ${booking.confirmation_code}? This cannot be undone.`)) {
+                                    deleteBookingMutation.mutate(booking.id);
+                                  }
+                                }}
+                                disabled={deleteBookingMutation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
                         </CardContent>
@@ -621,18 +641,19 @@ export default function AdminBookings() {
                                 <Phone className="h-3 w-3 text-slate-400" />
                                 <span className="text-slate-600">{booking.guest_phone}</span>
                               </div>
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="w-full mt-2"
-                                    onClick={() => setSelectedBooking(booking)}
-                                  >
-                                    <Info className="h-3 w-3 mr-2" />
-                                    Full Details
-                                  </Button>
-                                </DialogTrigger>
+                              <div className="flex gap-2 mt-2">
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="flex-1"
+                                      onClick={() => setSelectedBooking(booking)}
+                                    >
+                                      <Info className="h-3 w-3 mr-2" />
+                                      Details
+                                    </Button>
+                                  </DialogTrigger>
                                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                                   <DialogHeader>
                                     <DialogTitle>Booking Details</DialogTitle>
@@ -768,6 +789,19 @@ export default function AdminBookings() {
                                   )}
                                 </DialogContent>
                               </Dialog>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => {
+                                  if (window.confirm(`Delete booking ${booking.confirmation_code}? This action cannot be undone.`)) {
+                                    deleteBookingMutation.mutate(booking.id);
+                                  }
+                                }}
+                                disabled={deleteBookingMutation.isPending}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                             </div>
                           );
                         })
