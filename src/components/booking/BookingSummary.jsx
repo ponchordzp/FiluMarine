@@ -8,10 +8,19 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { base44 } from '@/api/base44Client';
 
-const addOnOptions = [
-  { id: 'drinks_catering', title: 'Premium Drinks & Catering', price: 75 },
-  { id: 'celebration_package', title: 'Celebration Package', price: 100 },
-];
+const getAddOnPrice = (id, boatName) => {
+  const isTycoon = boatName === 'TYCOON';
+  const prices = {
+    drinks_catering: isTycoon ? 4500 : 1500,
+    celebration_package: isTycoon ? 6000 : 2000,
+  };
+  return prices[id] || 0;
+};
+
+const addOnTitles = {
+  drinks_catering: 'Premium Drinks & Catering',
+  celebration_package: 'Celebration Package',
+};
 
 export default function BookingSummary({ experience, onBack, onConfirm, bookingData, setBookingData, isSubmitting }) {
   const [paymentMethod, setPaymentMethod] = useState(bookingData.payment_method || 'card');

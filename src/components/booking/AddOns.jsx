@@ -4,26 +4,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Wine, Sparkles, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const addOnOptions = [
-  {
-    id: 'drinks_catering',
-    title: 'Premium Drinks & Catering',
-    description: 'Gourmet snacks, premium beverages, and fresh ceviche',
-    price: 75,
-    icon: Wine,
-  },
-  {
-    id: 'celebration_package',
-    title: 'Celebration Package',
-    description: 'Champagne, decorations, and special touches for occasions',
-    price: 100,
-    icon: Sparkles,
-  },
-];
+const getAddOnOptions = (boatName) => {
+  const isTycoon = boatName === 'TYCOON';
+  
+  return [
+    {
+      id: 'drinks_catering',
+      title: 'Premium Drinks & Catering',
+      description: isTycoon 
+        ? 'Premium open bar (beer, wine, cocktails), gourmet cheese & charcuterie boards, fresh ceviche bar, tropical fruit platters, and artisan canapés'
+        : 'Local beers, wine selection, fresh ceviche, guacamole with chips, seasonal fruit platter, and assorted gourmet snacks',
+      price: isTycoon ? 4500 : 1500,
+      icon: Wine,
+    },
+    {
+      id: 'celebration_package',
+      title: 'Celebration Package',
+      description: isTycoon
+        ? 'Premium champagne & sparkling wine, custom cake or dessert bar, luxury floral arrangements, balloon decorations, celebration banner, photographer service (1 hour), and party favors'
+        : 'Champagne bottle, celebration cake, festive decorations, balloons, personalized banner, and special setup',
+      price: isTycoon ? 6000 : 2000,
+      icon: Sparkles,
+    },
+  ];
+};
 
 export default function AddOns({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const [selectedAddOns, setSelectedAddOns] = useState(bookingData.add_ons || []);
   const [specialRequests, setSpecialRequests] = useState(bookingData.special_requests || '');
+  
+  const addOnOptions = getAddOnOptions(bookingData.boat_name);
 
   const toggleAddOn = (id) => {
     setSelectedAddOns(prev => 
@@ -94,11 +104,11 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                     <h3 className={`font-semibold ${isSelected ? 'text-[#1e88e5]' : 'text-slate-800'}`}>
                       {addOn.title}
                     </h3>
-                    <p className="text-sm text-slate-500">{addOn.description}</p>
+                    <p className="text-sm text-slate-500 leading-relaxed">{addOn.description}</p>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-shrink-0">
                     <span className={`font-semibold ${isSelected ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
-                      +${addOn.price}
+                      ${addOn.price.toLocaleString()} MXN
                     </span>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                       isSelected ? 'border-[#1e88e5] bg-[#1e88e5]' : 'border-slate-300'
@@ -126,7 +136,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             {totalAddOns > 0 && (
               <div className="text-slate-600">
-                Add-ons total: <span className="font-semibold text-slate-800">${totalAddOns}</span>
+                Add-ons total: <span className="font-semibold text-slate-800">${totalAddOns.toLocaleString()} MXN</span>
               </div>
             )}
             <Button
