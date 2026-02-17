@@ -581,9 +581,21 @@ export default function AdminBookings() {
                               key={booking.id}
                               className="p-4 bg-slate-50 rounded-lg space-y-2 border-l-4 border-blue-500"
                             >
-                              <div className="flex items-start justify-between">
-                                <div>
-                                  <p className="font-semibold text-slate-800">{booking.guest_name}</p>
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="font-semibold text-slate-800">{booking.guest_name}</p>
+                                    {booking.boat_name && (
+                                      <span className="text-sm px-3 py-1 rounded-full bg-[#1e88e5] text-white font-semibold flex items-center gap-1">
+                                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                          <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z"/>
+                                          <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z"/>
+                                          <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z"/>
+                                        </svg>
+                                        {booking.boat_name}
+                                      </span>
+                                    )}
+                                  </div>
                                   <p className="text-xs text-slate-500 font-mono">{booking.confirmation_code}</p>
                                 </div>
                                 <Badge className={statusColors[booking.status]}>
@@ -601,11 +613,6 @@ export default function AdminBookings() {
                                   {booking.guests} guests
                                 </div>
                               </div>
-                              {booking.boat_name && (
-                                <span className="inline-block text-xs px-2 py-1 rounded-full bg-[#1e88e5]/10 text-[#1e88e5] font-medium">
-                                  {booking.boat_name}
-                                </span>
-                              )}
                               <div className="flex items-center gap-2 text-sm">
                                 <Mail className="h-3 w-3 text-slate-400" />
                                 <span className="text-slate-600">{booking.guest_email}</span>
