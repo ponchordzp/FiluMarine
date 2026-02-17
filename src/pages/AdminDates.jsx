@@ -13,6 +13,7 @@ import AdminAuth from '@/components/AdminAuth';
 export default function AdminDatesPage() {
   const [newDate, setNewDate] = useState('');
   const [reason, setReason] = useState('');
+  const [boatName, setBoatName] = useState('both');
   const queryClient = useQueryClient();
 
   const { data: blockedDates = [], isLoading } = useQuery({
@@ -26,6 +27,7 @@ export default function AdminDatesPage() {
       queryClient.invalidateQueries({ queryKey: ['blockedDates'] });
       setNewDate('');
       setReason('');
+      setBoatName('both');
     },
   });
 
@@ -39,7 +41,11 @@ export default function AdminDatesPage() {
   const handleAdd = (e) => {
     e.preventDefault();
     if (!newDate) return;
-    createMutation.mutate({ date: newDate, reason: reason || 'Blocked by admin' });
+    createMutation.mutate({ 
+      date: newDate, 
+      reason: reason || 'Blocked by admin',
+      boat_name: boatName
+    });
   };
 
   return (
@@ -62,7 +68,7 @@ export default function AdminDatesPage() {
         <div className="bg-white rounded-2xl p-6 shadow-sm mb-8">
           <h2 className="text-xl font-semibold text-slate-800 mb-4">Block a New Date</h2>
           <form onSubmit={handleAdd} className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid md:grid-cols-3 gap-4">
               <div>
                 <Label htmlFor="date">Date *</Label>
                 <Input
@@ -73,6 +79,19 @@ export default function AdminDatesPage() {
                   required
                   className="mt-1"
                 />
+              </div>
+              <div>
+                <Label htmlFor="boat">Boat *</Label>
+                <Select value={boatName} onValueChange={setBoatName}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="both">Both Boats</SelectItem>
+                    <SelectItem value="FILU">FILU (25ft Sea Fox)</SelectItem>
+                    <SelectItem value="TYCOON">TYCOON (55ft Yacht)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor="reason">Reason (Optional)</Label>
@@ -111,10 +130,20 @@ export default function AdminDatesPage() {
                   key={blocked.id}
                   className="flex items-center justify-between p-4 border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
                 >
-                  <div>
-                    <p className="font-semibold text-slate-800">
-                      {format(new Date(blocked.date), 'EEEE, MMMM d, yyyy')}
-                    </p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="font-semibold text-slate-800">
+                        {format(new Date(blocked.date), 'EEEE, MMMM d, yyyy')}
+                      </p>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        blocked.boat_name === 'both' ? 'bg-slate-100 text-slate-700' :
+                        blocked.boat_name === 'FILU' ? 'bg-blue-100 text-blue-700' :
+                        'bg-purple-100 text-purple-700'
+                      }`}>
+                        <Anchor className="inline h-3 w-3 mr-1" />
+                        {blocked.boat_name || 'both'}
+                      </span>
+                    </div>
                     {blocked.reason && (
                       <p className="text-sm text-slate-500 mt-1">{blocked.reason}</p>
                     )}
