@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useMutation } from '@tanstack/react-query';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Settings, Calendar } from 'lucide-react';
@@ -180,7 +180,7 @@ export default function Home() {
         <h3>Booking Details:</h3>
         <ul>
           <li><strong>Experience:</strong> ${experience.title}</li>
-          <li><strong>Date:</strong> ${format(new Date(data.date), 'EEEE, MMMM d, yyyy')}</li>
+          <li><strong>Date:</strong> ${format(parseISO(data.date), 'EEEE, MMMM d, yyyy')}</li>
           <li><strong>Time:</strong> ${data.time_slot}</li>
           <li><strong>Guests:</strong> ${data.guests}</li>
           <li><strong>Boat:</strong> ${data.boat_name}</li>
@@ -223,7 +223,7 @@ export default function Home() {
       });
 
       // Send WhatsApp notification (note: this creates a message URL that can be used)
-      const whatsappMessage = `*NEW BOOKING - FILU MARINE*%0A%0A*Confirmation:* ${confirmationCode}%0A*Experience:* ${experience.title}%0A*Date:* ${format(new Date(data.date), 'EEEE, MMMM d, yyyy')}%0A*Time:* ${data.time_slot}%0A*Guests:* ${data.guests}%0A*Boat:* ${data.boat_name}%0A${data.taxi_needed ? '*Taxi Needed:* Yes%0A' : ''}%0A*Guest:* ${data.guest_name}%0A*Phone:* ${data.guest_phone}%0A*Total:* $${data.total_price.toLocaleString()} MXN`;
+      const whatsappMessage = `*NEW BOOKING - FILU MARINE*%0A%0A*Confirmation:* ${confirmationCode}%0A*Experience:* ${experience.title}%0A*Date:* ${format(parseISO(data.date), 'EEEE, MMMM d, yyyy')}%0A*Time:* ${data.time_slot}%0A*Guests:* ${data.guests}%0A*Boat:* ${data.boat_name}%0A${data.taxi_needed ? '*Taxi Needed:* Yes%0A' : ''}%0A*Guest:* ${data.guest_name}%0A*Phone:* ${data.guest_phone}%0A*Total:* $${data.total_price.toLocaleString()} MXN`;
       
       // Open WhatsApp link in new window (this will notify management)
       window.open(`https://wa.me/5215513782169?text=${whatsappMessage}`, '_blank');
