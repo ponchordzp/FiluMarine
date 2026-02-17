@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Calendar, Clock, Users, CreditCard, Building, Check, Shield, Car, ChevronDown, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Users, CreditCard, Building, Check, Shield, Car, ChevronDown, MessageCircle, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
+import { base44 } from '@/api/base44Client';
 
 const addOnOptions = [
   { id: 'drinks_catering', title: 'Premium Drinks & Catering', price: 75 },
@@ -21,6 +22,8 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
     phone: bookingData.guest_phone || '',
   });
   const [errors, setErrors] = useState({});
+  const [paymentScreenshot, setPaymentScreenshot] = useState(bookingData.payment_screenshot || null);
+  const [isUploading, setIsUploading] = useState(false);
   
   const whatsappLink = `https://wa.me/525513782169?text=Hello!%20I%20have%20made%20a%20direct%20deposit%20for%20booking%20with%20confirmation%20code:%20${bookingData.confirmation_code || 'PENDING'}`;
 
@@ -36,12 +39,39 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const deposit = Math.round(totalPrice * 0.4);
   const remaining = totalPrice - deposit;
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setErrors({...errors, screenshot: 'Please upload an image file'});
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setPaymentScreenshot(result.file_url);
+      setErrors({...errors, screenshot: null});
+    } catch (error) {
+      console.error('Upload error:', error);
+      setErrors({...errors, screenshot: 'Failed to upload image'});
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const validate = () => {
     const newErrors = {};
     if (!guestInfo.name.trim()) newErrors.name = 'Name is required';
     if (!guestInfo.email.trim()) newErrors.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(guestInfo.email)) newErrors.email = 'Invalid email';
     if (!guestInfo.phone.trim()) newErrors.phone = 'Phone/WhatsApp is required';
+    
+    if ((paymentMethod === 'bank_transfer' || paymentMethod === 'paypal') && !paymentScreenshot) {
+      newErrors.screenshot = 'Payment screenshot is required';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -55,6 +85,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
       guest_email: guestInfo.email,
       guest_phone: guestInfo.phone,
       payment_method: paymentMethod,
+      payment_screenshot: paymentScreenshot,
       total_price: totalPrice,
       deposit_paid: deposit,
     };
@@ -328,6 +359,57 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                     </a>
                   </div>
                 </RadioGroup>
+
+                {/* Payment Screenshot Upload */}
+                {(paymentMethod === 'bank_transfer' || paymentMethod === 'paypal') && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 p-4 border-2 border-dashed border-slate-200 rounded-xl"
+                  >
+                    <Label className="text-slate-700 mb-2 block">Payment Screenshot *</Label>
+                    <p className="text-sm text-slate-500 mb-3">Upload proof of payment (required)</p>
+                    
+                    {!paymentScreenshot ? (
+                      <div>
+                        <label htmlFor="screenshot-upload" className="cursor-pointer">
+                          <div className="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
+                            <Upload className="h-8 w-8 text-slate-400 mb-2" />
+                            <p className="text-sm font-medium text-slate-600">Click to upload screenshot</p>
+                            <p className="text-xs text-slate-500 mt-1">PNG, JPG up to 10MB</p>
+                          </div>
+                        </label>
+                        <input
+                          id="screenshot-upload"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          disabled={isUploading}
+                        />
+                        {isUploading && (
+                          <div className="flex items-center justify-center gap-2 mt-2 text-sm text-slate-600">
+                            <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+                            Uploading...
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <img src={paymentScreenshot} alt="Payment proof" className="w-full h-48 object-cover rounded-lg" />
+                        <button
+                          onClick={() => setPaymentScreenshot(null)}
+                          className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+                    )}
+                    {errors.screenshot && (
+                      <p className="text-xs text-red-500 mt-2">{errors.screenshot}</p>
+                    )}
+                  </motion.div>
+                )}
               </div>
 
               {/* Remaining Balance Info */}
