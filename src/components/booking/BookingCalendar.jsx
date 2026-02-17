@@ -83,7 +83,6 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
 
   React.useEffect(() => {
     const fetchBookings = async () => {
-      if (!selectedBoat) return;
       try {
         const bookings = await base44.entities.Booking.list();
         setExistingBookings(bookings);
@@ -92,7 +91,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       }
     };
     fetchBookings();
-  }, [selectedBoat]);
+  }, []);
 
   const handleDateSelect = (date) => {
     setSelectedDate(date);
@@ -162,25 +161,22 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   if (isBefore(date, minDate)) return true;
                   if (blockedDates.some(blocked => isSameDay(blocked, date))) return true;
                   
-                  // Check if selected boat is already booked on this date
-                  if (selectedBoat) {
-                    const boat = boats.find(b => b.id === selectedBoat);
-                    const dateStr = format(date, 'yyyy-MM-dd');
-                    return existingBookings.some(
-                      booking => booking.boat_name === boat.name && 
-                                 booking.date === dateStr && 
-                                 booking.status !== 'cancelled'
-                    );
-                  }
+                  // Check if any boat is already booked on this date (blocking the entire day)
+                  const dateStr = format(date, 'yyyy-MM-dd');
+                  const isBooked = existingBookings.some(
+                    booking => booking.date === dateStr && booking.status !== 'cancelled'
+                  );
                   
-                  return false;
+                  return isBooked;
                 }}
                 className="rounded-lg"
                 modifiers={{
                   past: (date) => isBefore(date, today) && !isToday(date),
+                  blocked: (date) => blockedDates.some(blocked => isSameDay(blocked, date)),
                 }}
                 modifiersStyles={{
                   past: { color: '#cbd5e1', textDecoration: 'line-through' },
+                  blocked: { color: '#ef4444', fontWeight: 'bold', backgroundColor: '#fee2e2' },
                 }}
               />
               
