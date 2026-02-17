@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Anchor, Ship, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import LuxuryPattern from '../patterns/LuxuryPattern';
 
 export default function JoinFilu() {
   const [formData, setFormData] = useState({
@@ -75,12 +76,13 @@ ${formData.message}
 
   if (submitted) {
     return (
-      <section className="py-8 md:py-12 bg-gradient-to-b from-[#0c2340] to-[#0a1929] border-t border-white/10">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+      <section className="py-8 md:py-12 bg-gradient-to-b from-[#0c2340] to-[#0a1929] border-t border-white/10 relative overflow-hidden">
+        <LuxuryPattern opacity={0.08} />
+        <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/10 backdrop-blur-sm rounded-3xl p-12"
+            className="bg-white/10 backdrop-blur-md rounded-3xl p-12 border border-white/20"
           >
             <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="h-8 w-8 text-white" />
@@ -103,8 +105,9 @@ ${formData.message}
   }
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-b from-[#0c2340] to-[#0a1929] border-t border-white/10">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6">
+    <section className="py-8 md:py-12 bg-gradient-to-b from-[#0c2340] to-[#0a1929] border-t border-white/10 relative overflow-hidden">
+      <LuxuryPattern opacity={0.08} />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <Anchor className="h-8 w-8 text-[#1e88e5]" />
@@ -117,7 +120,7 @@ ${formData.message}
           </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-4 sm:p-8 border border-white/20">
+        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-4 sm:p-8 border border-white/20">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
