@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, Trash2, Plus } from 'lucide-react';
+import { Calendar, Trash2, Plus, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import AdminAuth from '@/components/AdminAuth';
 
@@ -44,6 +46,13 @@ export default function AdminDatesPage() {
     <AdminAuth>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
       <div className="max-w-4xl mx-auto">
+        <Link 
+          to={createPageUrl('Home')}
+          className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-6 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
         <div className="flex items-center gap-3 mb-8">
           <Calendar className="h-8 w-8 text-[#1e88e5]" />
           <h1 className="text-3xl font-bold text-slate-800">Manage Blocked Dates</h1>

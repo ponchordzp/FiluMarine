@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
@@ -11,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import AdminAuth from '@/components/AdminAuth';
@@ -123,6 +125,13 @@ export default function AdminBookings() {
     <div className="min-h-screen bg-slate-50">
       <div className="bg-gradient-to-r from-[#0c2340] to-[#1e88e5] text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
+          <Link 
+            to={createPageUrl('Home')}
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
           <h1 className="text-4xl font-bold mb-2">Booking Management</h1>
           <p className="text-white/80">View and manage all customer bookings</p>
         </div>
