@@ -625,6 +625,20 @@ export default function AdminBookings() {
                               </div>
                               <div className="grid grid-cols-2 gap-2 text-sm">
                                 <div className="flex items-center gap-1 text-slate-600">
+                                  <CalendarIcon className="h-3 w-3" />
+                                  <div>
+                                    <p className="text-xs text-slate-500">Scheduled:</p>
+                                    <p className="font-medium">{format(new Date(booking.date), 'MMM d')}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 text-slate-600">
+                                  <Clock className="h-3 w-3" />
+                                  <div>
+                                    <p className="text-xs text-slate-500">Booked:</p>
+                                    <p className="font-medium">{format(new Date(booking.created_date), 'MMM d')}</p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-1 text-slate-600">
                                   <Clock className="h-3 w-3" />
                                   {booking.time_slot}
                                 </div>
