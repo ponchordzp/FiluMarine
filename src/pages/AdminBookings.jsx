@@ -410,8 +410,12 @@ export default function AdminBookings() {
                                           <p className="font-medium">{selectedBooking.boat_name || 'N/A'}</p>
                                         </div>
                                         <div>
-                                          <Label className="text-slate-500">Date</Label>
+                                          <Label className="text-slate-500">Scheduled Date</Label>
                                           <p className="font-medium">{format(new Date(selectedBooking.date), 'EEEE, MMMM d, yyyy')}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Booking Created</Label>
+                                          <p className="font-medium">{format(new Date(selectedBooking.created_date), 'MMM d, yyyy h:mm a')}</p>
                                         </div>
                                         <div>
                                           <Label className="text-slate-500">Time</Label>
