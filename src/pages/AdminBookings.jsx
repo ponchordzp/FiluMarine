@@ -857,11 +857,15 @@ export default function AdminBookings() {
                         const isPast = date < new Date();
                         return !isBlocked && !isBooked && !isPast;
                       },
-                      unavailable: (date) => {
+                      booked: (date) => {
                         const dateStr = format(date, 'yyyy-MM-dd');
-                        const isBlocked = blockedDates.some(b => b.date === dateStr);
                         const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
-                        return isBlocked || isBooked;
+                        const isBlocked = blockedDates.some(b => b.date === dateStr);
+                        return isBooked && !isBlocked;
+                      },
+                      blocked: (date) => {
+                        const dateStr = format(date, 'yyyy-MM-dd');
+                        return blockedDates.some(b => b.date === dateStr);
                       },
                     }}
                     modifiersStyles={{
@@ -870,7 +874,12 @@ export default function AdminBookings() {
                         color: '#166534',
                         fontWeight: 'bold',
                       },
-                      unavailable: { 
+                      booked: { 
+                        backgroundColor: '#dbeafe', 
+                        color: '#1e40af',
+                        fontWeight: 'bold',
+                      },
+                      blocked: { 
                         backgroundColor: '#fee2e2', 
                         color: '#991b1b',
                         fontWeight: 'bold',
@@ -881,7 +890,8 @@ export default function AdminBookings() {
                   <div className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-1">
                     <p className="font-medium mb-1">Legend:</p>
                     <p>🟢 Green dates = Available</p>
-                    <p>🔴 Red dates = Unavailable (booked or blocked)</p>
+                    <p>🔵 Blue dates = Booked</p>
+                    <p>🔴 Red dates = Blocked</p>
                   </div>
                 </CardContent>
               </Card>
