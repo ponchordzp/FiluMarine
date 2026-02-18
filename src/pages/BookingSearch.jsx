@@ -53,31 +53,44 @@ export default function BookingSearch() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <div className="bg-gradient-to-r from-[#0c2340] to-[#1e88e5] text-white py-12">
-        <div className="max-w-4xl mx-auto px-6">
-          <Link 
-            to={createPageUrl('Home')}
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
-          <h1 className="text-4xl font-bold mb-2">Find Your Booking</h1>
-          <p className="text-white/80">Enter your confirmation code to view booking details</p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#0a1929] relative">
+      {/* Background Image Overlay */}
+      <div 
+        className="absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: 'url(https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/d6f4a51df_vecteezy_ai-generated-crisp-blue-ocean-waves-png_42148150.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      ></div>
 
-      <div className="max-w-4xl mx-auto px-6 py-12">
+      {/* Content */}
+      <div className="relative z-10">
+        <div className="py-12">
+          <div className="max-w-4xl mx-auto px-6">
+            <Link 
+              to={createPageUrl('Home')}
+              className="inline-flex items-center gap-2 text-white/90 hover:text-white mb-6 transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
+            <h1 className="text-5xl font-bold mb-3 text-white drop-shadow-lg">Find Your Booking</h1>
+            <p className="text-white/90 text-lg drop-shadow">Enter your confirmation code to view booking details</p>
+          </div>
+        </div>
+
+        <div className="max-w-4xl mx-auto px-6 pb-12">
         {/* Search Box */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <Card className="mb-8">
+          <Card className="mb-8 bg-white/95 backdrop-blur-sm shadow-xl border-white/20">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-slate-800">
+                <Search className="h-5 w-5 text-[#1e88e5]" />
                 Search Booking
               </CardTitle>
             </CardHeader>
@@ -117,10 +130,10 @@ export default function BookingSearch() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm shadow-xl border-white/20">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Booking Details</CardTitle>
+                  <CardTitle className="text-slate-800">Booking Details</CardTitle>
                   <Badge className={statusColors[booking.status]}>
                     {booking.status.toUpperCase()}
                   </Badge>
@@ -342,6 +355,7 @@ export default function BookingSearch() {
             </Card>
           </motion.div>
         )}
+        </div>
       </div>
     </div>
   );
