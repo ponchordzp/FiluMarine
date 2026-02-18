@@ -1,6 +1,8 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
-import { ChevronDown, MessageCircle, Anchor } from 'lucide-react';
+import { ChevronDown, MessageCircle, Anchor, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Hero({ onScrollToExperiences }) {
@@ -85,6 +87,17 @@ export default function Hero({ onScrollToExperiences }) {
             <Button 
               size="lg"
               asChild
+              className="bg-white text-[#0c2340] hover:bg-white/90 px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
+            >
+              <Link to={createPageUrl('BookingSearch')}>
+                <Search className="mr-2 h-5 w-5" />
+                Find My Booking
+              </Link>
+            </Button>
+            
+            <Button 
+              size="lg"
+              asChild
               className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
             >
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
@@ -93,22 +106,6 @@ export default function Hero({ onScrollToExperiences }) {
               </a>
             </Button>
           </div>
-        </motion.div>
-
-        {/* Scroll Indicator */}
-        <motion.div 
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.2 }}
-        >
-          <motion.div
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center pt-2"
-          >
-            <div className="w-1.5 h-1.5 bg-white/60 rounded-full" />
-          </motion.div>
         </motion.div>
       </div>
     </section>
