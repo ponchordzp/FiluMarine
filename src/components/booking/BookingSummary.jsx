@@ -125,10 +125,10 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
             <p className="text-slate-600">Review details and confirm your reservation</p>
           </div>
 
-          <div className="grid md:grid-cols-5 gap-8">
+          <div className="grid md:grid-cols-5 gap-6 md:gap-8">
             {/* Booking Summary */}
-            <div className="md:col-span-2 space-y-6">
-              <div className="bg-white rounded-lg md:rounded-2xl p-6 shadow-sm">
+            <div className="md:col-span-2 space-y-6 min-w-0">
+              <div className="bg-white rounded-lg md:rounded-2xl p-4 md:p-6 shadow-sm">
                 <h3 className="font-semibold text-slate-800 mb-4">Booking Summary</h3>
                 
                 <div className="space-y-4">
@@ -186,7 +186,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               </div>
 
               {/* Price Breakdown */}
-              <div className="bg-white rounded-lg md:rounded-2xl p-6 shadow-sm">
+              <div className="bg-white rounded-lg md:rounded-2xl p-4 md:p-6 shadow-sm">
                 <h3 className="font-semibold text-slate-800 mb-4">Price Breakdown</h3>
                 
                 <div className="space-y-2">
@@ -234,9 +234,9 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
             </div>
 
             {/* Guest Info & Payment */}
-            <div className="md:col-span-3 space-y-6">
+            <div className="md:col-span-3 space-y-6 min-w-0">
               {/* Guest Information */}
-              <div className="bg-white rounded-lg md:rounded-2xl p-6 shadow-sm">
+              <div className="bg-white rounded-lg md:rounded-2xl p-4 md:p-6 shadow-sm">
                 <h3 className="font-semibold text-slate-800 mb-4">Guest Information</h3>
                 
                 <div className="space-y-4">
@@ -278,7 +278,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               </div>
 
               {/* Payment Method - Deposit */}
-              <div className="bg-white rounded-lg md:rounded-2xl p-6 shadow-sm">
+              <div className="bg-white rounded-lg md:rounded-2xl p-4 md:p-6 shadow-sm">
                 <h3 className="font-semibold text-slate-800 mb-2">Deposit Payment (40%)</h3>
                 <p className="text-sm text-slate-500 mb-4">Non-refundable reservation fee: <span className="font-semibold text-slate-700">${deposit.toLocaleString()} MXN</span></p>
                 
@@ -422,7 +422,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               </div>
 
               {/* Remaining Balance Info */}
-              <div className="bg-[#f0f5f9] rounded-lg md:rounded-2xl p-6">
+              <div className="bg-[#f0f5f9] rounded-lg md:rounded-2xl p-4 md:p-6">
                 <h3 className="font-semibold text-slate-800 mb-2">Remaining Balance (60%)</h3>
                 <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining.toLocaleString()} MXN</span></p>
                 <p className="text-sm text-slate-600 mb-3">Payment options available on the day of your trip:</p>
