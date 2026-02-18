@@ -837,7 +837,17 @@ export default function AdminBookings() {
 
           <TabsContent value="blocked-dates" className="space-y-6">
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-yellow-600">
+                      {bookings.filter(b => b.date === format(new Date(), 'yyyy-MM-dd') && b.status !== 'cancelled').length}
+                    </p>
+                    <p className="text-sm text-slate-500">Trips Today</p>
+                  </div>
+                </CardContent>
+              </Card>
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-center">
@@ -913,9 +923,76 @@ export default function AdminBookings() {
               </Card>
             </div>
 
-            {/* Two Column Layout */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Left Column - Available Dates Calendar */}
+            {/* Three Column Layout */}
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Trips Today */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5 text-yellow-600" />
+                    Trips Today
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 max-h-[500px] overflow-y-auto">
+                    {(() => {
+                      const todayStr = format(new Date(), 'yyyy-MM-dd');
+                      const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'cancelled');
+                      
+                      return todayBookings.length === 0 ? (
+                        <div className="text-center py-12">
+                          <CalendarIcon className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                          <p className="text-slate-500">No trips today</p>
+                        </div>
+                      ) : (
+                        todayBookings.map((booking) => {
+                          const StatusIcon = statusIcons[booking.status];
+                          return (
+                            <div
+                              key={booking.id}
+                              className="p-4 bg-yellow-50 rounded-lg space-y-2 border-l-4 border-yellow-500"
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="font-semibold text-slate-800">{booking.guest_name}</p>
+                                    {booking.boat_name && (
+                                      <span className="text-sm px-3 py-1 rounded-full bg-[#1e88e5] text-white font-semibold">
+                                        {booking.boat_name}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-slate-500 font-mono">{booking.confirmation_code}</p>
+                                </div>
+                                <Badge className={statusColors[booking.status]}>
+                                  <StatusIcon className="h-3 w-3 mr-1" />
+                                  {booking.status}
+                                </Badge>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-sm">
+                                <div className="flex items-center gap-1 text-slate-600">
+                                  <Clock className="h-3 w-3" />
+                                  {booking.time_slot}
+                                </div>
+                                <div className="flex items-center gap-1 text-slate-600">
+                                  <Users className="h-3 w-3" />
+                                  {booking.guests} guests
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm">
+                                <Phone className="h-3 w-3 text-slate-400" />
+                                <span className="text-slate-600">{booking.guest_phone}</span>
+                              </div>
+                            </div>
+                          );
+                        })
+                      );
+                    })()}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Middle Column - Available Dates Calendar */}
               <Card className="h-fit">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
@@ -928,25 +1005,39 @@ export default function AdminBookings() {
                     mode="single"
                     className="rounded-md border w-full"
                     modifiers={{
+                      today: (date) => {
+                        const dateStr = format(date, 'yyyy-MM-dd');
+                        const todayStr = format(new Date(), 'yyyy-MM-dd');
+                        return dateStr === todayStr;
+                      },
                       available: (date) => {
                         const dateStr = format(date, 'yyyy-MM-dd');
+                        const todayStr = format(new Date(), 'yyyy-MM-dd');
                         const isBlocked = blockedDates.some(b => b.date === dateStr);
                         const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
                         const isPast = date < new Date();
-                        return !isBlocked && !isBooked && !isPast;
+                        return !isBlocked && !isBooked && !isPast && dateStr !== todayStr;
                       },
                       booked: (date) => {
                         const dateStr = format(date, 'yyyy-MM-dd');
+                        const todayStr = format(new Date(), 'yyyy-MM-dd');
                         const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
                         const isBlocked = blockedDates.some(b => b.date === dateStr);
-                        return isBooked && !isBlocked;
+                        return isBooked && !isBlocked && dateStr !== todayStr;
                       },
                       blocked: (date) => {
                         const dateStr = format(date, 'yyyy-MM-dd');
-                        return blockedDates.some(b => b.date === dateStr);
+                        const todayStr = format(new Date(), 'yyyy-MM-dd');
+                        return blockedDates.some(b => b.date === dateStr) && dateStr !== todayStr;
                       },
                     }}
                     modifiersStyles={{
+                      today: {
+                        backgroundColor: '#fef3c7',
+                        color: '#92400e',
+                        fontWeight: 'bold',
+                        border: '2px solid #fbbf24',
+                      },
                       available: {
                         backgroundColor: '#dcfce7',
                         color: '#166534',
@@ -967,6 +1058,10 @@ export default function AdminBookings() {
                   />
                   <div className="p-4 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-2">
                     <p className="font-semibold mb-2">Legend:</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-yellow-100 border-2 border-yellow-400"></div>
+                      <span>Today</span>
+                    </div>
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 rounded bg-green-100 border border-green-300"></div>
                       <span>Available</span>
@@ -1049,7 +1144,7 @@ export default function AdminBookings() {
               </Card>
 
               {/* Right Column - Block Management */}
-              <div className="space-y-6">
+              <div className="space-y-6 md:col-span-1">
                 {/* Block New Date */}
                 <Card>
                   <CardHeader>
