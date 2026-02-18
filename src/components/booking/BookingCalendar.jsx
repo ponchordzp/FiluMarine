@@ -215,11 +215,19 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 }}
               />
               
-              <div className="mt-4 p-3 bg-amber-50 rounded-xl flex gap-3 items-start">
-                <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-amber-800">
-                  Trips operate only when weather and safety conditions allow. We'll contact you if changes are needed.
-                </p>
+              <div className="mt-4 space-y-2">
+                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex gap-3 items-start">
+                  <div className="w-5 h-5 bg-red-500 rounded-full flex-shrink-0 mt-0.5"></div>
+                  <p className="text-sm text-red-900">
+                    <span className="font-semibold">Red dates are unavailable</span> and cannot be booked due to prior reservations or scheduling constraints.
+                  </p>
+                </div>
+                <div className="p-3 bg-amber-50 rounded-xl flex gap-3 items-start">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-amber-800">
+                    Trips operate only when weather and safety conditions allow. We'll contact you if changes are needed.
+                  </p>
+                </div>
               </div>
             </div>
 
