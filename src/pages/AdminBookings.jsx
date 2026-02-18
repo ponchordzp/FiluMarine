@@ -147,7 +147,7 @@ export default function AdminBookings() {
 
   return (
     <AdminAuth>
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#0f1e2e]">
       <div className="bg-gradient-to-r from-[#0c2340] to-[#1e88e5] text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
           <Link 
@@ -165,7 +165,7 @@ export default function AdminBookings() {
       <div className="max-w-7xl mx-auto px-6 -mt-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <Card>
+          <Card className="bg-white/95 backdrop-blur-sm">
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
@@ -208,16 +208,16 @@ export default function AdminBookings() {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
+          <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
             <TabsTrigger value="bookings">Bookings</TabsTrigger>
             <TabsTrigger value="booked-dates">Booked Dates</TabsTrigger>
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
             <TabsTrigger value="blocked-dates">Blocked Dates</TabsTrigger>
+            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
             {/* Filters */}
-            <Card>
+            <Card className="bg-white/95 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Filter className="h-5 w-5" />
@@ -296,7 +296,7 @@ export default function AdminBookings() {
             {/* Bookings List */}
             <div className="space-y-4">
               {filteredBookings.length === 0 ? (
-                <Card>
+                <Card className="bg-white/95 backdrop-blur-sm">
                   <CardContent className="py-12 text-center">
                     <p className="text-slate-500">No bookings found</p>
                   </CardContent>
@@ -310,7 +310,7 @@ export default function AdminBookings() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                     >
-                      <Card className="hover:shadow-lg transition-shadow">
+                      <Card className="bg-white/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
                         <CardContent className="p-6">
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex-1 space-y-3">
@@ -549,7 +549,7 @@ export default function AdminBookings() {
           <TabsContent value="booked-dates" className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               {/* Calendar View */}
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
@@ -584,7 +584,7 @@ export default function AdminBookings() {
               </Card>
 
               {/* Bookings for Selected Date */}
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle>
                     {selectedCalendarDate 
@@ -838,8 +838,8 @@ export default function AdminBookings() {
 
           <TabsContent value="dashboard" className="space-y-6">
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <Card>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card className="bg-white/95 backdrop-blur-sm">
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-3xl font-bold text-yellow-600">
@@ -849,7 +849,7 @@ export default function AdminBookings() {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm">
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-3xl font-bold text-green-600">
@@ -871,7 +871,7 @@ export default function AdminBookings() {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm">
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-3xl font-bold text-blue-600">
@@ -891,15 +891,7 @@ export default function AdminBookings() {
                   </div>
                 </CardContent>
               </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-red-600">{blockedDates.length}</p>
-                    <p className="text-sm text-slate-500">Total Blocked Dates</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm">
                 <CardContent className="pt-6">
                   <div className="text-center">
                     <p className="text-3xl font-bold text-amber-600">
@@ -929,7 +921,7 @@ export default function AdminBookings() {
               {/* Left Column - Calendar and Trips Today */}
               <div className="space-y-6">
                 {/* Calendar Overview */}
-                <Card>
+                <Card className="bg-white/95 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
@@ -1080,7 +1072,7 @@ export default function AdminBookings() {
               </Card>
 
                 {/* Trips Today */}
-                <Card>
+                <Card className="bg-white/95 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <CalendarIcon className="h-5 w-5 text-yellow-600" />
@@ -1150,7 +1142,7 @@ export default function AdminBookings() {
               {/* Right Column - Block Management */}
               <div className="space-y-6">
                 {/* Block New Date */}
-                <Card>
+                <Card className="bg-white/95 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Plus className="h-5 w-5" />
@@ -1218,7 +1210,7 @@ export default function AdminBookings() {
                 </Card>
 
                 {/* Currently Blocked Dates */}
-                <Card>
+                <Card className="bg-white/95 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Blocked Dates ({blockedDates.length})</span>
@@ -1284,10 +1276,10 @@ export default function AdminBookings() {
               </TabsContent>
 
               <TabsContent value="blocked-dates" className="space-y-6">
-              {/* Two Column Layout */}
-              <div className="grid md:grid-cols-2 gap-6">
-              {/* Left Column - Block New Date */}
-              <Card>
+                {/* Two Column Layout */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Left Column - Block New Date */}
+                  <Card className="bg-white/95 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Plus className="h-5 w-5" />
@@ -1355,7 +1347,7 @@ export default function AdminBookings() {
               </Card>
 
               {/* Right Column - Currently Blocked Dates */}
-              <Card>
+              <Card className="bg-white/95 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span>Blocked Dates ({blockedDates.length})</span>
