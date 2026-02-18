@@ -13,10 +13,11 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter, ArrowLeft } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter, ArrowLeft, Gauge, PenSquare } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
 import AdminAuth from '@/components/AdminAuth';
+import ExpenseDataEntry from '@/components/ExpenseDataEntry';
 
 const statusColors = {
   pending: 'bg-amber-100 text-amber-800',
@@ -42,6 +43,14 @@ export default function AdminBookings() {
   const [blockReason, setBlockReason] = useState('');
   const [blockBoat, setBlockBoat] = useState('both');
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
+  const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
+  const [expenseBooking, setExpenseBooking] = useState(null);
+  const [adminUsername, setAdminUsername] = useState('');
+
+  React.useEffect(() => {
+    const username = sessionStorage.getItem('admin_username') || 'Admin';
+    setAdminUsername(username);
+  }, []);
 
   const queryClient = useQueryClient();
 
@@ -150,15 +159,35 @@ export default function AdminBookings() {
     <div className="min-h-screen bg-[#0f1e2e]">
       <div className="bg-gradient-to-r from-[#0c2340] to-[#1e88e5] text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
-          <Link 
-            to={createPageUrl('Home')}
-            className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-4 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to Home
-          </Link>
-          <h1 className="text-4xl font-bold mb-2">Booking Management</h1>
-          <p className="text-white/80">View and manage all customer bookings</p>
+          <div className="flex items-center justify-between mb-4">
+            <Link 
+              to={createPageUrl('Home')}
+              className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
+            <div className="flex items-center gap-3">
+              <span className="text-white/80 text-sm">Logged in as:</span>
+              <span className="font-semibold text-white bg-white/20 px-3 py-1 rounded-full">
+                {adminUsername}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">Booking Management</h1>
+              <p className="text-white/80">View and manage all customer bookings</p>
+            </div>
+            <Button 
+              variant="outline" 
+              className="bg-white/10 hover:bg-white/20 border-white/30 text-white"
+              onClick={() => alert('Simulation mode activated - Generate test bookings for demo purposes')}
+            >
+              <Gauge className="h-4 w-4 mr-2" />
+              Simulation Mode
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -362,6 +391,18 @@ export default function AdminBookings() {
                             </div>
 
                             <div className="flex flex-col gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200"
+                                onClick={() => {
+                                  setExpenseBooking(booking);
+                                  setExpenseDialogOpen(true);
+                                }}
+                              >
+                                <PenSquare className="h-4 w-4 mr-2" />
+                                Data Entry
+                              </Button>
                               <Dialog>
                                 <DialogTrigger asChild>
                                   <Button variant="outline" size="sm" onClick={() => setSelectedBooking(booking)}>
@@ -1388,6 +1429,21 @@ export default function AdminBookings() {
               </TabsContent>
               </Tabs>
       </div>
+
+      {/* Bottom Edge */}
+      <div className="h-1 bg-gradient-to-r from-[#0c2340] via-[#1e88e5] to-[#0c2340]"></div>
+
+      {/* Expense Data Entry Dialog */}
+      {expenseBooking && (
+        <ExpenseDataEntry 
+          booking={expenseBooking}
+          isOpen={expenseDialogOpen}
+          onClose={() => {
+            setExpenseDialogOpen(false);
+            setExpenseBooking(null);
+          }}
+        />
+      )}
     </div>
     </AdminAuth>
   );
