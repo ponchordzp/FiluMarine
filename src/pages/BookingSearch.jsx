@@ -246,11 +246,59 @@ export default function BookingSearch() {
                       <Label className="text-slate-500">Deposit Paid</Label>
                       <p className="text-2xl font-bold text-emerald-600">${booking.deposit_paid?.toLocaleString()} MXN</p>
                     </div>
+                    <div className="col-span-2">
+                      <Label className="text-slate-500">Amount Remaining</Label>
+                      <p className="text-2xl font-bold text-amber-600">${((booking.total_price || 0) - (booking.deposit_paid || 0)).toLocaleString()} MXN</p>
+                    </div>
                   </div>
                   <div className="mt-4">
-                    <Label className="text-slate-500">Payment Method</Label>
+                    <Label className="text-slate-500">Payment Method Used for Deposit</Label>
                     <p className="font-medium capitalize">{booking.payment_method?.replace(/_/g, ' ')}</p>
                   </div>
+                  
+                  {/* Remaining Payment Information */}
+                  {booking.total_price > booking.deposit_paid && (
+                    <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg p-4">
+                      <h4 className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                        <DollarSign className="h-5 w-5" />
+                        Remaining Balance - Due on Arrival
+                      </h4>
+                      <p className="text-sm text-amber-800 mb-3">
+                        Please pay the remaining balance of <strong>${((booking.total_price || 0) - (booking.deposit_paid || 0)).toLocaleString()} MXN</strong> upon arrival. 
+                        We accept the following payment methods:
+                      </p>
+                      
+                      <div className="space-y-3 text-sm text-amber-900">
+                        <div>
+                          <p className="font-semibold mb-1">💳 Cash (MXN or USD)</p>
+                          <p className="text-amber-700">Pay directly at the marina</p>
+                        </div>
+                        
+                        <div>
+                          <p className="font-semibold mb-1">🏦 Bank Transfer (SPEI)</p>
+                          <div className="bg-white p-3 rounded border border-amber-300 mt-1">
+                            <p className="text-amber-700 mb-1">CLABE Number:</p>
+                            <p className="font-mono font-bold text-amber-900">012 180 0151 2345 6789</p>
+                            <p className="text-xs text-amber-600 mt-1">Bank: BBVA Bancomer</p>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <p className="font-semibold mb-1">💬 WhatsApp Payment</p>
+                          <p className="text-amber-700">Contact us to arrange payment via WhatsApp</p>
+                        </div>
+                        
+                        <div>
+                          <p className="font-semibold mb-1">💳 Card Payment</p>
+                          <p className="text-amber-700">Credit/Debit cards accepted on-site</p>
+                        </div>
+                      </div>
+                      
+                      <p className="text-xs text-amber-700 mt-3 italic">
+                        💡 Tip: If paying by bank transfer, please send us the payment confirmation via WhatsApp before your trip.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Meeting Point Info */}
