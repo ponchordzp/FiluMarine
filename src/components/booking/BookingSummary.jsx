@@ -104,7 +104,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
 
   return (
     <section className="min-h-screen bg-[#f8f6f3] py-8 md:py-16">
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-4xl mx-auto px-4 md:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
