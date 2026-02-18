@@ -923,77 +923,12 @@ export default function AdminBookings() {
               </Card>
             </div>
 
-            {/* Three Column Layout */}
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Trips Today */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CalendarIcon className="h-5 w-5 text-yellow-600" />
-                    Trips Today
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                    {(() => {
-                      const todayStr = format(new Date(), 'yyyy-MM-dd');
-                      const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'cancelled');
-                      
-                      return todayBookings.length === 0 ? (
-                        <div className="text-center py-12">
-                          <CalendarIcon className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                          <p className="text-slate-500">No trips today</p>
-                        </div>
-                      ) : (
-                        todayBookings.map((booking) => {
-                          const StatusIcon = statusIcons[booking.status];
-                          return (
-                            <div
-                              key={booking.id}
-                              className="p-4 bg-yellow-50 rounded-lg space-y-2 border-l-4 border-yellow-500"
-                            >
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-semibold text-slate-800">{booking.guest_name}</p>
-                                    {booking.boat_name && (
-                                      <span className="text-sm px-3 py-1 rounded-full bg-[#1e88e5] text-white font-semibold">
-                                        {booking.boat_name}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="text-xs text-slate-500 font-mono">{booking.confirmation_code}</p>
-                                </div>
-                                <Badge className={statusColors[booking.status]}>
-                                  <StatusIcon className="h-3 w-3 mr-1" />
-                                  {booking.status}
-                                </Badge>
-                              </div>
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="flex items-center gap-1 text-slate-600">
-                                  <Clock className="h-3 w-3" />
-                                  {booking.time_slot}
-                                </div>
-                                <div className="flex items-center gap-1 text-slate-600">
-                                  <Users className="h-3 w-3" />
-                                  {booking.guests} guests
-                                </div>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm">
-                                <Phone className="h-3 w-3 text-slate-400" />
-                                <span className="text-slate-600">{booking.guest_phone}</span>
-                              </div>
-                            </div>
-                          );
-                        })
-                      );
-                    })()}
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Middle Column - Available Dates Calendar */}
-              <Card className="h-fit">
+            {/* Two Column Layout */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Left Column - Calendar and Trips Today */}
+              <div className="space-y-6">
+                {/* Calendar Overview */}
+                <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
@@ -1143,8 +1078,76 @@ export default function AdminBookings() {
                 </CardContent>
               </Card>
 
+                {/* Trips Today */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CalendarIcon className="h-5 w-5 text-yellow-600" />
+                      Trips Today
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                      {(() => {
+                        const todayStr = format(new Date(), 'yyyy-MM-dd');
+                        const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'cancelled');
+                        
+                        return todayBookings.length === 0 ? (
+                          <div className="text-center py-8">
+                            <CalendarIcon className="h-10 w-10 text-slate-300 mx-auto mb-2" />
+                            <p className="text-slate-500">No trips today</p>
+                          </div>
+                        ) : (
+                          todayBookings.map((booking) => {
+                            const StatusIcon = statusIcons[booking.status];
+                            return (
+                              <div
+                                key={booking.id}
+                                className="p-4 bg-yellow-50 rounded-lg space-y-2 border-l-4 border-yellow-500"
+                              >
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <p className="font-semibold text-slate-800">{booking.guest_name}</p>
+                                      {booking.boat_name && (
+                                        <span className="text-sm px-3 py-1 rounded-full bg-[#1e88e5] text-white font-semibold">
+                                          {booking.boat_name}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <p className="text-xs text-slate-500 font-mono">{booking.confirmation_code}</p>
+                                  </div>
+                                  <Badge className={statusColors[booking.status]}>
+                                    <StatusIcon className="h-3 w-3 mr-1" />
+                                    {booking.status}
+                                  </Badge>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                  <div className="flex items-center gap-1 text-slate-600">
+                                    <Clock className="h-3 w-3" />
+                                    {booking.time_slot}
+                                  </div>
+                                  <div className="flex items-center gap-1 text-slate-600">
+                                    <Users className="h-3 w-3" />
+                                    {booking.guests} guests
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm">
+                                  <Phone className="h-3 w-3 text-slate-400" />
+                                  <span className="text-slate-600">{booking.guest_phone}</span>
+                                </div>
+                              </div>
+                            );
+                          })
+                        );
+                      })()}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
               {/* Right Column - Block Management */}
-              <div className="space-y-6 md:col-span-1">
+              <div className="space-y-6">
                 {/* Block New Date */}
                 <Card>
                   <CardHeader>
