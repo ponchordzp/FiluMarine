@@ -159,6 +159,11 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
             {/* Calendar */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Date</h3>
+              {!selectedBoat && (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                  <p className="text-sm text-amber-800">Please select a boat first before choosing a date</p>
+                </div>
+              )}
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -168,7 +173,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   if (isBefore(date, minDate)) return true;
                   
                   // Must select a boat first to check availability
-                  if (!selectedBoat) return false;
+                  if (!selectedBoat) return true;
                   
                   const dateStr = format(date, 'yyyy-MM-dd');
                   const currentBoat = boats.find(b => b.id === selectedBoat);
