@@ -836,19 +836,97 @@ export default function AdminBookings() {
           </TabsContent>
 
           <TabsContent value="blocked-dates" className="space-y-6">
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Available Dates Calendar */}
+            {/* KPI Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-green-600">
+                      {(() => {
+                        const today = new Date();
+                        const next30Days = Array.from({ length: 30 }, (_, i) => {
+                          const date = new Date(today);
+                          date.setDate(date.getDate() + i + 1);
+                          return format(date, 'yyyy-MM-dd');
+                        });
+                        return next30Days.filter(dateStr => {
+                          const isBlocked = blockedDates.some(b => b.date === dateStr);
+                          const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
+                          return !isBlocked && !isBooked;
+                        }).length;
+                      })()}
+                    </p>
+                    <p className="text-sm text-slate-500">Available (Next 30 Days)</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-blue-600">
+                      {(() => {
+                        const today = new Date();
+                        const next30Days = Array.from({ length: 30 }, (_, i) => {
+                          const date = new Date(today);
+                          date.setDate(date.getDate() + i + 1);
+                          return format(date, 'yyyy-MM-dd');
+                        });
+                        return next30Days.filter(dateStr => 
+                          bookings.some(b => b.date === dateStr && b.status !== 'cancelled')
+                        ).length;
+                      })()}
+                    </p>
+                    <p className="text-sm text-slate-500">Booked (Next 30 Days)</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-red-600">{blockedDates.length}</p>
+                    <p className="text-sm text-slate-500">Total Blocked Dates</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-amber-600">
+                      {(() => {
+                        const today = new Date();
+                        const next30Days = Array.from({ length: 30 }, (_, i) => {
+                          const date = new Date(today);
+                          date.setDate(date.getDate() + i + 1);
+                          return format(date, 'yyyy-MM-dd');
+                        });
+                        const available = next30Days.filter(dateStr => {
+                          const isBlocked = blockedDates.some(b => b.date === dateStr);
+                          const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
+                          return !isBlocked && !isBooked;
+                        }).length;
+                        return Math.round((available / 30) * 100);
+                      })()}%
+                    </p>
+                    <p className="text-sm text-slate-500">Availability Rate</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Two Column Layout */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Left Column - Available Dates Calendar */}
+              <Card className="h-fit">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <CalendarIcon className="h-5 w-5" />
-                    Available Dates
+                    Calendar Overview
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <Calendar
                     mode="single"
-                    className="rounded-md border"
+                    className="rounded-md border w-full"
                     modifiers={{
                       available: (date) => {
                         const dateStr = format(date, 'yyyy-MM-dd');
@@ -887,127 +965,222 @@ export default function AdminBookings() {
                       },
                     }}
                   />
-                  <div className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-1">
-                    <p className="font-medium mb-1">Legend:</p>
-                    <p>🟢 Green dates = Available</p>
-                    <p>🔵 Blue dates = Booked</p>
-                    <p>🔴 Red dates = Blocked</p>
+                  <div className="p-4 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-2">
+                    <p className="font-semibold mb-2">Legend:</p>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-green-100 border border-green-300"></div>
+                      <span>Available</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-blue-100 border border-blue-300"></div>
+                      <span>Booked</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded bg-red-100 border border-red-300"></div>
+                      <span>Blocked</span>
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
 
-              {/* Block New Date */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Plus className="h-5 w-5" />
-                    Block New Date
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Select Date</Label>
-                    <Calendar
-                      mode="single"
-                      selected={blockDate}
-                      onSelect={setBlockDate}
-                      className="rounded-md border"
-                      modifiers={{
-                        blocked: (date) => {
-                          const dateStr = format(date, 'yyyy-MM-dd');
-                          return blockedDates.some(b => b.date === dateStr);
-                        },
-                      }}
-                      modifiersStyles={{
-                        blocked: { 
-                          backgroundColor: '#fee2e2', 
-                          color: '#991b1b',
-                          fontWeight: 'bold',
-                        },
-                      }}
-                    />
-                  </div>
-                  <div className="p-3 bg-red-50 rounded-lg text-sm text-red-800">
-                    <p className="font-medium mb-1">Legend:</p>
-                    <p>🔴 Red dates = Already blocked</p>
-                  </div>
-                  <div>
-                    <Label>Boat</Label>
-                    <Select value={blockBoat} onValueChange={setBlockBoat}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="both">Both Boats</SelectItem>
-                        <SelectItem value="FILU">FILU</SelectItem>
-                        <SelectItem value="TYCOON">TYCOON</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Reason (optional)</Label>
-                    <Textarea
-                      placeholder="Weather, maintenance, etc..."
-                      value={blockReason}
-                      onChange={(e) => setBlockReason(e.target.value)}
-                    />
-                  </div>
-                  <Button
-                    onClick={handleBlockDate}
-                    disabled={!blockDate}
-                    className="w-full"
-                  >
-                    <Ban className="h-4 w-4 mr-2" />
-                    Block Date
-                  </Button>
-                </CardContent>
-              </Card>
+                  {/* Suggestions */}
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-slate-800 flex items-center gap-2">
+                      <Info className="h-4 w-4" />
+                      Smart Suggestions
+                    </h4>
+                    {(() => {
+                      const today = new Date();
+                      const suggestions = [];
+                      
+                      // Check for high demand periods
+                      const weekendBookings = bookings.filter(b => {
+                        const date = new Date(b.date);
+                        const day = date.getDay();
+                        return (day === 0 || day === 6) && b.status !== 'cancelled';
+                      }).length;
+                      
+                      if (weekendBookings > 5) {
+                        suggestions.push({
+                          type: 'success',
+                          text: 'High weekend demand! Consider premium pricing.'
+                        });
+                      }
 
-              {/* Blocked Dates List */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Currently Blocked Dates</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                    {blockedDates.length === 0 ? (
-                      <p className="text-slate-500 text-center py-8">No blocked dates</p>
-                    ) : (
-                      blockedDates.map((blocked) => (
-                        <div
-                          key={blocked.id}
-                          className="flex items-center justify-between p-3 bg-slate-50 rounded-lg"
-                        >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium text-slate-800">
-                                {format(parseISO(blocked.date), 'EEEE, MMMM d, yyyy')}
-                              </p>
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                blocked.boat_name === 'both' ? 'bg-slate-200 text-slate-700' :
-                                blocked.boat_name === 'FILU' ? 'bg-blue-100 text-blue-700' :
-                                'bg-purple-100 text-purple-700'
-                              }`}>
-                                {blocked.boat_name || 'both'}
-                              </span>
-                            </div>
-                            {blocked.reason && (
-                              <p className="text-sm text-slate-500 mt-1">{blocked.reason}</p>
-                            )}
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => unblockDateMutation.mutate(blocked.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                      // Check for gaps in bookings
+                      const next7Days = Array.from({ length: 7 }, (_, i) => {
+                        const date = new Date(today);
+                        date.setDate(date.getDate() + i + 1);
+                        return format(date, 'yyyy-MM-dd');
+                      });
+                      const availableNext7 = next7Days.filter(dateStr => {
+                        const isBlocked = blockedDates.some(b => b.date === dateStr);
+                        const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
+                        return !isBlocked && !isBooked;
+                      }).length;
+
+                      if (availableNext7 > 5) {
+                        suggestions.push({
+                          type: 'warning',
+                          text: `${availableNext7} days available in next week. Consider promotional campaigns.`
+                        });
+                      }
+
+                      // Check for blocked dates
+                      if (blockedDates.length > 10) {
+                        suggestions.push({
+                          type: 'info',
+                          text: 'Multiple dates blocked. Review if all are still necessary.'
+                        });
+                      }
+
+                      return suggestions.length > 0 ? suggestions.map((s, i) => (
+                        <div key={i} className={`p-3 rounded-lg border ${
+                          s.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+                          s.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' :
+                          'bg-blue-50 border-blue-200 text-blue-800'
+                        }`}>
+                          <p className="text-sm">{s.text}</p>
                         </div>
-                      ))
-                    )}
+                      )) : (
+                        <p className="text-sm text-slate-500 italic">No suggestions at this time</p>
+                      );
+                    })()}
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Right Column - Block Management */}
+              <div className="space-y-6">
+                {/* Block New Date */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Plus className="h-5 w-5" />
+                      Block New Date
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label>Select Date</Label>
+                      <Calendar
+                        mode="single"
+                        selected={blockDate}
+                        onSelect={setBlockDate}
+                        className="rounded-md border w-full"
+                        modifiers={{
+                          blocked: (date) => {
+                            const dateStr = format(date, 'yyyy-MM-dd');
+                            return blockedDates.some(b => b.date === dateStr);
+                          },
+                        }}
+                        modifiersStyles={{
+                          blocked: { 
+                            backgroundColor: '#fee2e2', 
+                            color: '#991b1b',
+                            fontWeight: 'bold',
+                          },
+                        }}
+                      />
+                    </div>
+                    <div className="p-3 bg-red-50 rounded-lg text-sm text-red-800">
+                      <p className="font-medium mb-1">Note:</p>
+                      <p>🔴 Red dates are already blocked</p>
+                    </div>
+                    <div>
+                      <Label>Select Boat</Label>
+                      <Select value={blockBoat} onValueChange={setBlockBoat}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="both">Both Boats</SelectItem>
+                          <SelectItem value="FILU">FILU Only</SelectItem>
+                          <SelectItem value="TYCOON">TYCOON Only</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label>Reason (Optional)</Label>
+                      <Textarea
+                        placeholder="e.g., Weather, maintenance, private event..."
+                        value={blockReason}
+                        onChange={(e) => setBlockReason(e.target.value)}
+                        rows={3}
+                      />
+                    </div>
+                    <Button
+                      onClick={handleBlockDate}
+                      disabled={!blockDate || blockDateMutation.isPending}
+                      className="w-full bg-red-600 hover:bg-red-700"
+                    >
+                      <Ban className="h-4 w-4 mr-2" />
+                      {blockDateMutation.isPending ? 'Blocking...' : 'Block Date'}
+                    </Button>
+                  </CardContent>
+                </Card>
+
+                {/* Currently Blocked Dates */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>Blocked Dates ({blockedDates.length})</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {blockedDates.length === 0 ? (
+                        <div className="text-center py-12">
+                          <Ban className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+                          <p className="text-slate-500">No blocked dates</p>
+                          <p className="text-sm text-slate-400 mt-1">Use the form above to block dates</p>
+                        </div>
+                      ) : (
+                        blockedDates
+                          .sort((a, b) => new Date(a.date) - new Date(b.date))
+                          .map((blocked) => (
+                            <div
+                              key={blocked.id}
+                              className="flex items-start justify-between p-3 bg-red-50 rounded-lg border border-red-100 hover:border-red-200 transition-colors"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <CalendarIcon className="h-4 w-4 text-red-600 flex-shrink-0" />
+                                  <p className="font-semibold text-slate-800 truncate">
+                                    {format(parseISO(blocked.date), 'EEE, MMM d, yyyy')}
+                                  </p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge className={
+                                    blocked.boat_name === 'both' ? 'bg-slate-600 text-white' :
+                                    blocked.boat_name === 'FILU' ? 'bg-[#1e88e5] text-white' :
+                                    'bg-purple-600 text-white'
+                                  }>
+                                    {blocked.boat_name || 'both'}
+                                  </Badge>
+                                </div>
+                                {blocked.reason && (
+                                  <p className="text-xs text-slate-600 mt-2 line-clamp-2">{blocked.reason}</p>
+                                )}
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-100 ml-2 flex-shrink-0"
+                                onClick={() => {
+                                  if (window.confirm(`Unblock ${format(parseISO(blocked.date), 'MMM d, yyyy')}?`)) {
+                                    unblockDateMutation.mutate(blocked.id);
+                                  }
+                                }}
+                                disabled={unblockDateMutation.isPending}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </TabsContent>
         </Tabs>
