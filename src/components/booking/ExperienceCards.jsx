@@ -13,6 +13,7 @@ const regularExperiences = [
     includes: ['Fishing equipment', 'Bait & tackle', 'Ice & cooler', 'Gas included'],
     idealFor: 'First-timers & families',
     description: 'Morning trip targeting Mahi-Mahi, Roosterfish, and Jack Crevalle.',
+    targetSpecies: ['Dorado', 'Roosterfish', 'Snapper'],
     icon: Fish,
     availableBoats: 'FILU',
   },
@@ -64,6 +65,7 @@ const fullDayExperiences = [
     includes: ['Premium gear', 'Bait & tackle', 'Lunch & drinks', 'Gas included'],
     idealFor: 'Serious anglers',
     description: 'Offshore adventure for Sailfish, Marlin, Tuna. Reach the best fishing grounds.',
+    targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado'],
     icon: Fish,
     availableBoats: 'FILU',
   },
@@ -78,6 +80,7 @@ const extendedExperience = {
   includes: ['Premium gear', 'All equipment', 'Full meals & drinks', 'Gas included', 'Starlink & CCTV', 'Restaurant stops available'],
   idealFor: 'All adventures',
   description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration with restaurant visits.',
+  targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado', 'Roosterfish'],
   icon: Fish,
   availableBoats: 'FILU, TYCOON',
 };
@@ -224,6 +227,12 @@ export default function ExperienceCards({ onSelectExperience }) {
                     <Users className="h-4 w-4" />
                     <span>{exp.idealFor}</span>
                   </div>
+                  {exp.targetSpecies && (
+                    <div className="flex items-start gap-2 text-xs text-white/70">
+                      <Fish className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                      <span>Target: {exp.targetSpecies.join(', ')}</span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2 text-xs text-white/60">
                     <Anchor className="h-3 w-3" />
                     <span>Available boats: {exp.availableBoats}</span>
@@ -292,6 +301,12 @@ export default function ExperienceCards({ onSelectExperience }) {
                   <Users className="h-4 w-4" />
                   <span>{extendedExperience.idealFor}</span>
                 </div>
+                {extendedExperience.targetSpecies && (
+                  <div className="flex items-start gap-2 text-xs text-white/70">
+                    <Fish className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                    <span>Target: {extendedExperience.targetSpecies.join(', ')}</span>
+                  </div>
+                )}
                 <div className="flex items-center gap-2 text-xs text-white/60">
                   <Anchor className="h-3 w-3" />
                   <span>Available boats: {extendedExperience.availableBoats}</span>

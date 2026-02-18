@@ -10,7 +10,6 @@ import IntroSection from '@/components/home/IntroSection';
 import ExperienceCards from '@/components/booking/ExperienceCards';
 import BoatBenefits from '@/components/home/BoatBenefits';
 import Fleet from '@/components/home/Fleet';
-import TargetSpecies from '@/components/home/TargetSpecies';
 import Destinations from '@/components/home/Destinations';
 import JoinFilu from '@/components/home/JoinFilu';
 import BookingCalendar from '@/components/booking/BookingCalendar';
@@ -255,7 +254,6 @@ export default function Home() {
         <div ref={experiencesRef}>
           <ExperienceCards onSelectExperience={handleSelectExperience} />
         </div>
-        <TargetSpecies />
         <Destinations />
         <JoinFilu />
         
