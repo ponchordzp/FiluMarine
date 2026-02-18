@@ -87,7 +87,7 @@ export default function Hero({ onScrollToExperiences }) {
             <Button 
               size="lg"
               asChild
-              className="bg-white text-[#0c2340] hover:bg-white/90 px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
+              className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
             >
               <Link to={createPageUrl('BookingSearch')}>
                 <Search className="mr-2 h-5 w-5" />
