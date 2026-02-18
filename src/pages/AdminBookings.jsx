@@ -838,7 +838,7 @@ export default function AdminBookings() {
 
           <TabsContent value="dashboard" className="space-y-6">
             {/* KPI Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card className="bg-white/95 backdrop-blur-sm">
                 <CardContent className="pt-6">
                   <div className="text-center">
@@ -861,9 +861,8 @@ export default function AdminBookings() {
                           return format(date, 'yyyy-MM-dd');
                         });
                         return next30Days.filter(dateStr => {
-                          const isBlocked = blockedDates.some(b => b.date === dateStr);
                           const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
-                          return !isBlocked && !isBooked;
+                          return !isBooked;
                         }).length;
                       })()}
                     </p>
@@ -888,29 +887,6 @@ export default function AdminBookings() {
                       })()}
                     </p>
                     <p className="text-sm text-slate-500">Booked (Next 30 Days)</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-amber-600">
-                      {(() => {
-                        const today = new Date();
-                        const next30Days = Array.from({ length: 30 }, (_, i) => {
-                          const date = new Date(today);
-                          date.setDate(date.getDate() + i + 1);
-                          return format(date, 'yyyy-MM-dd');
-                        });
-                        const available = next30Days.filter(dateStr => {
-                          const isBlocked = blockedDates.some(b => b.date === dateStr);
-                          const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
-                          return !isBlocked && !isBooked;
-                        }).length;
-                        return Math.round((available / 30) * 100);
-                      })()}%
-                    </p>
-                    <p className="text-sm text-slate-500">Availability Rate</p>
                   </div>
                 </CardContent>
               </Card>
