@@ -850,6 +850,13 @@ export default function AdminBookings() {
                     mode="single"
                     className="rounded-md border"
                     modifiers={{
+                      available: (date) => {
+                        const dateStr = format(date, 'yyyy-MM-dd');
+                        const isBlocked = blockedDates.some(b => b.date === dateStr);
+                        const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
+                        const isPast = date < new Date();
+                        return !isBlocked && !isBooked && !isPast;
+                      },
                       unavailable: (date) => {
                         const dateStr = format(date, 'yyyy-MM-dd');
                         const isBlocked = blockedDates.some(b => b.date === dateStr);
@@ -858,6 +865,11 @@ export default function AdminBookings() {
                       },
                     }}
                     modifiersStyles={{
+                      available: {
+                        backgroundColor: '#dcfce7',
+                        color: '#166534',
+                        fontWeight: 'bold',
+                      },
                       unavailable: { 
                         backgroundColor: '#fee2e2', 
                         color: '#991b1b',
@@ -868,7 +880,7 @@ export default function AdminBookings() {
                   />
                   <div className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-1">
                     <p className="font-medium mb-1">Legend:</p>
-                    <p>✅ Normal dates = Available</p>
+                    <p>🟢 Green dates = Available</p>
                     <p>🔴 Red dates = Unavailable (booked or blocked)</p>
                   </div>
                 </CardContent>
