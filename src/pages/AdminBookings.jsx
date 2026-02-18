@@ -836,7 +836,44 @@ export default function AdminBookings() {
           </TabsContent>
 
           <TabsContent value="blocked-dates" className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
+              {/* Available Dates Calendar */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CalendarIcon className="h-5 w-5" />
+                    Available Dates
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Calendar
+                    mode="single"
+                    className="rounded-md border"
+                    modifiers={{
+                      unavailable: (date) => {
+                        const dateStr = format(date, 'yyyy-MM-dd');
+                        const isBlocked = blockedDates.some(b => b.date === dateStr);
+                        const isBooked = bookings.some(b => b.date === dateStr && b.status !== 'cancelled');
+                        return isBlocked || isBooked;
+                      },
+                    }}
+                    modifiersStyles={{
+                      unavailable: { 
+                        backgroundColor: '#fee2e2', 
+                        color: '#991b1b',
+                        fontWeight: 'bold',
+                        textDecoration: 'line-through',
+                      },
+                    }}
+                  />
+                  <div className="p-3 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-1">
+                    <p className="font-medium mb-1">Legend:</p>
+                    <p>✅ Normal dates = Available</p>
+                    <p>🔴 Red dates = Unavailable (booked or blocked)</p>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Block New Date */}
               <Card>
                 <CardHeader>
@@ -870,7 +907,7 @@ export default function AdminBookings() {
                   </div>
                   <div className="p-3 bg-red-50 rounded-lg text-sm text-red-800">
                     <p className="font-medium mb-1">Legend:</p>
-                    <p>🔴 Red dates = Blocked</p>
+                    <p>🔴 Red dates = Already blocked</p>
                   </div>
                   <div>
                     <Label>Boat</Label>
