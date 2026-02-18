@@ -278,7 +278,20 @@ export default function BookingSearch() {
                           <p className="font-semibold mb-1">🏦 Bank Transfer (SPEI)</p>
                           <div className="bg-white p-3 rounded border border-amber-300 mt-1">
                             <p className="text-amber-700 mb-1">CLABE Number:</p>
-                            <p className="font-mono font-bold text-amber-900">012 180 0151 2345 6789</p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-mono font-bold text-amber-900 flex-1">012180004713413911</p>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  navigator.clipboard.writeText('012180004713413911');
+                                  alert('CLABE copied to clipboard!');
+                                }}
+                                className="shrink-0"
+                              >
+                                Copy
+                              </Button>
+                            </div>
                             <p className="text-xs text-amber-600 mt-1">Bank: BBVA Bancomer</p>
                           </div>
                         </div>
