@@ -55,6 +55,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
   const [guests, setGuests] = useState(bookingData.guests || 2);
   const [needsTaxi, setNeedsTaxi] = useState(bookingData.needs_taxi || false);
+  const [taxiAddress, setTaxiAddress] = useState(bookingData.taxi_address || '');
   const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || null);
   const [blockedDates, setBlockedDates] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
@@ -98,6 +99,11 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   };
 
   const handleContinue = () => {
+    if (needsTaxi && !taxiAddress.trim()) {
+      alert('Please enter your pickup address for taxi service');
+      return;
+    }
+    
     const boat = boats.find(b => b.id === selectedBoat);
     setBookingData({
       ...bookingData,
@@ -105,7 +111,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       time_slot: selectedTime,
       guests,
       needs_taxi: needsTaxi,
-      taxi_fee: needsTaxi ? 20 : 0,
+      taxi_address: needsTaxi ? taxiAddress : '',
+      taxi_fee: needsTaxi ? 400 : 0,
       boat_id: selectedBoat,
       boat_name: boat.name,
       boat_multiplier: boat.multiplier,
@@ -361,7 +368,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`font-semibold ${needsTaxi ? 'text-[#1e88e5]' : 'text-slate-600'}`}>+$20</span>
+                    <span className={`font-semibold ${needsTaxi ? 'text-[#1e88e5]' : 'text-slate-600'}`}>+$400 MXN</span>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
                       needsTaxi ? 'border-[#1e88e5] bg-[#1e88e5]' : 'border-slate-300'
                     }`}>
@@ -370,6 +377,30 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   </div>
                 </div>
               </button>
+
+              {/* Taxi Address Input */}
+              {needsTaxi && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="bg-amber-50 rounded-2xl p-6 border-2 border-amber-200"
+                >
+                  <h3 className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
+                    🚕 Enter Pickup Address
+                  </h3>
+                  <input
+                    type="text"
+                    placeholder="e.g., Hotel Barceló Ixtapa, Main Lobby"
+                    value={taxiAddress}
+                    onChange={(e) => setTaxiAddress(e.target.value)}
+                    className="w-full px-4 py-3 rounded-lg border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
+                  />
+                  <p className="text-xs text-amber-700 mt-2">
+                    Please provide your hotel name and specific pickup location
+                  </p>
+                </motion.div>
+              )}
 
               {/* Extra Hours Info */}
               {selectedBoat && (
