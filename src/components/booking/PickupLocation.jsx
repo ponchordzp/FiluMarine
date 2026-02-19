@@ -3,33 +3,61 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, MapPin, Ship, Home, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const pickupOptions = [
-  {
-    id: 'marina_ixtapa',
-    title: 'Marina Ixtapa',
-    description: 'Meet directly at our dock - Dock #12',
-    address: 'Blvd. Ixtapa, Marina Ixtapa, 40880',
-    included: true,
-  },
-  {
-    id: 'muelle_municipal',
-    title: 'Muelle Municipal (Zihuatanejo)',
-    description: 'Municipal pier in downtown Zihuatanejo',
-    address: 'Paseo del Pescador, Zihuatanejo Centro',
-    included: true,
-  },
-  {
-    id: 'punta_ixtapa',
-    title: 'Muelle Punta Ixtapa',
-    description: 'Private dock at Punta Ixtapa',
-    address: 'Punta Ixtapa residential area',
-    included: true,
-    note: 'Only available for Punta Ixtapa residents',
-  },
-];
+const pickupLocationsByZone = {
+  ixtapa_zihuatanejo: [
+    {
+      id: 'marina_ixtapa',
+      title: 'Marina Ixtapa',
+      description: 'Meet directly at our dock - Dock #12',
+      address: 'Blvd. Ixtapa, Marina Ixtapa, 40880',
+      included: true,
+    },
+    {
+      id: 'muelle_municipal',
+      title: 'Muelle Municipal (Zihuatanejo)',
+      description: 'Municipal pier in downtown Zihuatanejo',
+      address: 'Paseo del Pescador, Zihuatanejo Centro',
+      included: true,
+    },
+    {
+      id: 'punta_ixtapa',
+      title: 'Muelle Punta Ixtapa',
+      description: 'Private dock at Punta Ixtapa',
+      address: 'Punta Ixtapa residential area',
+      included: true,
+      note: 'Only available for Punta Ixtapa residents',
+    },
+  ],
+  acapulco: [
+    {
+      id: 'marina_cabo_marques',
+      title: 'Marina Cabo Marqués (Zona Diamante)',
+      description: 'Premium marina in the luxury Diamante area',
+      address: 'Carretera Escénica, Zona Diamante, Acapulco',
+      included: true,
+    },
+    {
+      id: 'pie_de_la_cuesta',
+      title: 'Pie de la Cuesta',
+      description: 'Tranquil beach on Coyuca Lagoon',
+      address: 'Pie de la Cuesta, Acapulco',
+      included: true,
+    },
+    {
+      id: 'marina_acapulco',
+      title: 'Marina Acapulco',
+      description: 'Traditional marina in Acapulco Bay',
+      address: 'Costera Miguel Alemán, Acapulco Centro',
+      included: true,
+    },
+  ],
+};
 
 export default function PickupLocation({ experience, onBack, onContinue, bookingData, setBookingData }) {
-  const [selectedPickup, setSelectedPickup] = useState(bookingData.pickup_location || 'marina_ixtapa');
+  const location = bookingData.location || 'ixtapa_zihuatanejo';
+  const pickupOptions = pickupLocationsByZone[location];
+  const defaultPickup = location === 'acapulco' ? 'marina_cabo_marques' : 'marina_ixtapa';
+  const [selectedPickup, setSelectedPickup] = useState(bookingData.pickup_location || defaultPickup);
 
   const handleContinue = () => {
     setBookingData({
@@ -80,10 +108,10 @@ export default function PickupLocation({ experience, onBack, onContinue, booking
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
                     isSelected ? 'bg-[#1e88e5]' : 'bg-slate-100'
                   }`}>
-                    {option.id === 'marina_ixtapa' ? (
-                      <MapPin className={`h-6 w-6 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
-                    ) : option.id === 'muelle_municipal' ? (
+                    {option.id.includes('marina') ? (
                       <Ship className={`h-6 w-6 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                    ) : option.id.includes('muelle') || option.id.includes('pie') ? (
+                      <MapPin className={`h-6 w-6 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
                     ) : (
                       <Home className={`h-6 w-6 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
                     )}
