@@ -23,6 +23,8 @@ export default function BoatManagement() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBoat, setEditingBoat] = useState(null);
+  const [statsDialogOpen, setStatsDialogOpen] = useState(false);
+  const [selectedBoatStats, setSelectedBoatStats] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     type: '',
@@ -51,6 +53,57 @@ export default function BoatManagement() {
     queryKey: ['boats'],
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
   });
+
+  const { data: bookings = [] } = useQuery({
+    queryKey: ['bookings-stats'],
+    queryFn: () => base44.entities.Booking.list(),
+  });
+
+  const { data: expenses = [] } = useQuery({
+    queryKey: ['expenses-stats'],
+    queryFn: () => base44.entities.BookingExpense.list(),
+  });
+
+  const getBoatStats = (boatName) => {
+    const boatBookings = bookings.filter(b => b.boat_name === boatName && b.status !== 'cancelled');
+    const today = new Date();
+    
+    const futureBookings = boatBookings.filter(b => new Date(b.date) >= today);
+    const pastBookings = boatBookings.filter(b => new Date(b.date) < today);
+    const completedBookings = boatBookings.filter(b => b.status === 'completed');
+    
+    const totalRevenue = completedBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+    
+    const bookingIds = completedBookings.map(b => b.id);
+    const boatExpenses = expenses.filter(e => bookingIds.includes(e.booking_id));
+    const totalExpenses = boatExpenses.reduce((sum, e) => {
+      return sum + (e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + 
+             (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0);
+    }, 0);
+    
+    const netProfit = totalRevenue - totalExpenses;
+    const roi = totalExpenses > 0 ? ((netProfit / totalExpenses) * 100).toFixed(1) : 0;
+    
+    const expeditionCounts = {};
+    boatBookings.forEach(b => {
+      const exp = b.experience_type || 'unknown';
+      expeditionCounts[exp] = (expeditionCounts[exp] || 0) + 1;
+    });
+    const frequentTrip = Object.entries(expeditionCounts).sort((a, b) => b[1] - a[1])[0];
+    
+    return {
+      total: boatBookings.length,
+      future: futureBookings.length,
+      past: pastBookings.length,
+      completed: completedBookings.length,
+      revenue: totalRevenue,
+      expenses: totalExpenses,
+      profit: netProfit,
+      roi: roi,
+      frequentTrip: frequentTrip ? frequentTrip[0].replace(/_/g, ' ') : 'N/A',
+      frequentTripCount: frequentTrip ? frequentTrip[1] : 0
+    };
+  };
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.BoatInventory.create(data),

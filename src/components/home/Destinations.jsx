@@ -147,10 +147,7 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
             >
-              <Link
-                to={createPageUrl(`Destination?id=${dest.id}`)}
-                className="group relative rounded-2xl overflow-hidden aspect-[4/3] cursor-pointer block"
-              >
+              <div className="group relative rounded-2xl overflow-hidden aspect-[4/3] cursor-pointer block">
                 <img
                   src={dest.image}
                   alt={dest.name}
@@ -164,7 +161,7 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
                   </div>
                   <p className="text-xs text-white/80 line-clamp-2">{dest.description}</p>
                 </div>
-              </Link>
+              </div>
             </motion.div>
           ))}
         </div>
