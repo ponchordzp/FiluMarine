@@ -71,12 +71,24 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
             </div>
           </div>
 
-          <div className="mt-4 p-4 bg-slate-50 rounded-xl">
+          <div className="mt-4 p-4 bg-slate-50 rounded-xl space-y-2">
             <p className="font-semibold text-slate-800 mb-1">{experience.title}</p>
             <p className="text-sm text-slate-500 flex items-center gap-2">
               <Users className="h-4 w-4" />
               {booking.guests} guest{booking.guests > 1 ? 's' : ''}
             </p>
+            <p className="text-sm text-slate-500">
+              Boat: <strong className="text-slate-700">{booking.boat_name}</strong>
+            </p>
+            <div className="pt-2 border-t border-slate-200">
+              <p className="text-sm text-slate-500">
+                Deposit Paid: <strong className="text-emerald-600">${booking.deposit_paid?.toLocaleString()} MXN</strong>
+              </p>
+              <p className="text-sm text-slate-500">
+                Due on Arrival: <strong className="text-amber-600">${(booking.total_price - booking.deposit_paid)?.toLocaleString()} MXN</strong>
+              </p>
+              <p className="text-xs text-slate-400 mt-1">Total: ${booking.total_price?.toLocaleString()} MXN</p>
+            </div>
           </div>
         </motion.div>
 
