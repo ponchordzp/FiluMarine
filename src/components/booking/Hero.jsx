@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, MessageCircle, Anchor, Search } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-export default function Hero({ onScrollToExperiences }) {
+export default function Hero({ onScrollToExperiences, location, locationName, onChangeLocation }) {
   const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine.";
 
   return (

@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Settings, Calendar } from 'lucide-react';
+import LocationSelector from '@/components/booking/LocationSelector';
 import Hero from '@/components/booking/Hero';
 import IntroSection from '@/components/home/IntroSection';
 import ExperienceCards from '@/components/booking/ExperienceCards';
@@ -73,7 +74,8 @@ const generateConfirmationCode = () => {
 };
 
 export default function Home() {
-  const [step, setStep] = useState('landing'); // landing, boat_selector, calendar, pickup, addons, summary, confirmation
+  const [step, setStep] = useState('location'); // location, landing, boat_selector, calendar, pickup, addons, summary, confirmation
+  const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [bookingData, setBookingData] = useState({});
   const [confirmedBooking, setConfirmedBooking] = useState(null);
@@ -106,9 +108,16 @@ export default function Home() {
     experiencesRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleSelectLocation = (locationId) => {
+    setSelectedLocation(locationId);
+    setBookingData({ location: locationId });
+    setStep('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSelectExperience = (experience) => {
     setSelectedExperience(experience);
-    setBookingData({ experience_type: experience.id });
+    setBookingData(prev => ({ ...prev, experience_type: experience.id }));
     setStep('calendar');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -235,19 +244,39 @@ export default function Home() {
   };
   
   const handleBackToMain = () => {
-    setStep('landing');
+    setStep('location');
+    setSelectedLocation(null);
     setSelectedExperience(null);
     setBookingData({});
     setConfirmedBooking(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleChangeLocation = () => {
+    setStep('location');
+    setSelectedExperience(null);
+    setBookingData({});
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Location selector
+  if (step === 'location') {
+    return <LocationSelector onSelectLocation={handleSelectLocation} />;
+  }
+
+  const locationName = selectedLocation === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : 'Acapulco';
+
   // Landing page view
   if (step === 'landing') {
     return (
       <div className="min-h-screen">
         <div id="google_translate_element" className="fixed top-0 left-0 right-0 z-50"></div>
-        <Hero onScrollToExperiences={scrollToExperiences} />
+        <Hero 
+          onScrollToExperiences={scrollToExperiences} 
+          location={selectedLocation}
+          locationName={locationName}
+          onChangeLocation={handleChangeLocation}
+        />
         <IntroSection />
         <BoatBenefits />
         <Fleet />
