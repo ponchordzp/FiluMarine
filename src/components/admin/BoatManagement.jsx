@@ -393,61 +393,131 @@ export default function BoatManagement() {
       </div>
 
       {/* Boat List */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {boats.map(boat => (
-          <Card key={boat.id}>
-            <CardContent className="p-4">
-              <div className="flex gap-4">
-                {boat.image && (
-                  <img
-                    src={boat.image}
-                    alt={boat.name}
-                    className="w-24 h-24 object-cover rounded-lg"
-                  />
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {boats.map((boat) => {
+          const stats = getBoatStats(boat.name);
+          const needsMaintenance = boat.status === 'maintenance' || stats.completed > 20;
+          
+          return (
+          <Card key={boat.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <div className="aspect-video relative">
+              {boat.image ? (
+                <img src={boat.image} alt={boat.name} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+                  <Ship className="h-12 w-12 text-slate-400" />
+                </div>
+              )}
+              <Badge className="absolute top-2 right-2 bg-white/90 text-slate-800">
+                {boat.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}
+              </Badge>
+              {needsMaintenance && (
+                <Badge className="absolute top-2 left-2 bg-amber-500 text-white">
+                  Maintenance Due
+                </Badge>
+              )}
+            </div>
+            <CardContent className="p-6">
+              <div className="mb-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <h3 className="text-xl font-semibold text-slate-900">{boat.name}</h3>
+                    <p className="text-sm text-slate-600">{boat.type} • {boat.size}</p>
+                  </div>
+                  <Badge className={
+                    boat.status === 'active' ? 'bg-emerald-100 text-emerald-800' :
+                    boat.status === 'maintenance' ? 'bg-amber-100 text-amber-800' :
+                    'bg-slate-100 text-slate-800'
+                  }>
+                    {boat.status}
+                  </Badge>
+                </div>
+                <p className="text-sm text-slate-700 mb-2">{boat.capacity}</p>
+                {boat.description && (
+                  <p className="text-sm text-slate-600 line-clamp-2">{boat.description}</p>
                 )}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-2">
-                    <div>
-                      <h3 className="font-semibold text-lg">{boat.name}</h3>
-                      <p className="text-sm text-slate-600">{boat.type} • {boat.size}</p>
-                    </div>
-                    <Badge className={
-                      boat.status === 'active' ? 'bg-green-100 text-green-800' :
-                      boat.status === 'maintenance' ? 'bg-amber-100 text-amber-800' :
-                      'bg-slate-100 text-slate-800'
-                    }>
-                      {boat.status}
+              </div>
+
+              {boat.equipment && Object.values(boat.equipment).some(v => v) && (
+                <div className="mb-4">
+                  <h4 className="text-xs font-semibold text-slate-700 mb-2">Equipment</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {Object.entries(boat.equipment).filter(([_, v]) => v).map(([key]) => (
+                      <span key={key} className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded">
+                        {key.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {boat.available_expeditions && boat.available_expeditions.length > 0 && (
+                <div className="mb-4">
+                  <h4 className="text-xs font-semibold text-slate-700 mb-2">Available Expeditions</h4>
+                  <div className="flex flex-wrap gap-1">
+                    {boat.available_expeditions.map((exp) => (
+                      <span key={exp} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">
+                        {exp.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Booking Statistics */}
+              <div className="pt-4 border-t space-y-2">
+                <h4 className="font-semibold text-sm text-slate-700 mb-3">Booking Statistics</h4>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-slate-500 text-xs">Total Bookings</p>
+                    <p className="font-semibold text-lg">{stats.total}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-500 text-xs">Future / Past</p>
+                    <p className="font-semibold text-lg">{stats.future} / {stats.past}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-500 text-xs">Revenue (MXN)</p>
+                    <p className="font-semibold text-lg text-green-600">${(stats.revenue / 1000).toFixed(1)}k</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-500 text-xs">Avg ROI</p>
+                    <p className="font-semibold text-lg text-blue-600">{stats.roi}%</p>
+                  </div>
+                </div>
+                <div className="pt-2">
+                  <p className="text-slate-500 text-xs">Most Frequent Trip</p>
+                  <p className="font-medium text-sm capitalize">{stats.frequentTrip} ({stats.frequentTripCount}x)</p>
+                </div>
+                {needsMaintenance && (
+                  <div className="pt-2">
+                    <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                      Action Needed: Schedule Maintenance
                     </Badge>
                   </div>
-                  <p className="text-xs text-slate-600 mb-2">{boat.capacity}</p>
-                  <p className="text-xs text-slate-500 mb-2 line-clamp-2">{boat.description}</p>
-                  
-                  {boat.equipment && (
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {Object.entries(boat.equipment).filter(([_, v]) => v).map(([key]) => (
-                        <span key={key} className="text-xs px-2 py-0.5 bg-emerald-50 text-emerald-700 rounded">
-                          {key.replace(/_/g, ' ')}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <div className="flex gap-2 mt-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(boat)}>
-                      <Edit className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => {
-                        if (confirm(`Delete ${boat.name}?`)) {
-                          deleteMutation.mutate(boat.id);
-                        }
-                      }}
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
+                )}
+              </div>
+            </CardContent>
+            <div className="flex gap-2 p-4 pt-0">
+              <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1">
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => {
+                  if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) {
+                    deleteMutation.mutate(boat.id);
+                  }
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </Card>
+        );
+        })}
                 </div>
               </div>
             </CardContent>

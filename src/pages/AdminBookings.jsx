@@ -320,6 +320,8 @@ export default function AdminBookings() {
                         <SelectItem value="all">All Boats</SelectItem>
                         <SelectItem value="FILU">FILU</SelectItem>
                         <SelectItem value="TYCOON">TYCOON</SelectItem>
+                        <SelectItem value="Pirula">Pirula</SelectItem>
+                        <SelectItem value="La Güera">La Güera</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
