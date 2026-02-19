@@ -792,12 +792,20 @@ export default function AdminBookings() {
                                           </p>
                                         </div>
                                         <div>
+                                          <Label className="text-slate-500">Location</Label>
+                                          <p className="font-medium">{selectedBooking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</p>
+                                        </div>
+                                        <div>
                                           <Label className="text-slate-500">Experience</Label>
                                           <p className="font-medium">{selectedBooking.experience_type?.replace(/_/g, ' ')}</p>
                                         </div>
                                         <div>
                                           <Label className="text-slate-500">Boat</Label>
                                           <p className="font-medium">{selectedBooking.boat_name || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                          <Label className="text-slate-500">Pickup Location</Label>
+                                          <p className="font-medium">{selectedBooking.pickup_location || 'N/A'}</p>
                                         </div>
                                         <div>
                                           <Label className="text-slate-500">Date</Label>
