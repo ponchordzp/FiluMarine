@@ -18,6 +18,15 @@ const statusColors = {
   completed: 'bg-blue-100 text-blue-800',
 };
 
+const pickupLocationNames = {
+  marina_ixtapa: 'Marina Ixtapa',
+  muelle_municipal: 'Muelle Municipal (Zihuatanejo)',
+  punta_ixtapa: 'Muelle Punta Ixtapa',
+  marina_cabo_marques: 'Marina Cabo Marqués (Zona Diamante)',
+  pie_de_la_cuesta: 'Pie de la Cuesta',
+  marina_acapulco: 'Marina Acapulco',
+};
+
 export default function BookingSearch() {
   const [confirmationCode, setConfirmationCode] = useState('');
   const [booking, setBooking] = useState(null);
