@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter, ArrowLeft, Gauge, PenSquare } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter, ArrowLeft, Gauge, PenSquare, Unlock } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
 import AdminAuth from '@/components/AdminAuth';
@@ -46,6 +46,8 @@ export default function AdminBookings() {
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
   const [expenseBooking, setExpenseBooking] = useState(null);
   const [adminUsername, setAdminUsername] = useState('');
+  const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
+  const [selectedBlockedDate, setSelectedBlockedDate] = useState(null);
 
   React.useEffect(() => {
     const username = sessionStorage.getItem('admin_username') || 'Admin';
@@ -85,6 +87,17 @@ export default function AdminBookings() {
     mutationFn: (id) => base44.entities.BlockedDate.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['blocked-dates'] });
+      setUnlockDialogOpen(false);
+      setSelectedBlockedDate(null);
+    },
+  });
+
+  const partialUnblockMutation = useMutation({
+    mutationFn: ({ id, newBoat }) => base44.entities.BlockedDate.update(id, { boat_name: newBoat }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['blocked-dates'] });
+      setUnlockDialogOpen(false);
+      setSelectedBlockedDate(null);
     },
   });
 
@@ -1271,16 +1284,14 @@ export default function AdminBookings() {
                               </div>
                               <Button
                                 size="sm"
-                                variant="ghost"
-                                className="text-red-600 hover:text-red-700 hover:bg-red-100 ml-2 flex-shrink-0"
+                                variant="outline"
+                                className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 ml-2 flex-shrink-0"
                                 onClick={() => {
-                                  if (window.confirm(`Unblock ${format(parseISO(blocked.date), 'MMM d, yyyy')}?`)) {
-                                    unblockDateMutation.mutate(blocked.id);
-                                  }
+                                  setSelectedBlockedDate(blocked);
+                                  setUnlockDialogOpen(true);
                                 }}
-                                disabled={unblockDateMutation.isPending}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Unlock className="h-4 w-4" />
                               </Button>
                             </div>
                           ))
@@ -1408,16 +1419,14 @@ export default function AdminBookings() {
                             </div>
                             <Button
                               size="sm"
-                              variant="ghost"
-                              className="text-red-600 hover:text-red-700 hover:bg-red-100 ml-2 flex-shrink-0"
+                              variant="outline"
+                              className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 ml-2 flex-shrink-0"
                               onClick={() => {
-                                if (window.confirm(`Unblock ${format(parseISO(blocked.date), 'MMM d, yyyy')}?`)) {
-                                  unblockDateMutation.mutate(blocked.id);
-                                }
+                                setSelectedBlockedDate(blocked);
+                                setUnlockDialogOpen(true);
                               }}
-                              disabled={unblockDateMutation.isPending}
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Unlock className="h-4 w-4" />
                             </Button>
                           </div>
                         ))
@@ -1444,6 +1453,92 @@ export default function AdminBookings() {
           }}
         />
       )}
+
+      {/* Unlock Date Dialog */}
+      <Dialog open={unlockDialogOpen} onOpenChange={setUnlockDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Unlock className="h-5 w-5 text-green-600" />
+              Unlock Date
+            </DialogTitle>
+          </DialogHeader>
+          {selectedBlockedDate && (
+            <div className="space-y-4">
+              <div className="p-4 bg-slate-50 rounded-lg border">
+                <div className="flex items-center gap-2 mb-2">
+                  <CalendarIcon className="h-4 w-4 text-slate-600" />
+                  <p className="font-semibold text-slate-800">
+                    {format(parseISO(selectedBlockedDate.date), 'EEEE, MMMM d, yyyy')}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-slate-600">Currently blocked for:</p>
+                  <Badge className={
+                    selectedBlockedDate.boat_name === 'both' ? 'bg-slate-600 text-white' :
+                    selectedBlockedDate.boat_name === 'FILU' ? 'bg-[#1e88e5] text-white' :
+                    'bg-purple-600 text-white'
+                  }>
+                    {selectedBlockedDate.boat_name || 'both'}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-slate-700">Select unlock option:</p>
+                
+                {selectedBlockedDate.boat_name === 'both' ? (
+                  <>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start hover:bg-green-50 border-green-200"
+                      onClick={() => {
+                        partialUnblockMutation.mutate({
+                          id: selectedBlockedDate.id,
+                          newBoat: 'TYCOON'
+                        });
+                      }}
+                      disabled={partialUnblockMutation.isPending}
+                    >
+                      <Unlock className="h-4 w-4 mr-2 text-green-600" />
+                      Unlock FILU only (keep TYCOON blocked)
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start hover:bg-green-50 border-green-200"
+                      onClick={() => {
+                        partialUnblockMutation.mutate({
+                          id: selectedBlockedDate.id,
+                          newBoat: 'FILU'
+                        });
+                      }}
+                      disabled={partialUnblockMutation.isPending}
+                    >
+                      <Unlock className="h-4 w-4 mr-2 text-green-600" />
+                      Unlock TYCOON only (keep FILU blocked)
+                    </Button>
+                  </>
+                ) : (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+                    Only one boat is blocked. Use "Unlock Both Boats" below to fully unblock this date.
+                  </div>
+                )}
+
+                <Button
+                  className="w-full bg-green-600 hover:bg-green-700"
+                  onClick={() => {
+                    unblockDateMutation.mutate(selectedBlockedDate.id);
+                  }}
+                  disabled={unblockDateMutation.isPending}
+                >
+                  <Unlock className="h-4 w-4 mr-2" />
+                  {unblockDateMutation.isPending ? 'Unlocking...' : 'Unlock Both Boats'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
     </AdminAuth>
   );
