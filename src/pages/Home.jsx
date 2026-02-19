@@ -279,11 +279,11 @@ export default function Home() {
         />
         <IntroSection />
         <BoatBenefits />
-        <Fleet />
+        <Fleet location={selectedLocation} />
         <div ref={experiencesRef}>
           <ExperienceCards onSelectExperience={handleSelectExperience} />
         </div>
-        <Destinations />
+        <Destinations location={selectedLocation} />
         <JoinFilu />
         
         {/* Footer */}
