@@ -339,6 +339,7 @@ export default function AdminBookings() {
                       onClick={() => {
                         setStatusFilter('all');
                         setBoatFilter('all');
+                        setLocationFilter('all');
                         setDateRangeFilter('all');
                         setSearchTerm('');
                       }}
