@@ -269,7 +269,7 @@ export default function AdminBookings() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid md:grid-cols-5 gap-4">
+                <div className="grid md:grid-cols-6 gap-4">
                   <div>
                     <Label>Search</Label>
                     <Input
@@ -277,6 +277,19 @@ export default function AdminBookings() {
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
+                  </div>
+                  <div>
+                    <Label>Location</Label>
+                    <Select value={locationFilter} onValueChange={setLocationFilter}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Locations</SelectItem>
+                        <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
+                        <SelectItem value="acapulco">Acapulco</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label>Status</Label>
