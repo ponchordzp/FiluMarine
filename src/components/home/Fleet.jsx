@@ -2,42 +2,79 @@ import React from 'react';
 import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const fleet = [
-  {
-    name: 'FILU',
-    type: 'Sea Fox Center Console',
-    size: '25ft',
-    description: 'High-performance center console designed for serious sport fishing and coastal adventures. Features twin engines for speed and reliability.',
-    image: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/3e48387ed_image.png',
-    capacity: 'Up to 6 guests',
-    strengths: [
-      { icon: Gauge, text: 'Perfect for sport fishing' },
-      { icon: Users, text: 'Stable & spacious' },
-      { icon: Shield, text: 'Safety-first design' },
-      { icon: Wifi, text: 'Starlink connectivity' },
-      { icon: Video, text: 'CCTV safety system' },
-      { icon: Zap, text: 'Premium audio system' },
-    ],
-  },
-  {
-    name: 'TYCOON',
-    type: 'Azimut Yacht',
-    size: '55ft',
-    description: 'Pristine luxury yacht perfect for extended leisure trips. Includes ceviche, 24 beers, and a bottle of your choice. Spacious interior with full amenities.',
-    image: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/ac63db837_image.png',
-    capacity: 'Up to 12 guests',
-    strengths: [
-      { icon: Anchor, text: 'Luxury leisure cruising' },
-      { icon: Users, text: 'Spacious cabin & deck' },
-      { icon: Shield, text: 'Premium comfort' },
-      { icon: Wifi, text: 'Starlink connectivity' },
-      { icon: Video, text: 'CCTV safety system' },
-      { icon: Zap, text: 'Premium audio system' },
-    ],
-  },
-];
+const fleetByLocation = {
+  ixtapa_zihuatanejo: [
+    {
+      name: 'FILU',
+      type: 'Sea Fox Center Console',
+      size: '25ft',
+      description: 'High-performance center console designed for serious sport fishing and coastal adventures. Features twin engines for speed and reliability.',
+      image: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/3e48387ed_image.png',
+      capacity: 'Up to 6 guests',
+      strengths: [
+        { icon: Gauge, text: 'Perfect for sport fishing' },
+        { icon: Users, text: 'Stable & spacious' },
+        { icon: Shield, text: 'Safety-first design' },
+        { icon: Wifi, text: 'Starlink connectivity' },
+        { icon: Video, text: 'CCTV safety system' },
+        { icon: Zap, text: 'Premium audio system' },
+      ],
+    },
+    {
+      name: 'TYCOON',
+      type: 'Azimut Yacht',
+      size: '55ft',
+      description: 'Pristine luxury yacht perfect for extended leisure trips. Includes ceviche, 24 beers, and a bottle of your choice. Spacious interior with full amenities.',
+      image: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/ac63db837_image.png',
+      capacity: 'Up to 12 guests',
+      strengths: [
+        { icon: Anchor, text: 'Luxury leisure cruising' },
+        { icon: Users, text: 'Spacious cabin & deck' },
+        { icon: Shield, text: 'Premium comfort' },
+        { icon: Wifi, text: 'Starlink connectivity' },
+        { icon: Video, text: 'CCTV safety system' },
+        { icon: Zap, text: 'Premium audio system' },
+      ],
+    },
+  ],
+  acapulco: [
+    {
+      name: 'Pirula',
+      type: 'Leisure Boat',
+      size: '50ft',
+      description: 'Spacious leisure vessel perfect for relaxed cruising and group excursions. Comfortable seating and smooth ride for extended trips.',
+      image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800',
+      capacity: 'Up to 10 guests',
+      strengths: [
+        { icon: Anchor, text: 'Ideal for leisure trips' },
+        { icon: Users, text: 'Spacious deck area' },
+        { icon: Shield, text: 'Comfortable seating' },
+        { icon: Wifi, text: 'Modern amenities' },
+        { icon: Video, text: 'Safety equipment' },
+        { icon: Zap, text: 'Sound system' },
+      ],
+    },
+    {
+      name: 'La Güera',
+      type: 'Center Console',
+      size: '30ft',
+      description: 'Versatile center console perfect for fishing enthusiasts. Nimble and efficient for exploring Acapulco\'s coastal waters.',
+      image: 'https://images.unsplash.com/photo-1559737558-2f5a0b8e9d53?w=800',
+      capacity: 'Up to 7 guests',
+      strengths: [
+        { icon: Gauge, text: 'Excellent for fishing' },
+        { icon: Users, text: 'Stable platform' },
+        { icon: Shield, text: 'Reliable performance' },
+        { icon: Wifi, text: 'GPS navigation' },
+        { icon: Video, text: 'Safety features' },
+        { icon: Zap, text: 'Quick & agile' },
+      ],
+    },
+  ],
+};
 
-export default function Fleet() {
+export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
+  const fleet = fleetByLocation[location] || fleetByLocation.ixtapa_zihuatanejo;
   return (
     <section className="py-8 md:py-12 bg-gradient-to-b from-[#0a1929] to-[#0c2340] border-t border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">

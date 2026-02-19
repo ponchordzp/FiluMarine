@@ -31,23 +31,43 @@ const timeSlots = {
   ],
 };
 
-const boats = [
-  {
-    id: 'filu',
-    name: 'FILU',
-    type: '25ft Sea Fox',
-    multiplier: 1,
-    forLeisure: false,
-    maxGuests: 6,
-  },
-  {
-    id: 'tycoon',
-    name: 'TYCOON',
-    type: '55ft Azimut Yacht',
-    multiplier: 3.2,
-    forLeisure: true,
-    maxGuests: 12,
-  },
+const boatsByLocation = {
+  ixtapa_zihuatanejo: [
+    {
+      id: 'filu',
+      name: 'FILU',
+      type: '25ft Sea Fox',
+      multiplier: 1,
+      forLeisure: false,
+      maxGuests: 6,
+    },
+    {
+      id: 'tycoon',
+      name: 'TYCOON',
+      type: '55ft Azimut Yacht',
+      multiplier: 3.2,
+      forLeisure: true,
+      maxGuests: 12,
+    },
+  ],
+  acapulco: [
+    {
+      id: 'pirula',
+      name: 'Pirula',
+      type: '50ft Leisure Boat',
+      multiplier: 2.5,
+      forLeisure: true,
+      maxGuests: 10,
+    },
+    {
+      id: 'la_guera',
+      name: 'La Güera',
+      type: '30ft Center Console',
+      multiplier: 1.2,
+      forLeisure: false,
+      maxGuests: 7,
+    },
+  ],
 ];
 
 export default function BookingCalendar({ experience, onBack, onContinue, bookingData, setBookingData }) {
