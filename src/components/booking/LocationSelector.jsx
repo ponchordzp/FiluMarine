@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin } from 'lucide-react';
+import { MapPin, Anchor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const locations = [
@@ -27,11 +27,50 @@ export default function LocationSelector({ onSelectLocation }) {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="h-12 w-1 bg-[#1e88e5]"></div>
-            <h1 className="text-5xl font-light text-white">FILU Marine</h1>
-            <div className="h-12 w-1 bg-[#1e88e5]"></div>
+          {/* Logo */}
+          <div className="mb-8">
+            <div className="flex items-center justify-center gap-1 mb-3">
+              <Anchor className="h-10 w-10 text-[#1e88e5]" />
+              <h1 className="text-4xl md:text-5xl font-bold text-white tracking-wide">FILU</h1>
+              <span className="text-2xl md:text-3xl font-light text-white/80">Marine</span>
+            </div>
+            {/* Nautical Flags: F-I-L-U */}
+            <div className="flex items-center justify-center gap-2">
+              {/* F - Foxtrot: White diamond on red */}
+              <div className="w-8 h-6 bg-red-600 relative flex items-center justify-center">
+                <div className="w-4 h-4 bg-white transform rotate-45"></div>
+              </div>
+              {/* I - India: Yellow circle on black */}
+              <div className="w-8 h-6 bg-black flex items-center justify-center">
+                <div className="w-4 h-4 bg-yellow-400 rounded-full"></div>
+              </div>
+              {/* L - Lima: Yellow and black quarters */}
+              <div className="w-8 h-6 grid grid-cols-2 grid-rows-2">
+                <div className="bg-yellow-400"></div>
+                <div className="bg-black"></div>
+                <div className="bg-black"></div>
+                <div className="bg-yellow-400"></div>
+              </div>
+              {/* U - Uniform: Red and white quarters */}
+              <div className="w-8 h-6 grid grid-cols-2 grid-rows-2">
+                <div className="bg-red-600"></div>
+                <div className="bg-white"></div>
+                <div className="bg-white"></div>
+                <div className="bg-red-600"></div>
+              </div>
+            </div>
           </div>
+
+          {/* Intro Message */}
+          <div className="mb-8 max-w-3xl mx-auto">
+            <p className="text-white/90 text-lg mb-4 leading-relaxed">
+              Welcome to FILU Marine, your gateway to premium fishing and leisure expeditions across Mexico's most spectacular coastal destinations.
+            </p>
+            <p className="text-white/70 text-base">
+              We're expanding our fleet to bring you world-class marine experiences at multiple locations. Select your preferred destination below to start your adventure.
+            </p>
+          </div>
+
           <h2 className="text-3xl font-light text-white mb-4">Choose Your Destination</h2>
           <p className="text-xl text-white/70 max-w-2xl mx-auto">
             Select your preferred location to explore premium marine experiences

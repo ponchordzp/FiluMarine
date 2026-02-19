@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
-import { ChevronDown, MessageCircle, Anchor, Search } from 'lucide-react';
+import { ChevronDown, MessageCircle, Anchor, Search, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Hero({ onScrollToExperiences, location, locationName, onChangeLocation }) {
+  const [showLocationMenu, setShowLocationMenu] = useState(false);
   const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine.";
+
+  const locations = [
+    { id: 'ixtapa_zihuatanejo', name: 'Ixtapa-Zihuatanejo' },
+    { id: 'acapulco', name: 'Acapulco' }
+  ];
 
   return (
     <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
@@ -61,15 +67,45 @@ export default function Hero({ onScrollToExperiences, location, locationName, on
             </div>
           </div>
 
-          <button
-            onClick={onChangeLocation}
-            className="inline-flex items-center gap-2 text-[#1e88e5] hover:text-white text-sm tracking-[0.3em] uppercase mb-4 font-medium bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full transition-all border border-white/20 hover:border-[#1e88e5]"
-          >
-            {locationName}, Mexico
-            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
+          <div className="relative inline-block mb-4">
+            <button
+              onClick={() => setShowLocationMenu(!showLocationMenu)}
+              className="inline-flex items-center gap-2 text-[#1e88e5] hover:text-white text-sm tracking-[0.3em] uppercase font-medium bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full transition-all border border-white/20 hover:border-[#1e88e5]"
+            >
+              <MapPin className="h-4 w-4" />
+              {locationName}, Mexico
+              <ChevronDown className={`h-3 w-3 transition-transform ${showLocationMenu ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showLocationMenu && (
+              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md rounded-lg shadow-xl border border-white/20 overflow-hidden min-w-[220px] z-50">
+                {locations.map((loc) => (
+                  <button
+                    key={loc.id}
+                    onClick={() => {
+                      if (loc.id !== location) {
+                        onChangeLocation();
+                      }
+                      setShowLocationMenu(false);
+                    }}
+                    className={`w-full px-4 py-3 text-left text-sm font-medium transition-colors flex items-center gap-2 ${
+                      loc.id === location 
+                        ? 'bg-[#1e88e5] text-white' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <MapPin className="h-4 w-4" />
+                    {loc.name}
+                    {loc.id === location && (
+                      <svg className="h-4 w-4 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
           
           <h1 className="text-3xl md:text-5xl font-light text-white leading-tight mb-6">
             Premium Fishing & Leisure
