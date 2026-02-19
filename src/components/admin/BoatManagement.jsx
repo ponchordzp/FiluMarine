@@ -518,11 +518,6 @@ export default function BoatManagement() {
           </Card>
         );
         })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
       </div>
     </div>
   );
