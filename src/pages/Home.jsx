@@ -64,9 +64,10 @@ const experiences = {
   },
 };
 
-const generateConfirmationCode = () => {
+const generateConfirmationCode = (location) => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = 'IXT-';
+  const prefix = location === 'acapulco' ? 'ACA-' : 'IXT-';
+  let code = prefix;
   for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
