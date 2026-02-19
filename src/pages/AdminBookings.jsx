@@ -1578,6 +1578,23 @@ export default function AdminBookings() {
           )}
         </DialogContent>
       </Dialog>
+
+      <TabsContent value="boats" className="space-y-6">
+        <Card className="bg-white/95 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <BoatManagement />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="destinations" className="space-y-6">
+        <Card className="bg-white/95 backdrop-blur-sm">
+          <CardContent className="p-6">
+            <DestinationManagement />
+          </CardContent>
+        </Card>
+      </TabsContent>
+      </Tabs>
     </div>
     </AdminAuth>
   );
