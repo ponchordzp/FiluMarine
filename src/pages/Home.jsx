@@ -124,7 +124,7 @@ export default function Home() {
   };
 
   const handleConfirmBooking = async (data) => {
-    const confirmationCode = generateConfirmationCode();
+    const confirmationCode = generateConfirmationCode(data.location);
     const bookingPayload = {
       ...data,
       confirmation_code: confirmationCode,
