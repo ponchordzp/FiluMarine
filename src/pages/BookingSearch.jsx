@@ -220,7 +220,7 @@ export default function BookingSearch() {
                     Meeting Point
                   </h3>
                   <p className="text-slate-700 font-medium mb-2">
-                    {booking.pickup_location || 'Marina Ixtapa'}
+                    {pickupLocationNames[booking.pickup_location] || booking.pickup_location || 'Marina Ixtapa'}
                   </p>
                   <p className="text-sm text-slate-500">
                     {booking.location === 'acapulco' 

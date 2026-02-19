@@ -11,8 +11,18 @@ const whatToBring = [
   { icon: Droplets, text: 'Towel & change of clothes' },
 ];
 
+const pickupLocationNames = {
+  marina_ixtapa: 'Marina Ixtapa',
+  muelle_municipal: 'Muelle Municipal (Zihuatanejo)',
+  punta_ixtapa: 'Muelle Punta Ixtapa',
+  marina_cabo_marques: 'Marina Cabo Marqués (Zona Diamante)',
+  pie_de_la_cuesta: 'Pie de la Cuesta',
+  marina_acapulco: 'Marina Acapulco',
+};
+
 export default function Confirmation({ booking, experience, onBackToMain }) {
   const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I%20have%20a%20booking%20with%20confirmation%20code:%20" + booking.confirmation_code;
+  const pickupLocationDisplay = pickupLocationNames[booking.pickup_location] || booking.pickup_location || 'Marina Ixtapa';
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-sky-50 to-white py-12 md:py-20">
@@ -104,7 +114,7 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
             Meeting Point
           </h3>
           <p className="text-slate-600 mb-2">
-            <strong>{booking.pickup_location || 'Marina Ixtapa'}</strong>
+            <strong>{pickupLocationDisplay}</strong>
           </p>
           <p className="text-sm text-slate-500 mb-4">
             {booking.location === 'acapulco' 
