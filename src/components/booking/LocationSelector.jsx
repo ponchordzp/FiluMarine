@@ -61,14 +61,27 @@ export default function LocationSelector({ onSelectLocation }) {
             </div>
           </div>
 
-          {/* Intro Message */}
-          <div className="mb-8 max-w-3xl mx-auto">
-            <p className="text-white/90 text-lg mb-4 leading-relaxed">
-              Welcome to FILU Marine, your gateway to premium fishing and leisure expeditions across Mexico's most spectacular coastal destinations.
-            </p>
-            <p className="text-white/70 text-base">
-              We're expanding our fleet to bring you world-class marine experiences at multiple locations. Select your preferred destination below to start your adventure.
-            </p>
+          {/* Mission Section */}
+          <div className="mb-12 max-w-4xl mx-auto">
+            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
+              <h3 className="text-2xl font-light text-white mb-6 text-center">
+                Our <span className="font-semibold">Mission</span>
+              </h3>
+              <div className="space-y-4 text-white/80 text-base leading-relaxed">
+                <p>
+                  Welcome to FILU Marine, your gateway to premium fishing and leisure expeditions across Mexico's most spectacular coastal destinations.
+                </p>
+                <p>
+                  We believe that every journey on the water should be more than just a trip—it should be an unforgettable adventure. Our mission is to provide world-class marine experiences that combine safety, luxury, and authenticity.
+                </p>
+                <p>
+                  From professional sport fishing expeditions to serene coastal cruises, we're dedicated to creating memories that last a lifetime. With our expanding fleet and expert crew, we bring the best of Mexico's Pacific coast to life, one voyage at a time.
+                </p>
+                <p className="text-[#1e88e5] font-medium">
+                  Your adventure begins here. Choose your destination and let's set sail.
+                </p>
+              </div>
+            </div>
           </div>
 
           <h2 className="text-3xl font-light text-white mb-4">Choose Your Destination</h2>

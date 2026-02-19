@@ -277,7 +277,6 @@ export default function Home() {
           locationName={locationName}
           onChangeLocation={handleChangeLocation}
         />
-        <IntroSection />
         <BoatBenefits />
         <Fleet location={selectedLocation} />
         <div ref={experiencesRef}>
