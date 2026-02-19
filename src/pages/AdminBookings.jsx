@@ -18,6 +18,8 @@ import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
 import AdminAuth from '@/components/AdminAuth';
 import ExpenseDataEntry from '@/components/ExpenseDataEntry';
+import BoatManagement from '@/components/admin/BoatManagement';
+import DestinationManagement from '@/components/admin/DestinationManagement';
 
 const statusColors = {
   pending: 'bg-amber-100 text-amber-800',

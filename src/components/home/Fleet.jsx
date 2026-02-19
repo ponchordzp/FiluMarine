@@ -1,5 +1,7 @@
 import React from 'react';
-import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const fleetByLocation = {
@@ -73,8 +75,59 @@ const fleetByLocation = {
   ],
 };
 
+const equipmentIcons = {
+  bathroom: Droplet,
+  live_well: Fish,
+  starlink: Wifi,
+  cctv: Video,
+  audio_system: Zap,
+  gps: Navigation,
+  fishing_gear: Fish,
+  snorkeling_gear: Droplet,
+};
+
 export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
-  const fleet = fleetByLocation[location] || fleetByLocation.ixtapa_zihuatanejo;
+  const { data: boatsFromDB = [] } = useQuery({
+    queryKey: ['boats', location],
+    queryFn: () => base44.entities.BoatInventory.list('-created_date'),
+  });
+
+  const activeBoats = boatsFromDB.filter(boat => 
+    boat.location === location && boat.status === 'active'
+  );
+
+  const fleet = activeBoats.length > 0 ? activeBoats.map(boat => {
+    const strengths = [];
+    
+    if (boat.equipment) {
+      Object.entries(boat.equipment).forEach(([key, value]) => {
+        if (value) {
+          const Icon = equipmentIcons[key] || Shield;
+          strengths.push({
+            icon: Icon,
+            text: key.replace(/_/g, ' ')
+          });
+        }
+      });
+    }
+
+    if (strengths.length === 0) {
+      strengths.push({ icon: Shield, text: 'Quality equipment' });
+    }
+
+    return {
+      name: boat.name,
+      type: boat.type,
+      size: boat.size,
+      description: boat.description,
+      image: boat.image,
+      capacity: boat.capacity,
+      strengths: strengths,
+      maintenance_schedule: boat.maintenance_schedule,
+      parts_inventory: boat.parts_inventory,
+    };
+  }) : (fleetByLocation[location] || fleetByLocation.ixtapa_zihuatanejo);
+
   return (
     <section className="py-8 md:py-12 bg-gradient-to-b from-[#0a1929] to-[#0c2340] border-t border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">

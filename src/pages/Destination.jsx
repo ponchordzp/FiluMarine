@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { ArrowLeft, MapPin, Activity, Image as ImageIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -362,7 +364,21 @@ const destinationsData = {
 export default function Destination() {
   const urlParams = new URLSearchParams(window.location.search);
   const destinationId = urlParams.get('id');
-  const destination = destinationsData[destinationId];
+  const [destination, setDestination] = useState(null);
+
+  const { data: dbDestinations = [] } = useQuery({
+    queryKey: ['destinations'],
+    queryFn: () => base44.entities.DestinationContent.list(),
+  });
+
+  useEffect(() => {
+    const dbDest = dbDestinations.find(d => d.destination_id === destinationId);
+    if (dbDest) {
+      setDestination(dbDest);
+    } else {
+      setDestination(destinationsData[destinationId]);
+    }
+  }, [destinationId, dbDestinations]);
 
   if (!destination) {
     return (

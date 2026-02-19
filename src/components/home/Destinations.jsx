@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -108,7 +110,22 @@ const destinationsByLocation = {
 };
 
 export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
-  const destinations = destinationsByLocation[location] || destinationsByLocation.ixtapa_zihuatanejo;
+  const { data: dbDestinations = [] } = useQuery({
+    queryKey: ['destinations', location],
+    queryFn: () => base44.entities.DestinationContent.list(),
+  });
+
+  const filteredDbDests = dbDestinations.filter(d => d.region === location);
+  
+  const destinations = filteredDbDests.length > 0 
+    ? filteredDbDests.map(d => ({
+        id: d.destination_id,
+        name: d.name,
+        description: d.summary?.substring(0, 100) + '...' || '',
+        image: d.images?.[0] || 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800'
+      }))
+    : (destinationsByLocation[location] || destinationsByLocation.ixtapa_zihuatanejo);
+
   return (
     <section className="py-8 md:py-12 bg-gradient-to-b from-[#0f2a45] to-[#0c2340] border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
