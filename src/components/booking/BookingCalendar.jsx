@@ -71,12 +71,16 @@ const boatsByLocation = {
 ];
 
 export default function BookingCalendar({ experience, onBack, onContinue, bookingData, setBookingData }) {
+  const location = bookingData.location || 'ixtapa_zihuatanejo';
+  const boats = boatsByLocation[location];
+  const defaultBoat = location === 'acapulco' ? 'pirula' : 'filu';
+  
   const [selectedDate, setSelectedDate] = useState(bookingData.date ? new Date(bookingData.date) : null);
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
   const [guests, setGuests] = useState(bookingData.guests || 2);
   const [needsTaxi, setNeedsTaxi] = useState(bookingData.needs_taxi || false);
   const [taxiAddress, setTaxiAddress] = useState(bookingData.taxi_address || '');
-  const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || null);
+  const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || defaultBoat);
   const [blockedDates, setBlockedDates] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
 
