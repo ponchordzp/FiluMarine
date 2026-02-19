@@ -37,6 +37,7 @@ export default function AdminBookings() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [boatFilter, setBoatFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState('all');
   const [dateRangeFilter, setDateRangeFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [blockDate, setBlockDate] = useState(null);
