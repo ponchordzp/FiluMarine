@@ -50,12 +50,14 @@
 import AdminBookings from './pages/AdminBookings';
 import BookingSearch from './pages/BookingSearch';
 import Home from './pages/Home';
+import Destination from './pages/Destination';
 
 
 export const PAGES = {
     "AdminBookings": AdminBookings,
     "BookingSearch": BookingSearch,
     "Home": Home,
+    "Destination": Destination,
 }
 
 export const pagesConfig = {

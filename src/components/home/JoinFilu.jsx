@@ -105,20 +105,25 @@ ${formData.message}
   }
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-b from-[#0c2340] to-[#0a1929] border-t border-white/10 relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-gradient-to-b from-[#0c2340] to-[#0a1929] border-t border-white/10 relative overflow-hidden">
       <LuxuryPattern opacity={0.08} />
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Anchor className="h-8 w-8 text-[#1e88e5]" />
-            <h2 className="text-3xl md:text-4xl font-light text-white">
-              Have a Boat? <span className="font-semibold">Join FILU!</span>
-            </h2>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-12"
+        >
+          <div className="w-20 h-20 bg-gradient-to-br from-[#1e88e5] to-[#0c2340] rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+            <Anchor className="h-10 w-10 text-white" />
           </div>
-          <p className="text-white/80 max-w-2xl mx-auto">
-            Partner with us and expand your reach. Join our network of premium boat operators.
+          <h2 className="text-4xl md:text-5xl font-light text-white mb-4">
+            Have a Boat? <span className="font-bold bg-gradient-to-r from-[#1e88e5] to-white bg-clip-text text-transparent">Join FILU!</span>
+          </h2>
+          <p className="text-white/90 text-lg max-w-2xl mx-auto leading-relaxed">
+            Partner with us and expand your reach. Join our network of premium boat operators and unlock new opportunities.
           </p>
-        </div>
+        </motion.div>
 
         <div className="bg-white/10 backdrop-blur-md rounded-3xl p-4 sm:p-8 border border-white/20">
           <form onSubmit={handleSubmit} className="space-y-6">

@@ -59,7 +59,7 @@ const fleetByLocation = {
       type: 'Center Console',
       size: '30ft',
       description: 'Versatile center console perfect for fishing enthusiasts. Nimble and efficient for exploring Acapulco\'s coastal waters.',
-      image: 'https://images.unsplash.com/photo-1559737558-2f5a0b8e9d53?w=800',
+      image: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/1ab25cee2_image.png',
       capacity: 'Up to 7 guests',
       strengths: [
         { icon: Gauge, text: 'Excellent for fishing' },
