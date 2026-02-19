@@ -383,10 +383,13 @@ export default function AdminBookings() {
                                       {booking.status}
                                     </Badge>
                                   </div>
-                                  <div className="flex items-center gap-2 mb-2">
+                                  <div className="flex items-center gap-2 mb-2 flex-wrap">
                                     <p className="text-sm text-slate-500">
                                       Code: <span className="font-mono font-semibold">{booking.confirmation_code}</span>
                                     </p>
+                                    <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 font-medium">
+                                      {booking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}
+                                    </span>
                                     {booking.boat_name && (
                                       <span className="text-xs px-2 py-1 rounded-full bg-[#1e88e5]/10 text-[#1e88e5] font-medium">
                                         {booking.boat_name}
