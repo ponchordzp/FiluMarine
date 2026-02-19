@@ -213,16 +213,24 @@ export default function BookingSearch() {
                   </div>
                 </div>
 
-                {/* Pickup Location */}
-                {booking.pickup_location && (
-                  <div>
-                    <Label className="text-slate-500 flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Pickup Location
-                    </Label>
-                    <p className="font-medium">{booking.pickup_location}</p>
-                  </div>
-                )}
+                {/* Meeting Point */}
+                <div className="border-t pt-4">
+                  <h3 className="font-semibold text-slate-800 mb-3 flex items-center gap-2">
+                    <MapPin className="h-5 w-5 text-sky-600" />
+                    Meeting Point
+                  </h3>
+                  <p className="text-slate-700 font-medium mb-2">
+                    {booking.pickup_location || 'Marina Ixtapa'}
+                  </p>
+                  <p className="text-sm text-slate-500">
+                    {booking.location === 'acapulco' 
+                      ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
+                      : 'Dock #12, near the main entrance. Look for our boat with the FILU Marine logo.'}
+                  </p>
+                  <p className="text-sm text-slate-600 mt-2">
+                    Please arrive <strong>15 minutes before</strong> your scheduled departure time.
+                  </p>
+                </div>
 
                 {/* Add-ons */}
                 {booking.add_ons && booking.add_ons.length > 0 && (

@@ -150,8 +150,10 @@ export default function Home() {
       </ul>
       
       <h3>Meeting Point:</h3>
-      <p><strong>Marina Ixtapa</strong><br/>
-      Dock #12, near the main entrance. Look for the boat with our logo.<br/>
+      <p><strong>${data.pickup_location || 'Marina Ixtapa'}</strong><br/>
+      ${data.location === 'acapulco' 
+        ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
+        : 'Dock #12, near the main entrance. Look for our boat with the FILU Marine logo.'}<br/>
       Please arrive <strong>15 minutes before</strong> your scheduled departure time.</p>
       
       <h3>What to Bring:</h3>
