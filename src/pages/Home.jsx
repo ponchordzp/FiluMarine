@@ -235,7 +235,11 @@ export default function Home() {
       });
 
       // Send WhatsApp notification (note: this creates a message URL that can be used)
-      const whatsappMessage = `*NEW BOOKING - FILU MARINE*%0A%0A*Confirmation:* ${confirmationCode}%0A*Experience:* ${experience.title}%0A*Date:* ${format(parseISO(data.date), 'EEEE, MMMM d, yyyy')}%0A*Time:* ${data.time_slot}%0A*Guests:* ${data.guests}%0A*Boat:* ${data.boat_name}%0A${data.taxi_needed ? '*Taxi Needed:* Yes%0A' : ''}%0A*Guest:* ${data.guest_name}%0A*Phone:* ${data.guest_phone}%0A*Total:* $${data.total_price.toLocaleString()} MXN`;
+      const pickupLocationInfo = data.location === 'acapulco' 
+        ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
+        : 'Dock #12, near the main entrance. Look for our boat with the FILU Marine logo.';
+      
+      const whatsappMessage = `*NEW BOOKING - FILU MARINE*%0A%0A*Confirmation:* ${confirmationCode}%0A*Experience:* ${experience.title}%0A*Date:* ${format(parseISO(data.date), 'EEEE, MMMM d, yyyy')}%0A*Time:* ${data.time_slot}%0A*Guests:* ${data.guests}%0A*Boat:* ${data.boat_name}%0A*Pickup:* ${data.pickup_location || 'Marina Ixtapa'}%0A${data.taxi_needed ? '*Taxi Needed:* Yes%0A' : ''}%0A*Guest:* ${data.guest_name}%0A*Phone:* ${data.guest_phone}%0A*Total:* $${data.total_price.toLocaleString()} MXN%0A*Deposit:* $${data.deposit_paid.toLocaleString()} MXN%0A*Due:* $${(data.total_price - data.deposit_paid).toLocaleString()} MXN%0A%0A*Meeting:* ${pickupLocationInfo}`;
       
       // Open WhatsApp link in new window (this will notify management)
       window.open(`https://wa.me/5215513782169?text=${whatsappMessage}`, '_blank');
