@@ -49,14 +49,12 @@
  */
 import AdminBookings from './pages/AdminBookings';
 import BookingSearch from './pages/BookingSearch';
-import Destination from './pages/Destination';
 import Home from './pages/Home';
 
 
 export const PAGES = {
     "AdminBookings": AdminBookings,
     "BookingSearch": BookingSearch,
-    "Destination": Destination,
     "Home": Home,
 }
 
