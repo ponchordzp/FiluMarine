@@ -61,13 +61,19 @@ export default function Hero({ onScrollToExperiences, location, locationName, on
             </div>
           </div>
 
-          <p className="text-[#1e88e5] text-sm tracking-[0.3em] uppercase mb-4 font-medium">
-            Ixtapa-Zihuatanejo, Mexico
-          </p>
+          <button
+            onClick={onChangeLocation}
+            className="inline-flex items-center gap-2 text-[#1e88e5] hover:text-white text-sm tracking-[0.3em] uppercase mb-4 font-medium bg-white/10 hover:bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full transition-all border border-white/20 hover:border-[#1e88e5]"
+          >
+            {locationName}, Mexico
+            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
           
           <h1 className="text-3xl md:text-5xl font-light text-white leading-tight mb-6">
             Premium Fishing & Leisure
-            <span className="block font-semibold">Expeditions in Ixtapa</span>
+            <span className="block font-semibold">Expeditions in {locationName}</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-white/80 font-light mb-10 max-w-xl mx-auto">
