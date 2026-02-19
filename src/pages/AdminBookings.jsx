@@ -113,6 +113,7 @@ export default function AdminBookings() {
   const filteredBookings = bookings.filter(booking => {
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
+    if (locationFilter !== 'all' && booking.location !== locationFilter) return false;
     
     // Date range filter
     if (dateRangeFilter !== 'all') {
