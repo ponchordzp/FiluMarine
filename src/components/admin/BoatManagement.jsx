@@ -516,7 +516,7 @@ export default function BoatManagement() {
               </Button>
             </div>
           </Card>
-        );
+          );
         })}
       </div>
     </div>
