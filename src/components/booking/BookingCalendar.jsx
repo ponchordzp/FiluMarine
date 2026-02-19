@@ -68,7 +68,7 @@ const boatsByLocation = {
       maxGuests: 7,
     },
   ],
-];
+};
 
 export default function BookingCalendar({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const location = bookingData.location || 'ixtapa_zihuatanejo';
