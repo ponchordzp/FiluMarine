@@ -92,10 +92,12 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
             Meeting Point
           </h3>
           <p className="text-slate-600 mb-2">
-            <strong>Marina Ixtapa</strong>
+            <strong>{booking.pickup_location || 'Marina Ixtapa'}</strong>
           </p>
           <p className="text-sm text-slate-500 mb-4">
-            Dock #12, near the main entrance. Look for the blue Sea Fox boat with our logo.
+            {booking.location === 'acapulco' 
+              ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
+              : 'Dock #12, near the main entrance. Look for our boat with the FILU Marine logo.'}
           </p>
           <p className="text-sm text-slate-600">
             Please arrive <strong>15 minutes before</strong> your scheduled departure time.
