@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { DollarSign, Save } from 'lucide-react';
+import { DollarSign, Save, Gauge } from 'lucide-react';
 
 export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
   const queryClient = useQueryClient();
@@ -46,6 +46,11 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
 
   const saveExpenseMutation = useMutation({
     mutationFn: async (data) => {
+      // Update booking with engine hours
+      await base44.entities.Booking.update(booking.id, {
+        engine_hours_used: engineHours
+      });
+      
       if (existingExpense) {
         return base44.entities.BookingExpense.update(existingExpense.id, data);
       } else {
@@ -54,6 +59,9 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['booking-expense', booking?.id] });
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['boats'] });
+      queryClient.invalidateQueries({ queryKey: ['expenses-stats'] });
       onClose();
     },
   });
@@ -154,6 +162,23 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
               placeholder="Additional notes about expenses, maintenance needed, etc."
               rows={3}
             />
+          </div>
+
+          {/* Engine Hours */}
+          <div className="border-t pt-4">
+            <Label className="flex items-center gap-2">
+              <Gauge className="h-4 w-4" />
+              Engine Hours Used
+            </Label>
+            <Input
+              type="number"
+              min="0"
+              step="0.1"
+              value={engineHours}
+              onChange={(e) => setEngineHours(parseFloat(e.target.value) || 0)}
+              placeholder="e.g., 4.5"
+            />
+            <p className="text-xs text-slate-500 mt-1">Hours the engine ran during this trip (auto-updates boat maintenance tracking)</p>
           </div>
 
           {/* Summary */}
