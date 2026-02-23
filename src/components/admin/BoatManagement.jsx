@@ -75,6 +75,9 @@ export default function BoatManagement() {
     mechanic_name: '',
     mechanic_phone: '',
     mechanic_email: '',
+    supply_seller_name: '',
+    supply_seller_phone: '',
+    supply_seller_email: '',
     owner_phone: '',
     maintenance_schedule: '',
     last_service_date: '',
@@ -204,6 +207,9 @@ export default function BoatManagement() {
       mechanic_name: '',
       mechanic_phone: '',
       mechanic_email: '',
+      supply_seller_name: '',
+      supply_seller_phone: '',
+      supply_seller_email: '',
       owner_phone: '',
       maintenance_schedule: '',
       last_service_date: '',
@@ -228,6 +234,9 @@ export default function BoatManagement() {
       mechanic_name: boat.mechanic_name || '',
       mechanic_phone: boat.mechanic_phone || '',
       mechanic_email: boat.mechanic_email || '',
+      supply_seller_name: boat.supply_seller_name || '',
+      supply_seller_phone: boat.supply_seller_phone || '',
+      supply_seller_email: boat.supply_seller_email || '',
       owner_phone: boat.owner_phone || '',
       last_service_date: boat.last_service_date || '',
       last_service_mechanic_phone: boat.last_service_mechanic_phone || '',
@@ -286,7 +295,7 @@ export default function BoatManagement() {
         return {
           ...prev,
           expedition_pricing: prev.expedition_pricing.map(e => 
-            e.expedition_type === expType ? { ...e, [field]: parseFloat(value) || 0 } : e
+            e.expedition_type === expType ? { ...e, [field]: field.includes('hours') || field.includes('mxn') ? (parseFloat(value) || 0) : value } : e
           )
         };
       } else {
@@ -295,7 +304,9 @@ export default function BoatManagement() {
           expedition_pricing: [...prev.expedition_pricing, { 
             expedition_type: expType, 
             duration_hours: field === 'duration_hours' ? parseFloat(value) || 0 : 0,
-            price_mxn: field === 'price_mxn' ? parseFloat(value) || 0 : 0
+            price_mxn: field === 'price_mxn' ? parseFloat(value) || 0 : 0,
+            pickup_location: field === 'pickup_location' ? value : '',
+            departure_time: field === 'departure_time' ? value : ''
           }]
         };
       }
@@ -511,6 +522,24 @@ export default function BoatManagement() {
                                 className="text-sm"
                               />
                             </div>
+                            <div>
+                              <Label className="text-xs">Pickup Location</Label>
+                              <Input
+                                value={pricing?.pickup_location || ''}
+                                onChange={(e) => updateExpeditionPrice(exp, 'pickup_location', e.target.value)}
+                                placeholder="e.g., Marina Bay"
+                                className="text-sm"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs">Departure Time</Label>
+                              <Input
+                                value={pricing?.departure_time || ''}
+                                onChange={(e) => updateExpeditionPrice(exp, 'departure_time', e.target.value)}
+                                placeholder="e.g., 7:00 AM"
+                                className="text-sm"
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
@@ -581,15 +610,6 @@ export default function BoatManagement() {
                 <h3 className="text-lg font-semibold mb-4">Engine Hours & Maintenance Tracking</h3>
                 <div className="grid md:grid-cols-3 gap-4">
                   <div>
-                    <Label>Current Hours</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      value={formData.current_hours}
-                      onChange={(e) => setFormData({ ...formData, current_hours: parseInt(e.target.value) || 0 })}
-                    />
-                  </div>
-                  <div>
                     <Label>Maintenance Interval (hours)</Label>
                     <Input
                       type="number"
@@ -605,6 +625,15 @@ export default function BoatManagement() {
                       min="0"
                       value={formData.last_maintenance_hours}
                       onChange={(e) => setFormData({ ...formData, last_maintenance_hours: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Current Hours</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.current_hours}
+                      onChange={(e) => setFormData({ ...formData, current_hours: parseInt(e.target.value) || 0 })}
                     />
                   </div>
                 </div>
@@ -728,6 +757,42 @@ export default function BoatManagement() {
                       value={formData.mechanic_email}
                       onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })}
                       placeholder="e.g., mechanic@example.com"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Supply Seller Information */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Package className="h-5 w-5 text-emerald-600" />
+                  Supply Seller Information
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Supply Seller Name</Label>
+                    <Input
+                      value={formData.supply_seller_name}
+                      onChange={(e) => setFormData({ ...formData, supply_seller_name: e.target.value })}
+                      placeholder="e.g., Marine Supplies Co."
+                    />
+                  </div>
+                  <div>
+                    <Label>Supply Seller Phone</Label>
+                    <Input
+                      type="tel"
+                      value={formData.supply_seller_phone}
+                      onChange={(e) => setFormData({ ...formData, supply_seller_phone: e.target.value })}
+                      placeholder="e.g., +52 755 456 7890"
+                    />
+                  </div>
+                  <div>
+                    <Label>Supply Seller Email</Label>
+                    <Input
+                      type="email"
+                      value={formData.supply_seller_email}
+                      onChange={(e) => setFormData({ ...formData, supply_seller_email: e.target.value })}
+                      placeholder="e.g., supplies@example.com"
                     />
                   </div>
                   <div>
