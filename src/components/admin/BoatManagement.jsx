@@ -1595,10 +1595,10 @@ export default function BoatManagement() {
                           {stats.personalTripsEngineHours.toFixed(1)}
                         </p>
                       </div>
-                      <div className="bg-indigo-50 p-1.5 rounded border border-indigo-300">
-                        <p className="text-indigo-600" style={{ fontSize: '10px' }}>Total</p>
-                        <p className="font-bold text-sm text-indigo-800">{actualCurrentHours.toFixed(1)}</p>
-                      </div>
+                    </div>
+                    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-2 rounded-lg border-2 border-indigo-300 shadow-md">
+                      <p className="text-white text-center" style={{ fontSize: '10px' }}>Total Hours</p>
+                      <p className="font-bold text-xl text-white text-center">{actualCurrentHours.toFixed(1)}</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-1.5 mt-1.5 text-xs">
@@ -1725,8 +1725,32 @@ export default function BoatManagement() {
               )}
 
               {/* Booking Statistics */}
-              {isExpanded && isRentalMode && (<div className="pt-4 border-t space-y-2">
+              {isExpanded && isRentalMode && (<div className="pt-4 border-t space-y-3">
                 <h4 className="font-semibold text-sm text-slate-700 mb-3">Booking Statistics</h4>
+                
+                {/* Key Financial Metrics */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-lg border border-emerald-400">
+                    <p className="text-white text-xs font-medium mb-1">Revenue</p>
+                    <p className="font-bold text-xl text-white">${(stats.revenue / 1000).toFixed(1)}k</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg border border-blue-400">
+                    <p className="text-white text-xs font-medium mb-1">Profit</p>
+                    <p className="font-bold text-xl text-white">${(stats.profit / 1000).toFixed(1)}k</p>
+                  </div>
+                  <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-3 rounded-xl shadow-lg border border-purple-400">
+                    <p className="text-white text-xs font-medium mb-1">Avg ROI</p>
+                    <p className="font-bold text-xl text-white">{stats.roi}%</p>
+                  </div>
+                </div>
+
+                {/* FILU Commission Notice */}
+                <div className="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r-lg">
+                  <p className="text-xs text-amber-800">
+                    <span className="font-semibold">Note:</span> FILU charges 15% of the total booking price set by the owner.
+                  </p>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <p className="text-slate-500 text-xs">Total Bookings</p>
@@ -1735,14 +1759,6 @@ export default function BoatManagement() {
                   <div>
                     <p className="text-slate-500 text-xs">Future / Past</p>
                     <p className="font-semibold text-lg">{stats.future} / {stats.past}</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-500 text-xs">Revenue (MXN)</p>
-                    <p className="font-semibold text-lg text-green-600">${(stats.revenue / 1000).toFixed(1)}k</p>
-                  </div>
-                  <div>
-                    <p className="text-slate-500 text-xs">Avg ROI</p>
-                    <p className="font-semibold text-lg text-blue-600">{stats.roi}%</p>
                   </div>
                 </div>
                 <div className="pt-2">
