@@ -471,19 +471,6 @@ export default function BoatManagement() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label>Boat Mode *</Label>
-                  <Select value={formData.boat_mode} onValueChange={(value) => setFormData({ ...formData, boat_mode: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="rental_and_maintenance">Rental + Maintenance</SelectItem>
-                      <SelectItem value="maintenance_only">Maintenance Only</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-slate-500 mt-1">Controls which features are visible for this boat</p>
-                </div>
               </div>
 
               <div>
@@ -1177,6 +1164,43 @@ export default function BoatManagement() {
                   }>
                     {boat.status}
                   </Badge>
+                </div>
+                
+                {/* Boat Mode Toggle */}
+                <div className="mt-3 p-3 bg-slate-50 rounded-lg border">
+                  <p className="text-xs text-slate-600 mb-2 font-medium">Boat Mode</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={async () => {
+                        await updateMutation.mutateAsync({ 
+                          id: boat.id, 
+                          data: { ...boat, boat_mode: 'rental_and_maintenance' } 
+                        });
+                      }}
+                      className={`flex-1 px-3 py-2 text-xs rounded-md font-medium transition-all ${
+                        isRentalMode
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      Rental + Maintenance
+                    </button>
+                    <button
+                      onClick={async () => {
+                        await updateMutation.mutateAsync({ 
+                          id: boat.id, 
+                          data: { ...boat, boat_mode: 'maintenance_only' } 
+                        });
+                      }}
+                      className={`flex-1 px-3 py-2 text-xs rounded-md font-medium transition-all ${
+                        !isRentalMode
+                          ? 'bg-slate-600 text-white shadow-md'
+                          : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      Maintenance Only
+                    </button>
+                  </div>
                 </div>
                 <p className="text-sm text-slate-700 mb-2">{boat.capacity}</p>
                 {boat.description && (
