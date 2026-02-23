@@ -138,8 +138,8 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-4 gap-4">
-          {destinations.map((dest, i) => (
+        <div className="grid md:grid-cols-3 gap-4">
+          {destinations.slice(0, 6).map((dest, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
