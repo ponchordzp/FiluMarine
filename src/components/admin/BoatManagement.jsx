@@ -185,6 +185,7 @@ export default function BoatManagement() {
       location: 'ixtapa_zihuatanejo',
       dock_location: '',
       crew_members: 0,
+      boat_mode: 'rental_and_maintenance',
       available_expeditions: [],
       expedition_pricing: [],
       equipment: {
@@ -240,6 +241,7 @@ export default function BoatManagement() {
       owner_phone: boat.owner_phone || '',
       crew_members: boat.crew_members || 0,
       engine_year: boat.engine_year || null,
+      boat_mode: boat.boat_mode || 'rental_and_maintenance',
       last_service_date: boat.last_service_date || '',
       last_service_mechanic_phone: boat.last_service_mechanic_phone || '',
       supplies_inventory: boat.supplies_inventory || [],
@@ -500,6 +502,7 @@ export default function BoatManagement() {
               </div>
 
               {/* Available Expeditions & Pricing */}
+              {formData.boat_mode === 'rental_and_maintenance' && (
               <div className="border-t pt-6">
                 <Label className="mb-3 block text-lg font-semibold">Available Expeditions & Pricing</Label>
                 <p className="text-sm text-slate-600 mb-4">Select available expeditions and set pricing for each</p>
@@ -572,11 +575,13 @@ export default function BoatManagement() {
                         )}
                       </div>
                     );
-                  })}
-                </div>
-              </div>
+                    })}
+                    </div>
+                    </div>
+                    )}
 
-              {/* Equipment */}
+                    {/* Equipment */}
+                    {formData.boat_mode === 'rental_and_maintenance' && (
               <div>
                 <Label className="mb-3 block">Equipment</Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -594,10 +599,11 @@ export default function BoatManagement() {
                       {eq.replace(/_/g, ' ')}
                     </button>
                   ))}
-                </div>
-              </div>
+                  </div>
+                  </div>
+                  )}
 
-              {/* Engine Configuration */}
+                  {/* Engine Configuration */}
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4">Engine Configuration</h3>
                 <div className="grid md:grid-cols-2 gap-4">
@@ -1119,14 +1125,20 @@ export default function BoatManagement() {
           const needsMaintenance = boat.status === 'maintenance' || maintenanceOverdue || maintenanceDue;
           
           const isExpanded = expandedBoats[boat.id];
-          
+          const isRentalMode = boat.boat_mode === 'rental_and_maintenance';
+
           return (
           <Card key={boat.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-            <div className="aspect-video relative">
-              <img src={boat.image} alt={boat.name} className="w-full h-full object-cover" />
-              <Badge className="absolute top-2 right-2 bg-white/90 text-slate-800">
+          <div className="aspect-video relative">
+            <img src={boat.image} alt={boat.name} className="w-full h-full object-cover" />
+            <div className="absolute top-2 right-2 flex gap-2">
+              <Badge className="bg-white/90 text-slate-800">
                 {boat.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}
               </Badge>
+              <Badge className={isRentalMode ? 'bg-blue-500 text-white' : 'bg-slate-500 text-white'}>
+                {isRentalMode ? 'Rental + Maintenance' : 'Maintenance Only'}
+              </Badge>
+            </div>
               {maintenanceOverdue && (
                 <Badge className="absolute top-2 left-2 bg-red-600 text-white animate-pulse">
                   Maintenance OVERDUE
@@ -1178,7 +1190,7 @@ export default function BoatManagement() {
                 )}
               </Button>
 
-              {isExpanded && boat.equipment && Object.values(boat.equipment).some(v => v) && (
+              {isExpanded && isRentalMode && boat.equipment && Object.values(boat.equipment).some(v => v) && (
                 <div className="mb-4">
                   <h4 className="text-xs font-semibold text-slate-700 mb-2">Equipment</h4>
                   <div className="flex flex-wrap gap-1">
@@ -1191,7 +1203,7 @@ export default function BoatManagement() {
                 </div>
               )}
 
-              {isExpanded && boat.available_expeditions && boat.available_expeditions.length > 0 && (
+              {isExpanded && isRentalMode && boat.available_expeditions && boat.available_expeditions.length > 0 && (
                 <div className="mb-4">
                   <h4 className="text-xs font-semibold text-slate-700 mb-2">Available Expeditions</h4>
                   <div className="flex flex-wrap gap-1">
@@ -1341,7 +1353,7 @@ export default function BoatManagement() {
               )}
 
               {/* Booking Statistics */}
-              {isExpanded && (<div className="pt-4 border-t space-y-2">
+              {isExpanded && isRentalMode && (<div className="pt-4 border-t space-y-2">
                 <h4 className="font-semibold text-sm text-slate-700 mb-3">Booking Statistics</h4>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
