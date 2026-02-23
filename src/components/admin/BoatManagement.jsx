@@ -133,7 +133,7 @@ export default function BoatManagement() {
       return sum + (e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0);
     }, 0);
     const netProfit = totalRevenue - totalExpenses;
-    const roi = totalExpenses > 0 ? ((netProfit / totalExpenses) * 100).toFixed(1) : 0;
+    const roi = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : 0;
     const expeditionCounts = {};
     boatBookings.forEach(b => {
       const exp = b.experience_type || 'unknown';
@@ -1575,20 +1575,30 @@ export default function BoatManagement() {
                     </div>
                   )}
                   
-                  <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
-                    <div className="bg-slate-50 p-1.5 rounded">
-                      <p className="text-slate-500" style={{ fontSize: '10px' }}>Base</p>
-                      <p className="font-bold text-sm">{boat.current_hours}</p>
-                    </div>
-                    <div className="bg-blue-50 p-1.5 rounded border border-blue-200">
-                      <p className="text-blue-600" style={{ fontSize: '10px' }}>+ Trips</p>
-                      <p className="font-bold text-sm text-blue-700">
-                        {(stats.totalEngineHoursFromBookings + stats.personalTripsEngineHours).toFixed(1)}
-                      </p>
-                    </div>
-                    <div className="bg-indigo-50 p-1.5 rounded border border-indigo-300">
-                      <p className="text-indigo-600" style={{ fontSize: '10px' }}>Total</p>
-                      <p className="font-bold text-sm text-indigo-800">{actualCurrentHours.toFixed(1)}</p>
+                  <div className="space-y-1.5">
+                    <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
+                      <div className="bg-slate-50 p-1.5 rounded">
+                        <p className="text-slate-500" style={{ fontSize: '10px' }}>Base</p>
+                        <p className="font-bold text-sm">{boat.current_hours}</p>
+                      </div>
+                      {isRentalMode && (
+                        <div className="bg-blue-50 p-1.5 rounded border border-blue-200">
+                          <p className="text-blue-600" style={{ fontSize: '10px' }}>+ Bookings</p>
+                          <p className="font-bold text-sm text-blue-700">
+                            {stats.totalEngineHoursFromBookings.toFixed(1)}
+                          </p>
+                        </div>
+                      )}
+                      <div className={`p-1.5 rounded border ${isRentalMode ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}>
+                        <p className={isRentalMode ? "text-green-600" : "text-blue-600"} style={{ fontSize: '10px' }}>+ Personal</p>
+                        <p className={`font-bold text-sm ${isRentalMode ? 'text-green-700' : 'text-blue-700'}`}>
+                          {stats.personalTripsEngineHours.toFixed(1)}
+                        </p>
+                      </div>
+                      <div className="bg-indigo-50 p-1.5 rounded border border-indigo-300">
+                        <p className="text-indigo-600" style={{ fontSize: '10px' }}>Total</p>
+                        <p className="font-bold text-sm text-indigo-800">{actualCurrentHours.toFixed(1)}</p>
+                      </div>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-1.5 mt-1.5 text-xs">

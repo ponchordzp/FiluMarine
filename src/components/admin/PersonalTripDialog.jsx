@@ -263,17 +263,21 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
                   </div>
                 )}
                 <div className="space-y-2">
-                  <div className="flex gap-2">
-                    <Select value={newSupply.name} onValueChange={(value) => {
+                  <Input
+                    value={newSupply.name}
+                    onChange={(e) => setNewSupply({ ...newSupply, name: e.target.value })}
+                    placeholder="Supply name (type or select below)"
+                    className="text-sm"
+                  />
+                  {boatSupplies.length > 0 && (
+                    <Select onValueChange={(value) => {
                       const selected = boatSupplies.find(s => s.name === value);
                       if (selected) {
                         setNewSupply({ name: value, quantity: 1, price: selected.price_per_unit || 0 });
-                      } else {
-                        setNewSupply({ ...newSupply, name: value });
                       }
                     }}>
-                      <SelectTrigger className="text-sm flex-1">
-                        <SelectValue placeholder="Select or type supply" />
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Or quick-select from inventory" />
                       </SelectTrigger>
                       <SelectContent>
                         {boatSupplies.map((supply, idx) => (
@@ -283,6 +287,8 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
                         ))}
                       </SelectContent>
                     </Select>
+                  )}
+                  <div className="flex gap-2">
                     <Input
                       type="number"
                       min="1"
@@ -297,8 +303,8 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
                       step="0.01"
                       value={newSupply.price}
                       onChange={(e) => setNewSupply({ ...newSupply, price: parseFloat(e.target.value) || 0 })}
-                      placeholder="Price"
-                      className="text-sm w-20"
+                      placeholder="Price/unit"
+                      className="text-sm flex-1"
                     />
                     <Button
                       type="button"
@@ -310,12 +316,6 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
                       <Plus className="h-3 w-3" />
                     </Button>
                   </div>
-                  <Input
-                    value={newSupply.name}
-                    onChange={(e) => setNewSupply({ ...newSupply, name: e.target.value })}
-                    placeholder="Or type custom supply name"
-                    className="text-sm"
-                  />
                 </div>
               </div>
 
