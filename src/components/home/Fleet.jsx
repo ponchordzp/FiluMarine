@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation } from 'lucide-react';
+import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, Calendar, Clock, MapPin, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 const fleetByLocation = {
   ixtapa_zihuatanejo: [
@@ -86,7 +88,17 @@ const equipmentIcons = {
   snorkeling_gear: Droplet,
 };
 
-export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
+const experienceLabels = {
+  half_day_fishing: 'Half-Day Sport Fishing',
+  full_day_fishing: 'Full-Day Sport Fishing',
+  extended_fishing: 'Full Day Expedition',
+  snorkeling: 'Snorkeling Expedition',
+  coastal_leisure: 'Coastal Leisure Tour',
+  sunset_tour: 'Sunset Tour',
+};
+
+export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectExperience }) {
+  const [expandedBoats, setExpandedBoats] = useState({});
   const { data: boatsFromDB = [] } = useQuery({
     queryKey: ['boats', location],
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
@@ -98,37 +110,11 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
     boat.boat_mode !== 'maintenance_only'
   );
 
-  const fleet = activeBoats.length > 0 ? activeBoats.map(boat => {
-    const strengths = [];
-    
-    if (boat.equipment) {
-      Object.entries(boat.equipment).forEach(([key, value]) => {
-        if (value) {
-          const Icon = equipmentIcons[key] || Shield;
-          strengths.push({
-            icon: Icon,
-            text: key.replace(/_/g, ' ')
-          });
-        }
-      });
-    }
+  const fleet = activeBoats.length > 0 ? activeBoats : (fleetByLocation[location] || fleetByLocation.ixtapa_zihuatanejo);
 
-    if (strengths.length === 0) {
-      strengths.push({ icon: Shield, text: 'Quality equipment' });
-    }
-
-    return {
-      name: boat.name,
-      type: boat.type,
-      size: boat.size,
-      description: boat.description,
-      image: boat.image,
-      capacity: boat.capacity,
-      strengths: strengths,
-      maintenance_schedule: boat.maintenance_schedule,
-      parts_inventory: boat.parts_inventory,
-    };
-  }) : (fleetByLocation[location] || fleetByLocation.ixtapa_zihuatanejo);
+  const toggleBoatExpanded = (boatName) => {
+    setExpandedBoats(prev => ({ ...prev, [boatName]: !prev[boatName] }));
+  };
 
   return (
     <section className="py-8 md:py-12 bg-gradient-to-b from-[#0a1929] to-[#0c2340] border-t border-white/10">
@@ -148,7 +134,25 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {fleet.map((boat, i) => (
+          {fleet.map((boat, i) => {
+            const isExpanded = expandedBoats[boat.name];
+            const availableExpeditions = boat.available_expeditions || [];
+            const expeditionPricing = boat.expedition_pricing || [];
+            
+            const strengths = [];
+            if (boat.equipment) {
+              Object.entries(boat.equipment).forEach(([key, value]) => {
+                if (value) {
+                  const Icon = equipmentIcons[key] || Shield;
+                  strengths.push({ icon: Icon, text: key.replace(/_/g, ' ') });
+                }
+              });
+            }
+            if (strengths.length === 0 && boat.strengths) {
+              strengths.push(...boat.strengths);
+            }
+
+            return (
             <motion.div
               key={boat.name}
               initial={{ opacity: 0, y: 20 }}
@@ -178,17 +182,91 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
                   {boat.capacity}
                 </p>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-                  {boat.strengths.map((strength, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-white">
-                      <strength.icon className="h-4 w-4 text-[#1e88e5] flex-shrink-0" />
-                      <span className="text-sm capitalize">{strength.text}</span>
-                    </div>
-                  ))}
-                </div>
+                {strengths.length > 0 && (
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
+                    {strengths.slice(0, 6).map((strength, idx) => (
+                      <div key={idx} className="flex items-center gap-2 text-white">
+                        <strength.icon className="h-4 w-4 text-[#1e88e5] flex-shrink-0" />
+                        <span className="text-sm capitalize">{strength.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Available Expeditions */}
+                {availableExpeditions.length > 0 ? (
+                  <div className="border-t border-white/20 pt-4 mt-4">
+                    <button
+                      onClick={() => toggleBoatExpanded(boat.name)}
+                      className="w-full flex items-center justify-between text-white hover:text-[#1e88e5] transition-colors mb-3"
+                    >
+                      <h4 className="font-semibold text-sm">Available Expeditions</h4>
+                      <ChevronDown className={`h-5 w-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                    </button>
+                    
+                    {isExpanded && (
+                      <div className="space-y-3">
+                        {availableExpeditions.map((expType) => {
+                          const pricing = expeditionPricing.find(p => p.expedition_type === expType);
+                          if (!pricing) return null;
+
+                          return (
+                            <div key={expType} className="bg-white/5 rounded-lg p-3 border border-white/10">
+                              <div className="flex items-start justify-between mb-2">
+                                <div>
+                                  <h5 className="text-white font-semibold text-sm">{experienceLabels[expType] || expType}</h5>
+                                  <div className="flex items-center gap-3 mt-1 text-xs text-white/70">
+                                    <span className="flex items-center gap-1">
+                                      <Clock className="h-3 w-3" />
+                                      {pricing.duration_hours}h
+                                    </span>
+                                    {pricing.departure_time && (
+                                      <span className="flex items-center gap-1">
+                                        <Calendar className="h-3 w-3" />
+                                        {pricing.departure_time}
+                                      </span>
+                                    )}
+                                  </div>
+                                  {pricing.pickup_location && (
+                                    <p className="text-xs text-white/60 mt-1 flex items-center gap-1">
+                                      <MapPin className="h-3 w-3" />
+                                      {pricing.pickup_location}
+                                    </p>
+                                  )}
+                                </div>
+                                <Badge className="bg-[#1e88e5] text-white text-sm px-3 py-1">
+                                  ${pricing.price_mxn.toLocaleString()} MXN
+                                </Badge>
+                              </div>
+                              
+                              <Button
+                                onClick={() => onSelectExperience && onSelectExperience(boat, expType, pricing)}
+                                className="w-full bg-gradient-to-r from-[#1e88e5] to-[#1976d2] hover:from-[#1976d2] hover:to-[#1565c0] text-white mt-2"
+                                size="sm"
+                              >
+                                Book This Experience
+                              </Button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                    
+                    {!isExpanded && (
+                      <p className="text-white/60 text-xs">
+                        Click to view {availableExpeditions.length} available {availableExpeditions.length === 1 ? 'expedition' : 'expeditions'}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="border-t border-white/20 pt-4 mt-4">
+                    <p className="text-white/60 text-sm italic">Contact us for custom booking options</p>
+                  </div>
+                )}
               </div>
             </motion.div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

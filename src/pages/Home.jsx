@@ -75,8 +75,9 @@ const generateConfirmationCode = (location) => {
 };
 
 export default function Home() {
-  const [step, setStep] = useState('location'); // location, landing, boat_selector, calendar, pickup, addons, summary, confirmation
+  const [step, setStep] = useState('location'); // location, landing, calendar, pickup, addons, summary, confirmation
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [selectedBoat, setSelectedBoat] = useState(null);
   const [selectedExperience, setSelectedExperience] = useState(null);
   const [bookingData, setBookingData] = useState({});
   const [confirmedBooking, setConfirmedBooking] = useState(null);
@@ -116,9 +117,16 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectExperience = (experience) => {
-    setSelectedExperience(experience);
-    setBookingData(prev => ({ ...prev, experience_type: experience.id }));
+  const handleSelectExperience = (boat, experienceType, pricing) => {
+    setSelectedBoat(boat);
+    setSelectedExperience({ ...experiences[experienceType], pricing });
+    setBookingData({
+      location: selectedLocation,
+      experience_type: experienceType,
+      boat_name: boat.name,
+      boat_id: boat.id,
+      total_price: pricing.price_mxn,
+    });
     setStep('calendar');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -253,6 +261,7 @@ export default function Home() {
   const handleBackToMain = () => {
     setStep('location');
     setSelectedLocation(null);
+    setSelectedBoat(null);
     setSelectedExperience(null);
     setBookingData({});
     setConfirmedBooking(null);
@@ -261,6 +270,7 @@ export default function Home() {
 
   const handleChangeLocation = () => {
     setStep('location');
+    setSelectedBoat(null);
     setSelectedExperience(null);
     setBookingData({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -285,9 +295,8 @@ export default function Home() {
           onChangeLocation={handleChangeLocation}
         />
         <BoatBenefits />
-        <Fleet location={selectedLocation} />
         <div ref={experiencesRef}>
-          <ExperienceCards onSelectExperience={handleSelectExperience} />
+          <Fleet location={selectedLocation} onSelectExperience={handleSelectExperience} />
         </div>
         <Destinations location={selectedLocation} />
         <JoinFilu />
