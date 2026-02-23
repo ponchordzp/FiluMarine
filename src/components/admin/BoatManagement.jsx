@@ -1041,6 +1041,7 @@ export default function BoatManagement() {
                   </div>
                 )}
               </div>)}
+            </CardContent>
             <div className="flex gap-2 p-4 pt-0">
               <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1">
                 <Edit className="h-4 w-4 mr-2" />
