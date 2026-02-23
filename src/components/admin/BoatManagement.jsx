@@ -8,9 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Ship, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench } from 'lucide-react';
+import { Plus, Edit, Trash2, Ship, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
+import PersonalTripDialog from './PersonalTripDialog';
 
 const expeditionTypes = [
   'half_day_fishing',
@@ -96,6 +97,8 @@ export default function BoatManagement() {
   const [newRecurringCost, setNewRecurringCost] = useState({ 
     name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: '' 
   });
+  const [personalTripDialogOpen, setPersonalTripDialogOpen] = useState(false);
+  const [selectedBoatForTrips, setSelectedBoatForTrips] = useState(null);
   
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
@@ -112,7 +115,12 @@ export default function BoatManagement() {
     queryFn: () => base44.entities.BookingExpense.list(),
   });
 
-  const getBoatStats = (boatName) => {
+  const { data: personalTrips = [] } = useQuery({
+    queryKey: ['personal-trips'],
+    queryFn: () => base44.entities.PersonalTrip.list(),
+  });
+
+  const getBoatStats = (boatName, boatId) => {
     const boatBookings = bookings.filter(b => b.boat_name === boatName && b.status !== 'cancelled');
     const today = new Date();
     const futureBookings = boatBookings.filter(b => new Date(b.date) >= today);
@@ -141,6 +149,10 @@ export default function BoatManagement() {
     // Calculate total engine hours from bookings
     const totalEngineHoursFromBookings = boatBookings.reduce((sum, b) => sum + (b.engine_hours_used || 0), 0);
     
+    // Add personal trips engine hours
+    const boatPersonalTrips = personalTrips.filter(t => t.boat_id === boatId);
+    const personalTripsEngineHours = boatPersonalTrips.reduce((sum, t) => sum + (t.engine_hours_used || 0), 0);
+    
     return {
       total: boatBookings.length,
       future: futureBookings.length,
@@ -153,7 +165,9 @@ export default function BoatManagement() {
       frequentTrip: frequentTrip ? frequentTrip[0].replace(/_/g, ' ') : 'N/A',
       frequentTripCount: frequentTrip ? frequentTrip[1] : 0,
       lastTrip: lastTrip,
-      totalEngineHoursFromBookings: totalEngineHoursFromBookings
+      totalEngineHoursFromBookings: totalEngineHoursFromBookings,
+      personalTripsCount: boatPersonalTrips.length,
+      personalTripsEngineHours: personalTripsEngineHours
     };
   };
 
@@ -1432,10 +1446,10 @@ export default function BoatManagement() {
       {/* Boat List */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {boats.filter(boat => boat.image).map((boat) => {
-          const stats = getBoatStats(boat.name);
+          const stats = getBoatStats(boat.name, boat.id);
           
-          // Calculate actual current hours including bookings
-          const actualCurrentHours = (boat.current_hours || 0) + stats.totalEngineHoursFromBookings;
+          // Calculate actual current hours including bookings and personal trips
+          const actualCurrentHours = (boat.current_hours || 0) + stats.totalEngineHoursFromBookings + stats.personalTripsEngineHours;
           const hoursSinceLastMaintenance = actualCurrentHours - (boat.last_maintenance_hours || 0);
           const hoursUntilMaintenance = Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - actualCurrentHours);
           
@@ -1470,12 +1484,12 @@ export default function BoatManagement() {
                 </Badge>
               )}
             </div>
-            <CardContent className="p-6">
-              <div className="mb-4">
-                <div className="flex items-start justify-between mb-2">
+            <CardContent className="p-4">
+              <div className="mb-2">
+                <div className="flex items-start justify-between mb-1">
                   <div>
-                    <h3 className="text-xl font-semibold text-slate-900">{boat.name}</h3>
-                    <p className="text-sm text-slate-600">{boat.type} • {boat.size}</p>
+                    <h3 className="text-lg font-semibold text-slate-900">{boat.name}</h3>
+                    <p className="text-xs text-slate-600">{boat.type} • {boat.size}</p>
                   </div>
                   <Badge className={
                     boat.status === 'active' ? 'bg-emerald-100 text-emerald-800' :
@@ -1487,8 +1501,8 @@ export default function BoatManagement() {
                 </div>
                 
                 {/* Boat Mode Toggle */}
-                <div className="mt-3 p-3 bg-slate-50 rounded-lg border">
-                  <p className="text-xs text-slate-600 mb-2 font-medium">Boat Mode</p>
+                <div className="mt-2 p-2 bg-slate-50 rounded-lg border">
+                  <p className="text-xs text-slate-600 mb-1.5 font-medium">Boat Mode</p>
                   <div className="flex gap-2">
                     <button
                       onClick={async () => {
@@ -1497,7 +1511,7 @@ export default function BoatManagement() {
                           data: { ...boat, boat_mode: 'rental_and_maintenance' } 
                         });
                       }}
-                      className={`flex-1 px-3 py-2 text-xs rounded-md font-medium transition-all ${
+                      className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${
                         isRentalMode
                           ? 'bg-blue-600 text-white shadow-md'
                           : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'
@@ -1512,7 +1526,7 @@ export default function BoatManagement() {
                           data: { ...boat, boat_mode: 'maintenance_only' } 
                         });
                       }}
-                      className={`flex-1 px-3 py-2 text-xs rounded-md font-medium transition-all ${
+                      className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${
                         !isRentalMode
                           ? 'bg-slate-600 text-white shadow-md'
                           : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'
@@ -1522,9 +1536,8 @@ export default function BoatManagement() {
                     </button>
                   </div>
                 </div>
-                <p className="text-sm text-slate-700 mb-2">{boat.capacity}</p>
                 {boat.description && (
-                  <p className="text-sm text-slate-600 line-clamp-2">{boat.description}</p>
+                  <p className="text-xs text-slate-600 line-clamp-2 mt-2">{boat.description}</p>
                 )}
               </div>
 
@@ -1532,17 +1545,17 @@ export default function BoatManagement() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setExpandedBoats(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))}
-                className="w-full mb-4"
+                className="w-full mb-2 h-8"
               >
                 {isExpanded ? (
                   <>
-                    <ChevronUp className="h-4 w-4 mr-2" />
-                    Show Less
+                    <ChevronUp className="h-3 w-3 mr-1" />
+                    <span className="text-xs">Show Less</span>
                   </>
                 ) : (
                   <>
-                    <ChevronDown className="h-4 w-4 mr-2" />
-                    Show More Details
+                    <ChevronDown className="h-3 w-3 mr-1" />
+                    <span className="text-xs">Show More</span>
                   </>
                 )}
               </Button>
@@ -1605,8 +1618,12 @@ export default function BoatManagement() {
                       <p className="font-bold text-lg">{boat.current_hours}</p>
                     </div>
                     <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                      <p className="text-xs text-blue-600">+ Booking Hours</p>
-                      <p className="font-bold text-lg text-blue-700">{stats.totalEngineHoursFromBookings.toFixed(1)}</p>
+                      <p className="text-xs text-blue-600">+ {isRentalMode ? 'Booking' : 'Personal'} Hours</p>
+                      <p className="font-bold text-lg text-blue-700">
+                        {isRentalMode 
+                          ? stats.totalEngineHoursFromBookings.toFixed(1) 
+                          : stats.personalTripsEngineHours.toFixed(1)}
+                      </p>
                     </div>
                     <div className="bg-indigo-50 p-3 rounded-lg border-2 border-indigo-300">
                       <p className="text-xs text-indigo-600">Total Hours</p>
@@ -1655,6 +1672,40 @@ export default function BoatManagement() {
                       )}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Personal Trips (Maintenance Only) */}
+              {isExpanded && !isRentalMode && (
+                <div className="pt-4 border-t space-y-2">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-sm text-slate-700 flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Personal Trips ({stats.personalTripsCount})
+                    </h4>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedBoatForTrips(boat);
+                        setPersonalTripDialogOpen(true);
+                      }}
+                      className="h-7 text-xs"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Log Trip
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="bg-slate-50 p-2 rounded-lg">
+                      <p className="text-xs text-slate-500">Total Trips</p>
+                      <p className="font-semibold">{stats.personalTripsCount}</p>
+                    </div>
+                    <div className="bg-blue-50 p-2 rounded-lg">
+                      <p className="text-xs text-blue-600">Engine Hours</p>
+                      <p className="font-semibold text-blue-700">{stats.personalTripsEngineHours.toFixed(1)}</p>
+                    </div>
+                  </div>
                 </div>
               )}
 
@@ -1775,9 +1826,9 @@ export default function BoatManagement() {
                 )}
               </div>)}
             </CardContent>
-            <div className="flex gap-2 p-4 pt-0">
-              <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1">
-                <Edit className="h-4 w-4 mr-2" />
+            <div className="flex gap-2 px-4 pb-3">
+              <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1 h-8 text-xs">
+                <Edit className="h-3 w-3 mr-1" />
                 Edit
               </Button>
               <Button
@@ -1788,14 +1839,27 @@ export default function BoatManagement() {
                     deleteMutation.mutate(boat.id);
                   }
                 }}
+                className="h-8"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3 w-3" />
               </Button>
             </div>
           </Card>
           );
         })}
       </div>
+      
+      {/* Personal Trip Dialog */}
+      {selectedBoatForTrips && (
+        <PersonalTripDialog
+          boat={selectedBoatForTrips}
+          open={personalTripDialogOpen}
+          onOpenChange={(open) => {
+            setPersonalTripDialogOpen(open);
+            if (!open) setSelectedBoatForTrips(null);
+          }}
+        />
+      )}
     </div>
   );
 }
