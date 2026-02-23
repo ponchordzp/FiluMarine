@@ -19,6 +19,7 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
     other_cost: 0,
     notes: ''
   });
+  const [engineHours, setEngineHours] = useState(booking.engine_hours_used || 0);
 
   const { data: existingExpense } = useQuery({
     queryKey: ['booking-expense', booking?.id],

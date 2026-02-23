@@ -128,6 +128,9 @@ export default function BoatManagement() {
       .filter(b => b.status === 'completed')
       .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
     
+    // Calculate total engine hours from bookings
+    const totalEngineHoursFromBookings = boatBookings.reduce((sum, b) => sum + (b.engine_hours_used || 0), 0);
+    
     return {
       total: boatBookings.length,
       future: futureBookings.length,
@@ -139,7 +142,8 @@ export default function BoatManagement() {
       roi: roi,
       frequentTrip: frequentTrip ? frequentTrip[0].replace(/_/g, ' ') : 'N/A',
       frequentTripCount: frequentTrip ? frequentTrip[1] : 0,
-      lastTrip: lastTrip
+      lastTrip: lastTrip,
+      totalEngineHoursFromBookings: totalEngineHoursFromBookings
     };
   };
 
@@ -930,7 +934,17 @@ export default function BoatManagement() {
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {boats.filter(boat => boat.image).map((boat) => {
           const stats = getBoatStats(boat.name);
-          const needsMaintenance = boat.status === 'maintenance' || stats.completed > 20;
+          
+          // Calculate actual current hours including bookings
+          const actualCurrentHours = (boat.current_hours || 0) + stats.totalEngineHoursFromBookings;
+          const hoursSinceLastMaintenance = actualCurrentHours - (boat.last_maintenance_hours || 0);
+          const hoursUntilMaintenance = Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - actualCurrentHours);
+          
+          // Predictive maintenance logic
+          const maintenanceDue = hoursUntilMaintenance <= 10 && hoursUntilMaintenance > 0;
+          const maintenanceOverdue = hoursUntilMaintenance <= 0;
+          const needsMaintenance = boat.status === 'maintenance' || maintenanceOverdue || maintenanceDue;
+          
           const isExpanded = expandedBoats[boat.id];
           
           return (
@@ -940,9 +954,14 @@ export default function BoatManagement() {
               <Badge className="absolute top-2 right-2 bg-white/90 text-slate-800">
                 {boat.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}
               </Badge>
-              {needsMaintenance && (
+              {maintenanceOverdue && (
+                <Badge className="absolute top-2 left-2 bg-red-600 text-white animate-pulse">
+                  Maintenance OVERDUE
+                </Badge>
+              )}
+              {!maintenanceOverdue && maintenanceDue && (
                 <Badge className="absolute top-2 left-2 bg-amber-500 text-white">
-                  Maintenance Due
+                  Maintenance Due Soon
                 </Badge>
               )}
             </div>
@@ -1013,33 +1032,62 @@ export default function BoatManagement() {
               )}
 
               {/* Engine Hours Tracking */}
-              {isExpanded && boat.current_hours > 0 && (
+              {isExpanded && boat.current_hours >= 0 && (
                 <div className="pt-4 border-t space-y-3">
                   <h4 className="font-semibold text-sm text-slate-700 flex items-center gap-2">
                     <Gauge className="h-4 w-4" />
-                    Engine Hours
+                    Engine Hours (Auto-Updated from Bookings)
                   </h4>
+                  
+                  {/* Predictive Maintenance Alert */}
+                  {maintenanceOverdue && (
+                    <div className="p-3 bg-red-50 border-2 border-red-300 rounded-lg">
+                      <p className="text-sm font-bold text-red-800 mb-1">⚠️ MAINTENANCE OVERDUE</p>
+                      <p className="text-xs text-red-700">
+                        Service was due {Math.abs(hoursUntilMaintenance)} hours ago. Schedule maintenance immediately.
+                      </p>
+                    </div>
+                  )}
+                  {!maintenanceOverdue && maintenanceDue && (
+                    <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
+                      <p className="text-sm font-bold text-amber-800 mb-1">🔔 MAINTENANCE ALERT</p>
+                      <p className="text-xs text-amber-700">
+                        Only {hoursUntilMaintenance} hours until maintenance due. Plan service soon.
+                      </p>
+                    </div>
+                  )}
+                  
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-slate-50 p-3 rounded-lg">
-                      <p className="text-xs text-slate-500">Current Hours</p>
+                      <p className="text-xs text-slate-500">Base Hours</p>
                       <p className="font-bold text-lg">{boat.current_hours}</p>
                     </div>
+                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                      <p className="text-xs text-blue-600">+ Booking Hours</p>
+                      <p className="font-bold text-lg text-blue-700">{stats.totalEngineHoursFromBookings.toFixed(1)}</p>
+                    </div>
+                    <div className="bg-indigo-50 p-3 rounded-lg border-2 border-indigo-300">
+                      <p className="text-xs text-indigo-600">Total Hours</p>
+                      <p className="font-bold text-lg text-indigo-800">{actualCurrentHours.toFixed(1)}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="bg-slate-50 p-3 rounded-lg">
                       <p className="text-xs text-slate-500">Since Service</p>
-                      <p className="font-bold text-lg">{boat.current_hours - (boat.last_maintenance_hours || 0)}</p>
+                      <p className="font-bold text-lg">{hoursSinceLastMaintenance.toFixed(1)}</p>
                     </div>
                     <div className={`p-3 rounded-lg ${
-                      ((boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - boat.current_hours) <= 10
-                        ? 'bg-red-50'
-                        : 'bg-green-50'
+                      maintenanceOverdue ? 'bg-red-100 border-2 border-red-400' :
+                      maintenanceDue ? 'bg-amber-100 border-2 border-amber-400' :
+                      'bg-green-50'
                     }`}>
                       <p className="text-xs text-slate-500">Until Service</p>
                       <p className={`font-bold text-lg ${
-                        ((boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - boat.current_hours) <= 10
-                          ? 'text-red-600'
-                          : 'text-green-600'
+                        maintenanceOverdue ? 'text-red-700' :
+                        maintenanceDue ? 'text-amber-700' :
+                        'text-green-600'
                       }`}>
-                        {Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - boat.current_hours)}
+                        {hoursUntilMaintenance.toFixed(1)}
                       </p>
                     </div>
                   </div>
@@ -1058,6 +1106,57 @@ export default function BoatManagement() {
                       )}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* Maintenance Records */}
+              {isExpanded && boat.maintenance_records && boat.maintenance_records.length > 0 && (
+                <div className="pt-4 border-t space-y-2">
+                  <h4 className="font-semibold text-sm text-slate-700 mb-3 flex items-center gap-2">
+                    <Wrench className="h-4 w-4" />
+                    Maintenance History ({boat.maintenance_records.length} records)
+                  </h4>
+                  <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                    {boat.maintenance_records
+                      .sort((a, b) => new Date(b.date) - new Date(a.date))
+                      .map((record, idx) => (
+                        <div key={idx} className="p-3 bg-slate-50 rounded-lg border text-xs">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <p className="font-semibold text-slate-800">
+                                {format(parseISO(record.date), 'MMM d, yyyy')}
+                              </p>
+                              <Badge className={
+                                record.service_type === 'major' ? 'bg-purple-100 text-purple-800 text-xs' :
+                                record.service_type === 'minor' ? 'bg-blue-100 text-blue-800 text-xs' :
+                                record.service_type === 'repair' ? 'bg-red-100 text-red-800 text-xs' :
+                                'bg-slate-100 text-slate-800 text-xs'
+                              }>
+                                {record.service_type}
+                              </Badge>
+                            </div>
+                            <p className="font-bold text-green-700">${record.cost?.toLocaleString()} MXN</p>
+                          </div>
+                          <p className="text-slate-600 mb-1">
+                            <strong>Engine Hours:</strong> {record.engine_hours} hrs
+                          </p>
+                          {record.work_performed && (
+                            <p className="text-slate-600 mb-1">
+                              <strong>Work:</strong> {record.work_performed}
+                            </p>
+                          )}
+                          {record.mechanic_name && (
+                            <p className="text-slate-600">
+                              <strong>Mechanic:</strong> {record.mechanic_name}
+                              {record.mechanic_phone && ` (${record.mechanic_phone})`}
+                            </p>
+                          )}
+                          {record.notes && (
+                            <p className="text-slate-500 mt-1 italic">{record.notes}</p>
+                          )}
+                        </div>
+                      ))}
+                  </div>
                 </div>
               )}
 
