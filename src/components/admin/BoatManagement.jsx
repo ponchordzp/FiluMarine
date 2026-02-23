@@ -88,8 +88,14 @@ export default function BoatManagement() {
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [newSupply, setNewSupply] = useState({ name: '', category: '', quantity: 1, status: 'in_stock', notes: '' });
+  const [newSupply, setNewSupply] = useState({ 
+    name: '', category: '', quantity: 1, unit: '', price_per_unit: 0, 
+    purchased_date: '', duration_months: 0, status: 'in_stock', notes: '' 
+  });
   const [newSupplier, setNewSupplier] = useState({ name: '', phone: '', email: '', specialty: '' });
+  const [newRecurringCost, setNewRecurringCost] = useState({ 
+    name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: '' 
+  });
   
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
@@ -217,12 +223,19 @@ export default function BoatManagement() {
       last_service_date: '',
       last_service_mechanic_phone: '',
       supplies_inventory: [],
+      recurring_costs: [],
       status: 'active'
     });
     setImageFile(null);
     setImagePreview('');
-    setNewSupply({ name: '', category: '', quantity: 1, status: 'in_stock', notes: '' });
+    setNewSupply({ 
+      name: '', category: '', quantity: 1, unit: '', price_per_unit: 0, 
+      purchased_date: '', duration_months: 0, status: 'in_stock', notes: '' 
+    });
     setNewSupplier({ name: '', phone: '', email: '', specialty: '' });
+    setNewRecurringCost({ 
+      name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: '' 
+    });
     setEditingBoat(null);
     setDialogOpen(false);
   };
@@ -245,6 +258,7 @@ export default function BoatManagement() {
       last_service_date: boat.last_service_date || '',
       last_service_mechanic_phone: boat.last_service_mechanic_phone || '',
       supplies_inventory: boat.supplies_inventory || [],
+      recurring_costs: boat.recurring_costs || [],
     });
     setImagePreview(boat.image || '');
     setDialogOpen(true);
@@ -323,13 +337,19 @@ export default function BoatManagement() {
       ...prev,
       supplies_inventory: [...prev.supplies_inventory, { ...newSupply, id: Date.now() }]
     }));
-    setNewSupply({ name: '', category: '', quantity: 1, status: 'in_stock', notes: '' });
+    setNewSupply({ 
+      name: '', category: '', quantity: 1, unit: '', price_per_unit: 0, 
+      purchased_date: '', duration_months: 0, status: 'in_stock', notes: '' 
+    });
   };
 
   const addCommonSupply = (supply) => {
     setFormData(prev => ({
       ...prev,
-      supplies_inventory: [...prev.supplies_inventory, { ...supply, quantity: 1, status: 'in_stock', notes: '', id: Date.now() }]
+      supplies_inventory: [...prev.supplies_inventory, { 
+        ...supply, quantity: 1, unit: '', price_per_unit: 0, purchased_date: '', 
+        duration_months: 0, status: 'in_stock', notes: '', id: Date.now() 
+      }]
     }));
   };
 
@@ -356,6 +376,46 @@ export default function BoatManagement() {
         i === index ? { ...item, quantity: parseInt(quantity) || 0 } : item
       )
     }));
+  };
+
+  const updateSupplyField = (index, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      supplies_inventory: prev.supplies_inventory.map((item, i) => 
+        i === index ? { ...item, [field]: value } : item
+      )
+    }));
+  };
+
+  const addRecurringCost = () => {
+    if (!newRecurringCost.name) return;
+    setFormData(prev => ({
+      ...prev,
+      recurring_costs: [...(prev.recurring_costs || []), { ...newRecurringCost, id: Date.now() }]
+    }));
+    setNewRecurringCost({ 
+      name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: '' 
+    });
+  };
+
+  const removeRecurringCost = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      recurring_costs: (prev.recurring_costs || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  const calculateSupplyTimeRemaining = (purchasedDate, durationMonths) => {
+    if (!purchasedDate || !durationMonths) return null;
+    const purchased = new Date(purchasedDate);
+    const now = new Date();
+    const expiryDate = new Date(purchased);
+    expiryDate.setMonth(expiryDate.getMonth() + durationMonths);
+    const totalDays = durationMonths * 30;
+    const elapsedDays = Math.floor((now - purchased) / (1000 * 60 * 60 * 24));
+    const remainingDays = Math.max(0, totalDays - elapsedDays);
+    const percentageRemaining = Math.max(0, Math.min(100, (remainingDays / totalDays) * 100));
+    return { remainingDays, percentageRemaining, expired: remainingDays === 0 };
   };
 
   const addSupplier = () => {
@@ -838,7 +898,11 @@ export default function BoatManagement() {
                 {/* Current Supplies List */}
                 {formData.supplies_inventory.length > 0 && (
                   <div className="mb-4 space-y-2">
-                    {formData.supplies_inventory.map((supply, index) => (
+                    {formData.supplies_inventory.map((supply, index) => {
+                      const timeRemaining = calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months);
+                      const totalCost = (supply.quantity || 0) * (supply.price_per_unit || 0);
+                      
+                      return (
                       <div key={index} className={`p-3 rounded-lg border-2 transition-all ${
                         supply.status === 'in_stock' 
                           ? 'bg-emerald-50 border-emerald-300' 
@@ -852,11 +916,18 @@ export default function BoatManagement() {
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1">
                                 <p className="font-semibold text-slate-800">{supply.name}</p>
-                                {supply.category && (
-                                  <span className="text-xs bg-white px-2 py-1 rounded inline-block mt-1">
-                                    {supply.category}
-                                  </span>
-                                )}
+                                <div className="flex gap-2 flex-wrap mt-1">
+                                  {supply.category && (
+                                    <span className="text-xs bg-white px-2 py-1 rounded">
+                                      {supply.category}
+                                    </span>
+                                  )}
+                                  {totalCost > 0 && (
+                                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">
+                                      ${totalCost.toLocaleString()} MXN
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               <Button
                                 type="button"
@@ -869,42 +940,103 @@ export default function BoatManagement() {
                               </Button>
                             </div>
                             
-                            <div className="flex items-center gap-3">
-                              <div className="flex gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => updateSupplyStatus(index, 'in_stock')}
-                                  className={`px-3 py-1 text-xs rounded-md transition-all ${
-                                    supply.status === 'in_stock'
-                                      ? 'bg-emerald-600 text-white'
-                                      : 'bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50'
-                                  }`}
-                                >
-                                  In Stock
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => updateSupplyStatus(index, 'needed')}
-                                  className={`px-3 py-1 text-xs rounded-md transition-all ${
-                                    supply.status === 'needed'
-                                      ? 'bg-red-600 text-white'
-                                      : 'bg-white border border-red-300 text-red-700 hover:bg-red-50'
-                                  }`}
-                                >
-                                  Needed
-                                </button>
-                              </div>
-                              
-                              <div className="flex items-center gap-2">
-                                <Label className="text-xs text-slate-600">Qty:</Label>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                              <div>
+                                <Label className="text-xs text-slate-600">Qty</Label>
                                 <Input
                                   type="number"
                                   min="0"
                                   value={supply.quantity || 0}
                                   onChange={(e) => updateSupplyQuantity(index, e.target.value)}
-                                  className="w-20 h-7 text-sm"
+                                  className="h-7 text-sm"
                                 />
                               </div>
+                              <div>
+                                <Label className="text-xs text-slate-600">Unit</Label>
+                                <Input
+                                  value={supply.unit || ''}
+                                  onChange={(e) => updateSupplyField(index, 'unit', e.target.value)}
+                                  placeholder="gallons"
+                                  className="h-7 text-sm"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-slate-600">Price/Unit</Label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={supply.price_per_unit || 0}
+                                  onChange={(e) => updateSupplyField(index, 'price_per_unit', parseFloat(e.target.value) || 0)}
+                                  className="h-7 text-sm"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-slate-600">Duration (mo)</Label>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={supply.duration_months || 0}
+                                  onChange={(e) => updateSupplyField(index, 'duration_months', parseInt(e.target.value) || 0)}
+                                  className="h-7 text-sm"
+                                />
+                              </div>
+                            </div>
+
+                            {supply.duration_months > 0 && (
+                              <div>
+                                <Label className="text-xs text-slate-600">Purchased Date</Label>
+                                <Input
+                                  type="date"
+                                  value={supply.purchased_date || ''}
+                                  onChange={(e) => updateSupplyField(index, 'purchased_date', e.target.value)}
+                                  className="h-7 text-sm"
+                                />
+                              </div>
+                            )}
+
+                            {timeRemaining && (
+                              <div className="space-y-1">
+                                <div className="flex justify-between text-xs">
+                                  <span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>
+                                    {timeRemaining.expired ? '⚠️ Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}
+                                  </span>
+                                  <span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span>
+                                </div>
+                                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                  <div 
+                                    className={`h-full transition-all ${
+                                      timeRemaining.percentageRemaining > 50 ? 'bg-green-500' :
+                                      timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'
+                                    }`}
+                                    style={{ width: `${timeRemaining.percentageRemaining}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => updateSupplyStatus(index, 'in_stock')}
+                                className={`px-3 py-1 text-xs rounded-md transition-all ${
+                                  supply.status === 'in_stock'
+                                    ? 'bg-emerald-600 text-white'
+                                    : 'bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50'
+                                }`}
+                              >
+                                In Stock
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => updateSupplyStatus(index, 'needed')}
+                                className={`px-3 py-1 text-xs rounded-md transition-all ${
+                                  supply.status === 'needed'
+                                    ? 'bg-red-600 text-white'
+                                    : 'bg-white border border-red-300 text-red-700 hover:bg-red-50'
+                                }`}
+                              >
+                                Needed
+                              </button>
                             </div>
                             
                             {supply.notes && (
@@ -913,7 +1045,8 @@ export default function BoatManagement() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
 
@@ -926,7 +1059,7 @@ export default function BoatManagement() {
                       <Input
                         value={newSupply.name}
                         onChange={(e) => setNewSupply({ ...newSupply, name: e.target.value })}
-                        placeholder="e.g., Custom Part"
+                        placeholder="e.g., Boat Soap"
                         className="text-sm"
                       />
                     </div>
@@ -958,6 +1091,48 @@ export default function BoatManagement() {
                       />
                     </div>
                     <div>
+                      <Label className="text-xs">Unit</Label>
+                      <Input
+                        value={newSupply.unit}
+                        onChange={(e) => setNewSupply({ ...newSupply, unit: e.target.value })}
+                        placeholder="e.g., gallons, liters, units"
+                        className="text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Price per Unit (MXN)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={newSupply.price_per_unit}
+                        onChange={(e) => setNewSupply({ ...newSupply, price_per_unit: parseFloat(e.target.value) || 0 })}
+                        className="text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Duration (months)</Label>
+                      <Input
+                        type="number"
+                        min="0"
+                        value={newSupply.duration_months}
+                        onChange={(e) => setNewSupply({ ...newSupply, duration_months: parseInt(e.target.value) || 0 })}
+                        placeholder="e.g., 2"
+                        className="text-sm"
+                      />
+                      <p className="text-xs text-slate-500 mt-1">How long this supply lasts</p>
+                    </div>
+                    {newSupply.duration_months > 0 && (
+                      <div>
+                        <Label className="text-xs">Purchased Date</Label>
+                        <Input
+                          type="date"
+                          value={newSupply.purchased_date}
+                          onChange={(e) => setNewSupply({ ...newSupply, purchased_date: e.target.value })}
+                          className="text-sm"
+                        />
+                      </div>
+                    )}
+                    <div className={newSupply.duration_months > 0 ? '' : 'md:col-span-2'}>
                       <Label className="text-xs">Notes (optional)</Label>
                       <Input
                         value={newSupply.notes}
@@ -1093,6 +1268,151 @@ export default function BoatManagement() {
                     placeholder="e.g., +52 755 987 6543"
                     />
                     <p className="text-xs text-slate-500 mt-1">Receive maintenance quotes and updates</p>
+                    </div>
+                    </div>
+
+                    {/* Recurring Costs */}
+                    <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-purple-600" />
+                      Recurring Costs
+                    </h3>
+                    <p className="text-sm text-slate-600 mb-4">Track monthly/periodic payments like docking fees, insurance, crew salaries, etc.</p>
+                    
+                    {/* Current Recurring Costs */}
+                    {formData.recurring_costs && formData.recurring_costs.length > 0 && (
+                      <div className="mb-4 space-y-2">
+                        {formData.recurring_costs.map((cost, index) => (
+                          <div key={index} className="p-3 bg-purple-50 rounded-lg border-2 border-purple-300">
+                            <div className="flex items-start gap-3">
+                              <Calendar className="h-4 w-4 mt-1 flex-shrink-0 text-purple-600" />
+                              <div className="flex-1">
+                                <div className="flex items-start justify-between mb-2">
+                                  <div>
+                                    <p className="font-semibold text-slate-800">{cost.name}</p>
+                                    <div className="flex gap-2 mt-1 flex-wrap">
+                                      <span className="text-xs bg-white px-2 py-1 rounded capitalize">
+                                        {cost.category}
+                                      </span>
+                                      <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded font-medium">
+                                        Every {cost.frequency_months} month{cost.frequency_months > 1 ? 's' : ''}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => removeRecurringCost(index)}
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-100"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                                <div className="text-sm space-y-1">
+                                  <p className="text-green-700 font-bold">${cost.amount.toLocaleString()} MXN</p>
+                                  {cost.next_payment_date && (
+                                    <p className="text-xs text-slate-600">
+                                      Next payment: {format(parseISO(cost.next_payment_date), 'MMM d, yyyy')}
+                                    </p>
+                                  )}
+                                  {cost.notes && (
+                                    <p className="text-xs text-slate-600 bg-white p-2 rounded mt-2">{cost.notes}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Add Recurring Cost Form */}
+                    <div className="bg-slate-50 p-4 rounded-lg border space-y-3">
+                      <p className="font-semibold text-sm text-slate-700">Add Recurring Cost</p>
+                      <div className="grid md:grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs">Cost Name *</Label>
+                          <Input
+                            value={newRecurringCost.name}
+                            onChange={(e) => setNewRecurringCost({ ...newRecurringCost, name: e.target.value })}
+                            placeholder="e.g., Docking Fee"
+                            className="text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Amount (MXN) *</Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            value={newRecurringCost.amount}
+                            onChange={(e) => setNewRecurringCost({ ...newRecurringCost, amount: parseFloat(e.target.value) || 0 })}
+                            className="text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Category</Label>
+                          <Select value={newRecurringCost.category} onValueChange={(value) => setNewRecurringCost({ ...newRecurringCost, category: value })}>
+                            <SelectTrigger className="text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="docking">Docking</SelectItem>
+                              <SelectItem value="insurance">Insurance</SelectItem>
+                              <SelectItem value="crew">Crew Salary</SelectItem>
+                              <SelectItem value="permits">Permits & Licenses</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Frequency</Label>
+                          <Select 
+                            value={newRecurringCost.frequency_months.toString()} 
+                            onValueChange={(value) => setNewRecurringCost({ ...newRecurringCost, frequency_months: parseInt(value) })}
+                          >
+                            <SelectTrigger className="text-sm">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">Monthly</SelectItem>
+                              <SelectItem value="3">Every 3 months</SelectItem>
+                              <SelectItem value="6">Every 6 months</SelectItem>
+                              <SelectItem value="9">Every 9 months</SelectItem>
+                              <SelectItem value="12">Yearly</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs">Next Payment Date</Label>
+                          <Input
+                            type="date"
+                            value={newRecurringCost.next_payment_date}
+                            onChange={(e) => setNewRecurringCost({ ...newRecurringCost, next_payment_date: e.target.value })}
+                            className="text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs">Notes (optional)</Label>
+                          <Input
+                            value={newRecurringCost.notes}
+                            onChange={(e) => setNewRecurringCost({ ...newRecurringCost, notes: e.target.value })}
+                            placeholder="Additional info"
+                            className="text-sm"
+                          />
+                        </div>
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={addRecurringCost}
+                        disabled={!newRecurringCost.name || !newRecurringCost.amount}
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Recurring Cost
+                      </Button>
                     </div>
                     </div>
 
