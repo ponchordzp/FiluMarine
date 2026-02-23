@@ -254,14 +254,18 @@ export default function AdminBookings() {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
-          <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
-            <TabsTrigger value="bookings">Bookings</TabsTrigger>
-            <TabsTrigger value="booked-dates">Booked Dates</TabsTrigger>
-            <TabsTrigger value="blocked-dates">Blocked Dates</TabsTrigger>
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="boats">Boat Inventory</TabsTrigger>
-            <TabsTrigger value="destinations">Destinations</TabsTrigger>
-          </TabsList>
+          <div className="flex items-center justify-between gap-4">
+            <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
+              <TabsTrigger value="bookings">Bookings</TabsTrigger>
+              <TabsTrigger value="booked-dates">Booked Dates</TabsTrigger>
+              <TabsTrigger value="blocked-dates">Blocked Dates</TabsTrigger>
+              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            </TabsList>
+            <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
+              <TabsTrigger value="boats">Boat Inventory</TabsTrigger>
+              <TabsTrigger value="destinations">Destinations</TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="bookings" className="space-y-6">
             {/* Filters */}

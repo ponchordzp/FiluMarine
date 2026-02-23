@@ -89,6 +89,7 @@ export default function BoatManagement() {
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [newSupply, setNewSupply] = useState({ name: '', category: '', quantity: 1, status: 'in_stock', notes: '' });
+  const [newSupplier, setNewSupplier] = useState({ name: '', phone: '', email: '', specialty: '' });
   
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
@@ -183,6 +184,7 @@ export default function BoatManagement() {
       capacity: '',
       location: 'ixtapa_zihuatanejo',
       dock_location: '',
+      crew_members: 0,
       available_expeditions: [],
       expedition_pricing: [],
       equipment: {
@@ -198,6 +200,7 @@ export default function BoatManagement() {
       engine_config: '',
       engine_name: '',
       engine_quantity: 1,
+      engine_year: null,
       current_hours: 0,
       maintenance_interval_hours: 100,
       last_maintenance_hours: 0,
@@ -207,9 +210,7 @@ export default function BoatManagement() {
       mechanic_name: '',
       mechanic_phone: '',
       mechanic_email: '',
-      supply_seller_name: '',
-      supply_seller_phone: '',
-      supply_seller_email: '',
+      supply_sellers: [],
       owner_phone: '',
       maintenance_schedule: '',
       last_service_date: '',
@@ -220,6 +221,7 @@ export default function BoatManagement() {
     setImageFile(null);
     setImagePreview('');
     setNewSupply({ name: '', category: '', quantity: 1, status: 'in_stock', notes: '' });
+    setNewSupplier({ name: '', phone: '', email: '', specialty: '' });
     setEditingBoat(null);
     setDialogOpen(false);
   };
@@ -234,10 +236,9 @@ export default function BoatManagement() {
       mechanic_name: boat.mechanic_name || '',
       mechanic_phone: boat.mechanic_phone || '',
       mechanic_email: boat.mechanic_email || '',
-      supply_seller_name: boat.supply_seller_name || '',
-      supply_seller_phone: boat.supply_seller_phone || '',
-      supply_seller_email: boat.supply_seller_email || '',
+      supply_sellers: boat.supply_sellers || [],
       owner_phone: boat.owner_phone || '',
+      crew_members: boat.crew_members || 0,
       last_service_date: boat.last_service_date || '',
       last_service_mechanic_phone: boat.last_service_mechanic_phone || '',
       supplies_inventory: boat.supplies_inventory || [],
@@ -354,6 +355,22 @@ export default function BoatManagement() {
     }));
   };
 
+  const addSupplier = () => {
+    if (!newSupplier.name) return;
+    setFormData(prev => ({
+      ...prev,
+      supply_sellers: [...prev.supply_sellers, { ...newSupplier, id: Date.now() }]
+    }));
+    setNewSupplier({ name: '', phone: '', email: '', specialty: '' });
+  };
+
+  const removeSupplier = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      supply_sellers: prev.supply_sellers.filter((_, i) => i !== index)
+    }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -405,6 +422,16 @@ export default function BoatManagement() {
                     value={formData.capacity}
                     onChange={(e) => setFormData({ ...formData, capacity: e.target.value })}
                     placeholder="e.g., Up to 6 guests"
+                  />
+                </div>
+                <div>
+                  <Label>Crew Members</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.crew_members}
+                    onChange={(e) => setFormData({ ...formData, crew_members: parseInt(e.target.value) || 0 })}
+                    placeholder="e.g., 2"
                   />
                 </div>
                 <div>
@@ -594,12 +621,23 @@ export default function BoatManagement() {
                       onChange={(e) => setFormData({ ...formData, engine_quantity: parseInt(e.target.value) || 1 })}
                     />
                   </div>
+                  <div>
+                    <Label>Engine Year</Label>
+                    <Input
+                      type="number"
+                      min="1900"
+                      max="2100"
+                      value={formData.engine_year || ''}
+                      onChange={(e) => setFormData({ ...formData, engine_year: parseInt(e.target.value) || null })}
+                      placeholder="e.g., 2017"
+                    />
+                  </div>
                   <div className="md:col-span-2">
                     <Label>Engine Details</Label>
                     <Input
                       value={formData.engine_name}
                       onChange={(e) => setFormData({ ...formData, engine_name: e.target.value })}
-                      placeholder="e.g., Twin 2017 Yamaha 250"
+                      placeholder="e.g., Twin Yamaha 250"
                     />
                   </div>
                 </div>
@@ -758,52 +796,6 @@ export default function BoatManagement() {
                       onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })}
                       placeholder="e.g., mechanic@example.com"
                     />
-                  </div>
-                </div>
-              </div>
-
-              {/* Supply Seller Information */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Package className="h-5 w-5 text-emerald-600" />
-                  Supply Seller Information
-                </h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Supply Seller Name</Label>
-                    <Input
-                      value={formData.supply_seller_name}
-                      onChange={(e) => setFormData({ ...formData, supply_seller_name: e.target.value })}
-                      placeholder="e.g., Marine Supplies Co."
-                    />
-                  </div>
-                  <div>
-                    <Label>Supply Seller Phone</Label>
-                    <Input
-                      type="tel"
-                      value={formData.supply_seller_phone}
-                      onChange={(e) => setFormData({ ...formData, supply_seller_phone: e.target.value })}
-                      placeholder="e.g., +52 755 456 7890"
-                    />
-                  </div>
-                  <div>
-                    <Label>Supply Seller Email</Label>
-                    <Input
-                      type="email"
-                      value={formData.supply_seller_email}
-                      onChange={(e) => setFormData({ ...formData, supply_seller_email: e.target.value })}
-                      placeholder="e.g., supplies@example.com"
-                    />
-                  </div>
-                  <div>
-                    <Label>Owner Phone (for notifications)</Label>
-                    <Input
-                      type="tel"
-                      value={formData.owner_phone}
-                      onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })}
-                      placeholder="e.g., +52 755 987 6543"
-                    />
-                    <p className="text-xs text-slate-500 mt-1">Receive maintenance quotes and updates</p>
                   </div>
                 </div>
               </div>
@@ -978,9 +970,124 @@ export default function BoatManagement() {
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Custom Supply
-                  </Button>
-                </div>
-              </div>
+                    </Button>
+                    </div>
+                    </div>
+
+                    {/* Supply Sellers */}
+                    <div className="border-t pt-6">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <Package className="h-5 w-5 text-emerald-600" />
+                    Supply Sellers
+                    </h3>
+
+                    {/* Current Suppliers List */}
+                    {formData.supply_sellers.length > 0 && (
+                    <div className="mb-4 space-y-2">
+                    {formData.supply_sellers.map((supplier, index) => (
+                      <div key={index} className="p-3 bg-emerald-50 rounded-lg border-2 border-emerald-300">
+                        <div className="flex items-start gap-3">
+                          <Package className="h-4 w-4 mt-1 flex-shrink-0 text-emerald-600" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex-1">
+                                <p className="font-semibold text-slate-800">{supplier.name}</p>
+                                {supplier.specialty && (
+                                  <span className="text-xs bg-white px-2 py-1 rounded inline-block mt-1">
+                                    {supplier.specialty}
+                                  </span>
+                                )}
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => removeSupplier(index)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-100"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            {supplier.phone && (
+                              <p className="text-xs text-slate-600">📞 {supplier.phone}</p>
+                            )}
+                            {supplier.email && (
+                              <p className="text-xs text-slate-600">✉️ {supplier.email}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    </div>
+                    )}
+
+                    {/* Add Supplier Form */}
+                    <div className="bg-slate-50 p-4 rounded-lg border space-y-3">
+                    <p className="font-semibold text-sm text-slate-700">Add Supplier</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs">Supplier Name *</Label>
+                      <Input
+                        value={newSupplier.name}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })}
+                        placeholder="e.g., Marine Parts Co."
+                        className="text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Phone</Label>
+                      <Input
+                        type="tel"
+                        value={newSupplier.phone}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })}
+                        placeholder="e.g., +52 755 456 7890"
+                        className="text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Email</Label>
+                      <Input
+                        type="email"
+                        value={newSupplier.email}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })}
+                        placeholder="e.g., info@supplier.com"
+                        className="text-sm"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Specialty</Label>
+                      <Input
+                        value={newSupplier.specialty}
+                        onChange={(e) => setNewSupplier({ ...newSupplier, specialty: e.target.value })}
+                        placeholder="e.g., Engine Parts"
+                        className="text-sm"
+                      />
+                    </div>
+                    </div>
+                    <Button
+                    type="button"
+                    onClick={addSupplier}
+                    disabled={!newSupplier.name}
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Supplier
+                    </Button>
+                    </div>
+
+                    <div className="mt-4">
+                    <Label>Owner Phone (for notifications)</Label>
+                    <Input
+                    type="tel"
+                    value={formData.owner_phone}
+                    onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })}
+                    placeholder="e.g., +52 755 987 6543"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Receive maintenance quotes and updates</p>
+                    </div>
+                    </div>
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || uploading}>
@@ -1159,6 +1266,13 @@ export default function BoatManagement() {
                   {boat.engine_name && (
                     <p className="text-xs text-slate-600">
                       <strong>Engine:</strong> {boat.engine_name}
+                      {boat.engine_quantity > 1 && ` (${boat.engine_quantity} engines)`}
+                      {boat.engine_year && ` - ${boat.engine_year}`}
+                    </p>
+                  )}
+                  {boat.crew_members > 0 && (
+                    <p className="text-xs text-slate-600">
+                      <strong>Crew:</strong> {boat.crew_members} member{boat.crew_members !== 1 ? 's' : ''}
                     </p>
                   )}
                   {(boat.minor_maintenance_cost > 0 || boat.major_maintenance_cost > 0) && (
