@@ -1541,11 +1541,84 @@ export default function BoatManagement() {
                 )}
               </div>
 
+              {/* Personal Trip Button - For ALL boats */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedBoatForTrips(boat);
+                  setPersonalTripDialogOpen(true);
+                }}
+                className="w-full mt-2 h-8 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                <MapPin className="h-3 w-3 mr-1" />
+                Log Personal Trip
+              </Button>
+
+              {/* Engine Hours Tracking - Always Visible */}
+              {boat.current_hours >= 0 && (
+                <div className="mt-3 pt-3 border-t">
+                  <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-2 mb-2">
+                    <Gauge className="h-3 w-3" />
+                    Engine Hours
+                  </h4>
+                  
+                  {/* Predictive Maintenance Alert */}
+                  {maintenanceOverdue && (
+                    <div className="p-2 bg-red-50 border border-red-300 rounded-lg mb-2">
+                      <p className="text-xs font-bold text-red-800">⚠️ OVERDUE</p>
+                    </div>
+                  )}
+                  {!maintenanceOverdue && maintenanceDue && (
+                    <div className="p-2 bg-amber-50 border border-amber-300 rounded-lg mb-2">
+                      <p className="text-xs font-bold text-amber-800">🔔 DUE SOON</p>
+                    </div>
+                  )}
+                  
+                  <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
+                    <div className="bg-slate-50 p-1.5 rounded">
+                      <p className="text-slate-500" style={{ fontSize: '10px' }}>Base</p>
+                      <p className="font-bold text-sm">{boat.current_hours}</p>
+                    </div>
+                    <div className="bg-blue-50 p-1.5 rounded border border-blue-200">
+                      <p className="text-blue-600" style={{ fontSize: '10px' }}>+ Trips</p>
+                      <p className="font-bold text-sm text-blue-700">
+                        {(stats.totalEngineHoursFromBookings + stats.personalTripsEngineHours).toFixed(1)}
+                      </p>
+                    </div>
+                    <div className="bg-indigo-50 p-1.5 rounded border border-indigo-300">
+                      <p className="text-indigo-600" style={{ fontSize: '10px' }}>Total</p>
+                      <p className="font-bold text-sm text-indigo-800">{actualCurrentHours.toFixed(1)}</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1.5 mt-1.5 text-xs">
+                    <div className="bg-slate-50 p-1.5 rounded text-center">
+                      <p className="text-slate-500" style={{ fontSize: '10px' }}>Since Service</p>
+                      <p className="font-bold text-sm">{hoursSinceLastMaintenance.toFixed(1)}</p>
+                    </div>
+                    <div className={`p-1.5 rounded text-center ${
+                      maintenanceOverdue ? 'bg-red-100 border border-red-400' :
+                      maintenanceDue ? 'bg-amber-100 border border-amber-400' :
+                      'bg-green-50'
+                    }`}>
+                      <p className="text-slate-500" style={{ fontSize: '10px' }}>Until Service</p>
+                      <p className={`font-bold text-sm ${
+                        maintenanceOverdue ? 'text-red-700' :
+                        maintenanceDue ? 'text-amber-700' :
+                        'text-green-600'
+                      }`}>
+                        {hoursUntilMaintenance.toFixed(1)}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setExpandedBoats(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))}
-                className="w-full mb-2 h-8"
+                className="w-full mt-2 h-8"
               >
                 {isExpanded ? (
                   <>
@@ -1586,128 +1659,9 @@ export default function BoatManagement() {
                 </div>
               )}
 
-              {/* Engine Hours Tracking */}
-              {isExpanded && boat.current_hours >= 0 && (
-                <div className="pt-4 border-t space-y-3">
-                  <h4 className="font-semibold text-sm text-slate-700 flex items-center gap-2">
-                    <Gauge className="h-4 w-4" />
-                    Engine Hours (Auto-Updated from Bookings)
-                  </h4>
-                  
-                  {/* Predictive Maintenance Alert */}
-                  {maintenanceOverdue && (
-                    <div className="p-3 bg-red-50 border-2 border-red-300 rounded-lg">
-                      <p className="text-sm font-bold text-red-800 mb-1">⚠️ MAINTENANCE OVERDUE</p>
-                      <p className="text-xs text-red-700">
-                        Service was due {Math.abs(hoursUntilMaintenance)} hours ago. Schedule maintenance immediately.
-                      </p>
-                    </div>
-                  )}
-                  {!maintenanceOverdue && maintenanceDue && (
-                    <div className="p-3 bg-amber-50 border-2 border-amber-300 rounded-lg">
-                      <p className="text-sm font-bold text-amber-800 mb-1">🔔 MAINTENANCE ALERT</p>
-                      <p className="text-xs text-amber-700">
-                        Only {hoursUntilMaintenance} hours until maintenance due. Plan service soon.
-                      </p>
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-slate-50 p-3 rounded-lg">
-                      <p className="text-xs text-slate-500">Base Hours</p>
-                      <p className="font-bold text-lg">{boat.current_hours}</p>
-                    </div>
-                    <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
-                      <p className="text-xs text-blue-600">+ {isRentalMode ? 'Booking' : 'Personal'} Hours</p>
-                      <p className="font-bold text-lg text-blue-700">
-                        {isRentalMode 
-                          ? stats.totalEngineHoursFromBookings.toFixed(1) 
-                          : stats.personalTripsEngineHours.toFixed(1)}
-                      </p>
-                    </div>
-                    <div className="bg-indigo-50 p-3 rounded-lg border-2 border-indigo-300">
-                      <p className="text-xs text-indigo-600">Total Hours</p>
-                      <p className="font-bold text-lg text-indigo-800">{actualCurrentHours.toFixed(1)}</p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-slate-50 p-3 rounded-lg">
-                      <p className="text-xs text-slate-500">Since Service</p>
-                      <p className="font-bold text-lg">{hoursSinceLastMaintenance.toFixed(1)}</p>
-                    </div>
-                    <div className={`p-3 rounded-lg ${
-                      maintenanceOverdue ? 'bg-red-100 border-2 border-red-400' :
-                      maintenanceDue ? 'bg-amber-100 border-2 border-amber-400' :
-                      'bg-green-50'
-                    }`}>
-                      <p className="text-xs text-slate-500">Until Service</p>
-                      <p className={`font-bold text-lg ${
-                        maintenanceOverdue ? 'text-red-700' :
-                        maintenanceDue ? 'text-amber-700' :
-                        'text-green-600'
-                      }`}>
-                        {hoursUntilMaintenance.toFixed(1)}
-                      </p>
-                    </div>
-                  </div>
-                  {boat.engine_name && (
-                    <p className="text-xs text-slate-600">
-                      <strong>Engine:</strong> {boat.engine_name}
-                      {boat.engine_quantity > 1 && ` (${boat.engine_quantity} engines)`}
-                      {boat.engine_year && ` - ${boat.engine_year}`}
-                    </p>
-                  )}
-                  {boat.crew_members > 0 && (
-                    <p className="text-xs text-slate-600">
-                      <strong>Crew:</strong> {boat.crew_members} member{boat.crew_members !== 1 ? 's' : ''}
-                    </p>
-                  )}
-                  {(boat.minor_maintenance_cost > 0 || boat.major_maintenance_cost > 0) && (
-                    <div className="text-xs text-slate-600 space-y-1">
-                      {boat.minor_maintenance_cost > 0 && (
-                        <p><strong>Minor Service:</strong> ${boat.minor_maintenance_cost.toLocaleString()} MXN</p>
-                      )}
-                      {boat.major_maintenance_cost > 0 && (
-                        <p><strong>Major Service:</strong> ${boat.major_maintenance_cost.toLocaleString()} MXN</p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
 
-              {/* Personal Trips (Maintenance Only) */}
-              {isExpanded && !isRentalMode && (
-                <div className="pt-4 border-t space-y-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold text-sm text-slate-700 flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Personal Trips ({stats.personalTripsCount})
-                    </h4>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedBoatForTrips(boat);
-                        setPersonalTripDialogOpen(true);
-                      }}
-                      className="h-7 text-xs"
-                    >
-                      <Plus className="h-3 w-3 mr-1" />
-                      Log Trip
-                    </Button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div className="bg-slate-50 p-2 rounded-lg">
-                      <p className="text-xs text-slate-500">Total Trips</p>
-                      <p className="font-semibold">{stats.personalTripsCount}</p>
-                    </div>
-                    <div className="bg-blue-50 p-2 rounded-lg">
-                      <p className="text-xs text-blue-600">Engine Hours</p>
-                      <p className="font-semibold text-blue-700">{stats.personalTripsEngineHours.toFixed(1)}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
+
+
 
               {/* Maintenance Records */}
               {isExpanded && boat.maintenance_records && boat.maintenance_records.length > 0 && (
