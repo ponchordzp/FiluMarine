@@ -176,11 +176,11 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
                   {boat.capacity}
                 </p>
 
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                   {boat.strengths.map((strength, idx) => (
-                    <div key={idx} className="flex items-center gap-3 text-white">
-                      <strength.icon className="h-5 w-5 text-[#1e88e5] flex-shrink-0" />
-                      <span className="text-sm">{strength.text}</span>
+                    <div key={idx} className="flex items-center gap-2 text-white">
+                      <strength.icon className="h-4 w-4 text-[#1e88e5] flex-shrink-0" />
+                      <span className="text-sm capitalize">{strength.text}</span>
                     </div>
                   ))}
                 </div>
