@@ -259,8 +259,8 @@ export default function AdminBookings() {
             <TabsTrigger value="booked-dates">Booked Dates</TabsTrigger>
             <TabsTrigger value="blocked-dates">Blocked Dates</TabsTrigger>
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="destinations">Destinations</TabsTrigger>
             <TabsTrigger value="boats">Boat Inventory</TabsTrigger>
+            <TabsTrigger value="destinations">Destinations</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">

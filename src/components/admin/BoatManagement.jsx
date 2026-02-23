@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Ship, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
+import { Plus, Edit, Trash2, Ship, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 
 const expeditionTypes = [
@@ -122,6 +123,11 @@ export default function BoatManagement() {
     });
     const frequentTrip = Object.entries(expeditionCounts).sort((a, b) => b[1] - a[1])[0];
     
+    // Get last completed trip
+    const lastTrip = pastBookings
+      .filter(b => b.status === 'completed')
+      .sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    
     return {
       total: boatBookings.length,
       future: futureBookings.length,
@@ -132,7 +138,8 @@ export default function BoatManagement() {
       profit: netProfit,
       roi: roi,
       frequentTrip: frequentTrip ? frequentTrip[0].replace(/_/g, ' ') : 'N/A',
-      frequentTripCount: frequentTrip ? frequentTrip[1] : 0
+      frequentTripCount: frequentTrip ? frequentTrip[1] : 0,
+      lastTrip: lastTrip
     };
   };
 
@@ -686,6 +693,52 @@ export default function BoatManagement() {
                 </div>
               </div>
 
+              {/* Mechanic Information */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Wrench className="h-5 w-5 text-slate-600" />
+                  Mechanic Information
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Mechanic Name</Label>
+                    <Input
+                      value={formData.mechanic_name}
+                      onChange={(e) => setFormData({ ...formData, mechanic_name: e.target.value })}
+                      placeholder="e.g., Juan Pérez"
+                    />
+                  </div>
+                  <div>
+                    <Label>Mechanic Phone</Label>
+                    <Input
+                      type="tel"
+                      value={formData.mechanic_phone}
+                      onChange={(e) => setFormData({ ...formData, mechanic_phone: e.target.value })}
+                      placeholder="e.g., +52 755 123 4567"
+                    />
+                  </div>
+                  <div>
+                    <Label>Mechanic Email</Label>
+                    <Input
+                      type="email"
+                      value={formData.mechanic_email}
+                      onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })}
+                      placeholder="e.g., mechanic@example.com"
+                    />
+                  </div>
+                  <div>
+                    <Label>Owner Phone (for notifications)</Label>
+                    <Input
+                      type="tel"
+                      value={formData.owner_phone}
+                      onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })}
+                      placeholder="e.g., +52 755 987 6543"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Receive maintenance quotes and updates</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Supplies Inventory */}
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
@@ -1033,6 +1086,38 @@ export default function BoatManagement() {
                   <p className="text-slate-500 text-xs">Most Frequent Trip</p>
                   <p className="font-medium text-sm capitalize">{stats.frequentTrip} ({stats.frequentTripCount}x)</p>
                 </div>
+                {stats.lastTrip && (
+                  <div className="pt-3 border-t">
+                    <p className="text-slate-500 text-xs mb-2">Last Completed Trip</p>
+                    <div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm">
+                      <p className="font-medium capitalize">{stats.lastTrip.experience_type?.replace(/_/g, ' ')}</p>
+                      <p className="text-xs text-slate-600">
+                        {format(parseISO(stats.lastTrip.date), 'MMM d, yyyy')} • {stats.lastTrip.guests} guests
+                      </p>
+                    </div>
+                  </div>
+                )}
+                {boat.last_service_date && (
+                  <div className="pt-2">
+                    <p className="text-slate-500 text-xs mb-1">Last Service</p>
+                    <div className="bg-blue-50 p-2 rounded text-xs">
+                      <p className="font-medium">{format(parseISO(boat.last_service_date), 'MMM d, yyyy')}</p>
+                      {boat.last_service_mechanic_phone && (
+                        <p className="text-slate-600 mt-1">Mechanic: {boat.last_service_mechanic_phone}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {boat.mechanic_name && (
+                  <div className="pt-2">
+                    <p className="text-slate-500 text-xs mb-1">Mechanic</p>
+                    <div className="bg-slate-50 p-2 rounded text-xs space-y-1">
+                      <p className="font-medium">{boat.mechanic_name}</p>
+                      {boat.mechanic_phone && <p className="text-slate-600">📞 {boat.mechanic_phone}</p>}
+                      {boat.mechanic_email && <p className="text-slate-600">✉️ {boat.mechanic_email}</p>}
+                    </div>
+                  </div>
+                )}
                 {needsMaintenance && (
                   <div className="pt-2">
                     <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
