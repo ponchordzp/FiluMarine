@@ -471,6 +471,19 @@ export default function BoatManagement() {
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <Label>Boat Mode *</Label>
+                  <Select value={formData.boat_mode} onValueChange={(value) => setFormData({ ...formData, boat_mode: value })}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="rental_and_maintenance">Rental + Maintenance</SelectItem>
+                      <SelectItem value="maintenance_only">Maintenance Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-slate-500 mt-1">Controls which features are visible for this boat</p>
+                </div>
               </div>
 
               <div>
