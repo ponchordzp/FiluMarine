@@ -73,24 +73,26 @@ const boatsByLocation = {
 export default function BookingCalendar({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const location = bookingData.location || 'ixtapa_zihuatanejo';
   const boats = boatsByLocation[location];
-  const defaultBoat = location === 'acapulco' ? 'pirula' : 'filu';
   
   const [selectedDate, setSelectedDate] = useState(bookingData.date ? new Date(bookingData.date) : null);
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
   const [guests, setGuests] = useState(bookingData.guests || 2);
   const [needsTaxi, setNeedsTaxi] = useState(bookingData.needs_taxi || false);
   const [taxiAddress, setTaxiAddress] = useState(bookingData.taxi_address || '');
-  const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || defaultBoat);
+  const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || bookingData.boat_name);
   const [blockedDates, setBlockedDates] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
 
-  const availableSlots = timeSlots[experience.id] || [];
+  // Use time from expedition pricing if available, otherwise fall back to timeSlots
+  const availableSlots = experience.pricing?.departure_time 
+    ? [{ time: experience.pricing.departure_time, label: 'Departure' }]
+    : (timeSlots[bookingData.experience_type] || []);
   const today = startOfDay(new Date());
   const minDate = addDays(today, 1); // Only allow booking from tomorrow onwards
   
-  const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
+  const isLeisureExperience = bookingData.experience_type === 'snorkeling' || bookingData.experience_type === 'coastal_leisure' || bookingData.experience_type === 'sunset_tour' || bookingData.experience_type === 'extended_fishing';
   const availableBoats = isLeisureExperience ? boats : boats.filter(b => !b.forLeisure);
-  const currentBoat = boats.find(b => b.id === selectedBoat);
+  const currentBoat = boats.find(b => b.id === selectedBoat || b.name === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 
   React.useEffect(() => {
@@ -128,7 +130,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       return;
     }
     
-    const boat = boats.find(b => b.id === selectedBoat);
+    const boat = boats.find(b => b.id === selectedBoat || b.name === selectedBoat);
     setBookingData({
       ...bookingData,
       date: format(selectedDate, 'yyyy-MM-dd'),
@@ -138,8 +140,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       taxi_address: needsTaxi ? taxiAddress : '',
       taxi_fee: needsTaxi ? 400 : 0,
       boat_id: selectedBoat,
-      boat_name: boat.name,
-      boat_multiplier: boat.multiplier,
+      boat_name: boat?.name || bookingData.boat_name,
+      boat_multiplier: boat?.multiplier || 1,
     });
     onContinue();
   };
@@ -174,7 +176,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 {experience.duration}
               </p>
               <Badge variant="secondary" className="mt-2 bg-sky-50 text-sky-700">
-                From ${experience.price}
+                ${(experience.pricing?.price_mxn || experience.price || 0).toLocaleString()} MXN
               </Badge>
             </div>
           </div>
@@ -183,11 +185,6 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
             {/* Calendar */}
             <div className="bg-white rounded-2xl p-6 shadow-sm">
               <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Date</h3>
-              {!selectedBoat && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
-                  <p className="text-sm text-amber-800">Please select a boat first before choosing a date</p>
-                </div>
-              )}
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -196,17 +193,15 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   // Only allow dates from tomorrow onwards
                   if (isBefore(date, minDate)) return true;
                   
-                  // Must select a boat first to check availability
-                  if (!selectedBoat) return true;
-                  
                   const dateStr = format(date, 'yyyy-MM-dd');
-                  const currentBoat = boats.find(b => b.id === selectedBoat);
+                  const currentBoat = boats.find(b => b.id === selectedBoat || b.name === selectedBoat);
+                  if (!currentBoat) return false;
                   
                   // Check if this exact date is blocked for the selected boat
                   const isBlockedForBoat = blockedDates.some(blocked => {
                     if (blocked.date !== dateStr) return false;
                     const blockBoatName = blocked.boat_name || 'both';
-                    return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
+                    return blockBoatName === 'both' || blockBoatName === currentBoat.name;
                   });
                   
                   if (isBlockedForBoat) return true;
@@ -224,15 +219,15 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 modifiers={{
                   past: (date) => isBefore(date, minDate),
                   blocked: (date) => {
-                    if (!selectedBoat) return false;
                     const dateStr = format(date, 'yyyy-MM-dd');
-                    const currentBoat = boats.find(b => b.id === selectedBoat);
+                    const currentBoat = boats.find(b => b.id === selectedBoat || b.name === selectedBoat);
+                    if (!currentBoat) return false;
                     
                     // Check blocked dates
                     const isBlocked = blockedDates.some(blocked => {
                       if (blocked.date !== dateStr) return false;
                       const blockBoatName = blocked.boat_name || 'both';
-                      return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
+                      return blockBoatName === 'both' || blockBoatName === currentBoat.name;
                     });
                     
                     // Check booked dates
@@ -269,41 +264,26 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
 
             {/* Boat Selection & Time & Guests */}
             <div className="space-y-6">
-              {/* Boat Selection */}
+              {/* Boat Info - Pre-selected */}
               <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Boat</h3>
-                <div className="space-y-3">
-                  {availableBoats.map((boat) => {
-                    const boatPrice = Math.round(experience.price * boat.multiplier);
-                    return (
-                      <button
-                        key={boat.id}
-                        onClick={() => setSelectedBoat(boat.id)}
-                        className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
-                          selectedBoat === boat.id
-                            ? 'border-[#1e88e5] bg-[#1e88e5]/5'
-                            : 'border-slate-100 hover:border-slate-200'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Anchor className={`h-5 w-5 ${selectedBoat === boat.id ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
-                          <div className="text-left">
-                            <p className={`font-medium ${selectedBoat === boat.id ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
-                              {boat.name}
-                            </p>
-                            <p className="text-sm text-slate-500">{boat.type} • ${boatPrice.toLocaleString()} MXN</p>
-                          </div>
-                        </div>
-                        {selectedBoat === boat.id && (
-                          <div className="w-5 h-5 bg-[#1e88e5] rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                        )}
-                      </button>
-                    );
-                  })}
+                <h3 className="text-lg font-semibold text-slate-800 mb-4">Your Boat</h3>
+                <div className="p-4 rounded-xl border-2 border-[#1e88e5] bg-[#1e88e5]/5">
+                  <div className="flex items-center gap-3">
+                    <Anchor className="h-5 w-5 text-[#1e88e5]" />
+                    <div className="text-left flex-1">
+                      <p className="font-medium text-[#1e88e5]">
+                        {bookingData.boat_name}
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        {currentBoat?.type} • ${(experience.pricing?.price_mxn || experience.price || 0).toLocaleString()} MXN
+                      </p>
+                    </div>
+                    <div className="w-5 h-5 bg-[#1e88e5] rounded-full flex items-center justify-center">
+                      <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
               </div>
               {/* Time Slots */}
