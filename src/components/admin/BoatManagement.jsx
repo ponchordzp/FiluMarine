@@ -326,6 +326,15 @@ export default function BoatManagement() {
                   </Select>
                 </div>
                 <div>
+                  <Label>Dock Location</Label>
+                  <Input
+                    value={formData.dock_location}
+                    onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })}
+                    placeholder="e.g., Marina Paradise, Dry Dock 3"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">⚓ Where the boat is currently docked</p>
+                </div>
+                <div>
                   <Label>Status</Label>
                   <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
                     <SelectTrigger>
@@ -368,31 +377,62 @@ export default function BoatManagement() {
                 </div>
               </div>
 
-              {/* Available Expeditions */}
-              <div>
-                <Label className="mb-3 block">Available Expeditions</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {expeditionTypes.map(exp => (
-                    <button
-                      key={exp}
-                      type="button"
-                      onClick={() => toggleExpedition(exp)}
-                      className={`p-3 rounded-lg border text-left transition-colors ${
-                        formData.available_expeditions.includes(exp)
-                          ? 'bg-blue-50 border-blue-300'
-                          : 'bg-slate-50 border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        {formData.available_expeditions.includes(exp) ? (
-                          <Check className="h-4 w-4 text-blue-600" />
-                        ) : (
-                          <X className="h-4 w-4 text-slate-400" />
+              {/* Available Expeditions & Pricing */}
+              <div className="border-t pt-6">
+                <Label className="mb-3 block text-lg font-semibold">Available Expeditions & Pricing</Label>
+                <p className="text-sm text-slate-600 mb-4">Select available expeditions and set pricing for each</p>
+                <div className="space-y-3">
+                  {expeditionTypes.map(exp => {
+                    const isSelected = formData.available_expeditions.includes(exp);
+                    const pricing = formData.expedition_pricing.find(p => p.expedition_type === exp);
+                    
+                    return (
+                      <div key={exp} className={`p-4 rounded-lg border-2 transition-all ${
+                        isSelected ? 'border-blue-300 bg-blue-50' : 'border-slate-200 bg-slate-50'
+                      }`}>
+                        <button
+                          type="button"
+                          onClick={() => toggleExpedition(exp)}
+                          className="w-full flex items-center gap-3 mb-3"
+                        >
+                          {isSelected ? (
+                            <Check className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                          ) : (
+                            <X className="h-5 w-5 text-slate-400 flex-shrink-0" />
+                          )}
+                          <span className="text-sm font-semibold capitalize text-left">{exp.replace(/_/g, ' ')}</span>
+                        </button>
+                        
+                        {isSelected && (
+                          <div className="grid grid-cols-2 gap-3 mt-3 pl-8">
+                            <div>
+                              <Label className="text-xs">Duration (hours)</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                step="0.5"
+                                value={pricing?.duration_hours || ''}
+                                onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)}
+                                placeholder="e.g., 4"
+                                className="text-sm"
+                              />
+                            </div>
+                            <div>
+                              <Label className="text-xs">Price (MXN)</Label>
+                              <Input
+                                type="number"
+                                min="0"
+                                value={pricing?.price_mxn || ''}
+                                onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)}
+                                placeholder="e.g., 8000"
+                                className="text-sm"
+                              />
+                            </div>
+                          </div>
                         )}
-                        <span className="text-sm">{exp.replace(/_/g, ' ')}</span>
                       </div>
-                    </button>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
