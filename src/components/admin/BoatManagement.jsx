@@ -236,9 +236,10 @@ export default function BoatManagement() {
       mechanic_name: boat.mechanic_name || '',
       mechanic_phone: boat.mechanic_phone || '',
       mechanic_email: boat.mechanic_email || '',
-      supply_sellers: boat.supply_sellers || [],
+      supply_sellers: Array.isArray(boat.supply_sellers) ? boat.supply_sellers : [],
       owner_phone: boat.owner_phone || '',
       crew_members: boat.crew_members || 0,
+      engine_year: boat.engine_year || null,
       last_service_date: boat.last_service_date || '',
       last_service_mechanic_phone: boat.last_service_mechanic_phone || '',
       supplies_inventory: boat.supplies_inventory || [],
@@ -982,7 +983,7 @@ export default function BoatManagement() {
                     </h3>
 
                     {/* Current Suppliers List */}
-                    {formData.supply_sellers.length > 0 && (
+                    {formData.supply_sellers && formData.supply_sellers.length > 0 && (
                     <div className="mb-4 space-y-2">
                     {formData.supply_sellers.map((supplier, index) => (
                       <div key={index} className="p-3 bg-emerald-50 rounded-lg border-2 border-emerald-300">
