@@ -259,8 +259,8 @@ export default function AdminBookings() {
             <TabsTrigger value="booked-dates">Booked Dates</TabsTrigger>
             <TabsTrigger value="blocked-dates">Blocked Dates</TabsTrigger>
             <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="boats">Boat Inventory</TabsTrigger>
             <TabsTrigger value="destinations">Destinations</TabsTrigger>
+            <TabsTrigger value="boats">Boat Inventory</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
@@ -1210,137 +1210,8 @@ export default function AdminBookings() {
                 </Card>
               </div>
 
-              {/* Right Column - Block Management */}
+              {/* Right Column - Suggestions Only */}
               <div className="space-y-6">
-                {/* Block New Date */}
-                <Card className="bg-white/95 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Plus className="h-5 w-5" />
-                      Block New Date
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <Label>Select Date</Label>
-                      <Calendar
-                        mode="single"
-                        selected={blockDate}
-                        onSelect={setBlockDate}
-                        className="rounded-md border w-full"
-                        modifiers={{
-                          blocked: (date) => {
-                            const dateStr = format(date, 'yyyy-MM-dd');
-                            return blockedDates.some(b => b.date === dateStr);
-                          },
-                        }}
-                        modifiersStyles={{
-                          blocked: { 
-                            backgroundColor: '#fee2e2', 
-                            color: '#991b1b',
-                            fontWeight: 'bold',
-                          },
-                        }}
-                      />
-                    </div>
-                    <div className="p-3 bg-red-50 rounded-lg text-sm text-red-800">
-                      <p className="font-medium mb-1">Note:</p>
-                      <p>🔴 Red dates are already blocked</p>
-                    </div>
-                    <div>
-                      <Label>Select Boat</Label>
-                      <Select value={blockBoat} onValueChange={setBlockBoat}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="both">Both Boats</SelectItem>
-                          <SelectItem value="FILU">FILU Only</SelectItem>
-                          <SelectItem value="TYCOON">TYCOON Only</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <Label>Reason (Optional)</Label>
-                      <Textarea
-                        placeholder="e.g., Weather, maintenance, private event..."
-                        value={blockReason}
-                        onChange={(e) => setBlockReason(e.target.value)}
-                        rows={3}
-                      />
-                    </div>
-                    <Button
-                      onClick={handleBlockDate}
-                      disabled={!blockDate || blockDateMutation.isPending}
-                      className="w-full bg-red-600 hover:bg-red-700"
-                    >
-                      <Ban className="h-4 w-4 mr-2" />
-                      {blockDateMutation.isPending ? 'Blocking...' : 'Block Date'}
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Currently Blocked Dates */}
-                <Card className="bg-white/95 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span>Blocked Dates ({blockedDates.length})</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                      {blockedDates.length === 0 ? (
-                        <div className="text-center py-12">
-                          <Ban className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                          <p className="text-slate-500">No blocked dates</p>
-                          <p className="text-sm text-slate-400 mt-1">Use the form above to block dates</p>
-                        </div>
-                      ) : (
-                        blockedDates
-                          .sort((a, b) => new Date(a.date) - new Date(b.date))
-                          .map((blocked) => (
-                            <div
-                              key={blocked.id}
-                              className="flex items-start justify-between p-3 bg-red-50 rounded-lg border border-red-100 hover:border-red-200 transition-colors"
-                            >
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <CalendarIcon className="h-4 w-4 text-red-600 flex-shrink-0" />
-                                  <p className="font-semibold text-slate-800 truncate">
-                                    {format(parseISO(blocked.date), 'EEE, MMM d, yyyy')}
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Badge className={
-                                    blocked.boat_name === 'both' ? 'bg-slate-600 text-white' :
-                                    blocked.boat_name === 'FILU' ? 'bg-[#1e88e5] text-white' :
-                                    'bg-purple-600 text-white'
-                                  }>
-                                    {blocked.boat_name || 'both'}
-                                  </Badge>
-                                </div>
-                                {blocked.reason && (
-                                  <p className="text-xs text-slate-600 mt-2 line-clamp-2">{blocked.reason}</p>
-                                )}
-                              </div>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 ml-2 flex-shrink-0"
-                                onClick={() => {
-                                  setSelectedBlockedDate(blocked);
-                                  setUnlockDialogOpen(true);
-                                }}
-                              >
-                                <Unlock className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          ))
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
               </div>
               </TabsContent>
 

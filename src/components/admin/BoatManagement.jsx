@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Ship, Check, X, Gauge, Package } from 'lucide-react';
+import { Plus, Edit, Trash2, Ship, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
 const expeditionTypes = [
@@ -40,6 +40,7 @@ export default function BoatManagement() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBoat, setEditingBoat] = useState(null);
+  const [expandedBoats, setExpandedBoats] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     type: '',
@@ -75,6 +76,8 @@ export default function BoatManagement() {
     mechanic_email: '',
     owner_phone: '',
     maintenance_schedule: '',
+    last_service_date: '',
+    last_service_mechanic_phone: '',
     supplies_inventory: [],
     status: 'active'
   });
@@ -192,6 +195,8 @@ export default function BoatManagement() {
       mechanic_email: '',
       owner_phone: '',
       maintenance_schedule: '',
+      last_service_date: '',
+      last_service_mechanic_phone: '',
       supplies_inventory: [],
       status: 'active'
     });
@@ -213,6 +218,8 @@ export default function BoatManagement() {
       mechanic_phone: boat.mechanic_phone || '',
       mechanic_email: boat.mechanic_email || '',
       owner_phone: boat.owner_phone || '',
+      last_service_date: boat.last_service_date || '',
+      last_service_mechanic_phone: boat.last_service_mechanic_phone || '',
       supplies_inventory: boat.supplies_inventory || [],
     });
     setImagePreview(boat.image || '');
@@ -622,6 +629,34 @@ export default function BoatManagement() {
                 )}
               </div>
 
+              {/* Last Service Info */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-blue-600" />
+                  Last Service Information
+                </h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Last Service Date</Label>
+                    <Input
+                      type="date"
+                      value={formData.last_service_date}
+                      onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Mechanic Phone (Last Service)</Label>
+                    <Input
+                      type="tel"
+                      value={formData.last_service_mechanic_phone}
+                      onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })}
+                      placeholder="e.g., +52 755 123 4567"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Phone number of mechanic who performed last service</p>
+                  </div>
+                </div>
+              </div>
+
               {/* Maintenance Costs */}
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4">Maintenance Costs (MXN)</h3>
@@ -840,20 +875,15 @@ export default function BoatManagement() {
 
       {/* Boat List */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {boats.map((boat) => {
+        {boats.filter(boat => boat.image).map((boat) => {
           const stats = getBoatStats(boat.name);
           const needsMaintenance = boat.status === 'maintenance' || stats.completed > 20;
+          const isExpanded = expandedBoats[boat.id];
           
           return (
           <Card key={boat.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video relative">
-              {boat.image ? (
-                <img src={boat.image} alt={boat.name} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-slate-200 flex items-center justify-center">
-                  <Ship className="h-12 w-12 text-slate-400" />
-                </div>
-              )}
+              <img src={boat.image} alt={boat.name} className="w-full h-full object-cover" />
               <Badge className="absolute top-2 right-2 bg-white/90 text-slate-800">
                 {boat.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}
               </Badge>
@@ -884,7 +914,26 @@ export default function BoatManagement() {
                 )}
               </div>
 
-              {boat.equipment && Object.values(boat.equipment).some(v => v) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setExpandedBoats(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))}
+                className="w-full mb-4"
+              >
+                {isExpanded ? (
+                  <>
+                    <ChevronUp className="h-4 w-4 mr-2" />
+                    Show Less
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="h-4 w-4 mr-2" />
+                    Show More Details
+                  </>
+                )}
+              </Button>
+
+              {isExpanded && boat.equipment && Object.values(boat.equipment).some(v => v) && (
                 <div className="mb-4">
                   <h4 className="text-xs font-semibold text-slate-700 mb-2">Equipment</h4>
                   <div className="flex flex-wrap gap-1">
@@ -897,7 +946,7 @@ export default function BoatManagement() {
                 </div>
               )}
 
-              {boat.available_expeditions && boat.available_expeditions.length > 0 && (
+              {isExpanded && boat.available_expeditions && boat.available_expeditions.length > 0 && (
                 <div className="mb-4">
                   <h4 className="text-xs font-semibold text-slate-700 mb-2">Available Expeditions</h4>
                   <div className="flex flex-wrap gap-1">
@@ -911,7 +960,7 @@ export default function BoatManagement() {
               )}
 
               {/* Engine Hours Tracking */}
-              {boat.current_hours > 0 && (
+              {isExpanded && boat.current_hours > 0 && (
                 <div className="pt-4 border-t space-y-3">
                   <h4 className="font-semibold text-sm text-slate-700 flex items-center gap-2">
                     <Gauge className="h-4 w-4" />
@@ -960,7 +1009,7 @@ export default function BoatManagement() {
               )}
 
               {/* Booking Statistics */}
-              <div className="pt-4 border-t space-y-2">
+              {isExpanded && (<div className="pt-4 border-t space-y-2">
                 <h4 className="font-semibold text-sm text-slate-700 mb-3">Booking Statistics</h4>
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
@@ -991,8 +1040,7 @@ export default function BoatManagement() {
                     </Badge>
                   </div>
                 )}
-              </div>
-            </CardContent>
+              </div>)}
             <div className="flex gap-2 p-4 pt-0">
               <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1">
                 <Edit className="h-4 w-4 mr-2" />
