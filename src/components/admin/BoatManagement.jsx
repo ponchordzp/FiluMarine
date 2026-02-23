@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Ship, Check, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Ship, Check, X, Upload, Gauge } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
 const expeditionTypes = [
@@ -44,10 +44,21 @@ export default function BoatManagement() {
       fishing_gear: false,
       snorkeling_gear: false,
     },
+    engine_config: '',
+    engine_name: '',
+    engine_quantity: 1,
+    current_hours: 0,
+    maintenance_interval_hours: 100,
+    last_maintenance_hours: 0,
+    minor_maintenance_cost: 0,
+    major_maintenance_cost: 0,
     maintenance_schedule: '',
     parts_inventory: '',
     status: 'active'
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
@@ -148,10 +159,20 @@ export default function BoatManagement() {
         fishing_gear: false,
         snorkeling_gear: false,
       },
+      engine_config: '',
+      engine_name: '',
+      engine_quantity: 1,
+      current_hours: 0,
+      maintenance_interval_hours: 100,
+      last_maintenance_hours: 0,
+      minor_maintenance_cost: 0,
+      major_maintenance_cost: 0,
       maintenance_schedule: '',
       parts_inventory: '',
       status: 'active'
     });
+    setImageFile(null);
+    setImagePreview('');
     setEditingBoat(null);
     setDialogOpen(false);
   };
@@ -177,19 +198,46 @@ export default function BoatManagement() {
         fishing_gear: false,
         snorkeling_gear: false,
       },
+      engine_config: boat.engine_config || '',
+      engine_name: boat.engine_name || '',
+      engine_quantity: boat.engine_quantity || 1,
+      current_hours: boat.current_hours || 0,
+      maintenance_interval_hours: boat.maintenance_interval_hours || 100,
+      last_maintenance_hours: boat.last_maintenance_hours || 0,
+      minor_maintenance_cost: boat.minor_maintenance_cost || 0,
+      major_maintenance_cost: boat.major_maintenance_cost || 0,
       maintenance_schedule: boat.maintenance_schedule || '',
       parts_inventory: boat.parts_inventory || '',
       status: boat.status || 'active'
     });
+    setImagePreview(boat.image || '');
     setDialogOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleImageChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    let finalData = { ...formData };
+
+    if (imageFile) {
+      setUploading(true);
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
+      finalData.image = file_url;
+      setUploading(false);
+    }
+
     if (editingBoat) {
-      updateMutation.mutate({ id: editingBoat.id, data: formData });
+      updateMutation.mutate({ id: editingBoat.id, data: finalData });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(finalData);
     }
   };
 
@@ -301,13 +349,23 @@ export default function BoatManagement() {
                 />
               </div>
 
+              {/* Image Upload */}
               <div>
-                <Label>Image URL</Label>
-                <Input
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="https://..."
-                />
+                <Label>Boat Image</Label>
+                <div className="space-y-3">
+                  {imagePreview && (
+                    <div className="relative w-full h-48 rounded-lg overflow-hidden border">
+                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="cursor-pointer"
+                  />
+                  <p className="text-xs text-slate-500">Upload a high-quality image of the boat</p>
+                </div>
               </div>
 
               {/* Available Expeditions */}
@@ -359,10 +417,139 @@ export default function BoatManagement() {
                 </div>
               </div>
 
-              {/* Maintenance */}
+              {/* Engine Configuration */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Engine Configuration</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Engine Type</Label>
+                    <Select value={formData.engine_config} onValueChange={(value) => setFormData({ ...formData, engine_config: value })}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="inboard">Inboard</SelectItem>
+                        <SelectItem value="outboard">Outboard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Number of Engines</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={formData.engine_quantity}
+                      onChange={(e) => setFormData({ ...formData, engine_quantity: parseInt(e.target.value) || 1 })}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <Label>Engine Details</Label>
+                    <Input
+                      value={formData.engine_name}
+                      onChange={(e) => setFormData({ ...formData, engine_name: e.target.value })}
+                      placeholder="e.g., Twin 2017 Yamaha 250"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Engine Hours & Maintenance */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Engine Hours & Maintenance Tracking</h3>
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <Label>Current Hours</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.current_hours}
+                      onChange={(e) => setFormData({ ...formData, current_hours: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Maintenance Interval (hours)</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={formData.maintenance_interval_hours}
+                      onChange={(e) => setFormData({ ...formData, maintenance_interval_hours: parseInt(e.target.value) || 100 })}
+                    />
+                  </div>
+                  <div>
+                    <Label>Hours at Last Maintenance</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.last_maintenance_hours}
+                      onChange={(e) => setFormData({ ...formData, last_maintenance_hours: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                </div>
+
+                {/* Live Hours Calculation */}
+                {formData.current_hours > 0 && (
+                  <div className="mt-4 p-4 bg-slate-50 rounded-lg border">
+                    <div className="grid grid-cols-3 gap-4 text-center">
+                      <div>
+                        <p className="text-xs text-slate-500">Hours Since Last Service</p>
+                        <p className="text-2xl font-bold text-slate-900">
+                          {formData.current_hours - formData.last_maintenance_hours}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500">Hours Until Next Service</p>
+                        <p className={`text-2xl font-bold ${
+                          (formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours) <= 10 
+                            ? 'text-red-600' 
+                            : 'text-green-600'
+                        }`}>
+                          {Math.max(0, formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours)}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500">Next Service At</p>
+                        <p className="text-2xl font-bold text-blue-600">
+                          {formData.last_maintenance_hours + formData.maintenance_interval_hours} hrs
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Maintenance Costs */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Maintenance Costs (MXN)</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Minor Maintenance Cost</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.minor_maintenance_cost}
+                      onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })}
+                      placeholder="e.g., 5000"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Oil change, filters, basic service</p>
+                  </div>
+                  <div>
+                    <Label>Major Maintenance Cost</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.major_maintenance_cost}
+                      onChange={(e) => setFormData({ ...formData, major_maintenance_cost: parseInt(e.target.value) || 0 })}
+                      placeholder="e.g., 25000"
+                    />
+                    <p className="text-xs text-slate-500 mt-1">Engine rebuild, major repairs</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Maintenance Info */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <Label>Maintenance Schedule</Label>
+                  <Label>Maintenance Schedule Notes</Label>
                   <Input
                     value={formData.maintenance_schedule}
                     onChange={(e) => setFormData({ ...formData, maintenance_schedule: e.target.value })}
@@ -380,8 +567,8 @@ export default function BoatManagement() {
               </div>
 
               <div className="flex gap-2">
-                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-                  {editingBoat ? 'Update Boat' : 'Create Boat'}
+                <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || uploading}>
+                  {uploading ? 'Uploading Image...' : editingBoat ? 'Update Boat' : 'Create Boat'}
                 </Button>
                 <Button type="button" variant="outline" onClick={resetForm}>
                   Cancel
@@ -461,6 +648,55 @@ export default function BoatManagement() {
                       </span>
                     ))}
                   </div>
+                </div>
+              )}
+
+              {/* Engine Hours Tracking */}
+              {boat.current_hours > 0 && (
+                <div className="pt-4 border-t space-y-3">
+                  <h4 className="font-semibold text-sm text-slate-700 flex items-center gap-2">
+                    <Gauge className="h-4 w-4" />
+                    Engine Hours
+                  </h4>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="bg-slate-50 p-3 rounded-lg">
+                      <p className="text-xs text-slate-500">Current Hours</p>
+                      <p className="font-bold text-lg">{boat.current_hours}</p>
+                    </div>
+                    <div className="bg-slate-50 p-3 rounded-lg">
+                      <p className="text-xs text-slate-500">Since Service</p>
+                      <p className="font-bold text-lg">{boat.current_hours - (boat.last_maintenance_hours || 0)}</p>
+                    </div>
+                    <div className={`p-3 rounded-lg ${
+                      ((boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - boat.current_hours) <= 10
+                        ? 'bg-red-50'
+                        : 'bg-green-50'
+                    }`}>
+                      <p className="text-xs text-slate-500">Until Service</p>
+                      <p className={`font-bold text-lg ${
+                        ((boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - boat.current_hours) <= 10
+                          ? 'text-red-600'
+                          : 'text-green-600'
+                      }`}>
+                        {Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - boat.current_hours)}
+                      </p>
+                    </div>
+                  </div>
+                  {boat.engine_name && (
+                    <p className="text-xs text-slate-600">
+                      <strong>Engine:</strong> {boat.engine_name}
+                    </p>
+                  )}
+                  {(boat.minor_maintenance_cost > 0 || boat.major_maintenance_cost > 0) && (
+                    <div className="text-xs text-slate-600 space-y-1">
+                      {boat.minor_maintenance_cost > 0 && (
+                        <p><strong>Minor Service:</strong> ${boat.minor_maintenance_cost.toLocaleString()} MXN</p>
+                      )}
+                      {boat.major_maintenance_cost > 0 && (
+                        <p><strong>Major Service:</strong> ${boat.major_maintenance_cost.toLocaleString()} MXN</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
 
