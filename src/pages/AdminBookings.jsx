@@ -1213,6 +1213,7 @@ export default function AdminBookings() {
               {/* Right Column - Suggestions Only */}
               <div className="space-y-6">
               </div>
+              </div>
               </TabsContent>
 
               <TabsContent value="blocked-dates" className="space-y-6">
