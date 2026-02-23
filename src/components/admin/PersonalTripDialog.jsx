@@ -20,11 +20,13 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
     fuel_unit: 'gallons',
     fuel_price_per_unit: 0,
     supplies_used: [],
+    additional_expenses: 0,
+    additional_expenses_notes: '',
     guests: 1,
     destination: '',
     notes: ''
   });
-  const [newSupply, setNewSupply] = useState({ name: '', quantity: 0 });
+  const [newSupply, setNewSupply] = useState({ name: '', quantity: 0, price: 0 });
 
   const { data: trips = [] } = useQuery({
     queryKey: ['personal-trips', boat.id],
@@ -47,11 +49,13 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
         fuel_unit: 'gallons',
         fuel_price_per_unit: 0,
         supplies_used: [],
+        additional_expenses: 0,
+        additional_expenses_notes: '',
         guests: 1,
         destination: '',
         notes: ''
       });
-      setNewSupply({ name: '', quantity: 0 });
+      setNewSupply({ name: '', quantity: 0, price: 0 });
     }
   });
 
@@ -73,6 +77,13 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
 
   const totalEngineHours = trips.reduce((sum, t) => sum + (t.engine_hours_used || 0), 0);
   const totalFuelCost = trips.reduce((sum, t) => sum + ((t.fuel_quantity || 0) * (t.fuel_price_per_unit || 0)), 0);
+  const totalSuppliesCost = trips.reduce((sum, t) => {
+    const suppliesCost = (t.supplies_used || []).reduce((s, supply) => s + ((supply.quantity || 0) * (supply.price || 0)), 0);
+    return sum + suppliesCost;
+  }, 0);
+  const totalAdditionalExpenses = trips.reduce((sum, t) => sum + (t.additional_expenses || 0), 0);
+
+  const boatSupplies = boat?.supplies_inventory || [];
 
   const addSupplyToTrip = () => {
     if (!newSupply.name || !newSupply.quantity) return;
@@ -80,7 +91,7 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
       ...newTrip,
       supplies_used: [...(newTrip.supplies_used || []), { ...newSupply }]
     });
-    setNewSupply({ name: '', quantity: 0 });
+    setNewSupply({ name: '', quantity: 0, price: 0 });
   };
 
   const removeSupplyFromTrip = (index) => {
@@ -100,18 +111,26 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
         <div className="space-y-4">
           {/* Summary */}
           <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center">
               <div>
-                <p className="text-xs text-blue-700">Total Trips</p>
+                <p className="text-xs text-blue-700">Trips</p>
                 <p className="text-lg font-bold text-blue-900">{trips.length}</p>
               </div>
               <div>
-                <p className="text-xs text-blue-700">Engine Hours</p>
+                <p className="text-xs text-blue-700">Eng Hours</p>
                 <p className="text-lg font-bold text-blue-900">{totalEngineHours.toFixed(1)}</p>
               </div>
               <div>
-                <p className="text-xs text-blue-700">Fuel Cost</p>
+                <p className="text-xs text-blue-700">Fuel</p>
                 <p className="text-lg font-bold text-blue-900">${totalFuelCost.toFixed(0)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-blue-700">Supplies</p>
+                <p className="text-lg font-bold text-blue-900">${totalSuppliesCost.toFixed(0)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-blue-700">Other</p>
+                <p className="text-lg font-bold text-blue-900">${totalAdditionalExpenses.toFixed(0)}</p>
               </div>
             </div>
           </div>
@@ -231,7 +250,7 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
                   <div className="space-y-1 mb-2">
                     {newTrip.supplies_used.map((supply, idx) => (
                       <div key={idx} className="flex items-center justify-between bg-slate-50 px-2 py-1 rounded text-xs">
-                        <span>{supply.name} (x{supply.quantity})</span>
+                        <span>{supply.name} (x{supply.quantity}) ${((supply.quantity || 0) * (supply.price || 0)).toFixed(2)}</span>
                         <button
                           type="button"
                           onClick={() => removeSupplyFromTrip(idx)}
@@ -243,30 +262,88 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
                     ))}
                   </div>
                 )}
-                <div className="flex gap-2">
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Select value={newSupply.name} onValueChange={(value) => {
+                      const selected = boatSupplies.find(s => s.name === value);
+                      if (selected) {
+                        setNewSupply({ name: value, quantity: 1, price: selected.price_per_unit || 0 });
+                      } else {
+                        setNewSupply({ ...newSupply, name: value });
+                      }
+                    }}>
+                      <SelectTrigger className="text-sm flex-1">
+                        <SelectValue placeholder="Select or type supply" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {boatSupplies.map((supply, idx) => (
+                          <SelectItem key={idx} value={supply.name}>
+                            {supply.name} {supply.price_per_unit ? `($${supply.price_per_unit})` : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      type="number"
+                      min="1"
+                      value={newSupply.quantity}
+                      onChange={(e) => setNewSupply({ ...newSupply, quantity: parseInt(e.target.value) || 0 })}
+                      placeholder="Qty"
+                      className="text-sm w-16"
+                    />
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={newSupply.price}
+                      onChange={(e) => setNewSupply({ ...newSupply, price: parseFloat(e.target.value) || 0 })}
+                      placeholder="Price"
+                      className="text-sm w-20"
+                    />
+                    <Button
+                      type="button"
+                      onClick={addSupplyToTrip}
+                      disabled={!newSupply.name || !newSupply.quantity}
+                      size="sm"
+                      variant="outline"
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
                   <Input
                     value={newSupply.name}
                     onChange={(e) => setNewSupply({ ...newSupply, name: e.target.value })}
-                    placeholder="Supply name"
-                    className="text-sm flex-1"
+                    placeholder="Or type custom supply name"
+                    className="text-sm"
                   />
-                  <Input
-                    type="number"
-                    min="1"
-                    value={newSupply.quantity}
-                    onChange={(e) => setNewSupply({ ...newSupply, quantity: parseInt(e.target.value) || 0 })}
-                    placeholder="Qty"
-                    className="text-sm w-20"
-                  />
-                  <Button
-                    type="button"
-                    onClick={addSupplyToTrip}
-                    disabled={!newSupply.name || !newSupply.quantity}
-                    size="sm"
-                    variant="outline"
-                  >
-                    <Plus className="h-3 w-3" />
-                  </Button>
+                </div>
+              </div>
+
+              {/* Additional Expenses */}
+              <div className="col-span-2 border-t pt-3">
+                <h4 className="text-xs font-semibold text-slate-700 mb-2">Additional Expenses (Snacks, Drinks, etc.)</h4>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Amount</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={newTrip.additional_expenses}
+                      onChange={(e) => setNewTrip({ ...newTrip, additional_expenses: parseFloat(e.target.value) || 0 })}
+                      placeholder="e.g., 250"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Description</Label>
+                    <Input
+                      value={newTrip.additional_expenses_notes}
+                      onChange={(e) => setNewTrip({ ...newTrip, additional_expenses_notes: e.target.value })}
+                      placeholder="e.g., Snacks and drinks"
+                      className="text-sm"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -348,9 +425,15 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
                         <div className="flex flex-wrap gap-1">
                           {trip.supplies_used.map((supply, idx) => (
                             <span key={idx} className="bg-slate-100 px-2 py-0.5 rounded text-xs">
-                              {supply.name} (x{supply.quantity})
+                              {supply.name} (x{supply.quantity}) ${((supply.quantity || 0) * (supply.price || 0)).toFixed(2)}
                             </span>
                           ))}
+                        </div>
+                      )}
+                      {trip.additional_expenses > 0 && (
+                        <div className="bg-green-50 px-2 py-1 rounded text-xs">
+                          <span className="font-medium">Additional: ${trip.additional_expenses.toFixed(2)}</span>
+                          {trip.additional_expenses_notes && <span className="text-slate-600"> - {trip.additional_expenses_notes}</span>}
                         </div>
                       )}
                     </div>
