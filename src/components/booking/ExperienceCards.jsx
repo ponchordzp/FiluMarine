@@ -1,6 +1,7 @@
 import React from 'react';
-import { Clock, Users, Fish, Waves, Sun, Camera, Anchor } from 'lucide-react';
+import { Clock, Users, Fish, Waves, Sun, Camera, Anchor, Wifi, Video, Zap, Droplet, Navigation } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
 
 const regularExperiences = [
@@ -97,6 +98,17 @@ const getAvailableBoatsForLocation = (boatList, location) => {
   return boatList.split(', ').filter(boat => locationBoats.includes(boat)).join(', ');
 };
 
+const equipmentIcons = {
+  bathroom: Droplet,
+  live_well: Fish,
+  starlink: Wifi,
+  cctv: Video,
+  audio_system: Zap,
+  gps: Navigation,
+  fishing_gear: Fish,
+  snorkeling_gear: Droplet,
+};
+
 export default function ExperienceCards({ onSelectExperience, selectedBoat, location }) {
   const filterByBoat = (exp) => {
     if (!selectedBoat) return true;
@@ -181,6 +193,54 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                   )}
                 </div>
 
+                {selectedBoat && (
+                  <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-lg font-semibold text-cyan-400">{selectedBoat.name}</h4>
+                      <div className="flex gap-2">
+                        <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30 text-xs">
+                          {selectedBoat.type}
+                        </Badge>
+                        <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">
+                          {selectedBoat.size}
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    {selectedBoat.equipment && Object.keys(selectedBoat.equipment).some(key => selectedBoat.equipment[key]) && (
+                      <div className="mb-2">
+                        <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-2">Equipment</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(selectedBoat.equipment).map(([key, value]) => {
+                            if (!value) return null;
+                            const Icon = equipmentIcons[key] || Anchor;
+                            return (
+                              <div key={key} className="flex items-center gap-2 text-xs text-white/80">
+                                <Icon className="h-3 w-3 text-cyan-400 flex-shrink-0" />
+                                <span className="capitalize">{key.replace(/_/g, ' ')}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedBoat.engine_name && (
+                      <div className="mt-2 pt-2 border-t border-white/10">
+                        <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1">Engine</p>
+                        <p className="text-xs text-white/80">{selectedBoat.engine_name}</p>
+                      </div>
+                    )}
+
+                    {selectedBoat.crew_members > 0 && (
+                      <div className="mt-2 pt-2 border-t border-white/10">
+                        <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1">Crew</p>
+                        <p className="text-xs text-white/80">{selectedBoat.crew_members} crew member{selectedBoat.crew_members > 1 ? 's' : ''}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <Button 
                   onClick={() => onSelectExperience(exp)}
                   className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] mt-auto"
@@ -254,6 +314,54 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                   )}
                 </div>
 
+                {selectedBoat && (
+                  <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-lg font-semibold text-cyan-400">{selectedBoat.name}</h4>
+                      <div className="flex gap-2">
+                        <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30 text-xs">
+                          {selectedBoat.type}
+                        </Badge>
+                        <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">
+                          {selectedBoat.size}
+                        </Badge>
+                      </div>
+                    </div>
+                    
+                    {selectedBoat.equipment && Object.keys(selectedBoat.equipment).some(key => selectedBoat.equipment[key]) && (
+                      <div className="mb-2">
+                        <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-2">Equipment</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(selectedBoat.equipment).map(([key, value]) => {
+                            if (!value) return null;
+                            const Icon = equipmentIcons[key] || Anchor;
+                            return (
+                              <div key={key} className="flex items-center gap-2 text-xs text-white/80">
+                                <Icon className="h-3 w-3 text-cyan-400 flex-shrink-0" />
+                                <span className="capitalize">{key.replace(/_/g, ' ')}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedBoat.engine_name && (
+                      <div className="mt-2 pt-2 border-t border-white/10">
+                        <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1">Engine</p>
+                        <p className="text-xs text-white/80">{selectedBoat.engine_name}</p>
+                      </div>
+                    )}
+
+                    {selectedBoat.crew_members > 0 && (
+                      <div className="mt-2 pt-2 border-t border-white/10">
+                        <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1">Crew</p>
+                        <p className="text-xs text-white/80">{selectedBoat.crew_members} crew member{selectedBoat.crew_members > 1 ? 's' : ''}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <Button 
                   onClick={() => onSelectExperience(exp)}
                   className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] mt-auto"
@@ -324,6 +432,54 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                   </div>
                 )}
               </div>
+
+              {selectedBoat && (
+                <div className="mb-4 p-4 bg-white/5 rounded-xl border border-white/10">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-lg font-semibold text-cyan-400">{selectedBoat.name}</h4>
+                    <div className="flex gap-2">
+                      <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30 text-xs">
+                        {selectedBoat.type}
+                      </Badge>
+                      <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">
+                        {selectedBoat.size}
+                      </Badge>
+                    </div>
+                  </div>
+                  
+                  {selectedBoat.equipment && Object.keys(selectedBoat.equipment).some(key => selectedBoat.equipment[key]) && (
+                    <div className="mb-2">
+                      <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-2">Equipment</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {Object.entries(selectedBoat.equipment).map(([key, value]) => {
+                          if (!value) return null;
+                          const Icon = equipmentIcons[key] || Anchor;
+                          return (
+                            <div key={key} className="flex items-center gap-2 text-xs text-white/80">
+                              <Icon className="h-3 w-3 text-cyan-400 flex-shrink-0" />
+                              <span className="capitalize">{key.replace(/_/g, ' ')}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedBoat.engine_name && (
+                    <div className="mt-2 pt-2 border-t border-white/10">
+                      <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1">Engine</p>
+                      <p className="text-xs text-white/80">{selectedBoat.engine_name}</p>
+                    </div>
+                  )}
+
+                  {selectedBoat.crew_members > 0 && (
+                    <div className="mt-2 pt-2 border-t border-white/10">
+                      <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1">Crew</p>
+                      <p className="text-xs text-white/80">{selectedBoat.crew_members} crew member{selectedBoat.crew_members > 1 ? 's' : ''}</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <Button 
                 onClick={() => onSelectExperience(extendedExperience)}
