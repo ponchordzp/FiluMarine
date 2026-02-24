@@ -84,7 +84,16 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const minDate = addDays(today, 1); // Only allow booking from tomorrow onwards
   
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
-  const availableBoats = isLeisureExperience ? boats : boats.filter(b => !b.forLeisure);
+  
+  // Filter boats based on experience availability
+  const availableBoats = boats.filter(boat => {
+    // If boat has available_expeditions, check if it includes this experience
+    if (boat.expedition_pricing && boat.expedition_pricing.length > 0) {
+      return boat.expedition_pricing.some(p => p.expedition_type === experience.id);
+    }
+    // Fallback to old logic if no expedition_pricing
+    return isLeisureExperience ? true : !boat.forLeisure;
+  });
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 

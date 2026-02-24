@@ -128,6 +128,7 @@ export default function Home() {
   const handleSelectExperience = (experience) => {
     setSelectedExperience(experience);
     setBookingData(prev => ({ ...prev, experience_type: experience.id }));
+    // If coming from boat selection, stay in boat flow, otherwise go to calendar directly
     setStep('calendar');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -448,7 +449,7 @@ export default function Home() {
     return (
       <BookingCalendar 
         experience={selectedExperience}
-        onBack={() => setStep('boat_selector')}
+        onBack={() => setStep(selectedBoat ? 'boat_selector' : 'landing')}
         onContinue={() => setStep('pickup')}
         bookingData={bookingData}
         setBookingData={setBookingData}
