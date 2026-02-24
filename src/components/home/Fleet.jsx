@@ -127,6 +127,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
       image: boat.image,
       capacity: boat.capacity,
       strengths: strengths,
+      available_expeditions: boat.available_expeditions || [],
       maintenance_schedule: boat.maintenance_schedule,
       parts_inventory: boat.parts_inventory,
     };
@@ -181,14 +182,27 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                   {boat.capacity}
                 </p>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+                <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
                   {boat.strengths.map((strength, idx) => (
                     <div key={idx} className="flex items-center gap-2 text-white">
-                      <strength.icon className="h-4 w-4 text-[#1e88e5] flex-shrink-0" />
+                      <strength.icon className="h-4 w-4 text-cyan-400 flex-shrink-0" />
                       <span className="text-sm capitalize">{strength.text}</span>
                     </div>
                   ))}
                 </div>
+
+                {boat.available_expeditions && boat.available_expeditions.length > 0 && (
+                  <div className="pt-4 border-t border-white/20">
+                    <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Available Experiences</p>
+                    <div className="flex flex-wrap gap-2">
+                      {boat.available_expeditions.map((exp) => (
+                        <span key={exp} className="text-xs bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full border border-cyan-400/30 capitalize">
+                          {exp.replace(/_/g, ' ')}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </motion.div>
           ))}
