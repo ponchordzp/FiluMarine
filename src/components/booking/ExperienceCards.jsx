@@ -28,7 +28,7 @@ const regularExperiences = [
     idealFor: 'Couples & families',
     description: 'Explore Playa Las Gatas and hidden coves with vibrant marine life.',
     icon: Waves,
-    availableBoats: 'FILU, TYCOON, WAHOO, La Güera, Pirula',
+    availableBoats: 'FILU, TYCOON, La Güera, Pirula',
   },
   {
     id: 'coastal_leisure',
@@ -40,7 +40,7 @@ const regularExperiences = [
     idealFor: 'Relaxation & celebrations',
     description: 'Scenic coastal cruise with optional restaurant visits via panga delivery from select locations.',
     icon: Sun,
-    availableBoats: 'FILU, TYCOON, WAHOO, Pirula',
+    availableBoats: 'FILU, TYCOON, Pirula',
   },
   {
     id: 'sunset_tour',
@@ -83,7 +83,7 @@ const extendedExperience = {
   description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration with restaurant visits.',
   targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado', 'Roosterfish'],
   icon: Fish,
-  availableBoats: 'FILU, TYCOON, WAHOO, La Güera, Pirula',
+  availableBoats: 'FILU, TYCOON, La Güera, Pirula',
 };
 
 // Location-specific boat availability
