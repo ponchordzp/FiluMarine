@@ -32,16 +32,26 @@ const benefits = [
 
 export default function BoatBenefits() {
   return (
-    <section className="py-16 md:py-20 bg-gradient-to-b from-[#001529] to-[#0a1f3d] border-t border-white/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-light text-white mb-4">
-            Why <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Choose Us?</span>
+    <section className="relative py-20 md:py-28 bg-gradient-to-b from-[#001529] via-[#0a1f3d] to-[#0c2847] border-t border-white/10 overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 opacity-30">
+        <div className="absolute top-20 left-1/4 w-64 h-64 bg-cyan-500/20 rounded-full filter blur-3xl animate-pulse" />
+        <div className="absolute bottom-20 right-1/4 w-64 h-64 bg-blue-600/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+      </div>
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-4xl md:text-6xl font-light text-white mb-6">
+            Why <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">Choose Us?</span>
           </h2>
-          <p className="text-white/70 text-xl max-w-2xl mx-auto">
+          <p className="text-white/80 text-xl md:text-2xl max-w-2xl mx-auto font-light">
             Premium vessels, experienced crew, and unforgettable experiences
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {benefits.slice(0, 3).map((benefit, i) => (
