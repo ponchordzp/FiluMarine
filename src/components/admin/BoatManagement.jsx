@@ -12,6 +12,7 @@ import { Plus, Edit, Trash2, Ship, Check, X, Gauge, Package, ChevronDown, Chevro
 import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import PersonalTripDialog from './PersonalTripDialog';
+import TripHistoryCard from './TripHistoryCard';
 
 const expeditionTypes = [
   'half_day_fishing',
@@ -1648,29 +1649,60 @@ export default function BoatManagement() {
                   </Select>
                 </div>
                 
-                <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+                <div className="space-y-1.5 max-h-[360px] overflow-y-auto">
                   {(() => {
                     const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
                     const boatPersonalTrips = personalTrips.filter(t => t.boat_id === boat.id);
                     
                     const allTrips = [
-                      ...boatBookings.map(b => ({
-                        type: 'rental',
-                        date: b.date,
-                        title: b.experience_type?.replace(/_/g, ' ') || 'Booking',
-                        guests: b.guests,
-                        hours: b.engine_hours_used || 0,
-                        code: b.confirmation_code,
-                        revenue: b.total_price
-                      })),
-                      ...boatPersonalTrips.map(t => ({
-                        type: 'personal',
-                        date: t.trip_date,
-                        title: t.destination || 'Personal Trip',
-                        guests: t.guests,
-                        hours: t.engine_hours_used || 0,
-                        notes: t.notes
-                      }))
+                      ...boatBookings.map(b => {
+                        // Find expense for this booking
+                        const expense = expenses.find(e => e.booking_id === b.id);
+                        const totalExpenses = expense ? (
+                          (expense.fuel_cost || 0) +
+                          (expense.crew_cost || 0) +
+                          (expense.maintenance_cost || 0) +
+                          (expense.cleaning_cost || 0) +
+                          (expense.supplies_cost || 0) +
+                          (expense.other_cost || 0)
+                        ) : 0;
+                        const revenue = b.total_price || 0;
+                        const profit = revenue - totalExpenses;
+                        const roi = revenue > 0 ? ((profit / revenue) * 100) : 0;
+                        
+                        return {
+                          type: 'rental',
+                          date: b.date,
+                          title: b.experience_type?.replace(/_/g, ' ') || 'Booking',
+                          guests: b.guests,
+                          hours: b.engine_hours_used || 0,
+                          code: b.confirmation_code,
+                          revenue,
+                          expenses: totalExpenses,
+                          profit,
+                          roi
+                        };
+                      }),
+                      ...boatPersonalTrips.map(t => {
+                        const totalCost = (
+                          (t.fuel_quantity || 0) * (t.fuel_price_per_unit || 0) +
+                          (t.additional_expenses || 0) +
+                          (t.supplies_used?.reduce((sum, s) => sum + (s.price || 0), 0) || 0)
+                        );
+                        
+                        return {
+                          type: 'personal',
+                          date: t.trip_date,
+                          title: t.destination || 'Personal Trip',
+                          guests: t.guests,
+                          hours: t.engine_hours_used || 0,
+                          notes: t.notes,
+                          expenses: totalCost,
+                          revenue: 0,
+                          profit: -totalCost,
+                          roi: 0
+                        };
+                      })
                     ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
                     const filteredTrips = allTrips.filter(trip => {
@@ -1686,54 +1718,8 @@ export default function BoatManagement() {
                       );
                     }
 
-                    return filteredTrips.slice(0, 5).map((trip, idx) => (
-                      <div 
-                        key={idx}
-                        className={`p-2 rounded-lg border-l-4 ${
-                          trip.type === 'rental' 
-                            ? 'bg-blue-50 border-blue-500' 
-                            : 'bg-green-50 border-green-500'
-                        }`}
-                      >
-                        <div className="flex items-start justify-between mb-1">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-1.5 mb-0.5">
-                              <Badge className={`text-xs px-1.5 py-0 ${
-                                trip.type === 'rental' 
-                                  ? 'bg-blue-600 text-white' 
-                                  : 'bg-green-600 text-white'
-                              }`}>
-                                {trip.type}
-                              </Badge>
-                              <p className="text-xs font-semibold text-slate-800 capitalize truncate">
-                                {trip.title}
-                              </p>
-                            </div>
-                            <p className="text-xs text-slate-600">
-                              {format(parseISO(trip.date), 'MMM d, yyyy')}
-                            </p>
-                          </div>
-                          {trip.revenue && (
-                            <p className="text-xs font-bold text-green-700">
-                              ${(trip.revenue / 1000).toFixed(1)}k
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2 text-xs text-slate-600">
-                          {trip.guests && (
-                            <span className="flex items-center gap-1">
-                              <Users className="h-3 w-3" />
-                              {trip.guests}
-                            </span>
-                          )}
-                          {trip.hours > 0 && (
-                            <span className="flex items-center gap-1">
-                              <Gauge className="h-3 w-3" />
-                              {trip.hours}h
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                    return filteredTrips.map((trip, idx) => (
+                      <TripHistoryCard key={idx} trip={trip} />
                     ));
                   })()}
                 </div>
