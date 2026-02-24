@@ -87,20 +87,18 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const availableBoats = boats.filter(boat => {
     const sourceBoat = activeBoats.find(b => b.id === boat.id);
     
-    // Check expedition_pricing first
+    // Check expedition_pricing first - if configured, use it as primary source
     if (boat.expedition_pricing && boat.expedition_pricing.length > 0) {
-      const hasInPricing = boat.expedition_pricing.some(p => p.expedition_type === experience.id);
-      if (hasInPricing) return true;
+      return boat.expedition_pricing.some(p => p.expedition_type === experience.id);
     }
     
-    // Check available_expeditions field
+    // Check available_expeditions field as fallback
     if (sourceBoat?.available_expeditions && sourceBoat.available_expeditions.length > 0) {
-      const hasInAvailable = sourceBoat.available_expeditions.includes(experience.id);
-      if (hasInAvailable) return true;
+      return sourceBoat.available_expeditions.includes(experience.id);
     }
     
-    // Fallback: show all boats if no specific configuration
-    return true;
+    // If no expeditions are configured at all, don't show the boat
+    return false;
   });
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
