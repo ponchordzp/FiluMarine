@@ -85,7 +85,16 @@ const extendedExperience = {
   availableBoats: 'FILU, TYCOON',
 };
 
-export default function ExperienceCards({ onSelectExperience }) {
+export default function ExperienceCards({ onSelectExperience, selectedBoat }) {
+  const filterByBoat = (exp) => {
+    if (!selectedBoat) return true;
+    return exp.availableBoats.includes(selectedBoat.name);
+  };
+
+  const filteredRegular = regularExperiences.filter(filterByBoat);
+  const filteredFullDay = fullDayExperiences.filter(filterByBoat);
+  const showExtended = !selectedBoat || extendedExperience.availableBoats.includes(selectedBoat.name);
+
   return (
     <section className="py-8 md:py-12 bg-gradient-to-b from-[#0c2340] to-[#0f2a45] border-t border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -104,7 +113,7 @@ export default function ExperienceCards({ onSelectExperience }) {
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-4 mb-4">
-          {regularExperiences.map((exp, i) => (
+          {filteredRegular.map((exp, i) => (
             <motion.div
               key={exp.id}
               initial={{ opacity: 0, y: 20 }}
@@ -174,7 +183,7 @@ export default function ExperienceCards({ onSelectExperience }) {
           ))}
 
           {/* Full Day Experiences */}
-          {fullDayExperiences.map((exp, i) => (
+          {filteredFullDay.map((exp, i) => (
             <motion.div
               key={exp.id}
               initial={{ opacity: 0, y: 20 }}
@@ -250,7 +259,7 @@ export default function ExperienceCards({ onSelectExperience }) {
           ))}
 
           {/* Extended Experience */}
-          <motion.div
+          {showExtended && <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -320,7 +329,7 @@ export default function ExperienceCards({ onSelectExperience }) {
                 Select This Experience
               </Button>
             </div>
-          </motion.div>
+          </motion.div>}
         </div>
 
 

@@ -383,7 +383,7 @@ export default function Home() {
               </h1>
               <p className="text-white/80 text-lg">Choose your adventure</p>
             </motion.div>
-            <ExperienceCards onSelectExperience={handleSelectExperience} />
+            <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={selectedBoat} />
             <div className="text-center mt-6">
               <button
                 onClick={() => setStep('landing')}
