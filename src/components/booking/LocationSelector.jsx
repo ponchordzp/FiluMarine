@@ -23,16 +23,23 @@ const locations = [
 
 export default function LocationSelector({ onSelectLocation }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0c2340] via-[#1e3a5f] to-[#0c2340] py-20 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto">
+    <div className="relative min-h-screen bg-gradient-to-br from-[#0a1f3d] via-[#0c2847] to-[#001529] py-20 px-4 sm:px-6 overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+      
+      <div className="relative max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
           {/* Logo */}
           <div className="mb-8">
             <div className="flex items-center justify-center gap-1 mb-3">
-              <Anchor className="h-10 w-10 text-[#1e88e5]" />
-              <h1 className="text-4xl md:text-5xl font-bold text-white tracking-wide">FILU</h1>
-              <span className="text-2xl md:text-3xl font-light text-white/80">Marine</span>
+              <Anchor className="h-12 w-12 text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]" />
+              <h1 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 tracking-wide">FILU</h1>
+              <span className="text-3xl md:text-4xl font-light text-white/90">Marine</span>
             </div>
             {/* Nautical Flags: F-I-L-U */}
             <div className="flex items-center justify-center gap-2">
@@ -62,66 +69,72 @@ export default function LocationSelector({ onSelectLocation }) {
           </div>
 
           {/* Mission Section */}
-          <div className="mb-12 max-w-4xl mx-auto">
-            <div className="bg-white/5 backdrop-blur-md rounded-3xl p-8 border border-white/10">
-              <h3 className="text-2xl font-light text-white mb-6 text-center">
-                Our <span className="font-semibold">Mission</span>
-              </h3>
-              <div className="space-y-4 text-white/80 text-base leading-relaxed">
-                <p>
-                  Welcome to FILU Marine, your gateway to premium fishing and leisure expeditions across Mexico's most spectacular coastal destinations.
-                </p>
-                <p>
-                  We believe that every journey on the water should be more than just a trip—it should be an unforgettable adventure. Our mission is to provide world-class marine experiences that combine safety, luxury, and authenticity.
-                </p>
-                <p>
-                  From professional sport fishing expeditions to serene coastal cruises, we're dedicated to creating memories that last a lifetime. With our expanding fleet and expert crew, we bring the best of Mexico's Pacific coast to life, one voyage at a time.
-                </p>
-                <p className="text-[#1e88e5] font-medium">
-                  Your adventure begins here. Choose your destination and let's set sail.
-                </p>
+          <div className="mb-16 max-w-4xl mx-auto">
+            <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-10 border border-white/20 shadow-2xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 rounded-3xl"></div>
+              <div className="relative">
+                <h3 className="text-3xl font-light text-white mb-6 text-center">
+                  Our <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Mission</span>
+                </h3>
+                <div className="space-y-4 text-white/80 text-lg leading-relaxed">
+                  <p>
+                    Welcome to FILU Marine, your gateway to premium fishing and leisure expeditions across Mexico's most spectacular coastal destinations.
+                  </p>
+                  <p>
+                    We believe that every journey on the water should be more than just a trip—it should be an unforgettable adventure. Our mission is to provide world-class marine experiences that combine safety, luxury, and authenticity.
+                  </p>
+                  <p>
+                    From professional sport fishing expeditions to serene coastal cruises, we're dedicated to creating memories that last a lifetime. With our expanding fleet and expert crew, we bring the best of Mexico's Pacific coast to life, one voyage at a time.
+                  </p>
+                  <p className="text-cyan-400 font-medium text-center pt-2">
+                    Your adventure begins here. Choose your destination and let's set sail. ⚓
+                  </p>
+                </div>
               </div>
             </div>
           </div>
 
-          <h2 className="text-3xl font-light text-white mb-4">Choose Your Destination</h2>
+          <h2 className="text-4xl font-light text-white mb-4">Choose Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Destination</span></h2>
           <p className="text-xl text-white/70 max-w-2xl mx-auto">
             Select your preferred location to explore premium marine experiences
           </p>
         </div>
 
         {/* Location Cards */}
-        <div className="grid md:grid-cols-2 gap-8">
-          {locations.map((location) => (
+        <div className="grid md:grid-cols-2 gap-10">
+          {locations.map((location, index) => (
             <div 
               key={location.id}
-              className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10 hover:border-[#1e88e5]/50 transition-all duration-300 hover:scale-[1.02]"
+              className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)]"
+              style={{ animationDelay: `${index * 0.2}s` }}
             >
               {/* Location Image */}
-              <div className="relative h-64 overflow-hidden">
+              <div className="relative h-72 overflow-hidden">
                 <img 
                   src={location.image}
                   alt={location.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
                 
                 {/* Location Badge */}
-                <div className="absolute top-4 right-4 bg-[#1e88e5]/90 backdrop-blur-sm px-4 py-2 rounded-full flex items-center gap-2">
+                <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-500/90 to-blue-500/90 backdrop-blur-md px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
                   <MapPin className="h-4 w-4 text-white" />
-                  <span className="text-white text-sm font-medium">{location.state}</span>
+                  <span className="text-white text-sm font-semibold">{location.state}</span>
                 </div>
               </div>
 
               {/* Location Info */}
-              <div className="p-6">
-                <h3 className="text-2xl font-light text-white mb-2">{location.name}</h3>
-                <p className="text-white/60 text-sm mb-1">{location.coordinates}</p>
-                <p className="text-white/70 mb-6">{location.description}</p>
+              <div className="p-8">
+                <h3 className="text-3xl font-light text-white mb-2">
+                  <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{location.name}</span>
+                </h3>
+                <p className="text-cyan-300/60 text-sm mb-1 font-mono">{location.coordinates}</p>
+                <p className="text-white/80 mb-8 text-lg leading-relaxed">{location.description}</p>
                 
                 <Button 
                   onClick={() => onSelectLocation(location.id)}
-                  className="w-full bg-[#1e88e5] hover:bg-[#1976d2] text-white"
+                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-6 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] text-lg"
                 >
                   Explore {location.name}
                 </Button>
@@ -131,10 +144,12 @@ export default function LocationSelector({ onSelectLocation }) {
         </div>
 
         {/* Bottom Info */}
-        <div className="mt-16 text-center">
-          <p className="text-white/50 text-sm">
-            More destinations coming soon across Mexico's Pacific and Caribbean coasts
-          </p>
+        <div className="mt-20 text-center">
+          <div className="inline-block bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-3">
+            <p className="text-white/60 text-sm">
+              🌊 More destinations coming soon across Mexico's Pacific and Caribbean coasts
+            </p>
+          </div>
         </div>
       </div>
     </div>
