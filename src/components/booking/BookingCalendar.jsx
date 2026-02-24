@@ -148,7 +148,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   };
 
   return (
-    <section className="min-h-screen bg-[#f8f6f3] py-8 md:py-16">
+    <section className="min-h-screen bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529] py-8 md:py-16">
       <div className="max-w-4xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -157,35 +157,32 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
         >
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-8 transition-colors"
+            className="flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to experiences</span>
           </button>
 
           {/* Selected Experience */}
-          <div className="bg-white rounded-2xl p-4 md:p-6 shadow-sm mb-8 flex gap-4 items-center">
+          <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-4 md:p-6 border border-white/20 mb-8 flex gap-4 items-center">
             <img 
               src={experience.image} 
               alt={experience.title}
               className="w-20 h-20 md:w-24 md:h-24 rounded-xl object-cover flex-shrink-0"
             />
             <div>
-              <h2 className="text-lg md:text-xl font-semibold text-slate-800">{experience.title}</h2>
-              <p className="text-slate-500 text-sm flex items-center gap-2 mt-1">
+              <h2 className="text-lg md:text-xl font-semibold text-white">{experience.title}</h2>
+              <p className="text-white/70 text-sm flex items-center gap-2 mt-1">
                 <Clock className="h-4 w-4" />
                 {experience.duration}
               </p>
-              <Badge variant="secondary" className="mt-2 bg-sky-50 text-sky-700">
-                From ${experience.price}
-              </Badge>
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Calendar */}
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Date</h3>
+            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+              <h3 className="text-lg font-semibold text-white mb-4">Select Date</h3>
               {!selectedBoat && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
                   <p className="text-sm text-amber-800">Please select a boat first before choosing a date</p>
@@ -273,8 +270,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
             {/* Boat Selection & Time & Guests */}
             <div className="space-y-6">
               {/* Boat Selection */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Boat</h3>
+              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h3 className="text-lg font-semibold text-white mb-4">Select Boat</h3>
                 <div className="space-y-3">
                   {availableBoats.map((boat) => {
                     const boatPrice = getBoatPrice(boat);
@@ -284,22 +281,22 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                         onClick={() => setSelectedBoat(boat.id)}
                         className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
                           selectedBoat === boat.id
-                            ? 'border-[#1e88e5] bg-[#1e88e5]/5'
-                            : 'border-slate-100 hover:border-slate-200'
+                            ? 'border-cyan-400 bg-cyan-400/20'
+                            : 'border-white/20 hover:border-white/30 bg-white/5'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <Anchor className={`h-5 w-5 ${selectedBoat === boat.id ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
+                          <Anchor className={`h-5 w-5 ${selectedBoat === boat.id ? 'text-cyan-400' : 'text-white/60'}`} />
                           <div className="text-left">
-                            <p className={`font-medium ${selectedBoat === boat.id ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
+                            <p className={`font-medium ${selectedBoat === boat.id ? 'text-white' : 'text-white/80'}`}>
                               {boat.name}
                             </p>
-                            <p className="text-sm text-slate-500">{boat.type} • ${boatPrice.toLocaleString()} MXN</p>
+                            <p className="text-sm text-white/60">{boat.type} • ${boatPrice.toLocaleString()} MXN</p>
                           </div>
                         </div>
                         {selectedBoat === boat.id && (
-                          <div className="w-5 h-5 bg-[#1e88e5] rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <div className="w-5 h-5 bg-cyan-400 rounded-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
@@ -310,8 +307,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 </div>
               </div>
               {/* Time Slots */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Time</h3>
+              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h3 className="text-lg font-semibold text-white mb-4">Select Time</h3>
                 {selectedDate ? (
                   <div className="space-y-3">
                     {availableSlots.map((slot) => (
@@ -320,22 +317,22 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                         onClick={() => setSelectedTime(slot.time)}
                         className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
                           selectedTime === slot.time
-                            ? 'border-sky-500 bg-sky-50'
-                            : 'border-slate-100 hover:border-slate-200'
+                            ? 'border-cyan-400 bg-cyan-400/20'
+                            : 'border-white/20 hover:border-white/30 bg-white/5'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <Clock className={`h-5 w-5 ${selectedTime === slot.time ? 'text-sky-600' : 'text-slate-400'}`} />
+                          <Clock className={`h-5 w-5 ${selectedTime === slot.time ? 'text-cyan-400' : 'text-white/60'}`} />
                           <div className="text-left">
-                            <p className={`font-medium ${selectedTime === slot.time ? 'text-sky-700' : 'text-slate-700'}`}>
+                            <p className={`font-medium ${selectedTime === slot.time ? 'text-white' : 'text-white/80'}`}>
                               {slot.time}
                             </p>
-                            <p className="text-sm text-slate-500">{slot.label}</p>
+                            <p className="text-sm text-white/60">{slot.label}</p>
                           </div>
                         </div>
                         {selectedTime === slot.time && (
-                          <div className="w-5 h-5 bg-sky-500 rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <div className="w-5 h-5 bg-cyan-400 rounded-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
@@ -344,38 +341,38 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     ))}
                   </div>
                 ) : (
-                  <p className="text-slate-500 text-sm text-center py-8">
+                  <p className="text-white/60 text-sm text-center py-8">
                     Please select a date first
                   </p>
                 )}
               </div>
 
               {/* Guests */}
-              <div className="bg-white rounded-2xl p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-800 mb-4">Number of Guests</h3>
+              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
+                <h3 className="text-lg font-semibold text-white mb-4">Number of Guests</h3>
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-slate-600">
+                  <div className="flex items-center gap-2 text-white/80">
                     <Users className="h-5 w-5" />
                     <span>Guests</span>
                   </div>
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => setGuests(Math.max(1, guests - 1))}
-                      className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors"
+                      className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors text-white"
                     >
                       <Minus className="h-4 w-4" />
                     </button>
-                    <span className="text-xl font-semibold w-8 text-center">{guests}</span>
+                    <span className="text-xl font-semibold w-8 text-center text-white">{guests}</span>
                     <button
                       onClick={() => setGuests(Math.min(maxGuests, guests + 1))}
-                      className="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors"
+                      className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors text-white"
                       disabled={!selectedBoat}
                     >
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>
                 </div>
-                <p className="text-xs text-slate-500 mt-3">
+                <p className="text-xs text-white/60 mt-3">
                   {selectedBoat ? `Maximum ${maxGuests} guests per trip` : 'Please select a boat first'}
                 </p>
               </div>
@@ -383,28 +380,28 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               {/* Taxi Option */}
               <button
                 onClick={() => setNeedsTaxi(!needsTaxi)}
-                className={`w-full bg-white rounded-2xl p-6 shadow-sm text-left border-2 transition-all ${
-                  needsTaxi ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-transparent'
+                className={`w-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 text-left border-2 transition-all ${
+                  needsTaxi ? 'border-cyan-400 bg-cyan-400/20' : 'border-white/20'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      needsTaxi ? 'bg-[#1e88e5]' : 'bg-slate-100'
+                      needsTaxi ? 'bg-cyan-400' : 'bg-white/10'
                     }`}>
-                      <Car className={`h-6 w-6 ${needsTaxi ? 'text-white' : 'text-slate-500'}`} />
+                      <Car className={`h-6 w-6 ${needsTaxi ? 'text-slate-900' : 'text-white/60'}`} />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-800">Need a taxi pickup?</h3>
-                      <p className="text-sm text-slate-500">From your hotel or residence to the dock</p>
+                      <h3 className="font-semibold text-white">Need a taxi pickup?</h3>
+                      <p className="text-sm text-white/60">From your hotel or residence to the dock</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`font-semibold ${needsTaxi ? 'text-[#1e88e5]' : 'text-slate-600'}`}>+$400 MXN</span>
+                    <span className={`font-semibold ${needsTaxi ? 'text-cyan-400' : 'text-white/70'}`}>+$400 MXN</span>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      needsTaxi ? 'border-[#1e88e5] bg-[#1e88e5]' : 'border-slate-300'
+                      needsTaxi ? 'border-cyan-400 bg-cyan-400' : 'border-white/30'
                     }`}>
-                      {needsTaxi && <Check className="h-4 w-4 text-white" />}
+                      {needsTaxi && <Check className="h-4 w-4 text-slate-900" />}
                     </div>
                   </div>
                 </div>
@@ -439,9 +436,9 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-amber-50 rounded-2xl p-4 border border-amber-200"
+                  className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-2xl p-4 border border-amber-400/30"
                 >
-                  <p className="text-sm text-amber-900">
+                  <p className="text-sm text-amber-200">
                     ⏱️ <span className="font-semibold">Extra hours:</span> Additional time beyond scheduled duration is{' '}
                     <span className="font-semibold">
                       ${currentBoat.id === 'tycoon' ? '7,500' : '2,500'} MXN per hour
@@ -457,7 +454,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
             <Button
               onClick={handleContinue}
               disabled={!selectedDate || !selectedTime || !selectedBoat}
-              className="w-full md:w-auto md:min-w-[200px] bg-slate-900 hover:bg-slate-800 text-white py-6 rounded-xl font-medium transition-all disabled:opacity-50"
+              className="w-full md:w-auto md:min-w-[200px] bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-6 rounded-xl font-semibold transition-all disabled:opacity-50 hover:scale-105"
             >
               Continue to Pickup Location
             </Button>

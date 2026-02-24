@@ -298,7 +298,7 @@ export default function Home() {
         <BoatBenefits />
         <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
         <div ref={experiencesRef}>
-          <ExperienceCards onSelectExperience={handleSelectExperience} location={selectedLocation} />
+          <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={selectedBoat} location={selectedLocation} />
         </div>
         <Destinations location={selectedLocation} />
         <JoinFilu />

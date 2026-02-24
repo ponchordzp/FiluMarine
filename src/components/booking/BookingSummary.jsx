@@ -102,7 +102,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   };
 
   return (
-    <section className="min-h-screen bg-[#f8f6f3] py-8 md:py-16">
+    <section className="min-h-screen bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529] py-8 md:py-16">
       <div className="max-w-4xl mx-auto px-4 md:px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -111,17 +111,17 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
         >
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-8 transition-colors"
+            className="flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to extras</span>
           </button>
 
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-light text-slate-800 mb-3">
-              Complete Your <span className="font-semibold">Booking</span>
+            <h2 className="text-3xl font-light text-white mb-3">
+              Complete Your <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Booking</span>
             </h2>
-            <p className="text-slate-600">Review details and confirm your reservation</p>
+            <p className="text-white/70">Review details and confirm your reservation</p>
           </div>
 
           <div className="grid md:grid-cols-5 gap-6 md:gap-8">

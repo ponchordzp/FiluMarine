@@ -47,15 +47,15 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import Home from './pages/Home';
 import AdminBookings from './pages/AdminBookings';
 import BookingSearch from './pages/BookingSearch';
-import Home from './pages/Home';
 
 
 export const PAGES = {
+    "Home": Home,
     "AdminBookings": AdminBookings,
     "BookingSearch": BookingSearch,
-    "Home": Home,
 }
 
 export const pagesConfig = {

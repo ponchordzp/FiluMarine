@@ -58,7 +58,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
   }, 0);
 
   return (
-    <section className="min-h-screen bg-[#f8f6f3] py-8 md:py-16">
+    <section className="min-h-screen bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529] py-8 md:py-16">
       <div className="max-w-3xl mx-auto px-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
