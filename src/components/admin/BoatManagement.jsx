@@ -916,7 +916,10 @@ export default function BoatManagement() {
                 {formData.supplies_inventory.length > 0 && (
                   <div className="mb-4 space-y-2">
                     {formData.supplies_inventory.map((supply, index) => {
-                      const timeRemaining = calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months);
+                      // Always calculate if duration is set, even without purchase date
+                      const timeRemaining = supply.duration_months > 0 && supply.purchased_date 
+                        ? calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months) 
+                        : null;
                       const totalCost = (supply.quantity || 0) * (supply.price_per_unit || 0);
                       
                       return (
@@ -1011,23 +1014,31 @@ export default function BoatManagement() {
                               </div>
                             )}
 
-                            {timeRemaining && (
+                            {supply.duration_months > 0 && (
                               <div className="space-y-1">
-                                <div className="flex justify-between text-xs">
-                                  <span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>
-                                    {timeRemaining.expired ? '⚠️ Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}
-                                  </span>
-                                  <span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span>
-                                </div>
-                                <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                                  <div 
-                                    className={`h-full transition-all ${
-                                      timeRemaining.percentageRemaining > 50 ? 'bg-green-500' :
-                                      timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'
-                                    }`}
-                                    style={{ width: `${timeRemaining.percentageRemaining}%` }}
-                                  />
-                                </div>
+                                {timeRemaining ? (
+                                  <>
+                                    <div className="flex justify-between text-xs">
+                                      <span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>
+                                        {timeRemaining.expired ? '⚠️ Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}
+                                      </span>
+                                      <span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span>
+                                    </div>
+                                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                      <div 
+                                        className={`h-full transition-all ${
+                                          timeRemaining.percentageRemaining > 50 ? 'bg-green-500' :
+                                          timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'
+                                        }`}
+                                        style={{ width: `${timeRemaining.percentageRemaining}%` }}
+                                      />
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="bg-amber-50 border border-amber-300 rounded p-2">
+                                    <p className="text-xs text-amber-700">⚠️ Set purchase date to track duration</p>
+                                  </div>
+                                )}
                               </div>
                             )}
                             

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
-import { Users, Gauge, DollarSign, TrendingUp } from 'lucide-react';
+import { Users, Gauge, DollarSign, TrendingUp, Percent, TrendingDown } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 export default function TripHistoryCard({ trip }) {

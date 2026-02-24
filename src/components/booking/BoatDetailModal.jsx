@@ -75,19 +75,45 @@ export default function BoatDetailModal({ boat, isOpen, onClose }) {
             </div>
           )}
 
-          {/* Available Experiences */}
+          {/* Available Experiences with Pricing */}
           {boat.available_expeditions && boat.available_expeditions.length > 0 && (
             <div>
               <h3 className="text-lg font-semibold mb-3 text-cyan-400">Available Experiences</h3>
-              <div className="flex flex-wrap gap-2">
-                {boat.available_expeditions.map((exp) => (
-                  <span 
-                    key={exp} 
-                    className="text-sm bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 px-4 py-2 rounded-full border border-cyan-400/30 capitalize"
-                  >
-                    {exp.replace(/_/g, ' ')}
-                  </span>
-                ))}
+              <div className="space-y-2">
+                {boat.available_expeditions.map((exp) => {
+                  const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
+                  return (
+                    <div 
+                      key={exp} 
+                      className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-400/20 rounded-xl p-3"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-cyan-300 capitalize mb-1">
+                            {exp.replace(/_/g, ' ')}
+                          </p>
+                          <div className="flex flex-wrap gap-2 text-xs text-white/60">
+                            {pricing?.duration_hours && (
+                              <span>⏱️ {pricing.duration_hours}h</span>
+                            )}
+                            {pricing?.departure_time && (
+                              <span>🕐 {pricing.departure_time}</span>
+                            )}
+                            {pricing?.pickup_location && (
+                              <span>📍 {pricing.pickup_location}</span>
+                            )}
+                          </div>
+                        </div>
+                        {pricing?.price_mxn && (
+                          <div className="text-right">
+                            <p className="text-lg font-bold text-emerald-400">${pricing.price_mxn.toLocaleString()}</p>
+                            <p className="text-xs text-white/50">MXN</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
