@@ -19,7 +19,8 @@ const expeditionTypes = [
   'full_day_fishing',
   'extended_fishing',
   'snorkeling',
-  'coastal_leisure'
+  'coastal_leisure',
+  'sunset_tour'
 ];
 
 const commonSupplies = [
