@@ -121,24 +121,14 @@ export default function Home() {
   const handleSelectBoat = (boat) => {
     setSelectedBoat(boat);
     setBookingData(prev => ({ ...prev, boat_name: boat.name }));
-    // If experience already selected, go to calendar, otherwise stay in boat selection view
-    if (selectedExperience) {
-      setStep('calendar');
-    } else {
-      setStep('boat_selector');
-    }
+    setStep('boat_selector');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSelectExperience = (experience) => {
     setSelectedExperience(experience);
     setBookingData(prev => ({ ...prev, experience_type: experience.id }));
-    // If no boat selected yet, go to boat selection first
-    if (!selectedBoat) {
-      setStep('boat_selector');
-    } else {
-      setStep('calendar');
-    }
+    setStep('calendar');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -403,52 +393,8 @@ export default function Home() {
     );
   }
 
-  // Boat selector -> Experience selection step or Boat selection for experience
+  // Boat selector -> Experience selection step
   if (step === 'boat_selector') {
-    // If experience was selected first (from landing), show boat selection
-    if (selectedExperience && !selectedBoat) {
-      return (
-        <div className="min-h-screen bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529]">
-          <div id="google_translate_element" className="fixed top-0 left-0 right-0 z-50"></div>
-          <div className="min-h-screen py-16">
-            <div className="max-w-6xl mx-auto px-4 sm:px-6">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center mb-12"
-              >
-                <h1 className="text-4xl md:text-5xl font-light text-white mb-4">
-                  Choose Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Boat</span>
-                </h1>
-                <p className="text-white/70 text-xl">for {selectedExperience.title}</p>
-              </motion.div>
-              <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="text-center mt-8"
-              >
-                <button
-                  onClick={() => {
-                    setSelectedExperience(null);
-                    setStep('landing');
-                  }}
-                  className="group inline-flex items-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 font-medium"
-                >
-                  <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                  </svg>
-                  Back to Experiences
-                </button>
-              </motion.div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    
-    // If boat was selected first (from fleet), show experience selection
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529]">
         <div id="google_translate_element" className="fixed top-0 left-0 right-0 z-50"></div>
@@ -482,10 +428,7 @@ export default function Home() {
               className="text-center mt-8"
             >
               <button
-                onClick={() => {
-                  setSelectedBoat(null);
-                  setStep('landing');
-                }}
+                onClick={() => setStep('landing')}
                 className="group inline-flex items-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 font-medium"
               >
                 <svg className="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -505,15 +448,7 @@ export default function Home() {
     return (
       <BookingCalendar 
         experience={selectedExperience}
-        onBack={() => {
-          // If came from boat selector (boat was pre-selected from fleet), go back there
-          // Otherwise go back to landing
-          if (selectedBoat) {
-            setStep('boat_selector');
-          } else {
-            setStep('landing');
-          }
-        }}
+        onBack={() => setStep('boat_selector')}
         onContinue={() => setStep('pickup')}
         bookingData={bookingData}
         setBookingData={setBookingData}
