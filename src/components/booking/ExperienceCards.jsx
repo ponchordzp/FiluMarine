@@ -246,10 +246,12 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                       <span>Target: {exp.targetSpecies.join(', ')}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-xs text-white/60">
-                    <Anchor className="h-3 w-3" />
-                    <span>Available boats: {exp.availableBoats}</span>
-                  </div>
+                  {!selectedBoat && location && (
+                    <div className="flex items-center gap-2 text-xs text-white/60">
+                      <Anchor className="h-3 w-3" />
+                      <span>Available boats: {getAvailableBoatsForLocation(exp.availableBoats, location)}</span>
+                    </div>
+                  )}
                 </div>
 
                 <Button 
