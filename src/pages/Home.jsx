@@ -5,6 +5,7 @@ import { format, parseISO } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Settings, Calendar } from 'lucide-react';
+import { motion } from 'framer-motion';
 import LocationSelector from '@/components/booking/LocationSelector';
 import Hero from '@/components/booking/Hero';
 import IntroSection from '@/components/home/IntroSection';
