@@ -200,8 +200,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
 
           <div className="grid md:grid-cols-2 gap-8">
             {/* Calendar */}
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-              <h3 className="text-lg font-semibold text-white mb-4">Select Date</h3>
+            <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20">
+              <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Date</h3>
               {!selectedBoat && (
                 <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
                   <p className="text-sm text-amber-800">Please select a boat first before choosing a date</p>
@@ -270,16 +270,16 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 }}
               />
               
-              <div className="mt-4 space-y-2">
-                <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex gap-3 items-start">
-                  <div className="w-5 h-5 bg-red-500 rounded-full flex-shrink-0 mt-0.5"></div>
-                  <p className="text-sm text-red-900">
+              <div className="mt-6 space-y-3">
+                <div className="p-4 bg-red-500/20 border-2 border-red-400/40 rounded-xl flex gap-3 items-start backdrop-blur-sm">
+                  <div className="w-5 h-5 bg-red-500 rounded-full flex-shrink-0 mt-0.5 shadow-lg"></div>
+                  <p className="text-sm text-red-100">
                     <span className="font-semibold">Red dates are unavailable</span> and cannot be booked due to prior reservations or scheduling constraints.
                   </p>
                 </div>
-                <div className="p-3 bg-amber-50 rounded-xl flex gap-3 items-start">
-                  <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-amber-800">
+                <div className="p-4 bg-amber-500/20 border-2 border-amber-400/40 rounded-xl flex gap-3 items-start backdrop-blur-sm">
+                  <AlertTriangle className="h-5 w-5 text-amber-300 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-amber-100">
                     Trips operate only when weather and safety conditions allow. We'll contact you if changes are needed.
                   </p>
                 </div>
@@ -289,8 +289,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
             {/* Boat Selection & Time & Guests */}
             <div className="space-y-6">
               {/* Boat Selection */}
-              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-                <h3 className="text-lg font-semibold text-white mb-4">Select Boat</h3>
+              <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20">
+                <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Boat</h3>
                 <div className="space-y-3">
                   {availableBoats.map((boat) => {
                     const boatPrice = getBoatPrice(boat);
@@ -326,8 +326,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 </div>
               </div>
               {/* Time Slots */}
-              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-                <h3 className="text-lg font-semibold text-white mb-4">Select Time</h3>
+              <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20">
+                <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Time</h3>
                 {selectedDate ? (
                   <div className="space-y-3">
                     {availableSlots.map((slot) => (
@@ -367,8 +367,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               </div>
 
               {/* Guests */}
-              <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/20">
-                <h3 className="text-lg font-semibold text-white mb-4">Number of Guests</h3>
+              <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20">
+                <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Number of Guests</h3>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-white/80">
                     <Users className="h-5 w-5" />
@@ -469,15 +469,19 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
           </div>
 
           {/* Continue Button */}
-          <div className="mt-8">
+          <motion.div 
+            className="mt-12 flex justify-center"
+            whileHover={{ scale: 1.02 }}
+          >
             <Button
               onClick={handleContinue}
               disabled={!selectedDate || !selectedTime || !selectedBoat}
-              className="w-full md:w-auto md:min-w-[200px] bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-6 rounded-xl font-semibold transition-all disabled:opacity-50 hover:scale-105"
+              className="relative px-16 py-8 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white text-lg font-bold rounded-2xl transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-cyan-500/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.8)] border-2 border-cyan-400/30 overflow-hidden group"
             >
-              Continue to Pickup Location
+              <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+              <span className="relative">Continue to Pickup Location</span>
             </Button>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
     </section>

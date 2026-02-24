@@ -67,17 +67,17 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
         >
           <button 
             onClick={onBack}
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-8 transition-colors"
+            className="flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             <span>Back to pickup location</span>
           </button>
 
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-light text-slate-800 mb-3">
-              Enhance Your <span className="font-semibold">Experience</span>
+          <div className="text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-light text-white mb-4">
+              Enhance Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Experience</span>
             </h2>
-            <p className="text-slate-600">Optional extras to make your trip even better</p>
+            <p className="text-white/80 text-xl">Optional extras to make your trip even better</p>
           </div>
 
           {/* Add-ons */}
@@ -89,31 +89,31 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                   key={addOn.id}
                   onClick={() => toggleAddOn(addOn.id)}
                   whileTap={{ scale: 0.98 }}
-                  className={`w-full p-5 rounded-2xl border-2 transition-all flex items-center gap-4 text-left ${
+                  className={`w-full p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left ${
                     isSelected
-                      ? 'border-[#1e88e5] bg-[#1e88e5]/5'
-                      : 'border-slate-100 bg-white hover:border-slate-200'
+                      ? 'border-cyan-400 bg-cyan-400/20 shadow-lg shadow-cyan-500/30'
+                      : 'border-white/30 bg-white/10 hover:border-white/40 backdrop-blur-xl'
                   }`}
                 >
                   <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    isSelected ? 'bg-[#1e88e5]' : 'bg-slate-100'
+                    isSelected ? 'bg-cyan-400' : 'bg-white/20'
                   }`}>
-                    <addOn.icon className={`h-6 w-6 ${isSelected ? 'text-white' : 'text-slate-500'}`} />
+                    <addOn.icon className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
                   </div>
                   <div className="flex-1">
-                    <h3 className={`font-semibold ${isSelected ? 'text-[#1e88e5]' : 'text-slate-800'}`}>
+                    <h3 className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white'}`}>
                       {addOn.title}
                     </h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">{addOn.description}</p>
+                    <p className="text-sm text-white/70 leading-relaxed">{addOn.description}</p>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className={`font-semibold ${isSelected ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
+                    <span className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
                       ${addOn.price.toLocaleString()} MXN
                     </span>
                     <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      isSelected ? 'border-[#1e88e5] bg-[#1e88e5]' : 'border-slate-300'
+                      isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'
                     }`}>
-                      {isSelected && <Check className="h-4 w-4 text-white" />}
+                      {isSelected && <Check className="h-4 w-4 text-slate-900" />}
                     </div>
                   </div>
                 </motion.button>
@@ -122,29 +122,32 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           </div>
 
           {/* Special Requests */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm mb-8">
-            <h3 className="text-lg font-semibold text-slate-800 mb-3">Special Requests</h3>
+          <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 shadow-2xl mb-10">
+            <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-4">Special Requests</h3>
             <Textarea
               value={specialRequests}
               onChange={(e) => setSpecialRequests(e.target.value)}
               placeholder="Any dietary restrictions, special occasions, or other requests..."
-              className="min-h-[100px] border-slate-200 focus:border-sky-500 resize-none"
+              className="min-h-[120px] bg-white/10 border-2 border-white/30 focus:border-cyan-400 text-white placeholder:text-white/50 resize-none rounded-xl backdrop-blur-sm"
             />
           </div>
 
           {/* Summary & Continue */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col items-center gap-6">
             {totalAddOns > 0 && (
-              <div className="text-slate-600">
-                Add-ons total: <span className="font-semibold text-slate-800">${totalAddOns.toLocaleString()} MXN</span>
+              <div className="text-white/90 text-lg">
+                Add-ons total: <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">${totalAddOns.toLocaleString()} MXN</span>
               </div>
             )}
-            <Button
-              onClick={handleContinue}
-              className="w-full md:w-auto md:min-w-[200px] bg-[#0c2340] hover:bg-[#1e88e5] text-white py-6 rounded-xl font-medium transition-all"
-            >
-              Continue to Payment
-            </Button>
+            <motion.div whileHover={{ scale: 1.02 }}>
+              <Button
+                onClick={handleContinue}
+                className="relative px-16 py-8 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white text-lg font-bold rounded-2xl transition-all duration-500 shadow-2xl shadow-cyan-500/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.8)] border-2 border-cyan-400/30 overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                <span className="relative">Continue to Payment</span>
+              </Button>
+            </motion.div>
           </div>
         </motion.div>
       </div>
