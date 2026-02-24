@@ -47,6 +47,7 @@ const fleetByLocation = {
       description: 'Spacious leisure vessel perfect for relaxed cruising and group excursions. Comfortable seating and smooth ride for extended trips.',
       image: 'https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=800',
       capacity: 'Up to 10 guests',
+      available_expeditions: ['snorkeling', 'coastal_leisure', 'sunset_tour'],
       strengths: [
         { icon: Anchor, text: 'Ideal for leisure trips' },
         { icon: Users, text: 'Spacious deck area' },
@@ -63,6 +64,7 @@ const fleetByLocation = {
       description: 'Versatile center console perfect for fishing enthusiasts. Nimble and efficient for exploring Acapulco\'s coastal waters.',
       image: 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/1ab25cee2_image.png',
       capacity: 'Up to 7 guests',
+      available_expeditions: ['half_day_fishing', 'full_day_fishing', 'snorkeling'],
       strengths: [
         { icon: Gauge, text: 'Excellent for fishing' },
         { icon: Users, text: 'Stable platform' },
