@@ -15,7 +15,7 @@ const regularExperiences = [
     description: 'Morning trip targeting Mahi-Mahi, Roosterfish, and Jack Crevalle.',
     targetSpecies: ['Dorado', 'Roosterfish', 'Snapper'],
     icon: Fish,
-    availableBoats: 'FILU',
+    availableBoats: 'FILU, La Güera',
   },
   {
     id: 'snorkeling',
@@ -27,7 +27,7 @@ const regularExperiences = [
     idealFor: 'Couples & families',
     description: 'Explore Playa Las Gatas and hidden coves with vibrant marine life.',
     icon: Waves,
-    availableBoats: 'FILU, TYCOON',
+    availableBoats: 'FILU, TYCOON, La Güera, Pirula',
   },
   {
     id: 'coastal_leisure',
@@ -39,7 +39,7 @@ const regularExperiences = [
     idealFor: 'Relaxation & celebrations',
     description: 'Scenic coastal cruise with optional restaurant visits via panga delivery from select locations.',
     icon: Sun,
-    availableBoats: 'FILU, TYCOON',
+    availableBoats: 'FILU, TYCOON, Pirula',
   },
   {
     id: 'sunset_tour',
@@ -51,7 +51,7 @@ const regularExperiences = [
     idealFor: 'Romantic & celebrations',
     description: 'Evening cruise with stunning Pacific sunset views. Restaurant visits available via panga delivery.',
     icon: Sun,
-    availableBoats: 'FILU, TYCOON',
+    availableBoats: 'FILU, TYCOON, Pirula',
   },
 ];
 
@@ -67,7 +67,7 @@ const fullDayExperiences = [
     description: 'Offshore adventure for Sailfish, Marlin, Tuna. Reach the best fishing grounds.',
     targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado'],
     icon: Fish,
-    availableBoats: 'FILU',
+    availableBoats: 'FILU, La Güera',
   },
 ];
 
@@ -82,7 +82,7 @@ const extendedExperience = {
   description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration with restaurant visits.',
   targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado', 'Roosterfish'],
   icon: Fish,
-  availableBoats: 'FILU, TYCOON',
+  availableBoats: 'FILU, TYCOON, La Güera, Pirula',
 };
 
 export default function ExperienceCards({ onSelectExperience, selectedBoat }) {
