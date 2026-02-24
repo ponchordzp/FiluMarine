@@ -151,10 +151,10 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat }) {
                 <p className="text-white/80 text-sm mb-3">{exp.description}</p>
 
                 <div className="mb-3">
-                  <p className="text-xs font-medium text-white/60 uppercase tracking-wide mb-1.5">Includes</p>
+                  <p className="text-xs font-medium text-cyan-400 uppercase tracking-wide mb-1.5">Includes</p>
                   <div className="flex flex-wrap gap-1.5">
                     {exp.includes.map((item, idx) => (
-                      <span key={idx} className="text-xs bg-white/10 text-white/80 px-2.5 py-1 rounded-full border border-white/20">
+                      <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">
                         {item}
                       </span>
                     ))}
