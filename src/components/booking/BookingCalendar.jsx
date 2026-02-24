@@ -6,6 +6,7 @@ import { ArrowLeft, Clock, AlertTriangle, Users, Minus, Plus, Car, Check, Anchor
 import { motion } from 'framer-motion';
 import { format, addDays, isBefore, startOfDay, isSameDay, isToday } from 'date-fns';
 import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 
 const timeSlots = {
   half_day_fishing: [
@@ -31,49 +32,43 @@ const timeSlots = {
   ],
 };
 
-const boatsByLocation = {
-  ixtapa_zihuatanejo: [
-    {
-      id: 'filu',
-      name: 'FILU',
-      type: '25ft Sea Fox',
-      multiplier: 1,
-      forLeisure: false,
-      maxGuests: 6,
-    },
-    {
-      id: 'tycoon',
-      name: 'TYCOON',
-      type: '55ft Azimut Yacht',
-      multiplier: 3.2,
-      forLeisure: true,
-      maxGuests: 12,
-    },
-  ],
-  acapulco: [
-    {
-      id: 'pirula',
-      name: 'Pirula',
-      type: '50ft Leisure Boat',
-      multiplier: 2.5,
-      forLeisure: true,
-      maxGuests: 10,
-    },
-    {
-      id: 'la_guera',
-      name: 'La Güera',
-      type: '30ft Center Console',
-      multiplier: 1.2,
-      forLeisure: false,
-      maxGuests: 7,
-    },
-  ],
+// Helper to extract max guests from capacity string
+const getMaxGuests = (capacityStr) => {
+  if (!capacityStr) return 6;
+  const match = capacityStr.match(/\d+/);
+  return match ? parseInt(match[0]) : 6;
 };
 
 export default function BookingCalendar({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const location = bookingData.location || 'ixtapa_zihuatanejo';
-  const boats = boatsByLocation[location];
-  const defaultBoat = location === 'acapulco' ? 'pirula' : 'filu';
+  
+  // Fetch boats from database
+  const { data: boatsFromDB = [] } = useQuery({
+    queryKey: ['boats', location],
+    queryFn: () => base44.entities.BoatInventory.list('-created_date'),
+  });
+
+  const activeBoats = boatsFromDB.filter(boat => 
+    boat.location === location && 
+    boat.status === 'active' && 
+    boat.boat_mode !== 'maintenance_only'
+  );
+
+  // Map database boats to required format
+  const boats = activeBoats.map(boat => ({
+    id: boat.id,
+    name: boat.name,
+    type: `${boat.size} ${boat.type}`,
+    size: boat.size,
+    multiplier: 1, // Will use actual pricing from expedition_pricing
+    forLeisure: boat.available_expeditions?.some(exp => 
+      ['snorkeling', 'coastal_leisure', 'sunset_tour', 'extended_fishing'].includes(exp)
+    ) || false,
+    maxGuests: getMaxGuests(boat.capacity),
+    expedition_pricing: boat.expedition_pricing || [],
+  }));
+
+  const defaultBoat = boats.length > 0 ? boats[0].id : null;
   
   const [selectedDate, setSelectedDate] = useState(bookingData.date ? new Date(bookingData.date) : null);
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
@@ -92,6 +87,13 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const availableBoats = isLeisureExperience ? boats : boats.filter(b => !b.forLeisure);
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
+
+  // Get actual price from boat's expedition pricing
+  const getBoatPrice = (boat) => {
+    if (!boat || !boat.expedition_pricing) return experience.price;
+    const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
+    return pricing ? pricing.price_mxn : experience.price;
+  };
 
   React.useEffect(() => {
     const fetchBlockedDates = async () => {
@@ -129,6 +131,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     }
     
     const boat = boats.find(b => b.id === selectedBoat);
+    const actualPrice = getBoatPrice(boat);
     setBookingData({
       ...bookingData,
       date: format(selectedDate, 'yyyy-MM-dd'),
@@ -139,7 +142,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       taxi_fee: needsTaxi ? 400 : 0,
       boat_id: selectedBoat,
       boat_name: boat.name,
-      boat_multiplier: boat.multiplier,
+      boat_price: actualPrice,
     });
     onContinue();
   };
@@ -274,7 +277,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 <h3 className="text-lg font-semibold text-slate-800 mb-4">Select Boat</h3>
                 <div className="space-y-3">
                   {availableBoats.map((boat) => {
-                    const boatPrice = Math.round(experience.price * boat.multiplier);
+                    const boatPrice = getBoatPrice(boat);
                     return (
                       <button
                         key={boat.id}

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation } from 'lucide-react';
 import { motion } from 'framer-motion';
+import BoatDetailModal from '@/components/booking/BoatDetailModal';
 
 const fleetByLocation = {
   ixtapa_zihuatanejo: [
@@ -89,6 +90,9 @@ const equipmentIcons = {
 };
 
 export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat }) {
+  const [selectedBoatDetail, setSelectedBoatDetail] = useState(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
   const { data: boatsFromDB = [] } = useQuery({
     queryKey: ['boats', location],
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
@@ -120,18 +124,20 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
     }
 
     return {
-      name: boat.name,
-      type: boat.type,
-      size: boat.size,
-      description: boat.description,
-      image: boat.image,
-      capacity: boat.capacity,
+      ...boat,
       strengths: strengths,
-      available_expeditions: boat.available_expeditions || [],
-      maintenance_schedule: boat.maintenance_schedule,
-      parts_inventory: boat.parts_inventory,
     };
   }) : (fleetByLocation[location] || fleetByLocation.ixtapa_zihuatanejo);
+
+  const handleBoatClick = (boat) => {
+    setSelectedBoatDetail(boat);
+    setShowDetailModal(true);
+  };
+
+  const handleSelectBoat = (boat) => {
+    setShowDetailModal(false);
+    onSelectBoat?.(boat);
+  };
 
   return (
     <section className="py-16 md:py-20 bg-gradient-to-b from-[#001529] to-[#0c2847] border-t border-white/10">
@@ -158,7 +164,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              onClick={() => onSelectBoat?.(boat)}
+              onClick={() => handleBoatClick(boat)}
               className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 cursor-pointer hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)]"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
@@ -203,10 +209,26 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                     </div>
                   </div>
                 )}
+
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectBoat(boat);
+                  }}
+                  className="mt-4 w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                >
+                  Select This Boat
+                </button>
               </div>
             </motion.div>
           ))}
         </div>
+
+        <BoatDetailModal 
+          boat={selectedBoatDetail} 
+          isOpen={showDetailModal} 
+          onClose={() => setShowDetailModal(false)} 
+        />
       </div>
     </section>
   );
