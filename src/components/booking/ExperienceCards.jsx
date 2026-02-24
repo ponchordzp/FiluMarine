@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Clock, Users, Fish, Waves, Sun, Camera, Anchor, Wifi, Video, Zap, Droplet, Navigation } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -367,9 +366,15 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                     </div>
                   )}
                   {!selectedBoat && location && (
-                    <div className="flex items-center gap-2 text-xs text-white/60">
-                      <Anchor className="h-3 w-3" />
-                      <span>Available boats: {getAvailableBoatsForLocation(exp.availableBoats, location)}</span>
+                    <div className="flex items-start gap-2 text-xs text-white/60">
+                      <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                      <div className="flex flex-wrap gap-1.5">
+                        {getAvailableBoatsForLocation(exp.availableBoats, location).split(', ').map((boat, idx) => (
+                          <span key={idx} className="bg-white/10 px-2 py-0.5 rounded-md border border-white/20">
+                            {boat}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -438,9 +443,15 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                   </div>
                 )}
                 {!selectedBoat && location && (
-                  <div className="flex items-center gap-2 text-xs text-white/60">
-                    <Anchor className="h-3 w-3" />
-                    <span>Available boats: {getAvailableBoatsForLocation(extendedExperience.availableBoats, location)}</span>
+                  <div className="flex items-start gap-2 text-xs text-white/60">
+                    <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                    <div className="flex flex-wrap gap-1.5">
+                      {getAvailableBoatsForLocation(extendedExperience.availableBoats, location).split(', ').map((boat, idx) => (
+                        <span key={idx} className="bg-white/10 px-2 py-0.5 rounded-md border border-white/20">
+                          {boat}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
