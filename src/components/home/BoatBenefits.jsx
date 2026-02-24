@@ -61,7 +61,7 @@ export default function BoatBenefits() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]"
+              className="group relative bg-gradient-to-br from-white/10 via-white/5 to-white/[0.02] backdrop-blur-xl p-10 rounded-3xl border border-white/20 hover:border-cyan-400/60 hover:bg-white/15 transition-all duration-500 hover:scale-[1.05] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)] overflow-hidden"
             >
               <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/30 to-blue-600/30 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                 <benefit.icon className="h-8 w-8 text-cyan-400" />
@@ -80,7 +80,7 @@ export default function BoatBenefits() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: (i + 3) * 0.1 }}
-              className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]"
+              className="group relative bg-gradient-to-br from-white/10 via-white/5 to-white/[0.02] backdrop-blur-xl p-10 rounded-3xl border border-white/20 hover:border-cyan-400/60 hover:bg-white/15 transition-all duration-500 hover:scale-[1.05] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)] overflow-hidden"
             >
               <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/30 to-blue-600/30 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
                 <benefit.icon className="h-8 w-8 text-cyan-400" />

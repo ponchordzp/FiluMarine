@@ -136,7 +136,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-4 mb-4">
+        <div className="grid md:grid-cols-3 gap-6 mb-6">
           {filteredRegular.map((exp, i) => (
             <motion.div
               key={exp.id}
@@ -144,7 +144,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 flex flex-col hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]"
+              className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
                 <img 
@@ -195,9 +195,10 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
 
                 <Button 
                   onClick={() => onSelectExperience(exp)}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] mt-auto"
+                  className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
                 >
-                  Select This Experience
+                  <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                  <span className="relative">Select This Experience</span>
                 </Button>
               </div>
             </motion.div>
@@ -211,7 +212,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: (regularExperiences.length + i) * 0.1 }}
-              className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 flex flex-col hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]"
+              className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
                 <img 
@@ -339,9 +340,10 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
 
               <Button 
                 onClick={() => onSelectExperience(extendedExperience)}
-                className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] mt-auto"
+                className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
               >
-                Select This Experience
+                <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                <span className="relative">Select This Experience</span>
               </Button>
             </div>
           </motion.div>}
