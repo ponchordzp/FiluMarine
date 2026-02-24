@@ -197,11 +197,10 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   <p className="text-sm text-amber-800">Please select a boat first before choosing a date</p>
                 </div>
               )}
-              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl border-2 border-cyan-400/30">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={handleDateSelect}
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={handleDateSelect}
                   disabled={(date) => {
                     // Only allow dates from tomorrow onwards
                     if (isBefore(date, minDate)) return true;
@@ -256,11 +255,32 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     },
                   }}
                   modifiersStyles={{
-                    past: { color: '#cbd5e1', textDecoration: 'line-through' },
+                    past: { color: '#94a3b8', textDecoration: 'line-through' },
                     blocked: { color: '#ef4444', fontWeight: 'bold', backgroundColor: '#fee2e2' },
                   }}
+                  classNames={{
+                    months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                    month: "space-y-4 w-full",
+                    caption: "flex justify-center pt-1 relative items-center text-white font-semibold text-lg",
+                    caption_label: "text-lg font-bold",
+                    nav: "space-x-1 flex items-center",
+                    nav_button: "h-8 w-8 bg-white/20 hover:bg-white/30 backdrop-blur-sm p-0 text-white rounded-lg border border-white/30 transition-all",
+                    nav_button_previous: "absolute left-1",
+                    nav_button_next: "absolute right-1",
+                    table: "w-full border-collapse space-y-1 mt-4",
+                    head_row: "flex",
+                    head_cell: "text-cyan-300 rounded-md w-10 font-bold text-sm uppercase tracking-wider",
+                    row: "flex w-full mt-2",
+                    cell: "relative p-0 text-center text-base focus-within:relative focus-within:z-20",
+                    day: "h-10 w-10 p-0 font-semibold rounded-xl text-white hover:bg-cyan-400/30 hover:text-white transition-all border-2 border-transparent hover:border-cyan-400/50 hover:scale-110",
+                    day_selected: "bg-gradient-to-br from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 border-2 border-cyan-400 shadow-lg shadow-cyan-500/50 scale-110",
+                    day_today: "bg-white/20 text-white font-bold border-2 border-white/40",
+                    day_outside: "text-white/30 opacity-50",
+                    day_disabled: "text-white/20 line-through cursor-not-allowed hover:bg-transparent hover:border-transparent hover:scale-100",
+                    day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
+                    day_hidden: "invisible",
+                  }}
                 />
-              </div>
               
               <div className="mt-6 space-y-3">
                 <div className="p-4 bg-red-500/20 border-2 border-red-400/40 rounded-xl flex gap-3 items-start backdrop-blur-sm">
