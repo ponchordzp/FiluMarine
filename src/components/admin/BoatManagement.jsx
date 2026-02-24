@@ -13,6 +13,7 @@ import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import PersonalTripDialog from './PersonalTripDialog';
 import TripHistoryCard from './TripHistoryCard';
+import PickupAndDeparture from './PickupAndDeparture';
 
 const expeditionTypes = [
   'half_day_fishing',
@@ -101,6 +102,7 @@ export default function BoatManagement() {
   });
   const [personalTripDialogOpen, setPersonalTripDialogOpen] = useState(false);
   const [selectedBoatForTrips, setSelectedBoatForTrips] = useState(null);
+  const [expeditionPickupDepartures, setExpeditionPickupDepartures] = useState({});
   
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
@@ -609,50 +611,45 @@ export default function BoatManagement() {
                         </button>
                         
                         {isSelected && (
-                          <div className="grid grid-cols-2 gap-3 mt-3 pl-8">
-                            <div>
-                              <Label className="text-xs">Duration (hours)</Label>
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.5"
-                                value={pricing?.duration_hours || ''}
-                                onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)}
-                                placeholder="e.g., 4"
-                                className="text-sm"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-xs">Price (MXN)</Label>
-                              <Input
-                                type="number"
-                                min="0"
-                                value={pricing?.price_mxn || ''}
-                                onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)}
-                                placeholder="e.g., 8000"
-                                className="text-sm"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-xs">Pickup Location</Label>
-                              <Input
-                                value={pricing?.pickup_location || ''}
-                                onChange={(e) => updateExpeditionPrice(exp, 'pickup_location', e.target.value)}
-                                placeholder="e.g., Marina Bay"
-                                className="text-sm"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-xs">Departure Time</Label>
-                              <Input
-                                value={pricing?.departure_time || ''}
-                                onChange={(e) => updateExpeditionPrice(exp, 'departure_time', e.target.value)}
-                                placeholder="e.g., 7:00 AM"
-                                className="text-sm"
-                              />
-                            </div>
-                          </div>
-                        )}
+                           <div className="space-y-4 mt-3 pl-8">
+                             <div className="grid grid-cols-2 gap-3">
+                               <div>
+                                 <Label className="text-xs">Duration (hours)</Label>
+                                 <Input
+                                   type="number"
+                                   min="0"
+                                   step="0.5"
+                                   value={pricing?.duration_hours || ''}
+                                   onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)}
+                                   placeholder="e.g., 4"
+                                   className="text-sm"
+                                 />
+                               </div>
+                               <div>
+                                 <Label className="text-xs">Price (MXN)</Label>
+                                 <Input
+                                   type="number"
+                                   min="0"
+                                   value={pricing?.price_mxn || ''}
+                                   onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)}
+                                   placeholder="e.g., 8000"
+                                   className="text-sm"
+                                 />
+                               </div>
+                             </div>
+                             <div>
+                               <Label className="text-xs font-semibold mb-2 block">Pickup Locations & Departure Times</Label>
+                               <PickupAndDeparture 
+                                 pickupAndDepartures={expeditionPickupDepartures[exp] || []}
+                                 onUpdate={(items) => setExpeditionPickupDepartures({
+                                   ...expeditionPickupDepartures,
+                                   [exp]: items
+                                 })}
+                                 expeditionType={exp}
+                               />
+                             </div>
+                           </div>
+                         )}
                       </div>
                     );
                     })}
