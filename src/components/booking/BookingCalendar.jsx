@@ -407,7 +407,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               </div>
 
               {/* Extra Hours Info */}
-              {selectedBoat && (
+              {selectedBoat && currentBoat && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -416,7 +416,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   <p className="text-sm text-amber-200">
                     ⏱️ <span className="font-semibold">Extra hours:</span> Additional time beyond scheduled duration is{' '}
                     <span className="font-semibold">
-                      ${currentBoat.id === 'tycoon' ? '7,500' : '2,500'} MXN per hour
+                      ${((activeBoats.find(b => b.id === selectedBoat)?.price_per_additional_hour) || 2500).toLocaleString()} MXN per hour
                     </span>
                   </p>
                 </motion.div>

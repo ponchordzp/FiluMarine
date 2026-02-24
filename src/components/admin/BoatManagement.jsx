@@ -103,6 +103,7 @@ export default function BoatManagement() {
   const [personalTripDialogOpen, setPersonalTripDialogOpen] = useState(false);
   const [selectedBoatForTrips, setSelectedBoatForTrips] = useState(null);
   const [expeditionPickupDepartures, setExpeditionPickupDepartures] = useState({});
+  const [newEquipment, setNewEquipment] = useState('');
   
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
@@ -214,16 +215,7 @@ export default function BoatManagement() {
       boat_mode: 'rental_and_maintenance',
       available_expeditions: [],
       expedition_pricing: [],
-      equipment: {
-        bathroom: false,
-        live_well: false,
-        starlink: false,
-        cctv: false,
-        audio_system: false,
-        gps: false,
-        fishing_gear: false,
-        snorkeling_gear: false,
-      },
+      equipment: [],
       engine_config: '',
       engine_name: '',
       engine_quantity: 1,
@@ -244,6 +236,8 @@ export default function BoatManagement() {
       last_service_mechanic_phone: '',
       supplies_inventory: [],
       recurring_costs: [],
+      price_per_additional_hour: 0,
+      equipment: [],
       status: 'active'
     });
     setImageFile(null);
@@ -279,6 +273,8 @@ export default function BoatManagement() {
       last_service_mechanic_phone: boat.last_service_mechanic_phone || '',
       supplies_inventory: boat.supplies_inventory || [],
       recurring_costs: boat.recurring_costs || [],
+      price_per_additional_hour: boat.price_per_additional_hour || 0,
+      equipment: Array.isArray(boat.equipment) ? boat.equipment : [],
     });
     setImagePreview(boat.image || '');
     setDialogOpen(true);
@@ -316,13 +312,19 @@ export default function BoatManagement() {
     }));
   };
 
-  const toggleEquipment = (equipment) => {
+  const addEquipment = () => {
+    if (!newEquipment.trim()) return;
     setFormData(prev => ({
       ...prev,
-      equipment: {
-        ...prev.equipment,
-        [equipment]: !prev.equipment[equipment]
-      }
+      equipment: [...prev.equipment, newEquipment.trim()]
+    }));
+    setNewEquipment('');
+  };
+
+  const removeEquipment = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      equipment: prev.equipment.filter((_, i) => i !== index)
     }));
   };
 
@@ -581,6 +583,22 @@ export default function BoatManagement() {
                 </div>
               </div>
 
+              {/* Price Per Additional Hour */}
+              {formData.boat_mode === 'rental_and_maintenance' && (
+              <div className="border-t pt-6">
+              <Label>Price Per Additional Hour (MXN)</Label>
+              <Input
+              type="number"
+              min="0"
+              value={formData.price_per_additional_hour || 0}
+              onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })}
+              placeholder="e.g., 2500"
+              className="text-sm"
+              />
+              <p className="text-xs text-slate-500 mt-1">Cost for each additional hour beyond scheduled expedition duration</p>
+              </div>
+              )}
+
               {/* Available Expeditions & Pricing */}
               {formData.boat_mode === 'rental_and_maintenance' && (
               <div className="border-t pt-6">
@@ -659,26 +677,44 @@ export default function BoatManagement() {
 
                     {/* Equipment */}
                     {formData.boat_mode === 'rental_and_maintenance' && (
-              <div>
-                <Label className="mb-3 block">Equipment</Label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                  {Object.keys(formData.equipment).map(eq => (
-                    <button
-                      key={eq}
-                      type="button"
-                      onClick={() => toggleEquipment(eq)}
-                      className={`p-2 rounded-lg border text-xs transition-colors capitalize ${
-                        formData.equipment[eq]
-                          ? 'bg-emerald-50 border-emerald-300'
-                          : 'bg-slate-50 border-slate-200'
-                      }`}
+                    <div>
+                    <Label className="mb-3 block">Equipment</Label>
+                    {formData.equipment.length > 0 && (
+                    <div className="mb-3 flex flex-wrap gap-2">
+                    {formData.equipment.map((eq, idx) => (
+                     <div key={idx} className="flex items-center gap-2 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-1.5">
+                       <span className="text-sm capitalize">{eq}</span>
+                       <button
+                         type="button"
+                         onClick={() => removeEquipment(idx)}
+                         className="text-red-600 hover:text-red-700"
+                       >
+                         <Trash2 className="h-3 w-3" />
+                       </button>
+                     </div>
+                    ))}
+                    </div>
+                    )}
+                    <div className="flex gap-2">
+                    <Input
+                    value={newEquipment}
+                    onChange={(e) => setNewEquipment(e.target.value)}
+                    placeholder="e.g., Bathroom, WiFi, GPS"
+                    className="text-sm"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addEquipment())}
+                    />
+                    <Button
+                    type="button"
+                    onClick={addEquipment}
+                    size="sm"
+                    variant="outline"
+                    className="flex-shrink-0"
                     >
-                      {eq.replace(/_/g, ' ')}
-                    </button>
-                  ))}
-                  </div>
-                  </div>
-                  )}
+                    <Plus className="h-4 w-4" />
+                    </Button>
+                    </div>
+                    </div>
+                    )}
 
                   {/* Engine Configuration */}
               <div className="border-t pt-6">
