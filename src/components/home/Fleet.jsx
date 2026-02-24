@@ -165,7 +165,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               onClick={() => handleBoatClick(boat)}
-              className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 cursor-pointer hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)]"
+              className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 cursor-pointer hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)] flex flex-col"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
                 <img 
@@ -180,7 +180,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                 </div>
               </div>
 
-              <div className="p-4 sm:p-6">
+              <div className="p-4 sm:p-6 flex flex-col flex-grow">
                 <p className="text-white/80 text-sm mb-3">{boat.description}</p>
                 
                 <p className="text-white/80 mb-4 flex items-center gap-2">
