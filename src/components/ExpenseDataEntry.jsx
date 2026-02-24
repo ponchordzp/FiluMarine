@@ -70,6 +70,10 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
   });
 
   const handleSave = () => {
+    if (!booking?.id) {
+      console.error('No booking ID available');
+      return;
+    }
     saveExpenseMutation.mutate(expenseData);
   };
 

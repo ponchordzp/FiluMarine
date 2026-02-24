@@ -1004,10 +1004,9 @@ export default function AdminBookings() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex justify-center">
-                    <Calendar
-                      mode="single"
-                      className="rounded-md border"
+                  <Calendar
+                    mode="single"
+                    className="rounded-md border w-full"
                     modifiers={{
                       today: (date) => {
                         const dateStr = format(date, 'yyyy-MM-dd');
@@ -1059,8 +1058,7 @@ export default function AdminBookings() {
                         textDecoration: 'line-through',
                       },
                     }}
-                    />
-                  </div>
+                  />
                   <div className="p-4 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-2">
                     <p className="font-semibold mb-2">Legend:</p>
                     <div className="flex items-center gap-2">

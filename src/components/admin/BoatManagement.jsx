@@ -1626,6 +1626,119 @@ export default function BoatManagement() {
                 </div>
               )}
 
+              {/* Trip History - For ALL boats - Right after engine hours */}
+              <div className="mt-3 pt-3 border-t">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-2">
+                    <MapPin className="h-3 w-3" />
+                    Trip History
+                  </h4>
+                  <Select 
+                    value={tripHistoryFilter} 
+                    onValueChange={setTripHistoryFilter}
+                  >
+                    <SelectTrigger className="w-24 h-6 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="rental">Rental</SelectItem>
+                      <SelectItem value="personal">Personal</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="space-y-1.5 max-h-[200px] overflow-y-auto">
+                  {(() => {
+                    const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
+                    const boatPersonalTrips = personalTrips.filter(t => t.boat_id === boat.id);
+                    
+                    const allTrips = [
+                      ...boatBookings.map(b => ({
+                        type: 'rental',
+                        date: b.date,
+                        title: b.experience_type?.replace(/_/g, ' ') || 'Booking',
+                        guests: b.guests,
+                        hours: b.engine_hours_used || 0,
+                        code: b.confirmation_code,
+                        revenue: b.total_price
+                      })),
+                      ...boatPersonalTrips.map(t => ({
+                        type: 'personal',
+                        date: t.trip_date,
+                        title: t.destination || 'Personal Trip',
+                        guests: t.guests,
+                        hours: t.engine_hours_used || 0,
+                        notes: t.notes
+                      }))
+                    ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                    const filteredTrips = allTrips.filter(trip => {
+                      if (tripHistoryFilter === 'all') return true;
+                      return trip.type === tripHistoryFilter;
+                    });
+
+                    if (filteredTrips.length === 0) {
+                      return (
+                        <div className="text-center py-4 text-slate-500 text-xs">
+                          No trips yet
+                        </div>
+                      );
+                    }
+
+                    return filteredTrips.slice(0, 5).map((trip, idx) => (
+                      <div 
+                        key={idx}
+                        className={`p-2 rounded-lg border-l-4 ${
+                          trip.type === 'rental' 
+                            ? 'bg-blue-50 border-blue-500' 
+                            : 'bg-green-50 border-green-500'
+                        }`}
+                      >
+                        <div className="flex items-start justify-between mb-1">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 mb-0.5">
+                              <Badge className={`text-xs px-1.5 py-0 ${
+                                trip.type === 'rental' 
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'bg-green-600 text-white'
+                              }`}>
+                                {trip.type}
+                              </Badge>
+                              <p className="text-xs font-semibold text-slate-800 capitalize truncate">
+                                {trip.title}
+                              </p>
+                            </div>
+                            <p className="text-xs text-slate-600">
+                              {format(parseISO(trip.date), 'MMM d, yyyy')}
+                            </p>
+                          </div>
+                          {trip.revenue && (
+                            <p className="text-xs font-bold text-green-700">
+                              ${(trip.revenue / 1000).toFixed(1)}k
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex gap-2 text-xs text-slate-600">
+                          {trip.guests && (
+                            <span className="flex items-center gap-1">
+                              <Users className="h-3 w-3" />
+                              {trip.guests}
+                            </span>
+                          )}
+                          {trip.hours > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Gauge className="h-3 w-3" />
+                              {trip.hours}h
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              </div>
+
               <Button
                 variant="ghost"
                 size="sm"
@@ -1726,130 +1839,7 @@ export default function BoatManagement() {
                 </div>
               )}
 
-              {/* Trip History - For ALL boats */}
-              {isExpanded && (
-                <div className="pt-4 border-t space-y-3">
-                  <div className="flex items-center justify-between mb-3">
-                    <h4 className="font-semibold text-sm text-slate-700 flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      Trip History
-                    </h4>
-                    <Select 
-                      value={tripHistoryFilter} 
-                      onValueChange={setTripHistoryFilter}
-                    >
-                      <SelectTrigger className="w-32 h-7 text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Trips</SelectItem>
-                        <SelectItem value="rental">Rental Only</SelectItem>
-                        <SelectItem value="personal">Personal Only</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                    {(() => {
-                      const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
-                      const boatPersonalTrips = personalTrips.filter(t => t.boat_id === boat.id);
-                      
-                      const allTrips = [
-                        ...boatBookings.map(b => ({
-                          type: 'rental',
-                          date: b.date,
-                          title: b.experience_type?.replace(/_/g, ' ') || 'Booking',
-                          guests: b.guests,
-                          hours: b.engine_hours_used || 0,
-                          code: b.confirmation_code,
-                          revenue: b.total_price
-                        })),
-                        ...boatPersonalTrips.map(t => ({
-                          type: 'personal',
-                          date: t.trip_date,
-                          title: t.destination || 'Personal Trip',
-                          guests: t.guests,
-                          hours: t.engine_hours_used || 0,
-                          notes: t.notes
-                        }))
-                      ].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-                      const filteredTrips = allTrips.filter(trip => {
-                        if (tripHistoryFilter === 'all') return true;
-                        return trip.type === tripHistoryFilter;
-                      });
-
-                      if (filteredTrips.length === 0) {
-                        return (
-                          <div className="text-center py-6 text-slate-500 text-xs">
-                            No trips yet
-                          </div>
-                        );
-                      }
-
-                      return filteredTrips.slice(0, 10).map((trip, idx) => (
-                        <div 
-                          key={idx}
-                          className={`p-2.5 rounded-lg border-l-4 ${
-                            trip.type === 'rental' 
-                              ? 'bg-blue-50 border-blue-500' 
-                              : 'bg-green-50 border-green-500'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between mb-1">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <Badge className={`text-xs ${
-                                  trip.type === 'rental' 
-                                    ? 'bg-blue-600 text-white' 
-                                    : 'bg-green-600 text-white'
-                                }`}>
-                                  {trip.type}
-                                </Badge>
-                                <p className="text-xs font-semibold text-slate-800 capitalize">
-                                  {trip.title}
-                                </p>
-                              </div>
-                              <p className="text-xs text-slate-600">
-                                {format(parseISO(trip.date), 'MMM d, yyyy')}
-                              </p>
-                            </div>
-                            {trip.revenue && (
-                              <p className="text-xs font-bold text-green-700">
-                                ${(trip.revenue / 1000).toFixed(1)}k
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex gap-3 text-xs text-slate-600">
-                            {trip.guests && (
-                              <span className="flex items-center gap-1">
-                                <Users className="h-3 w-3" />
-                                {trip.guests}
-                              </span>
-                            )}
-                            {trip.hours > 0 && (
-                              <span className="flex items-center gap-1">
-                                <Gauge className="h-3 w-3" />
-                                {trip.hours}h
-                              </span>
-                            )}
-                            {trip.code && (
-                              <span className="font-mono text-xs">
-                                {trip.code}
-                              </span>
-                            )}
-                          </div>
-                          {trip.notes && (
-                            <p className="text-xs text-slate-500 mt-1 italic line-clamp-1">
-                              {trip.notes}
-                            </p>
-                          )}
-                        </div>
-                      ));
-                    })()}
-                  </div>
-                </div>
-              )}
 
               {/* Booking Statistics */}
               {isExpanded && isRentalMode && (<div className="pt-4 border-t space-y-3">
