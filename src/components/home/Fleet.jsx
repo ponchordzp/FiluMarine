@@ -86,7 +86,7 @@ const equipmentIcons = {
   snorkeling_gear: Droplet,
 };
 
-export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
+export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat }) {
   const { data: boatsFromDB = [] } = useQuery({
     queryKey: ['boats', location],
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
@@ -155,7 +155,8 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo' }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500"
+              onClick={() => onSelectBoat?.(boat)}
+              className="bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 cursor-pointer"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
                 <img 

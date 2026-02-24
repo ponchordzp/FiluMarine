@@ -78,6 +78,7 @@ export default function Home() {
   const [step, setStep] = useState('location'); // location, landing, boat_selector, calendar, pickup, addons, summary, confirmation
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedExperience, setSelectedExperience] = useState(null);
+  const [selectedBoat, setSelectedBoat] = useState(null);
   const [bookingData, setBookingData] = useState({});
   const [confirmedBooking, setConfirmedBooking] = useState(null);
   const experiencesRef = useRef(null);
@@ -113,6 +114,13 @@ export default function Home() {
     setSelectedLocation(locationId);
     setBookingData({ location: locationId });
     setStep('landing');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectBoat = (boat) => {
+    setSelectedBoat(boat);
+    setBookingData(prev => ({ ...prev, boat_name: boat.name }));
+    setStep('boat_selector');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -254,6 +262,7 @@ export default function Home() {
     setStep('location');
     setSelectedLocation(null);
     setSelectedExperience(null);
+    setSelectedBoat(null);
     setBookingData({});
     setConfirmedBooking(null);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -262,6 +271,7 @@ export default function Home() {
   const handleChangeLocation = () => {
     setStep('location');
     setSelectedExperience(null);
+    setSelectedBoat(null);
     setBookingData({});
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -285,7 +295,7 @@ export default function Home() {
           onChangeLocation={handleChangeLocation}
         />
         <BoatBenefits />
-        <Fleet location={selectedLocation} />
+        <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
         <div ref={experiencesRef}>
           <ExperienceCards onSelectExperience={handleSelectExperience} />
         </div>
@@ -355,12 +365,44 @@ export default function Home() {
     );
   }
 
+  // Boat selector -> Experience selection step
+  if (step === 'boat_selector') {
+    return (
+      <div className="min-h-screen">
+        <div id="google_translate_element" className="fixed top-0 left-0 right-0 z-50"></div>
+        <div className="bg-gradient-to-b from-[#0a1929] to-[#0c2340] min-h-screen py-12">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center mb-8"
+            >
+              <h1 className="text-3xl md:text-4xl font-light text-white mb-2">
+                Select Experience for <span className="font-semibold">{selectedBoat?.name}</span>
+              </h1>
+              <p className="text-white/80 text-lg">Choose your adventure</p>
+            </motion.div>
+            <ExperienceCards onSelectExperience={handleSelectExperience} />
+            <div className="text-center mt-6">
+              <button
+                onClick={() => setStep('landing')}
+                className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl border border-white/20 transition-all"
+              >
+                ← Back to Fleet
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Calendar step
   if (step === 'calendar') {
     return (
       <BookingCalendar 
         experience={selectedExperience}
-        onBack={() => setStep('landing')}
+        onBack={() => setStep('boat_selector')}
         onContinue={() => setStep('pickup')}
         bookingData={bookingData}
         setBookingData={setBookingData}
