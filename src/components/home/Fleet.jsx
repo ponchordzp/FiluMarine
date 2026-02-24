@@ -198,7 +198,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                 </div>
 
                 {boat.available_expeditions && boat.available_expeditions.length > 0 && (
-                  <div className="pt-4 border-t border-white/20">
+                  <div className="pt-4 pb-4 border-t border-white/20">
                     <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Available Experiences</p>
                     <div className="flex flex-wrap gap-2">
                       {boat.available_expeditions.map((exp) => (
