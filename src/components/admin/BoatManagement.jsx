@@ -825,6 +825,11 @@ export default function BoatManagement() {
               {/* Maintenance Costs */}
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold mb-4">Maintenance Costs (MXN)</h3>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>Note:</strong> Enter the maintenance cost <strong>per engine</strong>. The total will be calculated based on the number of engines configured above.
+                  </p>
+                </div>
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <Label>Minor Maintenance Cost</Label>
