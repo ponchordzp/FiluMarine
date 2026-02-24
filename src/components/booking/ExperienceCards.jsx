@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Clock, Users, Fish, Waves, Sun, Camera, Anchor, Wifi, Video, Zap, Droplet, Navigation } from 'lucide-react';
 import { Button } from "@/components/ui/button";
@@ -110,6 +111,112 @@ const equipmentIcons = {
 };
 
 export default function ExperienceCards({ onSelectExperience, selectedBoat, location }) {
+  // If boat is selected, only show experiences configured for that boat
+  if (selectedBoat?.available_expeditions && selectedBoat?.expedition_pricing) {
+    const boatExperiences = selectedBoat.available_expeditions.map(expType => {
+      const pricing = selectedBoat.expedition_pricing.find(p => p.expedition_type === expType);
+      const baseExp = [...regularExperiences, ...fullDayExperiences, extendedExperience].find(e => e.id === expType);
+      
+      if (!baseExp) return null;
+      
+      return {
+        ...baseExp,
+        duration: pricing?.duration_hours ? `${pricing.duration_hours} hours` : baseExp.duration,
+        price: pricing?.price_mxn || baseExp.price,
+        availableBoats: selectedBoat.name,
+      };
+    }).filter(Boolean);
+
+    return (
+      <section className="relative py-20 md:py-28 bg-gradient-to-b from-[#0c2847] via-[#0a1f3d] to-[#001529] border-t border-white/10 overflow-hidden">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-500/30 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-blue-600/30 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
+        </div>
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
+              Choose Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">Experience</span>
+            </h2>
+            <p className="text-white/80 text-xl md:text-2xl max-w-2xl mx-auto font-light">
+              Select the perfect adventure for your group
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-6">
+            {boatExperiences.map((exp, i) => (
+              <motion.div
+                key={exp.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
+              >
+                <div className="aspect-[16/9] relative overflow-hidden">
+                  <img 
+                    src={exp.image} 
+                    alt={exp.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <p className="text-white/80 text-sm flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {exp.duration}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="flex items-start justify-between mb-2">
+                    <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
+                    <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
+                  </div>
+
+                  <p className="text-white/80 text-sm mb-3">{exp.description}</p>
+
+                  <div className="mb-3">
+                    <p className="text-xs font-medium text-cyan-400 uppercase tracking-wide mb-1.5">Includes</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {exp.includes.map((item, idx) => (
+                        <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
+                    <div className="flex items-center gap-2 text-sm text-white/70">
+                      <Users className="h-4 w-4" />
+                      <span>{exp.idealFor}</span>
+                    </div>
+                  </div>
+
+                  <Button 
+                    onClick={() => onSelectExperience(exp)}
+                    className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
+                  >
+                    <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                    <span className="relative">Select This Experience</span>
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Otherwise show default experiences
   const filteredRegular = regularExperiences;
   const filteredFullDay = fullDayExperiences;
   const showExtended = true;
