@@ -141,16 +141,11 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                  <div>
-                    <p className="text-white/80 text-sm flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {exp.duration}
-                    </p>
-                  </div>
-                  <div className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
-                    <span className="text-[#0c2340] font-semibold">From ${exp.price.toLocaleString()} MXN</span>
-                  </div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="text-white/80 text-sm flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {exp.duration}
+                  </p>
                 </div>
               </div>
 
@@ -178,10 +173,12 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                     <Users className="h-4 w-4" />
                     <span>{exp.idealFor}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-white/60">
-                    <Anchor className="h-3 w-3" />
-                    <span>Available boats: {exp.availableBoats}</span>
-                  </div>
+                  {!selectedBoat && location && (
+                    <div className="flex items-center gap-2 text-xs text-white/60">
+                      <Anchor className="h-3 w-3" />
+                      <span>Available boats: {getAvailableBoatsForLocation(exp.availableBoats, location)}</span>
+                    </div>
+                  )}
                 </div>
 
                 <Button 
