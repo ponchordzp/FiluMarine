@@ -27,6 +27,14 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
     notes: ''
   });
   const [newSupply, setNewSupply] = useState({ name: '', quantity: 0, price: 0 });
+  const [maintenanceChecklist, setMaintenanceChecklist] = useState({
+    freshwater_flush: false,
+    visual_inspection: false,
+    battery_check: false,
+    bilge_pump_test: false,
+    navigation_lights_test: false,
+    propeller_inspection: false
+  });
 
   const { data: trips = [] } = useQuery({
     queryKey: ['personal-trips', boat.id],
@@ -72,6 +80,15 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
       ...newTrip,
       boat_id: boat.id,
       boat_name: boat.name
+    });
+    // Reset maintenance checklist
+    setMaintenanceChecklist({
+      freshwater_flush: false,
+      visual_inspection: false,
+      battery_check: false,
+      bilge_pump_test: false,
+      navigation_lights_test: false,
+      propeller_inspection: false
     });
   };
 
@@ -357,6 +374,36 @@ export default function PersonalTripDialog({ boat, open, onOpenChange }) {
                   rows={2}
                 />
               </div>
+
+              {/* Maintenance Checklist - Only for Outboard Engines */}
+              {boat?.engine_config === 'outboard' && (
+                <div className="col-span-2 border-t pt-3">
+                  <h4 className="text-xs font-semibold text-slate-700 mb-2">Routine / Per-Use Maintenance (per trip)</h4>
+                  <div className="space-y-2 bg-slate-50 p-3 rounded-lg border">
+                    {[
+                      { key: 'freshwater_flush', label: 'Engine freshwater flush', note: 'Every Outing (saltwater mandatory)' },
+                      { key: 'visual_inspection', label: 'Visual inspection (fuel lines, clamps, leaks, corrosion)', note: 'Every outing' },
+                      { key: 'battery_check', label: 'Battery voltage check', note: 'Weekly or before departure' },
+                      { key: 'bilge_pump_test', label: 'Bilge pump test', note: 'Weekly' },
+                      { key: 'navigation_lights_test', label: 'Navigation lights test', note: 'Before night operation, Every Outing' },
+                      { key: 'propeller_inspection', label: 'Propeller visual inspection', note: 'After each trip' }
+                    ].map((item) => (
+                      <label key={item.key} className="flex items-start gap-2 cursor-pointer hover:bg-white p-2 rounded transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={maintenanceChecklist[item.key]}
+                          onChange={(e) => setMaintenanceChecklist({ ...maintenanceChecklist, [item.key]: e.target.checked })}
+                          className="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-slate-800">{item.label}</p>
+                          <p className="text-xs text-slate-500">{item.note}</p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <Button
               onClick={handleAddTrip}
