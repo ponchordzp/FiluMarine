@@ -405,10 +405,20 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center mb-12"
             >
-              <h1 className="text-4xl md:text-5xl font-light text-white mb-3">
-                Select Experience for <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{selectedBoat?.name}</span>
+              <h1 className="text-4xl md:text-5xl font-light text-white mb-6">
+                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{selectedBoat?.name}</span>
               </h1>
-              <p className="text-white/70 text-xl">Choose your perfect adventure</p>
+              <div className="flex flex-wrap justify-center gap-4 text-white/80">
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full border border-white/20">
+                  <span className="text-sm">{selectedBoat?.type}</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full border border-white/20">
+                  <span className="text-sm">{selectedBoat?.size}</span>
+                </div>
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full border border-white/20">
+                  <span className="text-sm">{selectedBoat?.capacity}</span>
+                </div>
+              </div>
             </motion.div>
             <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={selectedBoat} />
             <motion.div 

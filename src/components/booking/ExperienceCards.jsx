@@ -324,7 +324,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat }) {
 
               <Button 
                 onClick={() => onSelectExperience(extendedExperience)}
-                className="w-full bg-[#0c2340] hover:bg-[#1e88e5] text-white py-5 rounded-xl font-medium transition-all hover:scale-[1.02]"
+                className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] mt-auto"
               >
                 Select This Experience
               </Button>
