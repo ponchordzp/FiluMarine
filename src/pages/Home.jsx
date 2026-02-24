@@ -384,8 +384,8 @@ export default function Home() {
             >
               © 2026 Filu Marine. All rights reserved.
             </motion.p>
-          </div>
           </motion.div>
+          </div>
         </footer>
       </div>
     );
