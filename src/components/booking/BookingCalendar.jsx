@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Clock, AlertTriangle, Users, Minus, Plus, Car, Check, Anchor } from 'lucide-react';
+import { ArrowLeft, Clock, AlertTriangle, Users, Minus, Plus, Anchor } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format, addDays, isBefore, startOfDay, isSameDay, isToday } from 'date-fns';
 import { base44 } from '@/api/base44Client';
@@ -73,8 +73,6 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const [selectedDate, setSelectedDate] = useState(bookingData.date ? new Date(bookingData.date) : null);
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
   const [guests, setGuests] = useState(bookingData.guests || 2);
-  const [needsTaxi, setNeedsTaxi] = useState(bookingData.needs_taxi || false);
-  const [taxiAddress, setTaxiAddress] = useState(bookingData.taxi_address || '');
   const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || defaultBoat);
   const [blockedDates, setBlockedDates] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
@@ -144,11 +142,6 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   };
 
   const handleContinue = () => {
-    if (needsTaxi && !taxiAddress.trim()) {
-      alert('Please enter your pickup address for taxi service');
-      return;
-    }
-    
     const boat = boats.find(b => b.id === selectedBoat);
     const actualPrice = getBoatPrice(boat);
     setBookingData({
@@ -156,9 +149,6 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       date: format(selectedDate, 'yyyy-MM-dd'),
       time_slot: selectedTime,
       guests,
-      needs_taxi: needsTaxi,
-      taxi_address: needsTaxi ? taxiAddress : '',
-      taxi_fee: needsTaxi ? 400 : 0,
       boat_id: selectedBoat,
       boat_name: boat.name,
       boat_price: actualPrice,
@@ -207,68 +197,70 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   <p className="text-sm text-amber-800">Please select a boat first before choosing a date</p>
                 </div>
               )}
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={handleDateSelect}
-                disabled={(date) => {
-                  // Only allow dates from tomorrow onwards
-                  if (isBefore(date, minDate)) return true;
-                  
-                  // Must select a boat first to check availability
-                  if (!selectedBoat) return true;
-                  
-                  const dateStr = format(date, 'yyyy-MM-dd');
-                  const currentBoat = boats.find(b => b.id === selectedBoat);
-                  
-                  // Check if this exact date is blocked for the selected boat
-                  const isBlockedForBoat = blockedDates.some(blocked => {
-                    if (blocked.date !== dateStr) return false;
-                    const blockBoatName = blocked.boat_name || 'both';
-                    return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
-                  });
-                  
-                  if (isBlockedForBoat) return true;
-                  
-                  // Check if the selected boat is already booked on this exact date only
-                  const isBoatBooked = existingBookings.some(
-                    booking => booking.date === dateStr && 
-                               booking.boat_name === currentBoat.name && 
-                               booking.status !== 'cancelled'
-                  );
-                  
-                  return isBoatBooked;
-                }}
-                className="rounded-lg"
-                modifiers={{
-                  past: (date) => isBefore(date, minDate),
-                  blocked: (date) => {
-                    if (!selectedBoat) return false;
+              <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-4 shadow-xl border-2 border-cyan-400/30">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={handleDateSelect}
+                  disabled={(date) => {
+                    // Only allow dates from tomorrow onwards
+                    if (isBefore(date, minDate)) return true;
+                    
+                    // Must select a boat first to check availability
+                    if (!selectedBoat) return true;
+                    
                     const dateStr = format(date, 'yyyy-MM-dd');
                     const currentBoat = boats.find(b => b.id === selectedBoat);
                     
-                    // Check blocked dates
-                    const isBlocked = blockedDates.some(blocked => {
+                    // Check if this exact date is blocked for the selected boat
+                    const isBlockedForBoat = blockedDates.some(blocked => {
                       if (blocked.date !== dateStr) return false;
                       const blockBoatName = blocked.boat_name || 'both';
                       return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
                     });
                     
-                    // Check booked dates
-                    const isBooked = existingBookings.some(
+                    if (isBlockedForBoat) return true;
+                    
+                    // Check if the selected boat is already booked on this exact date only
+                    const isBoatBooked = existingBookings.some(
                       booking => booking.date === dateStr && 
                                  booking.boat_name === currentBoat.name && 
                                  booking.status !== 'cancelled'
                     );
                     
-                    return isBlocked || isBooked;
-                  },
-                }}
-                modifiersStyles={{
-                  past: { color: '#cbd5e1', textDecoration: 'line-through' },
-                  blocked: { color: '#ef4444', fontWeight: 'bold', backgroundColor: '#fee2e2' },
-                }}
-              />
+                    return isBoatBooked;
+                  }}
+                  className="rounded-lg"
+                  modifiers={{
+                    past: (date) => isBefore(date, minDate),
+                    blocked: (date) => {
+                      if (!selectedBoat) return false;
+                      const dateStr = format(date, 'yyyy-MM-dd');
+                      const currentBoat = boats.find(b => b.id === selectedBoat);
+                      
+                      // Check blocked dates
+                      const isBlocked = blockedDates.some(blocked => {
+                        if (blocked.date !== dateStr) return false;
+                        const blockBoatName = blocked.boat_name || 'both';
+                        return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
+                      });
+                      
+                      // Check booked dates
+                      const isBooked = existingBookings.some(
+                        booking => booking.date === dateStr && 
+                                   booking.boat_name === currentBoat.name && 
+                                   booking.status !== 'cancelled'
+                      );
+                      
+                      return isBlocked || isBooked;
+                    },
+                  }}
+                  modifiersStyles={{
+                    past: { color: '#cbd5e1', textDecoration: 'line-through' },
+                    blocked: { color: '#ef4444', fontWeight: 'bold', backgroundColor: '#fee2e2' },
+                  }}
+                />
+              </div>
               
               <div className="mt-6 space-y-3">
                 <div className="p-4 bg-red-500/20 border-2 border-red-400/40 rounded-xl flex gap-3 items-start backdrop-blur-sm">
@@ -395,60 +387,6 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   {selectedBoat ? `Maximum ${maxGuests} guests per trip` : 'Please select a boat first'}
                 </p>
               </div>
-
-              {/* Taxi Option */}
-              <button
-                onClick={() => setNeedsTaxi(!needsTaxi)}
-                className={`w-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl p-6 text-left border-2 transition-all ${
-                  needsTaxi ? 'border-cyan-400 bg-cyan-400/20' : 'border-white/20'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      needsTaxi ? 'bg-cyan-400' : 'bg-white/10'
-                    }`}>
-                      <Car className={`h-6 w-6 ${needsTaxi ? 'text-slate-900' : 'text-white/60'}`} />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-white">Need a taxi pickup?</h3>
-                      <p className="text-sm text-white/60">From your hotel or residence to the dock</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`font-semibold ${needsTaxi ? 'text-cyan-400' : 'text-white/70'}`}>+$400 MXN</span>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      needsTaxi ? 'border-cyan-400 bg-cyan-400' : 'border-white/30'
-                    }`}>
-                      {needsTaxi && <Check className="h-4 w-4 text-slate-900" />}
-                    </div>
-                  </div>
-                </div>
-              </button>
-
-              {/* Taxi Address Input */}
-              {needsTaxi && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="bg-amber-50 rounded-2xl p-6 border-2 border-amber-200"
-                >
-                  <h3 className="font-semibold text-amber-900 mb-2 flex items-center gap-2">
-                    🚕 Enter Pickup Address
-                  </h3>
-                  <input
-                    type="text"
-                    placeholder="e.g., Hotel Barceló Ixtapa, Main Lobby"
-                    value={taxiAddress}
-                    onChange={(e) => setTaxiAddress(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400 bg-white"
-                  />
-                  <p className="text-xs text-amber-700 mt-2">
-                    Please provide your hotel name and specific pickup location
-                  </p>
-                </motion.div>
-              )}
 
               {/* Extra Hours Info */}
               {selectedBoat && (
