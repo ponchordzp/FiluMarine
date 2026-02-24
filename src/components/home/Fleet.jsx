@@ -156,7 +156,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className={`grid gap-8 ${fleet.length === 3 ? 'md:grid-cols-3' : fleet.length % 2 === 0 ? 'md:grid-cols-2' : 'md:grid-cols-3'}`}>
           {fleet.map((boat, i) => (
             <motion.div
               key={boat.name}
