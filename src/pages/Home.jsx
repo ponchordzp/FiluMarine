@@ -449,7 +449,7 @@ export default function Home() {
     return (
       <BookingCalendar 
         experience={selectedExperience}
-        onBack={() => setStep(selectedBoat ? 'boat_selector' : 'landing')}
+        onBack={() => setStep('landing')}
         onContinue={() => setStep('pickup')}
         bookingData={bookingData}
         setBookingData={setBookingData}
