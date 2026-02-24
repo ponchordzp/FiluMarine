@@ -215,7 +215,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                     e.stopPropagation();
                     handleSelectBoat(boat);
                   }}
-                  className="mt-4 w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                  className="mt-auto w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
                 >
                   Select This Boat
                 </button>
