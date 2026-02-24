@@ -1544,20 +1544,6 @@ export default function BoatManagement() {
                 )}
               </div>
 
-              {/* Personal Trip Button - For ALL boats */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  setSelectedBoatForTrips(boat);
-                  setPersonalTripDialogOpen(true);
-                }}
-                className="w-full mt-2 h-8 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
-              >
-                <MapPin className="h-3 w-3 mr-1" />
-                Log Personal Trip
-              </Button>
-
               {/* Engine Hours Tracking - Always Visible */}
               {boat.current_hours >= 0 && (
                 <div className="mt-3 pt-3 border-t">
@@ -1629,24 +1615,38 @@ export default function BoatManagement() {
 
               {/* Trip History - For ALL boats - Right after engine hours */}
               <div className="mt-3 pt-3 border-t">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-1.5">
                     <MapPin className="h-3 w-3" />
                     Trip History
                   </h4>
-                  <Select 
-                    value={tripHistoryFilter} 
-                    onValueChange={setTripHistoryFilter}
-                  >
-                    <SelectTrigger className="w-24 h-6 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All</SelectItem>
-                      <SelectItem value="rental">Rental</SelectItem>
-                      <SelectItem value="personal">Personal</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedBoatForTrips(boat);
+                        setPersonalTripDialogOpen(true);
+                      }}
+                      className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Log
+                    </Button>
+                    <Select 
+                      value={tripHistoryFilter} 
+                      onValueChange={setTripHistoryFilter}
+                    >
+                      <SelectTrigger className="w-20 h-6 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="rental">Rental</SelectItem>
+                        <SelectItem value="personal">Personal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
                 <div className="space-y-1.5 max-h-[360px] overflow-y-auto">
