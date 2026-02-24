@@ -603,7 +603,9 @@ export default function BoatManagement() {
                           ) : (
                             <X className="h-5 w-5 text-slate-400 flex-shrink-0" />
                           )}
-                          <span className="text-sm font-semibold capitalize text-left">{exp.replace(/_/g, ' ')}</span>
+                          <span className="text-sm font-semibold capitalize text-left">
+                           {exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ')}
+                          </span>
                         </button>
                         
                         {isSelected && (
