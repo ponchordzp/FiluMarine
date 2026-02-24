@@ -298,7 +298,7 @@ export default function Home() {
         <BoatBenefits />
         <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
         <div ref={experiencesRef}>
-          <ExperienceCards onSelectExperience={handleSelectExperience} />
+          <ExperienceCards onSelectExperience={handleSelectExperience} location={selectedLocation} />
         </div>
         <Destinations location={selectedLocation} />
         <JoinFilu />
@@ -420,7 +420,7 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
-            <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={selectedBoat} />
+            <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={selectedBoat} location={selectedLocation} />
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

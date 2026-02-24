@@ -85,7 +85,19 @@ const extendedExperience = {
   availableBoats: 'FILU, TYCOON, La Güera, Pirula',
 };
 
-export default function ExperienceCards({ onSelectExperience, selectedBoat }) {
+// Location-specific boat availability
+const boatsByLocation = {
+  ixtapa_zihuatanejo: ['FILU', 'TYCOON'],
+  acapulco: ['La Güera', 'Pirula']
+};
+
+const getAvailableBoatsForLocation = (boatList, location) => {
+  if (!location) return boatList;
+  const locationBoats = boatsByLocation[location] || [];
+  return boatList.split(', ').filter(boat => locationBoats.includes(boat)).join(', ');
+};
+
+export default function ExperienceCards({ onSelectExperience, selectedBoat, location }) {
   const filterByBoat = (exp) => {
     if (!selectedBoat) return true;
     return exp.availableBoats.includes(selectedBoat.name);
@@ -199,16 +211,11 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat }) {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                  <div>
-                    <p className="text-white/80 text-sm flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {exp.duration}
-                    </p>
-                  </div>
-                  <div className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
-                    <span className="text-[#0c2340] font-semibold">From ${exp.price.toLocaleString()} MXN</span>
-                  </div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <p className="text-white/80 text-sm flex items-center gap-1">
+                    <Clock className="h-4 w-4" />
+                    {exp.duration}
+                  </p>
                 </div>
               </div>
 
@@ -273,16 +280,11 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat }) {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                <div>
-                  <p className="text-white/80 text-sm flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    {extendedExperience.duration}
-                  </p>
-                </div>
-                <div className="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-sm">
-                  <span className="text-[#0c2340] font-semibold">From ${extendedExperience.price.toLocaleString()} MXN</span>
-                </div>
+              <div className="absolute bottom-4 left-4 right-4">
+                <p className="text-white/80 text-sm flex items-center gap-1">
+                  <Clock className="h-4 w-4" />
+                  {extendedExperience.duration}
+                </p>
               </div>
             </div>
 
@@ -316,10 +318,12 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat }) {
                     <span>Target: {extendedExperience.targetSpecies.join(', ')}</span>
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-xs text-white/60">
-                  <Anchor className="h-3 w-3" />
-                  <span>Available boats: {extendedExperience.availableBoats}</span>
-                </div>
+                {!selectedBoat && location && (
+                  <div className="flex items-center gap-2 text-xs text-white/60">
+                    <Anchor className="h-3 w-3" />
+                    <span>Available boats: {getAvailableBoatsForLocation(extendedExperience.availableBoats, location)}</span>
+                  </div>
+                )}
               </div>
 
               <Button 
