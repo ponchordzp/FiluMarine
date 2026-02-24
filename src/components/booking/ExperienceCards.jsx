@@ -110,14 +110,9 @@ const equipmentIcons = {
 };
 
 export default function ExperienceCards({ onSelectExperience, selectedBoat, location }) {
-  const filterByBoat = (exp) => {
-    if (!selectedBoat) return true;
-    return exp.availableBoats.includes(selectedBoat.name);
-  };
-
-  const filteredRegular = regularExperiences.filter(filterByBoat);
-  const filteredFullDay = fullDayExperiences.filter(filterByBoat);
-  const showExtended = !selectedBoat || extendedExperience.availableBoats.includes(selectedBoat.name);
+  const filteredRegular = regularExperiences;
+  const filteredFullDay = fullDayExperiences;
+  const showExtended = true;
 
   return (
     <section className="py-16 md:py-20 bg-gradient-to-b from-[#0c2847] to-[#0a1f3d] border-t border-white/10">
