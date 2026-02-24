@@ -29,10 +29,10 @@ export default function Hero({ onScrollToExperiences, location, locationName, on
         >
           {/* Logo */}
           <div className="mb-8">
-            <div className="flex items-center justify-center gap-1 mb-3">
-              <Anchor className="h-10 w-10 text-[#1e88e5]" />
-              <h2 className="text-4xl md:text-5xl font-bold text-white tracking-wide">FILU</h2>
-              <span className="text-2xl md:text-3xl font-light text-white/80">Marine</span>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Anchor className="h-12 w-12 text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]" />
+              <h2 className="text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 tracking-wide">FILU</h2>
+              <span className="text-3xl md:text-4xl font-light text-white/90">Marine</span>
             </div>
             {/* Nautical Flags: F-I-L-U */}
             <div className="flex items-center justify-center gap-2">
@@ -72,20 +72,20 @@ export default function Hero({ onScrollToExperiences, location, locationName, on
             </svg>
           </button>
           
-          <h1 className="text-3xl md:text-5xl font-light text-white leading-tight mb-6">
+          <h1 className="text-4xl md:text-6xl font-light text-white leading-tight mb-6">
             Premium Fishing & Leisure
-            <span className="block font-semibold">Expeditions in {locationName}</span>
+            <span className="block font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Expeditions in {locationName}</span>
           </h1>
           
-          <p className="text-xl md:text-2xl text-white/80 font-light mb-10 max-w-xl mx-auto">
+          <p className="text-xl md:text-2xl text-white/80 font-light mb-12 max-w-2xl mx-auto">
             Private, safe and fully equipped boat experiences on the Pacific coast
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-5 justify-center items-center">
             <Button 
               size="lg"
               onClick={onScrollToExperiences}
-              className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-10 py-7 text-lg font-semibold rounded-2xl shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)]"
             >
               Choose Your Experience
               <ChevronDown className="ml-2 h-5 w-5" />
@@ -94,7 +94,7 @@ export default function Hero({ onScrollToExperiences, location, locationName, on
             <Button 
               size="lg"
               asChild
-              className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-10 py-7 text-lg font-semibold rounded-2xl shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)]"
             >
               <Link to={createPageUrl('BookingSearch')}>
                 <Search className="mr-2 h-5 w-5" />
@@ -105,7 +105,7 @@ export default function Hero({ onScrollToExperiences, location, locationName, on
             <Button 
               size="lg"
               asChild
-              className="bg-[#1e88e5] text-white hover:bg-[#1976d2] px-8 py-6 text-base font-medium rounded-full shadow-xl shadow-black/20 transition-all hover:scale-105"
+              className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-10 py-7 text-lg font-semibold rounded-2xl shadow-xl shadow-emerald-500/20 transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(16,185,129,0.5)]"
             >
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="mr-2 h-5 w-5" />

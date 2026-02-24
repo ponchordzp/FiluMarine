@@ -131,23 +131,23 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
   }) : (fleetByLocation[location] || fleetByLocation.ixtapa_zihuatanejo);
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-b from-[#0a1929] to-[#0c2340] border-t border-white/10">
+    <section className="py-16 md:py-20 bg-gradient-to-b from-[#001529] to-[#0c2847] border-t border-white/10">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
-          <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
-            Our <span className="font-semibold">Fleet</span>
+          <h2 className="text-4xl md:text-5xl font-light text-white mb-4">
+            Our <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Fleet</span>
           </h2>
-          <p className="text-white/80 text-lg max-w-xl mx-auto">
+          <p className="text-white/70 text-xl max-w-xl mx-auto">
             Two exceptional vessels for every type of adventure
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-8">
           {fleet.map((boat, i) => (
             <motion.div
               key={boat.name}
@@ -156,7 +156,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
               onClick={() => onSelectBoat?.(boat)}
-              className="bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 cursor-pointer"
+              className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 cursor-pointer hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)]"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
                 <img 

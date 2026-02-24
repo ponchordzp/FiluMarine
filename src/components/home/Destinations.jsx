@@ -127,18 +127,18 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
     : (destinationsByLocation[location] || destinationsByLocation.ixtapa_zihuatanejo);
 
   return (
-    <section className="py-8 md:py-12 bg-gradient-to-b from-[#0f2a45] to-[#0c2340] border-t border-white/10">
+    <section className="py-16 md:py-20 bg-gradient-to-b from-[#0c2847] to-[#0a1f3d] border-t border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-light text-white mb-4">
-            Explore <span className="font-semibold">Destinations</span>
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-light text-white mb-4">
+            Explore <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Destinations</span>
           </h2>
-          <p className="text-white/80 max-w-2xl mx-auto">
+          <p className="text-white/70 text-xl max-w-2xl mx-auto">
             Discover the most beautiful spots along the Pacific coast
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-3 gap-6">
           {destinations.slice(0, 6).map((dest, i) => (
             <motion.div
               key={i}
@@ -147,19 +147,19 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
             >
-              <div className="group relative rounded-2xl overflow-hidden aspect-[4/3] cursor-pointer block">
+              <div className="group relative rounded-3xl overflow-hidden aspect-[4/3] cursor-pointer border border-white/20 hover:border-cyan-400/40 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]">
                 <img
                   src={dest.image}
                   alt={dest.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <div className="flex items-center gap-2 mb-1">
-                    <MapPin className="h-4 w-4 text-[#1e88e5]" />
-                    <h3 className="font-semibold text-sm">{dest.name}</h3>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin className="h-5 w-5 text-cyan-400" />
+                    <h3 className="font-bold text-base">{dest.name}</h3>
                   </div>
-                  <p className="text-xs text-white/80 line-clamp-2">{dest.description}</p>
+                  <p className="text-sm text-white/80 line-clamp-2">{dest.description}</p>
                 </div>
               </div>
             </motion.div>

@@ -76,16 +76,16 @@ ${formData.message}
 
   if (submitted) {
     return (
-      <section className="py-8 md:py-12 bg-gradient-to-b from-[#0c2340] to-[#0a1929] border-t border-white/10 relative overflow-hidden">
+      <section className="py-16 md:py-20 bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529] border-t border-white/10 relative overflow-hidden">
         <LuxuryPattern opacity={0.08} />
         <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/10 backdrop-blur-md rounded-3xl p-12 border border-white/20"
+            className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/20 shadow-2xl"
           >
-            <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="h-8 w-8 text-white" />
+            <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
+              <CheckCircle className="h-10 w-10 text-white" />
             </div>
             <h3 className="text-2xl font-semibold text-white mb-3">Application Received!</h3>
             <p className="text-white/80 mb-6">
@@ -105,8 +105,12 @@ ${formData.message}
   }
 
   return (
-    <section className="py-16 md:py-24 bg-gradient-to-b from-[#0c2340] to-[#0a1929] border-t border-white/10 relative overflow-hidden">
+    <section className="relative py-20 md:py-28 bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529] border-t border-white/10 overflow-hidden">
       <LuxuryPattern opacity={0.08} />
+      <div className="absolute inset-0">
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -114,18 +118,18 @@ ${formData.message}
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <div className="w-20 h-20 bg-gradient-to-br from-[#1e88e5] to-[#0c2340] rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
-            <Anchor className="h-10 w-10 text-white" />
+          <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-cyan-500/30">
+            <Anchor className="h-12 w-12 text-white" />
           </div>
           <h2 className="text-4xl md:text-5xl font-light text-white mb-4">
-            Have a Boat? <span className="font-bold bg-gradient-to-r from-[#1e88e5] to-white bg-clip-text text-transparent">Join FILU!</span>
+            Have a Boat? <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Join FILU!</span>
           </h2>
-          <p className="text-white/90 text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-white/80 text-xl max-w-2xl mx-auto leading-relaxed">
             Partner with us and expand your reach. Join our network of premium boat operators and unlock new opportunities.
           </p>
         </motion.div>
 
-        <div className="bg-white/10 backdrop-blur-md rounded-3xl p-4 sm:p-8 border border-white/20">
+        <div className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-6 sm:p-10 border border-white/20 shadow-2xl">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
@@ -278,7 +282,7 @@ ${formData.message}
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#1e88e5] hover:bg-[#1976d2] text-white py-6 rounded-xl font-medium text-lg transition-all disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-7 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] disabled:opacity-50 disabled:hover:scale-100"
             >
               {isSubmitting ? (
                 <span className="flex items-center gap-2">
