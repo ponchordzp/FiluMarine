@@ -1004,9 +1004,10 @@ export default function AdminBookings() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Calendar
-                    mode="single"
-                    className="rounded-md border w-full"
+                  <div className="flex justify-center">
+                    <Calendar
+                      mode="single"
+                      className="rounded-md border"
                     modifiers={{
                       today: (date) => {
                         const dateStr = format(date, 'yyyy-MM-dd');
@@ -1058,7 +1059,8 @@ export default function AdminBookings() {
                         textDecoration: 'line-through',
                       },
                     }}
-                  />
+                    />
+                  </div>
                   <div className="p-4 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-2">
                     <p className="font-semibold mb-2">Legend:</p>
                     <div className="flex items-center gap-2">
@@ -1155,7 +1157,7 @@ export default function AdminBookings() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                    <div className="space-y-3 max-h-[300px] overflow-y-auto">
                       {(() => {
                         const todayStr = format(new Date(), 'yyyy-MM-dd');
                         const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'cancelled');

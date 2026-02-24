@@ -24,6 +24,7 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
   const { data: existingExpense } = useQuery({
     queryKey: ['booking-expense', booking?.id],
     queryFn: async () => {
+      if (!booking?.id) return null;
       const expenses = await base44.entities.BookingExpense.filter({ booking_id: booking.id });
       return expenses[0] || null;
     },
@@ -46,12 +47,14 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
 
   const saveExpenseMutation = useMutation({
     mutationFn: async (data) => {
+      if (!booking?.id) throw new Error('No booking ID');
+      
       // Update booking with engine hours
       await base44.entities.Booking.update(booking.id, {
         engine_hours_used: engineHours
       });
       
-      if (existingExpense) {
+      if (existingExpense?.id) {
         return base44.entities.BookingExpense.update(existingExpense.id, data);
       } else {
         return base44.entities.BookingExpense.create({ ...data, booking_id: booking.id });
