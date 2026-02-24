@@ -21,12 +21,20 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
   });
   const [engineHours, setEngineHours] = useState(booking.engine_hours_used || 0);
   const [maintenanceChecklist, setMaintenanceChecklist] = useState({
+    // Outboard
     freshwater_flush: false,
     visual_inspection: false,
     battery_check: false,
     bilge_pump_test: false,
     navigation_lights_test: false,
-    propeller_inspection: false
+    propeller_inspection: false,
+    // Inboard
+    engine_room_inspection: false,
+    fluid_level_check: false,
+    bilge_inspection: false,
+    generator_test: false,
+    seawater_strainer_check: false,
+    shore_power_inspection: false
   });
 
   const { data: boat } = useQuery({
@@ -206,7 +214,7 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
             <p className="text-xs text-slate-500 mt-1">Hours the engine ran during this trip (auto-updates boat maintenance tracking)</p>
           </div>
 
-          {/* Maintenance Checklist - Only for Outboard Engines */}
+          {/* Maintenance Checklist - Outboard Engines */}
           {boat?.engine_config === 'outboard' && (
             <div className="border-t pt-4">
               <h3 className="font-semibold text-sm mb-3">Routine / Per-Use Maintenance (per trip)</h3>
@@ -229,6 +237,35 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
                     <div className="flex-1">
                       <p className="text-sm font-medium text-slate-800">{item.label}</p>
                       <p className="text-xs text-slate-600">{item.note}</p>
+                    </div>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Maintenance Checklist - Inboard Engines */}
+          {boat?.engine_config === 'inboard' && (
+            <div className="border-t pt-4">
+              <h3 className="font-semibold text-sm mb-3">Routine / Per-Use Maintenance</h3>
+              <div className="space-y-2 bg-slate-50 p-4 rounded-lg border">
+                {[
+                  { key: 'engine_room_inspection', label: 'Engine room visual inspection' },
+                  { key: 'fluid_level_check', label: 'Fluid level check (oil, coolant, transmission)' },
+                  { key: 'bilge_inspection', label: 'Bilge inspection' },
+                  { key: 'generator_test', label: 'Generator test run' },
+                  { key: 'seawater_strainer_check', label: 'Seawater strainer check' },
+                  { key: 'shore_power_inspection', label: 'Shore power connection inspection' }
+                ].map((item) => (
+                  <label key={item.key} className="flex items-start gap-3 cursor-pointer hover:bg-white p-2 rounded transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={maintenanceChecklist[item.key]}
+                      onChange={(e) => setMaintenanceChecklist({ ...maintenanceChecklist, [item.key]: e.target.checked })}
+                      className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-slate-800">{item.label}</p>
                     </div>
                   </label>
                 ))}
