@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation } from 'lucide-react';
+import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import BoatDetailModal from '@/components/booking/BoatDetailModal';
 
@@ -92,10 +92,16 @@ const equipmentIcons = {
 export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat }) {
   const [selectedBoatDetail, setSelectedBoatDetail] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [expandedExpeditions, setExpandedExpeditions] = useState({});
 
   const { data: boatsFromDB = [] } = useQuery({
     queryKey: ['boats', location],
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
+  });
+
+  const { data: bookings = [] } = useQuery({
+    queryKey: ['bookings-availability'],
+    queryFn: () => base44.entities.Booking.list(),
   });
 
   const activeBoats = boatsFromDB.filter(boat => 
@@ -154,6 +160,18 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
   const handleSelectBoat = (boat) => {
     setShowDetailModal(false);
     onSelectBoat?.(boat);
+  };
+
+  const isAvailableTomorrow = (boatName) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    const tomorrowBookings = bookings.filter(b => 
+      b.boat_name === boatName && 
+      b.date === tomorrowStr && 
+      b.status !== 'cancelled'
+    );
+    return tomorrowBookings.length === 0;
   };
 
   return (
@@ -216,34 +234,45 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
 
                 {boat.available_expeditions && boat.available_expeditions.length > 0 && (
                   <div className="pt-4 pb-4 border-t border-white/20">
-                    <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Available Experiences</p>
-                    <div className="space-y-2">
-                      {boat.available_expeditions.map((exp) => {
-                        const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
-                        return (
-                          <div key={exp} className="bg-white/5 border border-white/10 rounded-lg p-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium text-cyan-300 capitalize truncate">
-                                  {exp.replace(/_/g, ' ')}
-                                </p>
-                                {pricing && (
-                                  <div className="flex flex-wrap gap-1.5 mt-1 text-xs text-white/50">
-                                    {pricing.duration_hours && <span>⏱️ {pricing.duration_hours}h</span>}
-                                    {pricing.departure_time && <span>🕐 {pricing.departure_time}</span>}
-                                  </div>
-                                )}
-                              </div>
-                              {pricing?.price_mxn && (
-                                <div className="text-right flex-shrink-0">
-                                  <p className="text-sm font-bold text-emerald-400">${(pricing.price_mxn / 1000).toFixed(1)}k</p>
+                    {isAvailableTomorrow(boat.name) && (
+                      <div className="mb-3 px-3 py-2 bg-red-500/20 border border-red-500/40 rounded-lg animate-pulse">
+                        <p className="text-xs font-semibold text-red-400 text-center">🚨 Available Tomorrow</p>
+                      </div>
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExpandedExpeditions(prev => ({ ...prev, [boat.name]: !prev[boat.name] }));
+                      }}
+                      className="w-full flex items-center justify-between text-xs font-semibold text-white/60 uppercase tracking-wide mb-2 hover:text-white/80 transition-colors"
+                    >
+                      <span>Available Experiences</span>
+                      {expandedExpeditions[boat.name] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    </button>
+                    {expandedExpeditions[boat.name] && (
+                      <div className="space-y-2">
+                        {boat.available_expeditions.map((exp) => {
+                          const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
+                          return (
+                            <div key={exp} className="bg-white/5 border border-white/10 rounded-lg p-2">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-cyan-300 capitalize truncate">
+                                    {exp.replace(/_/g, ' ')}
+                                  </p>
+                                  {pricing && (
+                                    <div className="flex flex-wrap gap-1.5 mt-1 text-xs text-white/50">
+                                      {pricing.duration_hours && <span>⏱️ {pricing.duration_hours}h</span>}
+                                      {pricing.departure_time && <span>🕐 {pricing.departure_time}</span>}
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 )}
 
