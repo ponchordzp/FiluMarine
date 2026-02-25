@@ -23,7 +23,7 @@ const standardEquipmentOptions = [
   { value: 'anchor', label: 'Anchor' }
 ];
 
-export default function EquipmentManager({ equipment, customEquipment, onToggleEquipment, onAddCustom, onRemoveCustom, newEquipment, onNewEquipmentChange }) {
+export default function EquipmentManager({ equipment, customEquipment, equipmentVisibility, customEquipmentVisibility, onToggleEquipment, onToggleVisibility, onAddCustom, onRemoveCustom, newEquipment, onNewEquipmentChange }) {
   const [selectedEquipment, setSelectedEquipment] = React.useState('');
   
   const handleAddStandardEquipment = () => {

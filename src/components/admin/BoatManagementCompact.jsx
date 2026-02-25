@@ -61,7 +61,9 @@ export default function BoatManagement() {
       bimini_top: false,
       anchor: false
     },
+    equipment_visibility: {},
     custom_equipment: [],
+    custom_equipment_visibility: [],
     engine_config: '',
     engine_name: '',
     engine_quantity: 1,
@@ -336,11 +338,35 @@ export default function BoatManagement() {
     }));
   };
 
+  const toggleEquipmentVisibility = (equipmentKey, customIndex = null) => {
+    if (customIndex !== null) {
+      // Toggle custom equipment visibility
+      setFormData(prev => {
+        const newVisibility = [...(prev.custom_equipment_visibility || [])];
+        newVisibility[customIndex] = newVisibility[customIndex] === false ? true : false;
+        return {
+          ...prev,
+          custom_equipment_visibility: newVisibility
+        };
+      });
+    } else {
+      // Toggle standard equipment visibility
+      setFormData(prev => ({
+        ...prev,
+        equipment_visibility: {
+          ...prev.equipment_visibility,
+          [equipmentKey]: prev.equipment_visibility?.[equipmentKey] === false ? true : false
+        }
+      }));
+    }
+  };
+
   const addCustomEquipment = () => {
     if (!newEquipment.trim()) return;
     setFormData(prev => ({
       ...prev,
-      custom_equipment: [...prev.custom_equipment, newEquipment.trim()]
+      custom_equipment: [...prev.custom_equipment, newEquipment.trim()],
+      custom_equipment_visibility: [...(prev.custom_equipment_visibility || []), true]
     }));
     setNewEquipment('');
   };
@@ -348,7 +374,8 @@ export default function BoatManagement() {
   const removeCustomEquipment = (index) => {
     setFormData(prev => ({
       ...prev,
-      custom_equipment: prev.custom_equipment.filter((_, i) => i !== index)
+      custom_equipment: prev.custom_equipment.filter((_, i) => i !== index),
+      custom_equipment_visibility: (prev.custom_equipment_visibility || []).filter((_, i) => i !== index)
     }));
   };
 
@@ -611,7 +638,10 @@ export default function BoatManagement() {
                   <EquipmentManager 
                     equipment={formData.equipment}
                     customEquipment={formData.custom_equipment}
+                    equipmentVisibility={formData.equipment_visibility}
+                    customEquipmentVisibility={formData.custom_equipment_visibility}
                     onToggleEquipment={toggleEquipment}
+                    onToggleVisibility={toggleEquipmentVisibility}
                     onAddCustom={addCustomEquipment}
                     onRemoveCustom={removeCustomEquipment}
                     newEquipment={newEquipment}
