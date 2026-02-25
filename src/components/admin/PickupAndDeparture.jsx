@@ -2,9 +2,24 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Trash2, MapPin, Clock } from 'lucide-react';
 
-export default function PickupAndDeparture({ pickupAndDepartures = [], onUpdate, expeditionType }) {
+const pickupLocationsByZone = {
+  ixtapa_zihuatanejo: [
+    'Marina Ixtapa',
+    'Muelle Municipal (Zihuatanejo)',
+    'Muelle Punta Ixtapa'
+  ],
+  acapulco: [
+    'Marina Cabo Marqués (Zona Diamante)',
+    'Pie de la Cuesta',
+    'Marina Acapulco'
+  ]
+};
+
+export default function PickupAndDeparture({ pickupAndDepartures = [], onUpdate, expeditionType, location = 'ixtapa_zihuatanejo' }) {
+  const availableLocations = pickupLocationsByZone[location] || pickupLocationsByZone.ixtapa_zihuatanejo;
   const handleAdd = () => {
     const newEntry = {
       id: Date.now(),
@@ -32,15 +47,19 @@ export default function PickupAndDeparture({ pickupAndDepartures = [], onUpdate,
             <div key={item.id} className="flex gap-2 items-end bg-slate-50 p-3 rounded-lg border">
               <div className="flex-1">
                 <Label className="text-xs">Pickup Location</Label>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-slate-400 flex-shrink-0" />
-                  <Input
-                    value={item.pickup_location || ''}
-                    onChange={(e) => handleChange(item.id, 'pickup_location', e.target.value)}
-                    placeholder="e.g., Marina Bay"
-                    className="text-sm"
-                  />
-                </div>
+                <Select 
+                  value={item.pickup_location || ''} 
+                  onValueChange={(value) => handleChange(item.id, 'pickup_location', value)}
+                >
+                  <SelectTrigger className="text-sm">
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableLocations.map((loc) => (
+                      <SelectItem key={loc} value={loc}>{loc}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex-1">
                 <Label className="text-xs">Departure Time</Label>
