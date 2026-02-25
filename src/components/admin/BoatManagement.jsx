@@ -344,20 +344,24 @@ export default function BoatManagement() {
     if (customIndex !== null) {
       setFormData(prev => {
         const newVisibility = [...(prev.custom_equipment_visibility || [])];
-        newVisibility[customIndex] = newVisibility[customIndex] === false ? true : false;
+        const currentValue = newVisibility[customIndex] !== false;
+        newVisibility[customIndex] = !currentValue;
         return {
           ...prev,
           custom_equipment_visibility: newVisibility
         };
       });
     } else {
-      setFormData(prev => ({
-        ...prev,
-        equipment_visibility: {
-          ...prev.equipment_visibility,
-          [equipmentKey]: prev.equipment_visibility?.[equipmentKey] === false ? true : false
-        }
-      }));
+      setFormData(prev => {
+        const currentValue = prev.equipment_visibility?.[equipmentKey] !== false;
+        return {
+          ...prev,
+          equipment_visibility: {
+            ...prev.equipment_visibility,
+            [equipmentKey]: !currentValue
+          }
+        };
+      });
     }
   };
 
