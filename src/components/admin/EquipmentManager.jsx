@@ -13,7 +13,14 @@ const standardEquipmentOptions = [
   { value: 'audio_system', label: 'Audio System' },
   { value: 'gps', label: 'GPS' },
   { value: 'fishing_gear', label: 'Fishing Gear' },
-  { value: 'snorkeling_gear', label: 'Snorkeling Gear' }
+  { value: 'snorkeling_gear', label: 'Snorkeling Gear' },
+  { value: 'wifi', label: 'WiFi' },
+  { value: 'air_conditioning', label: 'Air Conditioning' },
+  { value: 'refrigerator', label: 'Refrigerator' },
+  { value: 'ice_maker', label: 'Ice Maker' },
+  { value: 'shower', label: 'Shower' },
+  { value: 'bimini_top', label: 'Bimini Top' },
+  { value: 'anchor', label: 'Anchor' }
 ];
 
 export default function EquipmentManager({ equipment, customEquipment, onToggleEquipment, onAddCustom, onRemoveCustom, newEquipment, onNewEquipmentChange }) {
