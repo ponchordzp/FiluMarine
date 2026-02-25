@@ -219,7 +219,9 @@ export default function BoatManagement() {
         bimini_top: false,
         anchor: false
       },
+      equipment_visibility: {},
       custom_equipment: [],
+      custom_equipment_visibility: [],
       engine_config: '',
       engine_name: '',
       engine_quantity: 1,
