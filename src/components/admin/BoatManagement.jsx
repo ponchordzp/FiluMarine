@@ -255,6 +255,12 @@ export default function BoatManagement() {
 
   const handleEdit = (boat) => {
     setEditingBoat(boat);
+    const customEquip = boat.custom_equipment || [];
+    const customVisibility = boat.custom_equipment_visibility || [];
+    const normalizedCustomVisibility = customEquip.map((_, idx) => 
+      typeof customVisibility[idx] === 'boolean' ? customVisibility[idx] : true
+    );
+    
     setFormData({
       ...boat,
       dock_location: boat.dock_location || '',
@@ -291,8 +297,8 @@ export default function BoatManagement() {
         anchor: false
       },
       equipment_visibility: boat.equipment_visibility || {},
-      custom_equipment: boat.custom_equipment || [],
-      custom_equipment_visibility: boat.custom_equipment_visibility || [],
+      custom_equipment: customEquip,
+      custom_equipment_visibility: normalizedCustomVisibility,
     });
     setImagePreview(boat.image || '');
     setDialogOpen(true);
