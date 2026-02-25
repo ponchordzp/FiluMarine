@@ -253,12 +253,25 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                       <div className="space-y-2">
                         {boat.available_expeditions.map((exp) => {
                           const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
+                          const getExpIcon = (expType) => {
+                            if (expType.includes('fishing')) {
+                              return <svg className="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13v4.59l3.71 3.71 1.41-1.41L13 10.76V7h-2z"/><path d="M22 12c0-1.1-.9-2-2-2h-2c0-2.21-1.79-4-4-4s-4 1.79-4 4H8c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8zm-8-4c1.1 0 2 .9 2 2h-4c0-1.1.9-2 2-2zm6 12H8v-8h12v8z" transform="translate(-4, 2) scale(0.7)"/></svg>;
+                            } else if (expType === 'snorkeling') {
+                              return <svg className="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="11" cy="4" r="1.5"/><circle cx="16" cy="6" r="2"/><circle cx="6" cy="12" r="2.5"/><circle cx="16" cy="12" r="2.5"/><circle cx="11" cy="15" r="2"/></svg>;
+                            } else if (expType === 'coastal_leisure') {
+                              return <svg className="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17 16.99c-1.35 0-2.2.42-2.95.8-.65.33-1.18.6-2.05.6-.9 0-1.4-.25-2.05-.6-.75-.38-1.6-.8-2.95-.8s-2.2.42-2.95.8c-.65.33-1.17.6-2.05.6v1.95c1.35 0 2.2-.42 2.95-.8.65-.33 1.17-.6 2.05-.6s1.4.25 2.05.6c.75.38 1.6.8 2.95.8s2.2-.42 2.95-.8c.65-.33 1.18-.6 2.05-.6.9 0 1.4.25 2.05.6.75.38 1.6.8 2.95.8v-1.95c-.9 0-1.4-.25-2.05-.6-.75-.38-1.6-.8-2.95-.8zm0-4.45c-1.35 0-2.2.43-2.95.8-.65.32-1.18.6-2.05.6-.9 0-1.4-.25-2.05-.6-.75-.38-1.6-.8-2.95-.8s-2.2.43-2.95.8c-.65.32-1.17.6-2.05.6v1.95c1.35 0 2.2-.43 2.95-.8.65-.35 1.15-.6 2.05-.6s1.4.25 2.05.6c.75.38 1.6.8 2.95.8s2.2-.43 2.95-.8c.65-.35 1.15-.6 2.05-.6s1.4.25 2.05.6c.75.38 1.6.8 2.95.8v-1.95c-.9 0-1.4-.25-2.05-.6-.75-.38-1.6-.8-2.95-.8zm2.95-8.08c-.75-.38-1.6-.8-2.95-.8s-2.2.42-2.95.8c-.65.32-1.18.6-2.05.6-.9 0-1.4-.25-2.05-.6-.75-.37-1.6-.8-2.95-.8s-2.2.42-2.95.8c-.65.33-1.17.6-2.05.6v1.93c1.35 0 2.2-.43 2.95-.8.65-.33 1.17-.6 2.05-.6s1.4.25 2.05.6c.75.38 1.6.8 2.95.8s2.2-.43 2.95-.8c.65-.32 1.18-.6 2.05-.6.9 0 1.4.25 2.05.6.75.38 1.6.8 2.95.8V5.04c-.9 0-1.4-.25-2.05-.58z"/></svg>;
+                            } else if (expType === 'sunset_tour') {
+                              return <svg className="w-5 h-5 text-orange-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20 15.31L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>;
+                            }
+                            return null;
+                          };
+                          const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
                           return (
                             <div key={exp} className="bg-white/5 border border-white/10 rounded-lg p-2">
                               <div className="flex items-start justify-between gap-2">
                                 <div className="flex-1 min-w-0">
                                   <p className="text-xs font-medium text-cyan-300 capitalize truncate">
-                                    {exp.replace(/_/g, ' ')}
+                                    {displayName}
                                   </p>
                                   {pricing && (
                                     <div className="flex flex-wrap gap-1.5 mt-1 text-xs text-white/50">
@@ -267,6 +280,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                                     </div>
                                   )}
                                 </div>
+                                {getExpIcon(exp)}
                               </div>
                             </div>
                           );
