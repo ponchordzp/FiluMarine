@@ -1,63 +1,43 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, MapPin, Ship, Home, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const pickupLocationsByZone = {
-  ixtapa_zihuatanejo: [
-    {
-      id: 'marina_ixtapa',
-      title: 'Marina Ixtapa',
-      description: 'Meet directly at our dock - Dock #12',
-      address: 'Blvd. Ixtapa, Marina Ixtapa, 40880',
-      included: true,
-    },
-    {
-      id: 'muelle_municipal',
-      title: 'Muelle Municipal (Zihuatanejo)',
-      description: 'Municipal pier in downtown Zihuatanejo',
-      address: 'Paseo del Pescador, Zihuatanejo Centro',
-      included: true,
-    },
-    {
-      id: 'punta_ixtapa',
-      title: 'Muelle Punta Ixtapa',
-      description: 'Private dock at Punta Ixtapa',
-      address: 'Punta Ixtapa residential area',
-      included: true,
-      note: 'Only available for Punta Ixtapa residents',
-    },
-  ],
-  acapulco: [
-    {
-      id: 'marina_cabo_marques',
-      title: 'Marina Cabo Marqués (Zona Diamante)',
-      description: 'Premium marina in the luxury Diamante area',
-      address: 'Carretera Escénica, Zona Diamante, Acapulco',
-      included: true,
-    },
-    {
-      id: 'pie_de_la_cuesta',
-      title: 'Pie de la Cuesta',
-      description: 'Tranquil beach on Coyuca Lagoon',
-      address: 'Pie de la Cuesta, Acapulco',
-      included: true,
-    },
-    {
-      id: 'marina_acapulco',
-      title: 'Marina Acapulco',
-      description: 'Traditional marina in Acapulco Bay',
-      address: 'Costera Miguel Alemán, Acapulco Centro',
-      included: true,
-    },
-  ],
-};
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 
 export default function PickupLocation({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const location = bookingData.location || 'ixtapa_zihuatanejo';
-  const pickupOptions = pickupLocationsByZone[location];
-  const defaultPickup = location === 'acapulco' ? 'marina_cabo_marques' : 'marina_ixtapa';
-  const [selectedPickup, setSelectedPickup] = useState(bookingData.pickup_location || defaultPickup);
+  const boatId = bookingData.boat_id;
+  const experienceId = experience.id;
+
+  // Fetch boat data to get expedition pricing
+  const { data: boat } = useQuery({
+    queryKey: ['boat', boatId],
+    queryFn: async () => {
+      if (!boatId) return null;
+      const boats = await base44.entities.BoatInventory.list();
+      return boats.find(b => b.id === boatId);
+    },
+    enabled: !!boatId,
+  });
+
+  // Extract pickup locations from expedition pricing
+  const availablePickupLocations = React.useMemo(() => {
+    if (!boat?.expedition_pricing) return [];
+    
+    // Get all pickup locations for this experience type
+    const locations = boat.expedition_pricing
+      .filter(p => p.expedition_type === experienceId && p.pickup_location)
+      .map(p => p.pickup_location);
+    
+    // Return unique locations
+    return [...new Set(locations)];
+  }, [boat, experienceId]);
+
+  const [selectedPickup, setSelectedPickup] = useState(
+    bookingData.pickup_location || (availablePickupLocations.length > 0 ? availablePickupLocations[0] : '')
+  );
 
   const handleContinue = () => {
     setBookingData({
@@ -90,61 +70,44 @@ export default function PickupLocation({ experience, onBack, onContinue, booking
             <p className="text-white/80 text-xl">Where should we pick you up?</p>
           </div>
 
-          {/* Pickup Options */}
-          <div className="space-y-4 mb-8">
-            {pickupOptions.map((option) => {
-              const isSelected = selectedPickup === option.id;
-              return (
-                <motion.button
-                  key={option.id}
-                  onClick={() => setSelectedPickup(option.id)}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full p-6 rounded-2xl border-2 transition-all flex items-start gap-4 text-left ${
-                    isSelected
-                      ? 'border-cyan-400 bg-cyan-400/20 shadow-lg shadow-cyan-500/30'
-                      : 'border-white/30 bg-white/10 hover:border-white/40 backdrop-blur-xl'
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    isSelected ? 'bg-cyan-400' : 'bg-white/20'
-                  }`}>
-                    {option.id.includes('marina') ? (
-                      <Ship className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
-                    ) : option.id.includes('muelle') || option.id.includes('pie') ? (
-                      <MapPin className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
-                    ) : (
-                      <Home className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white'}`}>
-                        {option.title}
-                      </h3>
-                      {option.included ? (
-                        <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
-                          Included
-                        </span>
-                      ) : (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                          +${option.extraFee}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm text-white/70 mt-1">{option.description}</p>
-                    <p className="text-xs text-white/50 mt-1">{option.address}</p>
-                    {option.note && (
-                      <p className="text-xs text-amber-300 mt-1 font-medium">⚠️ {option.note}</p>
-                    )}
-                  </div>
-                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                    isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'
-                  }`}>
-                    {isSelected && <Check className="h-4 w-4 text-slate-900" />}
-                  </div>
-                </motion.button>
-              );
-            })}
+          {/* Pickup Location Selector */}
+          <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <MapPin className="h-6 w-6 text-cyan-400" />
+              <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">
+                Select Pickup Location
+              </h3>
+            </div>
+            
+            {availablePickupLocations.length > 0 ? (
+              <Select value={selectedPickup} onValueChange={setSelectedPickup}>
+                <SelectTrigger className="w-full bg-white/10 border-white/30 text-white h-14 text-lg">
+                  <SelectValue placeholder="Choose a pickup location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availablePickupLocations.map((location) => (
+                    <SelectItem key={location} value={location} className="text-base">
+                      {location}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <div className="p-4 bg-amber-500/20 border border-amber-400/30 rounded-xl">
+                <p className="text-amber-200 text-sm">
+                  No pickup locations configured for this boat. Please contact support.
+                </p>
+              </div>
+            )}
+            
+            {selectedPickup && (
+              <div className="mt-4 p-4 bg-cyan-500/10 border border-cyan-400/30 rounded-xl">
+                <p className="text-cyan-200 text-sm flex items-center gap-2">
+                  <Check className="h-4 w-4" />
+                  Selected: <span className="font-semibold">{selectedPickup}</span>
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Continue Button */}
@@ -154,7 +117,8 @@ export default function PickupLocation({ experience, onBack, onContinue, booking
           >
             <Button
               onClick={handleContinue}
-              className="relative px-16 py-8 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white text-lg font-bold rounded-2xl transition-all duration-500 shadow-2xl shadow-cyan-500/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.8)] border-2 border-cyan-400/30 overflow-hidden group"
+              disabled={!selectedPickup}
+              className="relative px-16 py-8 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white text-lg font-bold rounded-2xl transition-all duration-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-2xl shadow-cyan-500/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.8)] border-2 border-cyan-400/30 overflow-hidden group"
             >
               <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
               <span className="relative">Continue to Extras</span>
