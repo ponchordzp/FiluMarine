@@ -44,18 +44,28 @@ export default function EquipmentManager({ equipment, customEquipment, equipment
       {/* Selected Standard Equipment */}
       {Object.entries(equipment).filter(([_, selected]) => selected).length > 0 && (
         <div className="mb-3 flex flex-wrap gap-2">
-          {Object.entries(equipment).filter(([_, selected]) => selected).map(([eq]) => (
-            <div key={eq} className="flex items-center gap-2 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-1.5">
-              <span className="text-sm capitalize">{eq.replace(/_/g, ' ')}</span>
-              <button
-                type="button"
-                onClick={() => onToggleEquipment(eq)}
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
+          {Object.entries(equipment).filter(([_, selected]) => selected).map(([eq]) => {
+            const isVisible = equipmentVisibility?.[eq] !== false;
+            return (
+              <div key={eq} className="flex items-center gap-2 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-1.5">
+                <span className="text-sm capitalize">{eq.replace(/_/g, ' ')}</span>
+                <button
+                  type="button"
+                  onClick={() => onToggleVisibility(eq)}
+                  className={`px-2 py-0.5 text-xs rounded font-medium ${isVisible ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+                >
+                  {isVisible ? 'ON' : 'OFF'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onToggleEquipment(eq)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
       
@@ -88,18 +98,28 @@ export default function EquipmentManager({ equipment, customEquipment, equipment
       {/* Custom Equipment List */}
       {customEquipment.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-2">
-          {customEquipment.map((eq, idx) => (
-            <div key={idx} className="flex items-center gap-2 bg-cyan-50 border border-cyan-300 rounded-lg px-3 py-1.5">
-              <span className="text-sm capitalize">{eq}</span>
-              <button
-                type="button"
-                onClick={() => onRemoveCustom(idx)}
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
+          {customEquipment.map((eq, idx) => {
+            const isVisible = customEquipmentVisibility?.[idx] !== false;
+            return (
+              <div key={idx} className="flex items-center gap-2 bg-cyan-50 border border-cyan-300 rounded-lg px-3 py-1.5">
+                <span className="text-sm capitalize">{eq}</span>
+                <button
+                  type="button"
+                  onClick={() => onToggleVisibility(null, idx)}
+                  className={`px-2 py-0.5 text-xs rounded font-medium ${isVisible ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'}`}
+                >
+                  {isVisible ? 'ON' : 'OFF'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRemoveCustom(idx)}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
       
