@@ -513,276 +513,308 @@ export default function BoatManagement() {
           </DialogTrigger>
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>{editingBoat ? 'Edit Boat' : 'Add New Boat'}</DialogTitle>
+              <DialogTitle className="text-xl">{editingBoat ? `Editing: ${editingBoat.name}` : 'Add New Boat'}</DialogTitle>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div><Label>Boat Name *</Label><Input required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
-                <div><Label>Type *</Label><Input required value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console, Yacht" /></div>
-                <div><Label>Size *</Label><Input required value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} placeholder="e.g., 25ft" /></div>
-                <div><Label>Capacity *</Label><Input required value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" /></div>
-                <div><Label>Crew Members</Label><Input type="number" min="0" value={formData.crew_members} onChange={(e) => setFormData({ ...formData, crew_members: parseInt(e.target.value) || 0 })} placeholder="e.g., 2" /></div>
-                <div><Label>Location *</Label><Select value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem><SelectItem value="acapulco">Acapulco</SelectItem></SelectContent></Select></div>
-                <div><Label>Dock Location</Label><Input value={formData.dock_location} onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })} placeholder="e.g., Marina Paradise, Dry Dock 3" /><p className="text-xs text-slate-500 mt-1">⚓ Where the boat is currently docked</p></div>
-                <div><Label>Status</Label><Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-0">
 
-              <div><Label>Description</Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} /></div>
-
-              <div>
-                <Label>Boat Image</Label>
-                <div className="space-y-3">
-                  {imagePreview && <div className="relative w-full h-48 rounded-lg overflow-hidden border"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
-                  <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
-                  <p className="text-xs text-slate-500">Upload a high-quality image of the boat</p>
+              {/* ── SECTION 1: General Info ── sky blue */}
+              <div className="rounded-xl overflow-hidden border border-sky-200 mb-4">
+                <div className="bg-sky-600 px-5 py-3 flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-white" />
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">General Information</h3>
                 </div>
-              </div>
-
-              {formData.boat_mode === 'rental_and_maintenance' && (
-              <div className="border-t pt-6">
-                <Label>Price Per Additional Hour (MXN)</Label>
-                <Input type="number" min="0" value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm" />
-                <p className="text-xs text-slate-500 mt-1">Cost for each additional hour beyond scheduled expedition duration</p>
-              </div>
-              )}
-
-              {formData.boat_mode === 'rental_and_maintenance' && (
-              <div className="border-t pt-6">
-                <Label className="mb-3 block text-lg font-semibold">Available Expeditions & Pricing</Label>
-                <p className="text-sm text-slate-600 mb-4">Select available expeditions and set pricing for each</p>
-                <div className="space-y-3">
-                  {expeditionTypes.map(exp => {
-                    const isSelected = formData.available_expeditions.includes(exp);
-                    const pricing = formData.expedition_pricing.find(p => p.expedition_type === exp);
-                    return (
-                      <div key={exp} className={`p-4 rounded-lg border-2 transition-all ${isSelected ? 'border-blue-300 bg-blue-50' : 'border-slate-200 bg-slate-50'}`}>
-                        <button type="button" onClick={() => toggleExpedition(exp)} className="w-full flex items-center gap-3 mb-3">
-                          {isSelected ? <Check className="h-5 w-5 text-blue-600 flex-shrink-0" /> : <X className="h-5 w-5 text-slate-400 flex-shrink-0" />}
-                          <span className="text-sm font-semibold capitalize text-left">{exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ')}</span>
-                        </button>
-                        {isSelected && (
-                           <div className="space-y-4 mt-3 pl-8">
-                             <div className="grid grid-cols-2 gap-3">
-                               <div><Label className="text-xs">Duration (hours)</Label><Input type="number" min="0" step="0.5" value={pricing?.duration_hours || ''} onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)} placeholder="e.g., 4" className="text-sm" /></div>
-                               <div><Label className="text-xs">Price (MXN)</Label><Input type="number" min="0" value={pricing?.price_mxn || ''} onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)} placeholder="e.g., 8000" className="text-sm" /></div>
-                             </div>
-                             <div>
-                               <Label className="text-xs font-semibold mb-2 block">Pickup Locations & Departure Times</Label>
-                               <PickupAndDeparture pickupAndDepartures={expeditionPickupDepartures[exp] || []} onUpdate={(items) => setExpeditionPickupDepartures({ ...expeditionPickupDepartures, [exp]: items })} expeditionType={exp} location={formData.location} />
-                             </div>
-                           </div>
-                         )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              )}
-
-              {formData.boat_mode === 'rental_and_maintenance' && (
-                <div className="border-t pt-6">
-                  <EquipmentManager 
-                    equipment={formData.equipment}
-                    customEquipment={formData.custom_equipment}
-                    equipmentVisibility={formData.equipment_visibility}
-                    customEquipmentVisibility={formData.custom_equipment_visibility}
-                    onToggleEquipment={toggleEquipment}
-                    onToggleVisibility={toggleEquipmentVisibility}
-                    onAddCustom={addCustomEquipment}
-                    onRemoveCustom={removeCustomEquipment}
-                    newEquipment={newEquipment}
-                    onNewEquipmentChange={setNewEquipment}
-                  />
-                </div>
-              )}
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4">Engine Configuration</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div><Label>Engine Type</Label><Select value={formData.engine_config} onValueChange={(value) => setFormData({ ...formData, engine_config: value })}><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger><SelectContent><SelectItem value="inboard">Inboard</SelectItem><SelectItem value="outboard">Outboard</SelectItem></SelectContent></Select></div>
-                  <div><Label>Number of Engines</Label><Input type="number" min="1" value={formData.engine_quantity} onChange={(e) => setFormData({ ...formData, engine_quantity: parseInt(e.target.value) || 1 })} /></div>
-                  <div><Label>Engine Year</Label><Input type="number" min="1900" max="2100" value={formData.engine_year || ''} onChange={(e) => setFormData({ ...formData, engine_year: parseInt(e.target.value) || null })} placeholder="e.g., 2017" /></div>
-                  <div className="md:col-span-2"><Label>Engine Details</Label><Input value={formData.engine_name} onChange={(e) => setFormData({ ...formData, engine_name: e.target.value })} placeholder="e.g., Twin Yamaha 250" /></div>
-                </div>
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4">Engine Hours & Maintenance Tracking</h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  <div><Label>Maintenance Interval (hours)</Label><Input type="number" min="1" value={formData.maintenance_interval_hours} onChange={(e) => setFormData({ ...formData, maintenance_interval_hours: parseInt(e.target.value) || 100 })} /></div>
-                  <div><Label>Hours at Last Maintenance</Label><Input type="number" min="0" value={formData.last_maintenance_hours} onChange={(e) => setFormData({ ...formData, last_maintenance_hours: parseInt(e.target.value) || 0 })} /></div>
-                  <div><Label>Current Hours</Label><Input type="number" min="0" value={formData.current_hours} onChange={(e) => setFormData({ ...formData, current_hours: parseInt(e.target.value) || 0 })} /></div>
-                </div>
-                {formData.current_hours > 0 && (
-                  <div className="mt-4 p-4 bg-slate-50 rounded-lg border">
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div><p className="text-xs text-slate-500">Hours Since Last Service</p><p className="text-2xl font-bold text-slate-900">{formData.current_hours - formData.last_maintenance_hours}</p></div>
-                      <div><p className="text-xs text-slate-500">Hours Until Next Service</p><p className={`text-2xl font-bold ${(formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours) <= 10 ? 'text-red-600' : 'text-green-600'}`}>{Math.max(0, formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours)}</p></div>
-                      <div><p className="text-xs text-slate-500">Next Service At</p><p className="text-2xl font-bold text-blue-600">{formData.last_maintenance_hours + formData.maintenance_interval_hours} hrs</p></div>
+                <div className="bg-sky-50 p-5 space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div><Label>Boat Name *</Label><Input required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
+                    <div><Label>Type *</Label><Input required value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console, Yacht" /></div>
+                    <div><Label>Size *</Label><Input required value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} placeholder="e.g., 25ft" /></div>
+                    <div><Label>Capacity *</Label><Input required value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" /></div>
+                    <div><Label>Crew Members</Label><Input type="number" min="0" value={formData.crew_members} onChange={(e) => setFormData({ ...formData, crew_members: parseInt(e.target.value) || 0 })} placeholder="e.g., 2" /></div>
+                    <div><Label>Location *</Label><Select value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem><SelectItem value="acapulco">Acapulco</SelectItem></SelectContent></Select></div>
+                    <div><Label>Dock Location</Label><Input value={formData.dock_location} onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })} placeholder="e.g., Marina Paradise, Dry Dock 3" /><p className="text-xs text-sky-700 mt-1">⚓ Where the boat is currently docked</p></div>
+                    <div><Label>Status</Label><Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
+                  </div>
+                  <div><Label>Description</Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} /></div>
+                  <div>
+                    <Label>Boat Image</Label>
+                    <div className="space-y-2 mt-1">
+                      {imagePreview && <div className="relative w-full h-48 rounded-lg overflow-hidden border border-sky-200"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
+                      <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
                     </div>
                   </div>
-                )}
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Calendar className="h-5 w-5 text-blue-600" />Last Service Information</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div><Label>Last Service Date</Label><Input type="date" value={formData.last_service_date} onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })} /></div>
-                  <div><Label>Mechanic Phone (Last Service)</Label><Input type="tel" value={formData.last_service_mechanic_phone} onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /><p className="text-xs text-slate-500 mt-1">Phone number of mechanic who performed last service</p></div>
                 </div>
               </div>
 
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4">Maintenance Costs (MXN)</h3>
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4"><p className="text-sm text-blue-800">💡 <strong>Note:</strong> Enter the maintenance cost <strong>per engine</strong>. The total will be calculated based on the number of engines configured above.</p></div>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div><Label>Minor Maintenance Cost</Label><Input type="number" min="0" value={formData.minor_maintenance_cost} onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 5000" /><p className="text-xs text-slate-500 mt-1">Oil change, filters, basic service</p></div>
-                  <div><Label>Major Maintenance Cost</Label><Input type="number" min="0" value={formData.major_maintenance_cost} onChange={(e) => setFormData({ ...formData, major_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 25000" /><p className="text-xs text-slate-500 mt-1">Engine rebuild, major repairs</p></div>
+              {/* ── SECTION 2: Expeditions & Pricing ── indigo */}
+              {formData.boat_mode === 'rental_and_maintenance' && (
+              <div className="rounded-xl overflow-hidden border border-indigo-200 mb-4">
+                <div className="bg-indigo-600 px-5 py-3 flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-white" />
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Expeditions &amp; Pricing</h3>
                 </div>
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Wrench className="h-5 w-5 text-slate-600" />Mechanic Information</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div><Label>Mechanic Name</Label><Input value={formData.mechanic_name} onChange={(e) => setFormData({ ...formData, mechanic_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
-                  <div><Label>Mechanic Phone</Label><Input type="tel" value={formData.mechanic_phone} onChange={(e) => setFormData({ ...formData, mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
-                  <div><Label>Mechanic Email</Label><Input type="email" value={formData.mechanic_email} onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })} placeholder="e.g., mechanic@example.com" /></div>
-                </div>
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Package className="h-5 w-5 text-emerald-600" />Supplies Inventory</h3>
-                <p className="text-sm text-slate-600 mb-4">Track all materials and supplies needed to keep your boat in optimal condition</p>
-                <SuppliesManager supplies={formData.supplies_inventory} onAddSupply={addSupply} onRemoveSupply={removeSupply} onUpdateSupply={updateSupplyField} />
-                {formData.supplies_inventory.length > 0 && (
-                  <div className="mb-4 space-y-2 max-h-[400px] overflow-y-auto">
-                    {formData.supplies_inventory.map((supply, index) => {
-                      const timeRemaining = supply.duration_months > 0 && supply.purchased_date ? calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months) : null;
-                      const totalCost = (supply.quantity || 0) * (supply.price_per_unit || 0);
+                <div className="bg-indigo-50 p-5 space-y-4">
+                  <div>
+                    <Label>Price Per Additional Hour (MXN)</Label>
+                    <Input type="number" min="0" value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
+                    <p className="text-xs text-indigo-700 mt-1">Cost per extra hour beyond scheduled expedition duration</p>
+                  </div>
+                  <div className="space-y-3">
+                    {expeditionTypes.map(exp => {
+                      const isSelected = formData.available_expeditions.includes(exp);
+                      const pricing = formData.expedition_pricing.find(p => p.expedition_type === exp);
                       return (
-                      <div key={index} className={`p-3 rounded-lg border-2 transition-all ${supply.status === 'in_stock' ? 'bg-emerald-50 border-emerald-300' : 'bg-red-50 border-red-300'}`}>
-                        <div className="flex items-start gap-3">
-                          <Package className={`h-4 w-4 mt-1 flex-shrink-0 ${supply.status === 'in_stock' ? 'text-emerald-600' : 'text-red-600'}`} />
-                          <div className="flex-1 min-w-0 space-y-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex-1">
-                                <p className="font-semibold text-slate-800">{supply.name}</p>
-                                <div className="flex gap-2 flex-wrap mt-1">
-                                  {supply.category && <span className="text-xs bg-white px-2 py-1 rounded">{supply.category}</span>}
-                                  {totalCost > 0 && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">${totalCost.toLocaleString()} MXN</span>}
-                                </div>
+                        <div key={exp} className={`p-4 rounded-lg border-2 transition-all ${isSelected ? 'border-indigo-400 bg-white shadow-sm' : 'border-indigo-100 bg-indigo-50/50'}`}>
+                          <button type="button" onClick={() => toggleExpedition(exp)} className="w-full flex items-center gap-3 mb-2">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-indigo-600' : 'bg-white border-2 border-indigo-300'}`}>{isSelected && <Check className="h-3 w-3 text-white" />}</div>
+                            <span className="text-sm font-semibold capitalize text-left text-indigo-900">{exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ')}</span>
+                          </button>
+                          {isSelected && (
+                            <div className="space-y-4 mt-3 pl-8">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div><Label className="text-xs">Duration (hours)</Label><Input type="number" min="0" step="0.5" value={pricing?.duration_hours || ''} onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)} placeholder="e.g., 4" className="text-sm" /></div>
+                                <div><Label className="text-xs">Price (MXN)</Label><Input type="number" min="0" value={pricing?.price_mxn || ''} onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)} placeholder="e.g., 8000" className="text-sm" /></div>
                               </div>
-                              <Button type="button" variant="ghost" size="sm" onClick={() => removeSupply(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                              <div><Label className="text-xs text-slate-600">Qty</Label><Input type="number" min="0" value={supply.quantity || 0} onChange={(e) => updateSupplyQuantity(index, e.target.value)} className="h-7 text-sm" /></div>
-                              <div><Label className="text-xs text-slate-600">Unit</Label><Input value={supply.unit || ''} onChange={(e) => updateSupplyField(index, 'unit', e.target.value)} placeholder="gallons" className="h-7 text-sm" /></div>
-                              <div><Label className="text-xs text-slate-600">Price/Unit</Label><Input type="number" min="0" value={supply.price_per_unit || 0} onChange={(e) => updateSupplyField(index, 'price_per_unit', parseFloat(e.target.value) || 0)} className="h-7 text-sm" /></div>
-                              <div><Label className="text-xs text-slate-600">Duration (mo)</Label><Input type="number" min="0" value={supply.duration_months || 0} onChange={(e) => updateSupplyField(index, 'duration_months', parseInt(e.target.value) || 0)} className="h-7 text-sm" /></div>
-                            </div>
-                            {supply.duration_months > 0 && <div><Label className="text-xs text-slate-600">Purchased Date</Label><Input type="date" value={supply.purchased_date || ''} onChange={(e) => updateSupplyField(index, 'purchased_date', e.target.value)} className="h-7 text-sm" /></div>}
-                            {supply.duration_months > 0 && (
-                              <div className="space-y-1">
-                                {timeRemaining ? (<><div className="flex justify-between text-xs"><span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>{timeRemaining.expired ? '⚠️ Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}</span><span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span></div><div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden"><div className={`h-full transition-all ${timeRemaining.percentageRemaining > 50 ? 'bg-green-500' : timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${timeRemaining.percentageRemaining}%` }} /></div></>) : (<div className="bg-amber-50 border border-amber-300 rounded p-2"><p className="text-xs text-amber-700">⚠️ Set purchase date to track duration</p></div>)}
+                              <div>
+                                <Label className="text-xs font-semibold mb-2 block">Pickup Locations &amp; Departure Times</Label>
+                                <PickupAndDeparture pickupAndDepartures={expeditionPickupDepartures[exp] || []} onUpdate={(items) => setExpeditionPickupDepartures({ ...expeditionPickupDepartures, [exp]: items })} expeditionType={exp} location={formData.location} />
                               </div>
-                            )}
-                            <div className="flex items-center gap-2">
-                              <button type="button" onClick={() => updateSupplyStatus(index, 'in_stock')} className={`px-3 py-1 text-xs rounded-md transition-all ${supply.status === 'in_stock' ? 'bg-emerald-600 text-white' : 'bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50'}`}>In Stock</button>
-                              <button type="button" onClick={() => updateSupplyStatus(index, 'needed')} className={`px-3 py-1 text-xs rounded-md transition-all ${supply.status === 'needed' ? 'bg-red-600 text-white' : 'bg-white border border-red-300 text-red-700 hover:bg-red-50'}`}>Needed</button>
                             </div>
-                            {supply.notes && <p className="text-xs text-slate-600 bg-white p-2 rounded">{supply.notes}</p>}
-                          </div>
+                          )}
                         </div>
-                      </div>
                       );
                     })}
                   </div>
-                )}
-              </div>
-
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2"><Package className="h-5 w-5 text-emerald-600" />Supply Sellers</h3>
-                {formData.supply_sellers && formData.supply_sellers.length > 0 && (
-                  <div className="mb-4 space-y-2">
-                    {formData.supply_sellers.map((supplier, index) => (
-                      <div key={index} className="p-3 bg-emerald-50 rounded-lg border-2 border-emerald-300">
-                        <div className="flex items-start gap-3">
-                          <Package className="h-4 w-4 mt-1 flex-shrink-0 text-emerald-600" />
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                              <div className="flex-1">
-                                <p className="font-semibold text-slate-800">{supplier.name}</p>
-                                {supplier.specialty && <span className="text-xs bg-white px-2 py-1 rounded inline-block mt-1">{supplier.specialty}</span>}
-                              </div>
-                              <Button type="button" variant="ghost" size="sm" onClick={() => removeSupplier(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
-                            </div>
-                            {supplier.phone && <p className="text-xs text-slate-600">📞 {supplier.phone}</p>}
-                            {supplier.email && <p className="text-xs text-slate-600">✉️ {supplier.email}</p>}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="bg-slate-50 p-4 rounded-lg border space-y-3">
-                  <p className="font-semibold text-sm text-slate-700">Add Supplier</p>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    <div><Label className="text-xs">Supplier Name *</Label><Input value={newSupplier.name} onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })} placeholder="e.g., Marine Parts Co." className="text-sm" /></div>
-                    <div><Label className="text-xs">Phone</Label><Input type="tel" value={newSupplier.phone} onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })} placeholder="e.g., +52 755 456 7890" className="text-sm" /></div>
-                    <div><Label className="text-xs">Email</Label><Input type="email" value={newSupplier.email} onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })} placeholder="e.g., info@supplier.com" className="text-sm" /></div>
-                    <div><Label className="text-xs">Specialty</Label><Input value={newSupplier.specialty} onChange={(e) => setNewSupplier({ ...newSupplier, specialty: e.target.value })} placeholder="e.g., Engine Parts" className="text-sm" /></div>
-                  </div>
-                  <Button type="button" onClick={addSupplier} disabled={!newSupplier.name} variant="outline" size="sm" className="w-full"><Plus className="h-4 w-4 mr-2" />Add Supplier</Button>
                 </div>
-                <div className="mt-4"><Label>Owner Phone (for notifications)</Label><Input type="tel" value={formData.owner_phone} onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })} placeholder="e.g., +52 755 987 6543" /><p className="text-xs text-slate-500 mt-1">Receive maintenance quotes and updates</p></div>
+              </div>
+              )}
+
+              {/* ── SECTION 3: Equipment ── teal */}
+              {formData.boat_mode === 'rental_and_maintenance' && (
+                <div className="rounded-xl overflow-hidden border border-teal-200 mb-4">
+                  <div className="bg-teal-600 px-5 py-3 flex items-center gap-2">
+                    <Package className="h-4 w-4 text-white" />
+                    <h3 className="text-sm font-bold text-white tracking-wide uppercase">Equipment</h3>
+                  </div>
+                  <div className="bg-teal-50 p-5">
+                    <EquipmentManager 
+                      equipment={formData.equipment}
+                      customEquipment={formData.custom_equipment}
+                      equipmentVisibility={formData.equipment_visibility}
+                      customEquipmentVisibility={formData.custom_equipment_visibility}
+                      onToggleEquipment={toggleEquipment}
+                      onToggleVisibility={toggleEquipmentVisibility}
+                      onAddCustom={addCustomEquipment}
+                      onRemoveCustom={removeCustomEquipment}
+                      newEquipment={newEquipment}
+                      onNewEquipmentChange={setNewEquipment}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* ── SECTION 4: Engine ── amber */}
+              <div className="rounded-xl overflow-hidden border border-amber-200 mb-4">
+                <div className="bg-amber-500 px-5 py-3 flex items-center gap-2">
+                  <Gauge className="h-4 w-4 text-white" />
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Engine Configuration</h3>
+                </div>
+                <div className="bg-amber-50 p-5 space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div><Label>Engine Type</Label><Select value={formData.engine_config} onValueChange={(value) => setFormData({ ...formData, engine_config: value })}><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger><SelectContent><SelectItem value="inboard">Inboard</SelectItem><SelectItem value="outboard">Outboard</SelectItem></SelectContent></Select></div>
+                    <div><Label>Number of Engines</Label><Input type="number" min="1" value={formData.engine_quantity} onChange={(e) => setFormData({ ...formData, engine_quantity: parseInt(e.target.value) || 1 })} /></div>
+                    <div><Label>Engine Year</Label><Input type="number" min="1900" max="2100" value={formData.engine_year || ''} onChange={(e) => setFormData({ ...formData, engine_year: parseInt(e.target.value) || null })} placeholder="e.g., 2017" /></div>
+                    <div className="md:col-span-2"><Label>Engine Details</Label><Input value={formData.engine_name} onChange={(e) => setFormData({ ...formData, engine_name: e.target.value })} placeholder="e.g., Twin Yamaha 250" /></div>
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div><Label>Maintenance Interval (hours)</Label><Input type="number" min="1" value={formData.maintenance_interval_hours} onChange={(e) => setFormData({ ...formData, maintenance_interval_hours: parseInt(e.target.value) || 100 })} /></div>
+                    <div><Label>Hours at Last Maintenance</Label><Input type="number" min="0" value={formData.last_maintenance_hours} onChange={(e) => setFormData({ ...formData, last_maintenance_hours: parseInt(e.target.value) || 0 })} /></div>
+                    <div><Label>Current Hours</Label><Input type="number" min="0" value={formData.current_hours} onChange={(e) => setFormData({ ...formData, current_hours: parseInt(e.target.value) || 0 })} /></div>
+                  </div>
+                  {formData.current_hours > 0 && (
+                    <div className="p-4 bg-white rounded-lg border border-amber-200">
+                      <div className="grid grid-cols-3 gap-4 text-center">
+                        <div><p className="text-xs text-amber-700 font-medium">Since Last Service</p><p className="text-2xl font-bold text-slate-900">{formData.current_hours - formData.last_maintenance_hours}</p></div>
+                        <div><p className="text-xs text-amber-700 font-medium">Until Next Service</p><p className={`text-2xl font-bold ${(formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours) <= 10 ? 'text-red-600' : 'text-green-600'}`}>{Math.max(0, formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours)}</p></div>
+                        <div><p className="text-xs text-amber-700 font-medium">Next Service At</p><p className="text-2xl font-bold text-amber-600">{formData.last_maintenance_hours + formData.maintenance_interval_hours} hrs</p></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Calendar className="h-5 w-5 text-purple-600" />Recurring Costs</h3>
-                <p className="text-sm text-slate-600 mb-4">Track monthly/periodic payments like docking fees, insurance, crew salaries, etc.</p>
-                {formData.recurring_costs && formData.recurring_costs.length > 0 && (
-                  <div className="mb-4 space-y-2">
-                    {formData.recurring_costs.map((cost, index) => (
-                      <div key={index} className="p-3 bg-purple-50 rounded-lg border-2 border-purple-300">
-                        <div className="flex items-start gap-3">
-                          <Calendar className="h-4 w-4 mt-1 flex-shrink-0 text-purple-600" />
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <p className="font-semibold text-slate-800">{cost.name}</p>
-                                <div className="flex gap-2 mt-1 flex-wrap">
-                                  <span className="text-xs bg-white px-2 py-1 rounded capitalize">{cost.category}</span>
-                                  <span className="text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded font-medium">Every {cost.frequency_months} month{cost.frequency_months > 1 ? 's' : ''}</span>
+              {/* ── SECTION 5: Maintenance ── orange/red */}
+              <div className="rounded-xl overflow-hidden border border-orange-200 mb-4">
+                <div className="bg-orange-600 px-5 py-3 flex items-center gap-2">
+                  <Wrench className="h-4 w-4 text-white" />
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Maintenance</h3>
+                </div>
+                <div className="bg-orange-50 p-5 space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div><Label>Last Service Date</Label><Input type="date" value={formData.last_service_date} onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })} /></div>
+                    <div><Label>Mechanic Phone (Last Service)</Label><Input type="tel" value={formData.last_service_mechanic_phone} onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
+                  </div>
+                  <div className="bg-orange-100 border border-orange-200 rounded-lg p-3"><p className="text-sm text-orange-900">💡 <strong>Note:</strong> Enter the maintenance cost <strong>per engine</strong>. Total is calculated from engine count above.</p></div>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div><Label>Minor Maintenance Cost (MXN)</Label><Input type="number" min="0" value={formData.minor_maintenance_cost} onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 5000" /><p className="text-xs text-orange-700 mt-1">Oil change, filters, basic service</p></div>
+                    <div><Label>Major Maintenance Cost (MXN)</Label><Input type="number" min="0" value={formData.major_maintenance_cost} onChange={(e) => setFormData({ ...formData, major_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 25000" /><p className="text-xs text-orange-700 mt-1">Engine rebuild, major repairs</p></div>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-4 pt-2 border-t border-orange-200">
+                    <div><Label>Mechanic Name</Label><Input value={formData.mechanic_name} onChange={(e) => setFormData({ ...formData, mechanic_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
+                    <div><Label>Mechanic Phone</Label><Input type="tel" value={formData.mechanic_phone} onChange={(e) => setFormData({ ...formData, mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
+                    <div><Label>Mechanic Email</Label><Input type="email" value={formData.mechanic_email} onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })} placeholder="e.g., mechanic@example.com" /></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ── SECTION 6: Supplies Inventory ── emerald */}
+              <div className="rounded-xl overflow-hidden border border-emerald-200 mb-4">
+                <div className="bg-emerald-600 px-5 py-3 flex items-center gap-2">
+                  <Package className="h-4 w-4 text-white" />
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Supplies Inventory</h3>
+                </div>
+                <div className="bg-emerald-50 p-5 space-y-3">
+                  <p className="text-sm text-emerald-800">Track all materials and supplies needed to keep your boat in optimal condition.</p>
+                  <SuppliesManager supplies={formData.supplies_inventory} onAddSupply={addSupply} onRemoveSupply={removeSupply} onUpdateSupply={updateSupplyField} />
+                  {formData.supplies_inventory.length > 0 && (
+                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                      {formData.supplies_inventory.map((supply, index) => {
+                        const timeRemaining = supply.duration_months > 0 && supply.purchased_date ? calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months) : null;
+                        const totalCost = (supply.quantity || 0) * (supply.price_per_unit || 0);
+                        return (
+                        <div key={index} className={`p-3 rounded-lg border-2 transition-all ${supply.status === 'in_stock' ? 'bg-white border-emerald-300' : 'bg-red-50 border-red-300'}`}>
+                          <div className="flex items-start gap-3">
+                            <Package className={`h-4 w-4 mt-1 flex-shrink-0 ${supply.status === 'in_stock' ? 'text-emerald-600' : 'text-red-600'}`} />
+                            <div className="flex-1 min-w-0 space-y-2">
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="flex-1">
+                                  <p className="font-semibold text-slate-800">{supply.name}</p>
+                                  <div className="flex gap-2 flex-wrap mt-1">
+                                    {supply.category && <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">{supply.category}</span>}
+                                    {totalCost > 0 && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">${totalCost.toLocaleString()} MXN</span>}
+                                  </div>
                                 </div>
+                                <Button type="button" variant="ghost" size="sm" onClick={() => removeSupply(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
                               </div>
-                              <Button type="button" variant="ghost" size="sm" onClick={() => removeRecurringCost(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
-                            </div>
-                            <div className="text-sm space-y-1">
-                              <p className="text-green-700 font-bold">${cost.amount.toLocaleString()} MXN</p>
-                              {cost.next_payment_date && <p className="text-xs text-slate-600">Next payment: {format(parseISO(cost.next_payment_date), 'MMM d, yyyy')}</p>}
-                              {cost.notes && <p className="text-xs text-slate-600 bg-white p-2 rounded mt-2">{cost.notes}</p>}
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                <div><Label className="text-xs text-slate-600">Qty</Label><Input type="number" min="0" value={supply.quantity || 0} onChange={(e) => updateSupplyQuantity(index, e.target.value)} className="h-7 text-sm" /></div>
+                                <div><Label className="text-xs text-slate-600">Unit</Label><Input value={supply.unit || ''} onChange={(e) => updateSupplyField(index, 'unit', e.target.value)} placeholder="gallons" className="h-7 text-sm" /></div>
+                                <div><Label className="text-xs text-slate-600">Price/Unit</Label><Input type="number" min="0" value={supply.price_per_unit || 0} onChange={(e) => updateSupplyField(index, 'price_per_unit', parseFloat(e.target.value) || 0)} className="h-7 text-sm" /></div>
+                                <div><Label className="text-xs text-slate-600">Duration (mo)</Label><Input type="number" min="0" value={supply.duration_months || 0} onChange={(e) => updateSupplyField(index, 'duration_months', parseInt(e.target.value) || 0)} className="h-7 text-sm" /></div>
+                              </div>
+                              {supply.duration_months > 0 && <div><Label className="text-xs text-slate-600">Purchased Date</Label><Input type="date" value={supply.purchased_date || ''} onChange={(e) => updateSupplyField(index, 'purchased_date', e.target.value)} className="h-7 text-sm" /></div>}
+                              {supply.duration_months > 0 && (
+                                <div className="space-y-1">
+                                  {timeRemaining ? (<><div className="flex justify-between text-xs"><span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>{timeRemaining.expired ? '⚠️ Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}</span><span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span></div><div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden"><div className={`h-full transition-all ${timeRemaining.percentageRemaining > 50 ? 'bg-green-500' : timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${timeRemaining.percentageRemaining}%` }} /></div></>) : (<div className="bg-amber-50 border border-amber-300 rounded p-2"><p className="text-xs text-amber-700">⚠️ Set purchase date to track duration</p></div>)}
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2">
+                                <button type="button" onClick={() => updateSupplyStatus(index, 'in_stock')} className={`px-3 py-1 text-xs rounded-md transition-all ${supply.status === 'in_stock' ? 'bg-emerald-600 text-white' : 'bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50'}`}>In Stock</button>
+                                <button type="button" onClick={() => updateSupplyStatus(index, 'needed')} className={`px-3 py-1 text-xs rounded-md transition-all ${supply.status === 'needed' ? 'bg-red-600 text-white' : 'bg-white border border-red-300 text-red-700 hover:bg-red-50'}`}>Needed</button>
+                              </div>
+                              {supply.notes && <p className="text-xs text-slate-600 bg-white p-2 rounded">{supply.notes}</p>}
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="bg-slate-50 p-4 rounded-lg border space-y-3">
-                  <p className="font-semibold text-sm text-slate-700">Add Recurring Cost</p>
-                  <div className="grid md:grid-cols-2 gap-3">
-                    <div><Label className="text-xs">Cost Name *</Label><Input value={newRecurringCost.name} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, name: e.target.value })} placeholder="e.g., Docking Fee" className="text-sm" /></div>
-                    <div><Label className="text-xs">Amount (MXN) *</Label><Input type="number" min="0" value={newRecurringCost.amount} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, amount: parseFloat(e.target.value) || 0 })} className="text-sm" /></div>
-                    <div><Label className="text-xs">Category</Label><Select value={newRecurringCost.category} onValueChange={(value) => setNewRecurringCost({ ...newRecurringCost, category: value })}><SelectTrigger className="text-sm"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="docking">Docking</SelectItem><SelectItem value="insurance">Insurance</SelectItem><SelectItem value="crew">Crew Salary</SelectItem><SelectItem value="permits">Permits & Licenses</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></div>
-                    <div><Label className="text-xs">Frequency</Label><Select value={newRecurringCost.frequency_months.toString()} onValueChange={(value) => setNewRecurringCost({ ...newRecurringCost, frequency_months: parseInt(value) })}><SelectTrigger className="text-sm"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="1">Monthly</SelectItem><SelectItem value="3">Every 3 months</SelectItem><SelectItem value="6">Every 6 months</SelectItem><SelectItem value="9">Every 9 months</SelectItem><SelectItem value="12">Yearly</SelectItem></SelectContent></Select></div>
-                    <div><Label className="text-xs">Next Payment Date</Label><Input type="date" value={newRecurringCost.next_payment_date} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, next_payment_date: e.target.value })} className="text-sm" /></div>
-                    <div><Label className="text-xs">Notes (optional)</Label><Input value={newRecurringCost.notes} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, notes: e.target.value })} placeholder="Additional info" className="text-sm" /></div>
-                  </div>
-                  <Button type="button" onClick={addRecurringCost} disabled={!newRecurringCost.name || !newRecurringCost.amount} variant="outline" size="sm" className="w-full"><Plus className="h-4 w-4 mr-2" />Add Recurring Cost</Button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              {/* ── SECTION 7: Supply Sellers ── cyan */}
+              <div className="rounded-xl overflow-hidden border border-cyan-200 mb-4">
+                <div className="bg-cyan-600 px-5 py-3 flex items-center gap-2">
+                  <Package className="h-4 w-4 text-white" />
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Supply Sellers</h3>
+                </div>
+                <div className="bg-cyan-50 p-5 space-y-3">
+                  {formData.supply_sellers && formData.supply_sellers.length > 0 && (
+                    <div className="space-y-2">
+                      {formData.supply_sellers.map((supplier, index) => (
+                        <div key={index} className="p-3 bg-white rounded-lg border-2 border-cyan-300">
+                          <div className="flex items-start gap-3">
+                            <Package className="h-4 w-4 mt-1 flex-shrink-0 text-cyan-600" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <div className="flex-1">
+                                  <p className="font-semibold text-slate-800">{supplier.name}</p>
+                                  {supplier.specialty && <span className="text-xs bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded inline-block mt-1">{supplier.specialty}</span>}
+                                </div>
+                                <Button type="button" variant="ghost" size="sm" onClick={() => removeSupplier(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
+                              </div>
+                              {supplier.phone && <p className="text-xs text-slate-600">📞 {supplier.phone}</p>}
+                              {supplier.email && <p className="text-xs text-slate-600">✉️ {supplier.email}</p>}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="bg-white p-4 rounded-lg border border-cyan-200 space-y-3">
+                    <p className="font-semibold text-sm text-cyan-800">Add Supplier</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div><Label className="text-xs">Supplier Name *</Label><Input value={newSupplier.name} onChange={(e) => setNewSupplier({ ...newSupplier, name: e.target.value })} placeholder="e.g., Marine Parts Co." className="text-sm" /></div>
+                      <div><Label className="text-xs">Phone</Label><Input type="tel" value={newSupplier.phone} onChange={(e) => setNewSupplier({ ...newSupplier, phone: e.target.value })} placeholder="e.g., +52 755 456 7890" className="text-sm" /></div>
+                      <div><Label className="text-xs">Email</Label><Input type="email" value={newSupplier.email} onChange={(e) => setNewSupplier({ ...newSupplier, email: e.target.value })} placeholder="e.g., info@supplier.com" className="text-sm" /></div>
+                      <div><Label className="text-xs">Specialty</Label><Input value={newSupplier.specialty} onChange={(e) => setNewSupplier({ ...newSupplier, specialty: e.target.value })} placeholder="e.g., Engine Parts" className="text-sm" /></div>
+                    </div>
+                    <Button type="button" onClick={addSupplier} disabled={!newSupplier.name} variant="outline" size="sm" className="w-full border-cyan-400 text-cyan-700 hover:bg-cyan-50"><Plus className="h-4 w-4 mr-2" />Add Supplier</Button>
+                  </div>
+                  <div><Label>Owner Phone (for notifications)</Label><Input type="tel" value={formData.owner_phone} onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })} placeholder="e.g., +52 755 987 6543" className="mt-1" /><p className="text-xs text-cyan-700 mt-1">Receive maintenance quotes and updates</p></div>
+                </div>
+              </div>
+
+              {/* ── SECTION 8: Recurring Costs ── purple */}
+              <div className="rounded-xl overflow-hidden border border-purple-200 mb-4">
+                <div className="bg-purple-600 px-5 py-3 flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-white" />
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Recurring Costs</h3>
+                </div>
+                <div className="bg-purple-50 p-5 space-y-3">
+                  <p className="text-sm text-purple-800">Track periodic payments: docking fees, insurance, crew salaries, permits, etc.</p>
+                  {formData.recurring_costs && formData.recurring_costs.length > 0 && (
+                    <div className="space-y-2">
+                      {formData.recurring_costs.map((cost, index) => (
+                        <div key={index} className="p-3 bg-white rounded-lg border-2 border-purple-300">
+                          <div className="flex items-start gap-3">
+                            <Calendar className="h-4 w-4 mt-1 flex-shrink-0 text-purple-600" />
+                            <div className="flex-1">
+                              <div className="flex items-start justify-between mb-2">
+                                <div>
+                                  <p className="font-semibold text-slate-800">{cost.name}</p>
+                                  <div className="flex gap-2 mt-1 flex-wrap">
+                                    <span className="text-xs bg-purple-100 text-purple-800 px-2 py-0.5 rounded capitalize">{cost.category}</span>
+                                    <span className="text-xs bg-purple-200 text-purple-900 px-2 py-0.5 rounded font-medium">Every {cost.frequency_months} month{cost.frequency_months > 1 ? 's' : ''}</span>
+                                  </div>
+                                </div>
+                                <Button type="button" variant="ghost" size="sm" onClick={() => removeRecurringCost(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
+                              </div>
+                              <p className="text-green-700 font-bold text-sm">${cost.amount.toLocaleString()} MXN</p>
+                              {cost.next_payment_date && <p className="text-xs text-slate-600 mt-1">Next payment: {format(parseISO(cost.next_payment_date), 'MMM d, yyyy')}</p>}
+                              {cost.notes && <p className="text-xs text-slate-600 bg-purple-50 p-2 rounded mt-2">{cost.notes}</p>}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="bg-white p-4 rounded-lg border border-purple-200 space-y-3">
+                    <p className="font-semibold text-sm text-purple-800">Add Recurring Cost</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div><Label className="text-xs">Cost Name *</Label><Input value={newRecurringCost.name} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, name: e.target.value })} placeholder="e.g., Docking Fee" className="text-sm" /></div>
+                      <div><Label className="text-xs">Amount (MXN) *</Label><Input type="number" min="0" value={newRecurringCost.amount} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, amount: parseFloat(e.target.value) || 0 })} className="text-sm" /></div>
+                      <div><Label className="text-xs">Category</Label><Select value={newRecurringCost.category} onValueChange={(value) => setNewRecurringCost({ ...newRecurringCost, category: value })}><SelectTrigger className="text-sm"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="docking">Docking</SelectItem><SelectItem value="insurance">Insurance</SelectItem><SelectItem value="crew">Crew Salary</SelectItem><SelectItem value="permits">Permits &amp; Licenses</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></div>
+                      <div><Label className="text-xs">Frequency</Label><Select value={newRecurringCost.frequency_months.toString()} onValueChange={(value) => setNewRecurringCost({ ...newRecurringCost, frequency_months: parseInt(value) })}><SelectTrigger className="text-sm"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="1">Monthly</SelectItem><SelectItem value="3">Every 3 months</SelectItem><SelectItem value="6">Every 6 months</SelectItem><SelectItem value="9">Every 9 months</SelectItem><SelectItem value="12">Yearly</SelectItem></SelectContent></Select></div>
+                      <div><Label className="text-xs">Next Payment Date</Label><Input type="date" value={newRecurringCost.next_payment_date} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, next_payment_date: e.target.value })} className="text-sm" /></div>
+                      <div><Label className="text-xs">Notes (optional)</Label><Input value={newRecurringCost.notes} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, notes: e.target.value })} placeholder="Additional info" className="text-sm" /></div>
+                    </div>
+                    <Button type="button" onClick={addRecurringCost} disabled={!newRecurringCost.name || !newRecurringCost.amount} variant="outline" size="sm" className="w-full border-purple-400 text-purple-700 hover:bg-purple-50"><Plus className="h-4 w-4 mr-2" />Add Recurring Cost</Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || uploading}>{uploading ? 'Uploading Image...' : editingBoat ? 'Update Boat' : 'Create Boat'}</Button>
                 <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
               </div>
