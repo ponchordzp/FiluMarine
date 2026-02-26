@@ -462,7 +462,7 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
   const allItems = sections.flatMap(s =>
     s.items ? s.items : s.subsections.flatMap(sub => sub.items)
   );
-  const totalChecked = allItems.filter(i => checklist[i.id]).length;
+  const totalChecked = allItems.filter(i => getVal(checklist, i.id, 'checked')).length;
   const totalAll = allItems.length;
   const overallPct = totalAll > 0 ? Math.round((totalChecked / totalAll) * 100) : 0;
 
