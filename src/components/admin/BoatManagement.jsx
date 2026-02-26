@@ -16,6 +16,7 @@ import TripHistoryCard from './TripHistoryCard';
 import PickupAndDeparture from './PickupAndDeparture';
 import EquipmentManager from './EquipmentManager';
 import SuppliesManager from './SuppliesManager';
+import MaintenanceChecklist from './MaintenanceChecklist';
 
 const expeditionTypes = [
   'half_day_fishing',
