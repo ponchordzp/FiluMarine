@@ -683,7 +683,7 @@ export default function BoatManagement() {
               </div>
 
               {/* ── SECTION 5: Maintenance ── orange/red */}
-              <div className="rounded-xl overflow-hidden border border-orange-200 mb-4">
+              <div id="section-maintenance" className="rounded-xl overflow-hidden border border-orange-200 mb-4">
                 <div className="bg-orange-600 px-5 py-3 flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase">Maintenance</h3>
