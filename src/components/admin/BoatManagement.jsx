@@ -806,7 +806,7 @@ export default function BoatManagement() {
               </div>
 
               {/* ── SECTION 8: Recurring Costs ── purple */}
-              <div className="rounded-xl overflow-hidden border border-purple-200 mb-4">
+              <div id="section-recurring" className="rounded-xl overflow-hidden border border-purple-200 mb-4">
                 <div className="bg-purple-600 px-5 py-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase">Recurring Costs</h3>
