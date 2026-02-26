@@ -371,7 +371,10 @@ function SectionProgress({ section, checklist }) {
   const allItems = section.items
     ? section.items
     : section.subsections.flatMap(s => s.items);
-  const checked = allItems.filter(i => checklist[i.id]).length;
+  const checked = allItems.filter(i => {
+    const v = checklist[i.id];
+    return v && typeof v === 'object' ? v.checked : !!v;
+  }).length;
   const pct = allItems.length > 0 ? Math.round((checked / allItems.length) * 100) : 0;
   return { checked, total: allItems.length, pct };
 }
