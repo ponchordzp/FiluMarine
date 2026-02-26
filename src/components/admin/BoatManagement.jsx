@@ -646,6 +646,25 @@ export default function BoatManagement() {
                 </div>
               </div>
 
+              {/* ── SECTION 4b: Maintenance Checklist ── green (engine-type specific) */}
+              <div className="rounded-xl overflow-hidden border border-green-200 mb-4">
+                <div className="bg-green-700 px-5 py-3 flex items-center gap-2">
+                  <Check className="h-4 w-4 text-white" />
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">
+                    Maintenance Checklist
+                    {formData.engine_config === 'inboard' && <span className="ml-2 text-green-200 font-normal normal-case text-xs">(Inboard Diesel Yacht)</span>}
+                    {formData.engine_config === 'outboard' && <span className="ml-2 text-green-200 font-normal normal-case text-xs">(Outboard Center Console)</span>}
+                  </h3>
+                </div>
+                <div className="bg-green-50 p-5">
+                  <MaintenanceChecklist
+                    engineConfig={formData.engine_config}
+                    checklist={formData.maintenance_checklist || {}}
+                    onChange={(val) => setFormData(prev => ({ ...prev, maintenance_checklist: val }))}
+                  />
+                </div>
+              </div>
+
               {/* ── SECTION 5: Maintenance ── orange/red */}
               <div className="rounded-xl overflow-hidden border border-orange-200 mb-4">
                 <div className="bg-orange-600 px-5 py-3 flex items-center gap-2">
