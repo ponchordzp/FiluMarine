@@ -419,6 +419,19 @@ function ChecklistSection({ section, checklist, onToggle }) {
   );
 }
 
+// checklist shape: { [id]: { checked: bool, note: string, lastDate: string } | bool (legacy) }
+function getVal(checklist, id, field) {
+  const v = checklist[id];
+  if (!v || typeof v !== 'object') return field === 'checked' ? !!v : '';
+  return v[field] ?? (field === 'checked' ? false : '');
+}
+
+function setVal(checklist, id, field, value) {
+  const existing = checklist[id];
+  const base = existing && typeof existing === 'object' ? existing : { checked: !!existing, note: '', lastDate: '' };
+  return { ...checklist, [id]: { ...base, [field]: value } };
+}
+
 export default function MaintenanceChecklist({ engineConfig, checklist = {}, onChange }) {
   if (!engineConfig) {
     return (
