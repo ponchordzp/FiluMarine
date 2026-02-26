@@ -13,6 +13,7 @@ const FALLBACK_LOCATIONS = [
     image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
     coordinates: '17.6617°N, 101.5528°W',
     visible: true,
+    sort_order: 0,
   },
   {
     location_id: 'acapulco',
@@ -22,10 +23,20 @@ const FALLBACK_LOCATIONS = [
     image: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=800&q=80',
     coordinates: '16.8531°N, 99.8237°W',
     visible: true,
-  }
+    sort_order: 1,
+  },
 ];
 
 export default function LocationSelector({ onSelectLocation }) {
+  const { data: dbLocations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list('sort_order'),
+    refetchInterval: 5000,
+  });
+
+  const locations = dbLocations.length > 0
+    ? dbLocations.filter(l => l.visible !== false)
+    : FALLBACK_LOCATIONS;
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0a1f3d] via-[#0c2847] to-[#001529] py-20 px-4 sm:px-6 overflow-hidden">
       {/* Animated Background Elements */}
@@ -108,7 +119,7 @@ export default function LocationSelector({ onSelectLocation }) {
         <div className="grid md:grid-cols-2 gap-10">
           {locations.map((location, index) => (
             <div 
-              key={location.id}
+              key={location.location_id || location.id}
               className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)]"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
@@ -122,10 +133,12 @@ export default function LocationSelector({ onSelectLocation }) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
                 
                 {/* Location Badge */}
-                <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-500/90 to-blue-500/90 backdrop-blur-md px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
-                  <MapPin className="h-4 w-4 text-white" />
-                  <span className="text-white text-sm font-semibold">{location.state}</span>
-                </div>
+                {location.state && (
+                  <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-500/90 to-blue-500/90 backdrop-blur-md px-5 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                    <MapPin className="h-4 w-4 text-white" />
+                    <span className="text-white text-sm font-semibold">{location.state}</span>
+                  </div>
+                )}
               </div>
 
               {/* Location Info */}
@@ -133,11 +146,11 @@ export default function LocationSelector({ onSelectLocation }) {
                 <h3 className="text-3xl font-light text-white mb-2">
                   <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{location.name}</span>
                 </h3>
-                <p className="text-cyan-300/60 text-sm mb-1 font-mono">{location.coordinates}</p>
-                <p className="text-white/80 mb-8 text-lg leading-relaxed">{location.description}</p>
+                {location.coordinates && <p className="text-cyan-300/60 text-sm mb-1 font-mono">{location.coordinates}</p>}
+                {location.description && <p className="text-white/80 mb-8 text-lg leading-relaxed">{location.description}</p>}
                 
                 <Button 
-                  onClick={() => onSelectLocation(location.id)}
+                  onClick={() => onSelectLocation(location.location_id || location.id)}
                   className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-6 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] text-lg"
                 >
                   Explore {location.name}
