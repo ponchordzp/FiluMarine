@@ -13,7 +13,6 @@ const FALLBACK_LOCATIONS = [
     image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
     coordinates: '17.6617°N, 101.5528°W',
     visible: true,
-    sort_order: 0,
   },
   {
     location_id: 'acapulco',
@@ -23,20 +22,10 @@ const FALLBACK_LOCATIONS = [
     image: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=800&q=80',
     coordinates: '16.8531°N, 99.8237°W',
     visible: true,
-    sort_order: 1,
-  },
+  }
 ];
 
 export default function LocationSelector({ onSelectLocation }) {
-  const { data: dbLocations = [] } = useQuery({
-    queryKey: ['locations'],
-    queryFn: () => base44.entities.Location.list('sort_order'),
-    refetchInterval: 5000,
-  });
-
-  const locations = dbLocations.length > 0
-    ? dbLocations.filter(l => l.visible !== false)
-    : FALLBACK_LOCATIONS;
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0a1f3d] via-[#0c2847] to-[#001529] py-20 px-4 sm:px-6 overflow-hidden">
       {/* Animated Background Elements */}
