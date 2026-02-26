@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, EyeOff, Upload, X, Check, MapPin, DollarSign, Clock } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Check, MapPin, Clock } from 'lucide-react';
 
 const COMMON_INCLUDES = [
   'Fishing equipment',
@@ -45,7 +45,7 @@ const emptyForm = {
   title: '',
   description: '',
   location: 'both',
-  price: 0,
+
   duration: '',
   image: '',
   includes: [],
@@ -207,9 +207,7 @@ export default function ExpeditionManagement() {
                         <span className="text-white text-xs font-medium flex items-center gap-1">
                           <Clock className="h-3 w-3" /> {exp.duration}
                         </span>
-                        <span className="text-white text-xs font-bold">
-                          ${exp.price?.toLocaleString()} MXN
-                        </span>
+
                       </div>
                     </div>
                   )}
@@ -297,10 +295,7 @@ export default function ExpeditionManagement() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label>Price (MXN)</Label>
-                <Input type="number" min="0" value={formData.price} onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })} placeholder="e.g. 9999" />
-              </div>
+
               <div>
                 <Label>Duration</Label>
                 <Input value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 5 hours" />
