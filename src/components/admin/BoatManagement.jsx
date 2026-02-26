@@ -888,10 +888,6 @@ export default function BoatManagement() {
                 {boat.description && <p className="text-xs text-slate-600 line-clamp-2 mt-2">{boat.description}</p>}
               </div>
 
-              <MaintenanceAlerts boat={boat} actualCurrentHours={actualCurrentHours} />
-
-              <MaintenanceLogView boat={boat} />
-
               {boat.current_hours >= 0 && (
                 <div className="mt-3 pt-3 border-t">
                   <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-2 mb-2"><Gauge className="h-3 w-3" />Engine Hours</h4>
