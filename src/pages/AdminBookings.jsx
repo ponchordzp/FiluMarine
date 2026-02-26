@@ -20,6 +20,7 @@ import AdminAuth from '@/components/AdminAuth';
 import ExpenseDataEntry from '@/components/ExpenseDataEntry';
 import BoatManagement from '@/components/admin/BoatManagement';
 import DestinationManagement from '@/components/admin/DestinationManagement';
+import ExpeditionManagement from '@/components/admin/ExpeditionManagement';
 
 const statusColors = {
   pending: 'bg-amber-100 text-amber-800',
@@ -264,6 +265,7 @@ export default function AdminBookings() {
             <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
               <TabsTrigger value="boats">Boat Inventory</TabsTrigger>
               <TabsTrigger value="destinations">Destinations</TabsTrigger>
+              <TabsTrigger value="expeditions">Expeditions</TabsTrigger>
             </TabsList>
           </div>
 
@@ -1366,6 +1368,14 @@ export default function AdminBookings() {
             <Card className="bg-white/95 backdrop-blur-sm">
               <CardContent className="p-6">
                 <DestinationManagement />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="expeditions" className="space-y-6">
+            <Card className="bg-white/95 backdrop-blur-sm">
+              <CardContent className="p-6">
+                <ExpeditionManagement />
               </CardContent>
             </Card>
           </TabsContent>
