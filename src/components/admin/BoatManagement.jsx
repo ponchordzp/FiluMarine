@@ -17,6 +17,8 @@ import PickupAndDeparture from './PickupAndDeparture';
 import EquipmentManager from './EquipmentManager';
 import SuppliesManager from './SuppliesManager';
 import MaintenanceChecklist from './MaintenanceChecklist';
+import MaintenanceAlerts from './MaintenanceAlerts';
+import MaintenanceLogView from './MaintenanceLogView';
 
 const expeditionTypes = [
   'half_day_fishing',
