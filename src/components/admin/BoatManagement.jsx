@@ -282,6 +282,7 @@ export default function BoatManagement() {
       supplies_inventory: boat.supplies_inventory || [],
       recurring_costs: boat.recurring_costs || [],
       price_per_additional_hour: boat.price_per_additional_hour || 0,
+      maintenance_checklist: boat.maintenance_checklist || {},
       equipment: boat.equipment || {
         bathroom: false,
         live_well: false,
