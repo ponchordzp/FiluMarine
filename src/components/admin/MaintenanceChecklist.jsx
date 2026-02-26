@@ -486,7 +486,7 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
       </div>
 
       {sections.map(section => (
-        <ChecklistSection key={section.id} section={section} checklist={checklist} onToggle={handleToggle} />
+        <ChecklistSection key={section.id} section={section} checklist={checklist} onToggle={handleToggle} onNote={handleNote} onDate={handleDate} />
       ))}
     </div>
   );
