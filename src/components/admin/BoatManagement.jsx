@@ -906,40 +906,51 @@ export default function BoatManagement() {
                 </div>
               )}
 
+              {/* Trip History - collapsible */}
               <div className="mt-3 pt-3 border-t">
-                <div className="flex items-center justify-between gap-2 mb-2">
+                <button
+                  type="button"
+                  onClick={() => setTripHistoryExpanded(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))}
+                  className="w-full flex items-center justify-between gap-2 mb-2 group"
+                >
                   <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-1.5"><MapPin className="h-3 w-3" />Trip History</h4>
-                  <div className="flex items-center gap-1.5">
-                    <Button variant="outline" size="sm" onClick={() => { setSelectedBoatForTrips(boat); setPersonalTripDialogOpen(true); }} className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"><Plus className="h-3 w-3 mr-1" />Log</Button>
-                    <Select value={tripHistoryFilter} onValueChange={setTripHistoryFilter}><SelectTrigger className="w-20 h-6 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All</SelectItem><SelectItem value="rental">Rental</SelectItem><SelectItem value="personal">Personal</SelectItem></SelectContent></Select>
-                  </div>
-                </div>
-                <div className="space-y-1.5 max-h-[360px] overflow-y-auto">
-                  {(() => {
-                    const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
-                    const boatPersonalTrips = personalTrips.filter(t => t.boat_id === boat.id);
-                    const allTrips = [
-                      ...boatBookings.map(b => {
-                        const expense = expenses.find(e => e.booking_id === b.id);
-                        const totalExpenses = expense ? ((expense.fuel_cost || 0) + (expense.crew_cost || 0) + (expense.maintenance_cost || 0) + (expense.cleaning_cost || 0) + (expense.supplies_cost || 0) + (expense.other_cost || 0)) : 0;
-                        const revenue = b.total_price || 0;
-                        const profit = revenue - totalExpenses;
-                        const roi = revenue > 0 ? ((profit / revenue) * 100) : 0;
-                        return { type: 'rental', date: b.date, title: b.experience_type?.replace(/_/g, ' ') || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi };
-                      }),
-                      ...boatPersonalTrips.map(t => {
-                        const totalCost = ((t.fuel_quantity || 0) * (t.fuel_price_per_unit || 0) + (t.additional_expenses || 0) + (t.supplies_used?.reduce((sum, s) => sum + (s.price || 0), 0) || 0));
-                        return { type: 'personal', date: t.trip_date, title: t.destination || 'Personal Trip', guests: t.guests, hours: t.engine_hours_used || 0, notes: t.notes, expenses: totalCost, revenue: 0, profit: -totalCost, roi: 0 };
-                      })
-                    ].sort((a, b) => new Date(b.date) - new Date(a.date));
-                    const filteredTrips = allTrips.filter(trip => tripHistoryFilter === 'all' || trip.type === tripHistoryFilter);
-                    if (filteredTrips.length === 0) return <div className="text-center py-4 text-slate-500 text-xs">No trips yet</div>;
-                    return filteredTrips.map((trip, idx) => <TripHistoryCard key={idx} trip={trip} />);
-                  })()}
-                </div>
+                  {tripHistoryExpanded[boat.id] ? <ChevronUp className="h-3 w-3 text-slate-400" /> : <ChevronDown className="h-3 w-3 text-slate-400" />}
+                </button>
+
+                {tripHistoryExpanded[boat.id] && (
+                  <>
+                    <div className="flex items-center justify-end gap-1.5 mb-2">
+                      <Button variant="outline" size="sm" onClick={() => { setSelectedBoatForTrips(boat); setPersonalTripDialogOpen(true); }} className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"><Plus className="h-3 w-3 mr-1" />Log</Button>
+                      <Select value={tripHistoryFilter} onValueChange={setTripHistoryFilter}><SelectTrigger className="w-20 h-6 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All</SelectItem><SelectItem value="rental">Rental</SelectItem><SelectItem value="personal">Personal</SelectItem></SelectContent></Select>
+                    </div>
+                    <div className="space-y-1.5 max-h-[360px] overflow-y-auto">
+                      {(() => {
+                        const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
+                        const boatPersonalTrips = personalTrips.filter(t => t.boat_id === boat.id);
+                        const allTrips = [
+                          ...boatBookings.map(b => {
+                            const expense = expenses.find(e => e.booking_id === b.id);
+                            const totalExpenses = expense ? ((expense.fuel_cost || 0) + (expense.crew_cost || 0) + (expense.maintenance_cost || 0) + (expense.cleaning_cost || 0) + (expense.supplies_cost || 0) + (expense.other_cost || 0)) : 0;
+                            const revenue = b.total_price || 0;
+                            const profit = revenue - totalExpenses;
+                            const roi = revenue > 0 ? ((profit / revenue) * 100) : 0;
+                            return { type: 'rental', date: b.date, title: b.experience_type?.replace(/_/g, ' ') || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi };
+                          }),
+                          ...boatPersonalTrips.map(t => {
+                            const totalCost = ((t.fuel_quantity || 0) * (t.fuel_price_per_unit || 0) + (t.additional_expenses || 0) + (t.supplies_used?.reduce((sum, s) => sum + (s.price || 0), 0) || 0));
+                            return { type: 'personal', date: t.trip_date, title: t.destination || 'Personal Trip', guests: t.guests, hours: t.engine_hours_used || 0, notes: t.notes, expenses: totalCost, revenue: 0, profit: -totalCost, roi: 0 };
+                          })
+                        ].sort((a, b) => new Date(b.date) - new Date(a.date));
+                        const filteredTrips = allTrips.filter(trip => tripHistoryFilter === 'all' || trip.type === tripHistoryFilter);
+                        if (filteredTrips.length === 0) return <div className="text-center py-4 text-slate-500 text-xs">No trips yet</div>;
+                        return filteredTrips.map((trip, idx) => <TripHistoryCard key={idx} trip={trip} />);
+                      })()}
+                    </div>
+                  </>
+                )}
               </div>
 
-              <Button variant="ghost" size="sm" onClick={() => setExpandedBoats(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))} className="w-full mt-2 h-8">{isExpanded ? <><ChevronUp className="h-3 w-3 mr-1" /><span className="text-xs">Show Less</span></> : <><ChevronDown className="h-3 w-3 mr-1" /><span className="text-xs">Show More</span></>}</Button>
+              <Button variant="ghost" size="sm" onClick={() => setExpandedBoats(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))} className="w-full mt-2 h-8">{isExpanded ? <><ChevronUp className="h-3 w-3 mr-1" /><span className="text-xs">Hide Equipment, Expeditions & Statistics</span></> : <><ChevronDown className="h-3 w-3 mr-1" /><span className="text-xs">Show Equipment, Expeditions & Statistics</span></>}</Button>
 
               {isExpanded && isRentalMode && (
                 <div className="mb-4">
