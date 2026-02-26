@@ -147,7 +147,7 @@ export default function LocationSelector({ onSelectLocation }) {
                 <p className="text-white/80 mb-8 text-lg leading-relaxed">{location.description}</p>
                 
                 <Button 
-                  onClick={() => onSelectLocation(location.id)}
+                onClick={() => onSelectLocation(location.location_id || location.id)}
                   className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-6 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] text-lg"
                 >
                   Explore {location.name}
