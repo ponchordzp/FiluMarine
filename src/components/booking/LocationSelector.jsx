@@ -118,7 +118,7 @@ export default function LocationSelector({ onSelectLocation }) {
         <div className="grid md:grid-cols-2 gap-10">
           {locations.map((location, index) => (
             <div 
-              key={location.id}
+              key={location.location_id || location.id}
               className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)]"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
