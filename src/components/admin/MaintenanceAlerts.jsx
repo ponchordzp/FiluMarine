@@ -191,7 +191,22 @@ const severityConfig = {
   info:     { bg: 'bg-blue-50', border: 'border-blue-200', badge: 'bg-blue-500 text-white', icon: Clock, iconColor: 'text-blue-500' },
 };
 
-export default function MaintenanceAlerts({ boat, actualCurrentHours }) {
+// Map alert id to the form section it belongs to
+const alertSectionMap = {
+  engine_overdue:   'section-engine',
+  engine_due_soon:  'section-engine',
+  service_over_year:'section-maintenance',
+  service_9months:  'section-maintenance',
+  no_service_date:  'section-maintenance',
+  impeller_check:   'section-engine',
+  flush_reminder:   'section-maintenance',
+  coolant_check:    'section-engine',
+  supplies_needed:  'section-supplies',
+  supplies_expired: 'section-supplies',
+  recurring_overdue:'section-recurring',
+};
+
+export default function MaintenanceAlerts({ boat, actualCurrentHours, onEditSection }) {
   const [expanded, setExpanded] = React.useState(false);
   const alerts = generateAlerts(boat, actualCurrentHours);
 
