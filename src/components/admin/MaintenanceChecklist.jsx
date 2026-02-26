@@ -379,7 +379,7 @@ function SectionProgress({ section, checklist }) {
   return { checked, total: allItems.length, pct };
 }
 
-function ChecklistSection({ section, checklist, onToggle }) {
+function ChecklistSection({ section, checklist, onToggle, onNote, onDate }) {
   const [open, setOpen] = useState(false);
   const c = COLOR_MAP[section.color] || COLOR_MAP.slate;
   const { checked, total, pct } = SectionProgress({ section, checklist });
