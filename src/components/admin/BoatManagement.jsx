@@ -104,6 +104,7 @@ export default function BoatManagement() {
   const [newEquipment, setNewEquipment] = useState('');
   const [tripHistoryFilter, setTripHistoryFilter] = useState('all');
   const [tripHistoryExpanded, setTripHistoryExpanded] = useState({});
+  const dialogContentRef = React.useRef(null);
   
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
