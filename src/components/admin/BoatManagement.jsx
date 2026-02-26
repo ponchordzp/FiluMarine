@@ -86,7 +86,8 @@ export default function BoatManagement() {
     supplies_inventory: [],
     recurring_costs: [],
     price_per_additional_hour: 0,
-    status: 'active'
+    status: 'active',
+    maintenance_checklist: {}
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
