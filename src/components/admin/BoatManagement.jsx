@@ -260,6 +260,19 @@ export default function BoatManagement() {
     setDialogOpen(false);
   };
 
+  const scrollToSection = (sectionId) => {
+    // Open edit dialog for the boat first (caller handles this), then scroll
+    setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  };
+
+  const handleEditAndScroll = (boat, sectionId) => {
+    handleEdit(boat);
+    scrollToSection(sectionId);
+  };
+
   const handleEdit = (boat) => {
     setEditingBoat(boat);
     const customEquip = boat.custom_equipment || [];
