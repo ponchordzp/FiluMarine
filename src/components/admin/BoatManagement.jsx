@@ -902,7 +902,11 @@ export default function BoatManagement() {
                 {boat.description && <p className="text-xs text-slate-600 line-clamp-2 mt-2">{boat.description}</p>}
               </div>
 
-              <MaintenanceAlerts boat={boat} actualCurrentHours={actualCurrentHours} />
+              <MaintenanceAlerts
+                boat={boat}
+                actualCurrentHours={actualCurrentHours}
+                onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)}
+              />
               <MaintenanceLogView boat={boat} />
 
               {boat.current_hours >= 0 && (
