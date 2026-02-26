@@ -101,6 +101,7 @@ export default function BoatManagement() {
   const [expeditionPickupDepartures, setExpeditionPickupDepartures] = useState({});
   const [newEquipment, setNewEquipment] = useState('');
   const [tripHistoryFilter, setTripHistoryFilter] = useState('all');
+  const [tripHistoryExpanded, setTripHistoryExpanded] = useState({});
   
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
