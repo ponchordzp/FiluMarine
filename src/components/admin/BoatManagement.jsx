@@ -634,7 +634,7 @@ export default function BoatManagement() {
               )}
 
               {/* ── SECTION 4: Engine ── amber */}
-              <div className="rounded-xl overflow-hidden border border-amber-200 mb-4">
+              <div id="section-engine" className="rounded-xl overflow-hidden border border-amber-200 mb-4">
                 <div className="bg-amber-500 px-5 py-3 flex items-center gap-2">
                   <Gauge className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase">Engine Configuration</h3>
