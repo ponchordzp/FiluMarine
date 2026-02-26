@@ -264,6 +264,15 @@ export default function MaintenanceAlerts({ boat, actualCurrentHours, onEditSect
                     <p className="text-xs text-slate-600 mb-1.5">{alert.description}</p>
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="text-xs text-slate-500 font-medium">→ {alert.action}</span>
+                      {onEditSection && alertSectionMap[alert.id] && (
+                        <button
+                          type="button"
+                          onClick={() => onEditSection(alertSectionMap[alert.id])}
+                          className="inline-flex items-center gap-1 text-xs px-2 py-0.5 bg-slate-700 text-white rounded-full hover:bg-slate-900 transition-colors"
+                        >
+                          ✏️ Fix in Editor
+                        </button>
+                      )}
                       {boat.mechanic_phone && (
                         <a
                           href={`https://wa.me/${boat.mechanic_phone.replace(/\D/g, '')}?text=Hi ${boat.mechanic_name || 'Mechanic'}, I need to schedule service for ${boat.name}: ${alert.title}`}
