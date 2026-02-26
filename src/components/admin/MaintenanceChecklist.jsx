@@ -445,7 +445,15 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
   const layoutLabel = engineConfig === 'inboard' ? 'Layout A — Inboard Diesel Yacht' : 'Layout B — Outboard Center Console';
 
   const handleToggle = (id) => {
-    onChange({ ...checklist, [id]: !checklist[id] });
+    onChange(setVal(checklist, id, 'checked', !getVal(checklist, id, 'checked')));
+  };
+
+  const handleNote = (id, value) => {
+    onChange(setVal(checklist, id, 'note', value));
+  };
+
+  const handleDate = (id, value) => {
+    onChange(setVal(checklist, id, 'lastDate', value));
   };
 
   const allItems = sections.flatMap(s =>
