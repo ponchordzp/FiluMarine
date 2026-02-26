@@ -1,27 +1,42 @@
 import React from 'react';
 import { MapPin, Anchor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
-const locations = [
+const FALLBACK_LOCATIONS = [
   {
-    id: 'ixtapa_zihuatanejo',
+    location_id: 'ixtapa_zihuatanejo',
     name: 'Ixtapa-Zihuatanejo',
     state: 'Guerrero',
     description: 'Pacific paradise with world-class sport fishing and pristine beaches',
     image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
-    coordinates: '17.6617°N, 101.5528°W'
+    coordinates: '17.6617°N, 101.5528°W',
+    visible: true,
+    sort_order: 0,
   },
   {
-    id: 'acapulco',
+    location_id: 'acapulco',
     name: 'Acapulco',
     state: 'Guerrero',
     description: 'Legendary beach destination with stunning bays and vibrant marine life',
     image: 'https://images.unsplash.com/photo-1506929562872-bb421503ef21?w=800&q=80',
-    coordinates: '16.8531°N, 99.8237°W'
-  }
+    coordinates: '16.8531°N, 99.8237°W',
+    visible: true,
+    sort_order: 1,
+  },
 ];
 
 export default function LocationSelector({ onSelectLocation }) {
+  const { data: dbLocations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list('sort_order'),
+    refetchInterval: 5000,
+  });
+
+  const locations = dbLocations.length > 0
+    ? dbLocations.filter(l => l.visible !== false)
+    : FALLBACK_LOCATIONS;
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-[#0a1f3d] via-[#0c2847] to-[#001529] py-20 px-4 sm:px-6 overflow-hidden">
       {/* Animated Background Elements */}
