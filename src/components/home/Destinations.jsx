@@ -113,6 +113,7 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
   const { data: dbDestinations = [] } = useQuery({
     queryKey: ['destinations', location],
     queryFn: () => base44.entities.DestinationContent.list(),
+    refetchInterval: 5000,
   });
 
   const filteredDbDests = dbDestinations.filter(d => d.region === location);
