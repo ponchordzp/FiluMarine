@@ -707,7 +707,7 @@ export default function BoatManagement() {
               </div>
 
               {/* ── SECTION 6: Supplies Inventory ── emerald */}
-              <div className="rounded-xl overflow-hidden border border-emerald-200 mb-4">
+              <div id="section-supplies" className="rounded-xl overflow-hidden border border-emerald-200 mb-4">
                 <div className="bg-emerald-600 px-5 py-3 flex items-center gap-2">
                   <Package className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase">Supplies Inventory</h3>
