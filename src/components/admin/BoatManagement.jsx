@@ -693,6 +693,33 @@ export default function BoatManagement() {
                     <div><Label>Last Service Date</Label><Input type="date" value={formData.last_service_date} onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })} /></div>
                     <div><Label>Mechanic Phone (Last Service)</Label><Input type="tel" value={formData.last_service_mechanic_phone} onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
                   </div>
+
+                  {/* Component Replacement Dates */}
+                  <div className="bg-white border border-orange-200 rounded-lg p-4 space-y-3">
+                    <p className="text-xs font-bold text-orange-900 uppercase tracking-wide">Component Replacement Dates</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div><Label className="text-xs">Impeller Last Replaced</Label><Input type="date" value={formData.impeller_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, impeller_last_replaced_date: e.target.value })} className="text-sm" /></div>
+                      <div><Label className="text-xs">Fuel Filter Last Replaced</Label><Input type="date" value={formData.fuel_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, fuel_filter_last_replaced_date: e.target.value })} className="text-sm" /></div>
+                      <div><Label className="text-xs">Oil Filter Last Replaced</Label><Input type="date" value={formData.oil_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, oil_filter_last_replaced_date: e.target.value })} className="text-sm" /></div>
+                      {formData.engine_config === 'outboard' && (
+                        <div><Label className="text-xs">Spark Plugs Last Replaced</Label><Input type="date" value={formData.spark_plugs_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, spark_plugs_last_replaced_date: e.target.value })} className="text-sm" /></div>
+                      )}
+                      <div><Label className="text-xs">Battery Last Inspected</Label><Input type="date" value={formData.battery_inspection_date || ''} onChange={(e) => setFormData({ ...formData, battery_inspection_date: e.target.value })} className="text-sm" /></div>
+                      <div><Label className="text-xs">Zinc Anodes Last Replaced</Label><Input type="date" value={formData.zinc_anodes_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, zinc_anodes_last_replaced_date: e.target.value })} className="text-sm" /></div>
+                      <div><Label className="text-xs">Anti-Fouling Paint Last Applied</Label><Input type="date" value={formData.antifouling_last_applied_date || ''} onChange={(e) => setFormData({ ...formData, antifouling_last_applied_date: e.target.value })} className="text-sm" /></div>
+                      <div><Label className="text-xs">Safety Equipment Last Inspected</Label><Input type="date" value={formData.safety_equipment_inspection_date || ''} onChange={(e) => setFormData({ ...formData, safety_equipment_inspection_date: e.target.value })} className="text-sm" /><p className="text-xs text-orange-700 mt-1">Life jackets, flares, fire extinguishers</p></div>
+                    </div>
+                  </div>
+
+                  {/* Condition Notes */}
+                  <div className="bg-white border border-orange-200 rounded-lg p-4 space-y-3">
+                    <p className="text-xs font-bold text-orange-900 uppercase tracking-wide">Condition Notes</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div><Label className="text-xs">Hull Condition Notes</Label><Textarea value={formData.hull_condition_notes || ''} onChange={(e) => setFormData({ ...formData, hull_condition_notes: e.target.value })} rows={2} placeholder="e.g., Minor scratches on port side, antifouling in good condition" className="text-sm" /></div>
+                      <div><Label className="text-xs">Propeller Condition Notes</Label><Textarea value={formData.propeller_condition_notes || ''} onChange={(e) => setFormData({ ...formData, propeller_condition_notes: e.target.value })} rows={2} placeholder="e.g., Starboard prop has minor ding at tip" className="text-sm" /></div>
+                    </div>
+                  </div>
+
                   <div className="bg-orange-100 border border-orange-200 rounded-lg p-3"><p className="text-sm text-orange-900">💡 <strong>Note:</strong> Enter the maintenance cost <strong>per engine</strong>. Total is calculated from engine count above.</p></div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><Label>Minor Maintenance Cost (MXN)</Label><Input type="number" min="0" value={formData.minor_maintenance_cost} onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 5000" /><p className="text-xs text-orange-700 mt-1">Oil change, filters, basic service</p></div>

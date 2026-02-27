@@ -2,11 +2,11 @@ import React from 'react';
 import { AlertTriangle, Clock, CheckCircle, XCircle, Phone, Calendar, Wrench, ChevronDown, ChevronUp } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { differenceInDays, parseISO } from 'date-fns';
+import { differenceInDays, parseISO, addMonths } from 'date-fns';
 
 /**
  * Generates proactive maintenance alerts based on engine hours, service dates,
- * and critical safety thresholds.
+ * and tracked component replacement dates.
  */
 function generateAlerts(boat, actualCurrentHours) {
   const alerts = [];
@@ -76,25 +76,61 @@ function generateAlerts(boat, actualCurrentHours) {
     });
   }
 
-  // --- Outboard-specific: Flush & corrosion ---
+  // --- Outboard-specific alerts ---
   if (boat.engine_config === 'outboard') {
-    // If engine is old (>6 years), flag impeller risk
-    if (boat.engine_year && (now.getFullYear() - boat.engine_year) >= 1) {
-      const age = now.getFullYear() - boat.engine_year;
-      if (age >= 3) {
+    // Impeller — based on actual replacement date (recommended every 2 years)
+    if (boat.impeller_last_replaced_date) {
+      const daysSince = differenceInDays(now, parseISO(boat.impeller_last_replaced_date));
+      if (daysSince > 730) { // >2 years
         alerts.push({
-          id: 'impeller_check',
-          severity: age >= 5 ? 'critical' : 'warning',
-          safety: age >= 5,
-          title: `Water Pump Impeller Check (Engine ${age}y old)`,
-          description: `Impellers should be replaced every 2–3 years. A failed impeller causes engine overheating and seizure.`,
-          action: 'Inspect & replace impeller',
+          id: 'impeller_overdue',
+          severity: 'critical',
+          safety: true,
+          title: `Water Pump Impeller Overdue (${Math.floor(daysSince / 365)}y ${Math.floor((daysSince % 365) / 30)}mo ago)`,
+          description: 'Impellers should be replaced every 2 years. A failed impeller causes engine overheating and seizure.',
+          action: 'Replace impeller immediately',
+          icon: 'wrench',
+        });
+      } else if (daysSince > 548) { // >18 months
+        alerts.push({
+          id: 'impeller_due_soon',
+          severity: 'warning',
+          safety: false,
+          title: 'Water Pump Impeller Due Soon',
+          description: `Last replaced ${Math.floor(daysSince / 30)} months ago. Replacement recommended every 2 years.`,
+          action: 'Schedule impeller replacement',
+          icon: 'wrench',
+        });
+      }
+    } else {
+      alerts.push({
+        id: 'impeller_no_date',
+        severity: 'info',
+        safety: false,
+        title: 'Impeller Replacement Date Not Recorded',
+        description: 'Log when the water pump impeller was last replaced to track its replacement cycle.',
+        action: 'Record impeller replacement date',
+        icon: 'wrench',
+      });
+    }
+
+    // Spark plugs (outboard) — recommended every 1–2 years
+    if (boat.spark_plugs_last_replaced_date) {
+      const daysSince = differenceInDays(now, parseISO(boat.spark_plugs_last_replaced_date));
+      if (daysSince > 730) {
+        alerts.push({
+          id: 'spark_plugs_overdue',
+          severity: 'warning',
+          safety: false,
+          title: 'Spark Plugs Due for Replacement',
+          description: `Last replaced ${Math.floor(daysSince / 365)} years ago. Worn spark plugs affect performance and fuel efficiency.`,
+          action: 'Replace spark plugs',
           icon: 'wrench',
         });
       }
     }
 
-    // Flush reminder (time-based — if last service >60 days)
+    // Flush reminder (time-based — if last service >90 days)
     if (boat.last_service_date) {
       const days = differenceInDays(now, parseISO(boat.last_service_date));
       if (days > 90) {
@@ -111,7 +147,7 @@ function generateAlerts(boat, actualCurrentHours) {
     }
   }
 
-  // --- Inboard-specific: Coolant, belts, zincs ---
+  // --- Inboard-specific alerts ---
   if (boat.engine_config === 'inboard') {
     if (actualCurrentHours > 500 && hoursSince > 200) {
       alerts.push({
@@ -124,6 +160,138 @@ function generateAlerts(boat, actualCurrentHours) {
         icon: 'wrench',
       });
     }
+
+    // Inboard impeller
+    if (boat.impeller_last_replaced_date) {
+      const daysSince = differenceInDays(now, parseISO(boat.impeller_last_replaced_date));
+      if (daysSince > 365) {
+        alerts.push({
+          id: 'impeller_overdue',
+          severity: 'critical',
+          safety: true,
+          title: `Raw Water Impeller Overdue (${Math.floor(daysSince / 365)}y ago)`,
+          description: 'Inboard raw water impellers should be inspected annually. A failed impeller causes engine overheating.',
+          action: 'Inspect & replace impeller',
+          icon: 'wrench',
+        });
+      }
+    } else {
+      alerts.push({
+        id: 'impeller_no_date',
+        severity: 'info',
+        safety: false,
+        title: 'Impeller Replacement Date Not Recorded',
+        description: 'Log when the raw water pump impeller was last replaced to track its service cycle.',
+        action: 'Record impeller replacement date',
+        icon: 'wrench',
+      });
+    }
+  }
+
+  // --- Fuel Filter ---
+  if (boat.fuel_filter_last_replaced_date) {
+    const daysSince = differenceInDays(now, parseISO(boat.fuel_filter_last_replaced_date));
+    if (daysSince > 365) {
+      alerts.push({
+        id: 'fuel_filter_overdue',
+        severity: 'warning',
+        safety: false,
+        title: 'Fuel Filter Replacement Due',
+        description: `Last replaced ${Math.floor(daysSince / 30)} months ago. Replace annually to prevent engine fuel starvation.`,
+        action: 'Replace fuel filter',
+        icon: 'wrench',
+      });
+    }
+  }
+
+  // --- Oil Filter ---
+  if (boat.oil_filter_last_replaced_date) {
+    const daysSince = differenceInDays(now, parseISO(boat.oil_filter_last_replaced_date));
+    if (daysSince > 365) {
+      alerts.push({
+        id: 'oil_filter_overdue',
+        severity: 'warning',
+        safety: false,
+        title: 'Oil Filter Replacement Due',
+        description: `Last replaced ${Math.floor(daysSince / 30)} months ago. Replace annually or per manufacturer interval.`,
+        action: 'Replace oil filter',
+        icon: 'wrench',
+      });
+    }
+  }
+
+  // --- Battery Inspection ---
+  if (boat.battery_inspection_date) {
+    const daysSince = differenceInDays(now, parseISO(boat.battery_inspection_date));
+    if (daysSince > 365) {
+      alerts.push({
+        id: 'battery_inspection_due',
+        severity: 'info',
+        safety: false,
+        title: 'Battery Inspection Due',
+        description: `Last inspected ${Math.floor(daysSince / 30)} months ago. Check charge, terminals, and electrolyte levels.`,
+        action: 'Inspect batteries',
+        icon: 'wrench',
+      });
+    }
+  }
+
+  // --- Zinc Anodes ---
+  if (boat.zinc_anodes_last_replaced_date) {
+    const daysSince = differenceInDays(now, parseISO(boat.zinc_anodes_last_replaced_date));
+    if (daysSince > 365) {
+      alerts.push({
+        id: 'zinc_anodes_overdue',
+        severity: 'warning',
+        safety: false,
+        title: 'Zinc Anodes Replacement Due',
+        description: `Last replaced ${Math.floor(daysSince / 30)} months ago. Depleted zincs leave metal exposed to saltwater corrosion.`,
+        action: 'Replace zinc anodes',
+        icon: 'wrench',
+      });
+    }
+  }
+
+  // --- Antifouling ---
+  if (boat.antifouling_last_applied_date) {
+    const daysSince = differenceInDays(now, parseISO(boat.antifouling_last_applied_date));
+    if (daysSince > 365) {
+      alerts.push({
+        id: 'antifouling_due',
+        severity: 'info',
+        safety: false,
+        title: 'Anti-Fouling Paint Due',
+        description: `Last applied ${Math.floor(daysSince / 30)} months ago. Reapply annually to prevent hull fouling and drag.`,
+        action: 'Apply anti-fouling paint',
+        icon: 'wrench',
+      });
+    }
+  }
+
+  // --- Safety Equipment ---
+  if (boat.safety_equipment_inspection_date) {
+    const daysSince = differenceInDays(now, parseISO(boat.safety_equipment_inspection_date));
+    if (daysSince > 365) {
+      alerts.push({
+        id: 'safety_equipment_due',
+        severity: 'warning',
+        safety: true,
+        title: 'Safety Equipment Inspection Due',
+        description: `Last inspected ${Math.floor(daysSince / 30)} months ago. Check life jackets, flares, fire extinguishers, and EPIRBs.`,
+        action: 'Inspect safety equipment',
+        icon: 'wrench',
+      });
+    }
+  } else {
+    alerts.push({
+      id: 'safety_equipment_no_date',
+      severity: 'warning',
+      safety: true,
+      title: 'Safety Equipment Inspection Not Recorded',
+      description: 'No safety equipment inspection on file. Life jackets, flares, and extinguishers must be checked regularly.',
+      action: 'Inspect & record safety equipment',
+      icon: 'wrench',
+    });
   }
 
   // --- Supplies Needed ---
@@ -142,13 +310,12 @@ function generateAlerts(boat, actualCurrentHours) {
     }
 
     // Expired supplies
-    const now2 = new Date();
     const expiredSupplies = boat.supplies_inventory.filter(s => {
       if (!s.purchased_date || !s.duration_months) return false;
       const purchased = new Date(s.purchased_date);
       const expiresAt = new Date(purchased);
       expiresAt.setMonth(expiresAt.getMonth() + s.duration_months);
-      return now2 > expiresAt;
+      return now > expiresAt;
     });
     if (expiredSupplies.length > 0) {
       alerts.push({
@@ -193,17 +360,27 @@ const severityConfig = {
 
 // Map alert id to the form section it belongs to
 const alertSectionMap = {
-  engine_overdue:   'section-engine',
-  engine_due_soon:  'section-engine',
-  service_over_year:'section-maintenance',
-  service_9months:  'section-maintenance',
-  no_service_date:  'section-maintenance',
-  impeller_check:   'section-engine',
-  flush_reminder:   'section-maintenance',
-  coolant_check:    'section-engine',
-  supplies_needed:  'section-supplies',
-  supplies_expired: 'section-supplies',
-  recurring_overdue:'section-recurring',
+  engine_overdue:              'section-engine',
+  engine_due_soon:             'section-engine',
+  service_over_year:           'section-maintenance',
+  service_9months:             'section-maintenance',
+  no_service_date:             'section-maintenance',
+  flush_reminder:              'section-maintenance',
+  coolant_check:               'section-engine',
+  impeller_overdue:            'section-maintenance',
+  impeller_due_soon:           'section-maintenance',
+  impeller_no_date:            'section-maintenance',
+  spark_plugs_overdue:         'section-maintenance',
+  fuel_filter_overdue:         'section-maintenance',
+  oil_filter_overdue:          'section-maintenance',
+  battery_inspection_due:      'section-maintenance',
+  zinc_anodes_overdue:         'section-maintenance',
+  antifouling_due:             'section-maintenance',
+  safety_equipment_due:        'section-maintenance',
+  safety_equipment_no_date:    'section-maintenance',
+  supplies_needed:             'section-supplies',
+  supplies_expired:            'section-supplies',
+  recurring_overdue:           'section-recurring',
 };
 
 export default function MaintenanceAlerts({ boat, actualCurrentHours, onEditSection }) {
