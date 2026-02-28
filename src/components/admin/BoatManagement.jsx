@@ -754,7 +754,7 @@ export default function BoatManagement() {
                     customFields={formData.custom_fields_maintenance || []}
                     onChange={(fields) => setFormData(prev => ({ ...prev, custom_fields_maintenance: fields }))}
                   />
-                </div>}
+                </div>)}
               </div>
 
               {/* ── SECTION 6: Supplies Inventory ── emerald */}
@@ -764,7 +764,7 @@ export default function BoatManagement() {
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supplies Inventory</h3>
                   {collapsedSections['supplies'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['supplies'] && <div className="bg-emerald-50 p-5 space-y-3">
+                {!collapsedSections['supplies'] && (<div className="bg-emerald-50 p-5 space-y-3">
                   <p className="text-sm text-emerald-800">Track all materials and supplies needed to keep your boat in optimal condition.</p>
                   <SuppliesManager supplies={formData.supplies_inventory} onAddSupply={addSupply} onRemoveSupply={removeSupply} onUpdateSupply={updateSupplyField} />
                   {formData.supplies_inventory.length > 0 && (
