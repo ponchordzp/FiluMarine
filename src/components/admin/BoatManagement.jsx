@@ -689,23 +689,25 @@ export default function BoatManagement() {
                     {formData.engine_config === 'inboard' && <span className="ml-2 text-green-200 font-normal normal-case text-xs">(Inboard Diesel Yacht)</span>}
                     {formData.engine_config === 'outboard' && <span className="ml-2 text-green-200 font-normal normal-case text-xs">(Outboard Center Console)</span>}
                   </h3>
-                </div>
-                <div className="bg-green-50 p-5">
+                  {collapsedSections['checklist'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                </button>
+                {!collapsedSections['checklist'] && <div className="bg-green-50 p-5">
                   <MaintenanceChecklist
                     engineConfig={formData.engine_config}
                     checklist={formData.maintenance_checklist || {}}
                     onChange={(val) => setFormData(prev => ({ ...prev, maintenance_checklist: val }))}
                   />
-                </div>
+                </div>}
               </div>
 
               {/* ── SECTION 5: Maintenance ── orange/red */}
               <div id="section-maintenance" className="rounded-xl overflow-hidden border border-orange-200 mb-4">
-                <div className="bg-orange-600 px-5 py-3 flex items-center gap-2">
+                <button type="button" onClick={() => toggleSection('maintenance')} className="w-full bg-orange-600 px-5 py-3 flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-white" />
-                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Maintenance</h3>
-                </div>
-                <div className="bg-orange-50 p-5 space-y-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Maintenance</h3>
+                  {collapsedSections['maintenance'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                </button>
+                {!collapsedSections['maintenance'] && <div className="bg-orange-50 p-5 space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><Label>Last Service Date</Label><Input type="date" value={formData.last_service_date} onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })} /></div>
                     <div><Label>Mechanic Phone (Last Service)</Label><Input type="tel" value={formData.last_service_mechanic_phone} onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
