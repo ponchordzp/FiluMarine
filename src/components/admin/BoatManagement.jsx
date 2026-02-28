@@ -548,11 +548,12 @@ export default function BoatManagement() {
 
               {/* ── SECTION 1: General Info ── sky blue */}
               <div className="rounded-xl overflow-hidden border border-sky-200 mb-4">
-                <div className="bg-sky-600 px-5 py-3 flex items-center gap-2">
+                <button type="button" onClick={() => toggleSection('general')} className="w-full bg-sky-600 px-5 py-3 flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-white" />
-                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">General Information</h3>
-                </div>
-                <div className="bg-sky-50 p-5 space-y-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">General Information</h3>
+                  {collapsedSections['general'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                </button>
+                {!collapsedSections['general'] && <div className="bg-sky-50 p-5 space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><Label>Boat Name *</Label><Input required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
                     <div><Label>Type *</Label><Input required value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console, Yacht" /></div>
