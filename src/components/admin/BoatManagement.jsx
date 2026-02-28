@@ -19,6 +19,7 @@ import SuppliesManager from './SuppliesManager';
 import MaintenanceChecklist from './MaintenanceChecklist';
 import MaintenanceAlerts from './MaintenanceAlerts';
 import MaintenanceLogView from './MaintenanceLogView';
+import CustomFieldsManager from './CustomFieldsManager';
 
 const expeditionTypes = [
   'half_day_fishing',
