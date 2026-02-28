@@ -905,7 +905,7 @@ export default function BoatManagement() {
                     </div>
                     <Button type="button" onClick={addRecurringCost} disabled={!newRecurringCost.name || !newRecurringCost.amount} variant="outline" size="sm" className="w-full border-purple-400 text-purple-700 hover:bg-purple-50"><Plus className="h-4 w-4 mr-2" />Add Recurring Cost</Button>
                   </div>
-                </div>
+                </div>}
               </div>
 
               <div className="flex gap-2 pt-2">
