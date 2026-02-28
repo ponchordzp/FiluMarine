@@ -814,8 +814,6 @@ export default function BoatManagement() {
                   />
                 </div>)}
               </div>
-                );
-              })()}
 
               {/* ── SECTION 6: Supplies Inventory ── emerald */}
               <div id="section-supplies" className="rounded-xl overflow-hidden border border-emerald-200 mb-4">
