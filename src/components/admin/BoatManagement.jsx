@@ -107,7 +107,10 @@ export default function BoatManagement() {
   const [newEquipment, setNewEquipment] = useState('');
   const [tripHistoryFilter, setTripHistoryFilter] = useState('all');
   const [tripHistoryExpanded, setTripHistoryExpanded] = useState({});
+  const [collapsedSections, setCollapsedSections] = useState({});
   const dialogContentRef = React.useRef(null);
+  
+  const toggleSection = (key) => setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
   
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
