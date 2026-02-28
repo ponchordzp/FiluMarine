@@ -677,7 +677,7 @@ export default function BoatManagement() {
                       </div>
                     </div>
                   )}
-                </div>}
+                </div>)}
               </div>
 
               {/* ── SECTION 4b: Maintenance Checklist ── green (engine-type specific) */}
