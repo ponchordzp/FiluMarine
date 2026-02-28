@@ -572,7 +572,12 @@ export default function BoatManagement() {
                       <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
                     </div>
                   </div>
-                </div>
+                  <CustomFieldsManager
+                    sectionKey="general"
+                    customFields={formData.custom_fields_general || []}
+                    onChange={(fields) => setFormData(prev => ({ ...prev, custom_fields_general: fields }))}
+                  />
+                </div>}
               </div>
 
               {/* ── SECTION 2: Expeditions & Pricing ── indigo */}
