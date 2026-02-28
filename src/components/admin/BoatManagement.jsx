@@ -547,11 +547,7 @@ export default function BoatManagement() {
             <form onSubmit={handleSubmit} className="space-y-0">
 
               {/* ── SECTION 1: General Info ── sky blue */}
-              {(() => {
-                const genFields = [formData.name, formData.type, formData.size, formData.capacity, formData.location, formData.description, formData.image || imagePreview];
-                const gFilled = genFields.filter(f => f && String(f).trim() !== '').length;
-                const gPct = Math.round((gFilled / genFields.length) * 100);
-                return (
+              {/* fill bar computed inline */ (() => null)()}
               <div className="rounded-xl overflow-hidden border border-sky-200 mb-4">
                 <button type="button" onClick={() => toggleSection('general')} className="w-full bg-sky-600 px-5 py-3 flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-white" />
