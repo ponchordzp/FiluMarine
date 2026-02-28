@@ -645,17 +645,18 @@ export default function BoatManagement() {
                       newEquipment={newEquipment}
                       onNewEquipmentChange={setNewEquipment}
                     />
-                  </div>
+                  </div>}
                 </div>
               )}
 
               {/* ── SECTION 4: Engine ── amber */}
               <div id="section-engine" className="rounded-xl overflow-hidden border border-amber-200 mb-4">
-                <div className="bg-amber-500 px-5 py-3 flex items-center gap-2">
+                <button type="button" onClick={() => toggleSection('engine')} className="w-full bg-amber-500 px-5 py-3 flex items-center gap-2">
                   <Gauge className="h-4 w-4 text-white" />
-                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Engine Configuration</h3>
-                </div>
-                <div className="bg-amber-50 p-5 space-y-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Engine Configuration</h3>
+                  {collapsedSections['engine'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                </button>
+                {!collapsedSections['engine'] && <div className="bg-amber-50 p-5 space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><Label>Engine Type</Label><Select value={formData.engine_config} onValueChange={(value) => setFormData({ ...formData, engine_config: value })}><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger><SelectContent><SelectItem value="inboard">Inboard</SelectItem><SelectItem value="outboard">Outboard</SelectItem></SelectContent></Select></div>
                     <div><Label>Number of Engines</Label><Input type="number" min="1" value={formData.engine_quantity} onChange={(e) => setFormData({ ...formData, engine_quantity: parseInt(e.target.value) || 1 })} /></div>
