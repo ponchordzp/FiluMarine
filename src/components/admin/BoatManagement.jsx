@@ -749,16 +749,22 @@ export default function BoatManagement() {
                     <div><Label>Mechanic Phone</Label><Input type="tel" value={formData.mechanic_phone} onChange={(e) => setFormData({ ...formData, mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
                     <div><Label>Mechanic Email</Label><Input type="email" value={formData.mechanic_email} onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })} placeholder="e.g., mechanic@example.com" /></div>
                   </div>
-                </div>
+                  <CustomFieldsManager
+                    sectionKey="maintenance"
+                    customFields={formData.custom_fields_maintenance || []}
+                    onChange={(fields) => setFormData(prev => ({ ...prev, custom_fields_maintenance: fields }))}
+                  />
+                </div>}
               </div>
 
               {/* ── SECTION 6: Supplies Inventory ── emerald */}
               <div id="section-supplies" className="rounded-xl overflow-hidden border border-emerald-200 mb-4">
-                <div className="bg-emerald-600 px-5 py-3 flex items-center gap-2">
+                <button type="button" onClick={() => toggleSection('supplies')} className="w-full bg-emerald-600 px-5 py-3 flex items-center gap-2">
                   <Package className="h-4 w-4 text-white" />
-                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Supplies Inventory</h3>
-                </div>
-                <div className="bg-emerald-50 p-5 space-y-3">
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supplies Inventory</h3>
+                  {collapsedSections['supplies'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                </button>
+                {!collapsedSections['supplies'] && <div className="bg-emerald-50 p-5 space-y-3">
                   <p className="text-sm text-emerald-800">Track all materials and supplies needed to keep your boat in optimal condition.</p>
                   <SuppliesManager supplies={formData.supplies_inventory} onAddSupply={addSupply} onRemoveSupply={removeSupply} onUpdateSupply={updateSupplyField} />
                   {formData.supplies_inventory.length > 0 && (
