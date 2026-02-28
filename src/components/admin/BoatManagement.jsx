@@ -677,14 +677,14 @@ export default function BoatManagement() {
                       </div>
                     </div>
                   )}
-                </div>
+                </div>}
               </div>
 
               {/* ── SECTION 4b: Maintenance Checklist ── green (engine-type specific) */}
               <div className="rounded-xl overflow-hidden border border-green-200 mb-4">
-                <div className="bg-green-700 px-5 py-3 flex items-center gap-2">
+                <button type="button" onClick={() => toggleSection('checklist')} className="w-full bg-green-700 px-5 py-3 flex items-center gap-2">
                   <Check className="h-4 w-4 text-white" />
-                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">
                     Maintenance Checklist
                     {formData.engine_config === 'inboard' && <span className="ml-2 text-green-200 font-normal normal-case text-xs">(Inboard Diesel Yacht)</span>}
                     {formData.engine_config === 'outboard' && <span className="ml-2 text-green-200 font-normal normal-case text-xs">(Outboard Center Console)</span>}
