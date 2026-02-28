@@ -330,6 +330,7 @@ const COLOR_MAP = {
 };
 
 function ChecklistItem({ id, label, interval, checked, note, lastDate, onToggle, onNoteChange, onDateChange }) {
+  const today = new Date().toISOString().split('T')[0];
   return (
     <div className="py-2 border-b border-slate-100 last:border-0">
       <div className="flex items-start gap-3">
@@ -346,13 +347,21 @@ function ChecklistItem({ id, label, interval, checked, note, lastDate, onToggle,
           <p className={`text-sm leading-snug ${checked ? 'line-through text-slate-400' : 'text-slate-800'}`}>{label}</p>
           <p className="text-xs text-slate-400 mt-0.5">Interval: {interval}</p>
           <div className="flex gap-2 mt-1.5">
-            <input
-              type="date"
-              value={lastDate || ''}
-              onChange={(e) => onDateChange(id, e.target.value)}
-              className="text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400"
-              title="Last done date"
-            />
+            <div className="flex items-center gap-1">
+              <input
+                type="date"
+                value={lastDate || ''}
+                onChange={(e) => onDateChange(id, e.target.value)}
+                className="text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400"
+                title="Last done date"
+              />
+              <button
+                type="button"
+                onClick={() => onDateChange(id, today)}
+                className="px-1.5 py-1 bg-green-600 text-white rounded text-xs hover:bg-green-700 flex-shrink-0 leading-none"
+                title="Set to today"
+              >+</button>
+            </div>
             <input
               type="text"
               value={note || ''}
