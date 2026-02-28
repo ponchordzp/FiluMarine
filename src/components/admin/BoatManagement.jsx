@@ -701,32 +701,104 @@ export default function BoatManagement() {
               </div>
 
               {/* ── SECTION 5: Maintenance ── orange/red */}
+              {(() => {
+                const maintenanceFields = [
+                  formData.last_service_date, formData.last_service_mechanic_phone,
+                  formData.impeller_last_replaced_date, formData.fuel_filter_last_replaced_date,
+                  formData.oil_filter_last_replaced_date, formData.battery_inspection_date,
+                  formData.zinc_anodes_last_replaced_date, formData.antifouling_last_applied_date,
+                  formData.safety_equipment_inspection_date, formData.hull_condition_notes,
+                  formData.propeller_condition_notes, formData.mechanic_name, formData.mechanic_phone,
+                ];
+                const mFilled = maintenanceFields.filter(f => f && String(f).trim() !== '').length;
+                const mTotal = maintenanceFields.length;
+                const mPct = Math.round((mFilled / mTotal) * 100);
+                return (
               <div id="section-maintenance" className="rounded-xl overflow-hidden border border-orange-200 mb-4">
                 <button type="button" onClick={() => toggleSection('maintenance')} className="w-full bg-orange-600 px-5 py-3 flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Maintenance</h3>
+                  <span className="text-xs text-white/80 mr-1">{mFilled}/{mTotal}</span>
+                  <div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2">
+                    <div className="h-full bg-white transition-all rounded-full" style={{ width: `${mPct}%` }} />
+                  </div>
                   {collapsedSections['maintenance'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['maintenance'] && (<div className="bg-orange-50 p-5 space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div><Label>Last Service Date</Label><Input type="date" value={formData.last_service_date} onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })} /></div>
-                    <div><Label>Mechanic Phone (Last Service)</Label><Input type="tel" value={formData.last_service_mechanic_phone} onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
+                    <div>
+                      <Label>Last Service Date</Label>
+                      <div className="flex gap-2 mt-1">
+                        <Input type="date" value={formData.last_service_date} onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })} className="flex-1" />
+                        <button type="button" onClick={() => setFormData({ ...formData, last_service_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+Today</button>
+                      </div>
+                    </div>
+                    <div><Label>Mechanic Phone (Last Service)</Label><Input type="tel" value={formData.last_service_mechanic_phone} onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" className="mt-1" /></div>
                   </div>
 
                   {/* Component Replacement Dates */}
                   <div className="bg-white border border-orange-200 rounded-lg p-4 space-y-3">
                     <p className="text-xs font-bold text-orange-900 uppercase tracking-wide">Component Replacement Dates</p>
                     <div className="grid md:grid-cols-2 gap-3">
-                      <div><Label className="text-xs">Impeller Last Replaced</Label><Input type="date" value={formData.impeller_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, impeller_last_replaced_date: e.target.value })} className="text-sm" /></div>
-                      <div><Label className="text-xs">Fuel Filter Last Replaced</Label><Input type="date" value={formData.fuel_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, fuel_filter_last_replaced_date: e.target.value })} className="text-sm" /></div>
-                      <div><Label className="text-xs">Oil Filter Last Replaced</Label><Input type="date" value={formData.oil_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, oil_filter_last_replaced_date: e.target.value })} className="text-sm" /></div>
+                      <div>
+                        <Label className="text-xs">Impeller Last Replaced</Label>
+                        <div className="flex gap-1 mt-1">
+                          <Input type="date" value={formData.impeller_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, impeller_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                          <button type="button" onClick={() => setFormData({ ...formData, impeller_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Fuel Filter Last Replaced</Label>
+                        <div className="flex gap-1 mt-1">
+                          <Input type="date" value={formData.fuel_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, fuel_filter_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                          <button type="button" onClick={() => setFormData({ ...formData, fuel_filter_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Oil Filter Last Replaced</Label>
+                        <div className="flex gap-1 mt-1">
+                          <Input type="date" value={formData.oil_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, oil_filter_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                          <button type="button" onClick={() => setFormData({ ...formData, oil_filter_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                        </div>
+                      </div>
                       {formData.engine_config === 'outboard' && (
-                        <div><Label className="text-xs">Spark Plugs Last Replaced</Label><Input type="date" value={formData.spark_plugs_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, spark_plugs_last_replaced_date: e.target.value })} className="text-sm" /></div>
+                        <div>
+                          <Label className="text-xs">Spark Plugs Last Replaced</Label>
+                          <div className="flex gap-1 mt-1">
+                            <Input type="date" value={formData.spark_plugs_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, spark_plugs_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                            <button type="button" onClick={() => setFormData({ ...formData, spark_plugs_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                          </div>
+                        </div>
                       )}
-                      <div><Label className="text-xs">Battery Last Inspected</Label><Input type="date" value={formData.battery_inspection_date || ''} onChange={(e) => setFormData({ ...formData, battery_inspection_date: e.target.value })} className="text-sm" /></div>
-                      <div><Label className="text-xs">Zinc Anodes Last Replaced</Label><Input type="date" value={formData.zinc_anodes_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, zinc_anodes_last_replaced_date: e.target.value })} className="text-sm" /></div>
-                      <div><Label className="text-xs">Anti-Fouling Paint Last Applied</Label><Input type="date" value={formData.antifouling_last_applied_date || ''} onChange={(e) => setFormData({ ...formData, antifouling_last_applied_date: e.target.value })} className="text-sm" /></div>
-                      <div><Label className="text-xs">Safety Equipment Last Inspected</Label><Input type="date" value={formData.safety_equipment_inspection_date || ''} onChange={(e) => setFormData({ ...formData, safety_equipment_inspection_date: e.target.value })} className="text-sm" /><p className="text-xs text-orange-700 mt-1">Life jackets, flares, fire extinguishers</p></div>
+                      <div>
+                        <Label className="text-xs">Battery Last Inspected</Label>
+                        <div className="flex gap-1 mt-1">
+                          <Input type="date" value={formData.battery_inspection_date || ''} onChange={(e) => setFormData({ ...formData, battery_inspection_date: e.target.value })} className="text-sm flex-1" />
+                          <button type="button" onClick={() => setFormData({ ...formData, battery_inspection_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Zinc Anodes Last Replaced</Label>
+                        <div className="flex gap-1 mt-1">
+                          <Input type="date" value={formData.zinc_anodes_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, zinc_anodes_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                          <button type="button" onClick={() => setFormData({ ...formData, zinc_anodes_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Anti-Fouling Paint Last Applied</Label>
+                        <div className="flex gap-1 mt-1">
+                          <Input type="date" value={formData.antifouling_last_applied_date || ''} onChange={(e) => setFormData({ ...formData, antifouling_last_applied_date: e.target.value })} className="text-sm flex-1" />
+                          <button type="button" onClick={() => setFormData({ ...formData, antifouling_last_applied_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs">Safety Equipment Last Inspected</Label>
+                        <div className="flex gap-1 mt-1">
+                          <Input type="date" value={formData.safety_equipment_inspection_date || ''} onChange={(e) => setFormData({ ...formData, safety_equipment_inspection_date: e.target.value })} className="text-sm flex-1" />
+                          <button type="button" onClick={() => setFormData({ ...formData, safety_equipment_inspection_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                        </div>
+                        <p className="text-xs text-orange-700 mt-1">Life jackets, flares, fire extinguishers</p>
+                      </div>
                     </div>
                   </div>
 
