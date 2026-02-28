@@ -588,6 +588,8 @@ export default function BoatManagement() {
                   />
                 </div>)}
               </div>
+                );
+              })()}
 
               {/* ── SECTION 2: Expeditions & Pricing ── indigo */}
               {formData.boat_mode === 'rental_and_maintenance' && (
