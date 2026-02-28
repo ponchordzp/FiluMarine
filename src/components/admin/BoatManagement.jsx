@@ -691,7 +691,7 @@ export default function BoatManagement() {
                   </h3>
                   {collapsedSections['checklist'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['checklist'] && <div className="bg-green-50 p-5">
+                {!collapsedSections['checklist'] && (<div className="bg-green-50 p-5">
                   <MaintenanceChecklist
                     engineConfig={formData.engine_config}
                     checklist={formData.maintenance_checklist || {}}
