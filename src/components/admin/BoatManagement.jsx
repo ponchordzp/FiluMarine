@@ -699,6 +699,8 @@ export default function BoatManagement() {
                   )}
                 </div>)}
               </div>
+                );
+              })()}
 
               {/* ── SECTION 4b: Maintenance Checklist ── green (engine-type specific) */}
               <div className="rounded-xl overflow-hidden border border-green-200 mb-4">
