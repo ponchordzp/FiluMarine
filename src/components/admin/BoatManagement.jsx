@@ -254,7 +254,9 @@ export default function BoatManagement() {
       recurring_costs: [],
       price_per_additional_hour: 0,
       status: 'active',
-      maintenance_checklist: {}
+      maintenance_checklist: {},
+      custom_fields_general: [],
+      custom_fields_maintenance: [],
     });
     setImageFile(null);
     setImagePreview('');
