@@ -577,7 +577,7 @@ export default function BoatManagement() {
                     customFields={formData.custom_fields_general || []}
                     onChange={(fields) => setFormData(prev => ({ ...prev, custom_fields_general: fields }))}
                   />
-                </div>}
+                </div>)}
               </div>
 
               {/* ── SECTION 2: Expeditions & Pricing ── indigo */}
@@ -588,7 +588,7 @@ export default function BoatManagement() {
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Expeditions &amp; Pricing</h3>
                   {collapsedSections['expeditions'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['expeditions'] && <div className="bg-indigo-50 p-5 space-y-4">
+                {!collapsedSections['expeditions'] && (<div className="bg-indigo-50 p-5 space-y-4">
                   <div>
                     <Label>Price Per Additional Hour (MXN)</Label>
                     <Input type="number" min="0" value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
