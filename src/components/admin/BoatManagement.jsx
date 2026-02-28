@@ -583,11 +583,12 @@ export default function BoatManagement() {
               {/* ── SECTION 2: Expeditions & Pricing ── indigo */}
               {formData.boat_mode === 'rental_and_maintenance' && (
               <div className="rounded-xl overflow-hidden border border-indigo-200 mb-4">
-                <div className="bg-indigo-600 px-5 py-3 flex items-center gap-2">
+                <button type="button" onClick={() => toggleSection('expeditions')} className="w-full bg-indigo-600 px-5 py-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white" />
-                  <h3 className="text-sm font-bold text-white tracking-wide uppercase">Expeditions &amp; Pricing</h3>
-                </div>
-                <div className="bg-indigo-50 p-5 space-y-4">
+                  <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Expeditions &amp; Pricing</h3>
+                  {collapsedSections['expeditions'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                </button>
+                {!collapsedSections['expeditions'] && <div className="bg-indigo-50 p-5 space-y-4">
                   <div>
                     <Label>Price Per Additional Hour (MXN)</Label>
                     <Input type="number" min="0" value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
