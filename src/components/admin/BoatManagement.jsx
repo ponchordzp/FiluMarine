@@ -620,18 +620,19 @@ export default function BoatManagement() {
                       );
                     })}
                   </div>
-                </div>
+                </div>}
               </div>
               )}
 
               {/* ── SECTION 3: Equipment ── teal */}
               {formData.boat_mode === 'rental_and_maintenance' && (
                 <div className="rounded-xl overflow-hidden border border-teal-200 mb-4">
-                  <div className="bg-teal-600 px-5 py-3 flex items-center gap-2">
+                  <button type="button" onClick={() => toggleSection('equipment')} className="w-full bg-teal-600 px-5 py-3 flex items-center gap-2">
                     <Package className="h-4 w-4 text-white" />
-                    <h3 className="text-sm font-bold text-white tracking-wide uppercase">Equipment</h3>
-                  </div>
-                  <div className="bg-teal-50 p-5">
+                    <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Equipment</h3>
+                    {collapsedSections['equipment'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                  </button>
+                  {!collapsedSections['equipment'] && <div className="bg-teal-50 p-5">
                     <EquipmentManager 
                       equipment={formData.equipment}
                       customEquipment={formData.custom_equipment}
