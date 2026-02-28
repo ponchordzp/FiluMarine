@@ -811,7 +811,7 @@ export default function BoatManagement() {
                       })}
                     </div>
                   )}
-                </div>}
+                </div>)}
               </div>
 
               {/* ── SECTION 7: Supply Sellers ── cyan */}
@@ -821,7 +821,7 @@ export default function BoatManagement() {
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supply Sellers</h3>
                   {collapsedSections['sellers'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['sellers'] && <div className="bg-cyan-50 p-5 space-y-3">
+                {!collapsedSections['sellers'] && (<div className="bg-cyan-50 p-5 space-y-3">
                   {formData.supply_sellers && formData.supply_sellers.length > 0 && (
                     <div className="space-y-2">
                       {formData.supply_sellers.map((supplier, index) => (
