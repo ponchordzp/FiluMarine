@@ -703,27 +703,11 @@ export default function BoatManagement() {
               </div>
 
               {/* ── SECTION 5: Maintenance ── orange/red */}
-              {(() => {
-                const maintenanceFields = [
-                  formData.last_service_date, formData.last_service_mechanic_phone,
-                  formData.impeller_last_replaced_date, formData.fuel_filter_last_replaced_date,
-                  formData.oil_filter_last_replaced_date, formData.battery_inspection_date,
-                  formData.zinc_anodes_last_replaced_date, formData.antifouling_last_applied_date,
-                  formData.safety_equipment_inspection_date, formData.hull_condition_notes,
-                  formData.propeller_condition_notes, formData.mechanic_name, formData.mechanic_phone,
-                ];
-                const mFilled = maintenanceFields.filter(f => f && String(f).trim() !== '').length;
-                const mTotal = maintenanceFields.length;
-                const mPct = Math.round((mFilled / mTotal) * 100);
-                return (
               <div id="section-maintenance" className="rounded-xl overflow-hidden border border-orange-200 mb-4">
                 <button type="button" onClick={() => toggleSection('maintenance')} className="w-full bg-orange-600 px-5 py-3 flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Maintenance</h3>
-                  <span className="text-xs text-white/80 mr-1">{mFilled}/{mTotal}</span>
-                  <div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2">
-                    <div className="h-full bg-white transition-all rounded-full" style={{ width: `${mPct}%` }} />
-                  </div>
+                  {(() => { const f=[formData.last_service_date,formData.last_service_mechanic_phone,formData.impeller_last_replaced_date,formData.fuel_filter_last_replaced_date,formData.oil_filter_last_replaced_date,formData.battery_inspection_date,formData.zinc_anodes_last_replaced_date,formData.antifouling_last_applied_date,formData.safety_equipment_inspection_date,formData.hull_condition_notes,formData.propeller_condition_notes,formData.mechanic_name,formData.mechanic_phone]; const n=f.filter(x=>x&&String(x).trim()!=='').length; return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{width:`${Math.round(n/f.length*100)}%`}}/></div></>; })()}
                   {collapsedSections['maintenance'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['maintenance'] && (<div className="bg-orange-50 p-5 space-y-4">
