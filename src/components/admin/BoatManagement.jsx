@@ -661,10 +661,19 @@ export default function BoatManagement() {
               )}
 
               {/* ── SECTION 4: Engine ── amber */}
+              {(() => {
+                const engFields = [formData.engine_config, formData.engine_name, formData.engine_year, formData.engine_quantity];
+                const eFilled = engFields.filter(f => f !== null && f !== undefined && String(f).trim() !== '' && f !== 0).length;
+                const ePct = Math.round((eFilled / engFields.length) * 100);
+                return (
               <div id="section-engine" className="rounded-xl overflow-hidden border border-amber-200 mb-4">
                 <button type="button" onClick={() => toggleSection('engine')} className="w-full bg-amber-500 px-5 py-3 flex items-center gap-2">
                   <Gauge className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Engine Configuration</h3>
+                  <span className="text-xs text-white/80 mr-1">{eFilled}/{engFields.length}</span>
+                  <div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2">
+                    <div className="h-full bg-white transition-all rounded-full" style={{ width: `${ePct}%` }} />
+                  </div>
                   {collapsedSections['engine'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['engine'] && (<div className="bg-amber-50 p-5 space-y-4">
