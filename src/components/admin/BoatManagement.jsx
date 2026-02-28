@@ -855,7 +855,7 @@ export default function BoatManagement() {
                     <Button type="button" onClick={addSupplier} disabled={!newSupplier.name} variant="outline" size="sm" className="w-full border-cyan-400 text-cyan-700 hover:bg-cyan-50"><Plus className="h-4 w-4 mr-2" />Add Supplier</Button>
                   </div>
                   <div><Label>Owner Phone (for notifications)</Label><Input type="tel" value={formData.owner_phone} onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })} placeholder="e.g., +52 755 987 6543" className="mt-1" /><p className="text-xs text-cyan-700 mt-1">Receive maintenance quotes and updates</p></div>
-                </div>}
+                </div>)}
               </div>
 
               {/* ── SECTION 8: Recurring Costs ── purple */}
@@ -865,7 +865,7 @@ export default function BoatManagement() {
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Recurring Costs</h3>
                   {collapsedSections['recurring'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['recurring'] && <div className="bg-purple-50 p-5 space-y-3">
+                {!collapsedSections['recurring'] && (<div className="bg-purple-50 p-5 space-y-3">
                   <p className="text-sm text-purple-800">Track periodic payments: docking fees, insurance, crew salaries, permits, etc.</p>
                   {formData.recurring_costs && formData.recurring_costs.length > 0 && (
                     <div className="space-y-2">
