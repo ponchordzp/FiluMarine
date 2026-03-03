@@ -1031,6 +1031,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <Calendar className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Recurring Costs</h3>
                   {(() => {const n = (formData.recurring_costs||[]).length;const t = n||1;return <><span className="text-xs text-white/80 mr-1">{n} costs</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${n>0?100:0}%` }} /></div></>;})()}
+                  <SectionLockButton sectionKey="recurring" locks={locks} toggle={toggleLock} isComplete={isRecurringComplete} />
                   {collapsedSections['recurring'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['recurring'] && <div className="bg-purple-50 p-5 space-y-3">
