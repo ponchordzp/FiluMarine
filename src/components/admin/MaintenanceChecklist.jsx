@@ -482,7 +482,7 @@ function ChecklistSection({ section, checklist, onToggle, onNote, onDate, isSupe
   );
 }
 
-// checklist shape: { [id]: { checked: bool, note: string, lastDate: string } | bool (legacy) }
+// checklist shape: { [id]: { checked: bool, note: string, lastDate: string, info: string } | bool (legacy) }
 function getVal(checklist, id, field) {
   const v = checklist[id];
   if (!v || typeof v !== 'object') return field === 'checked' ? !!v : '';
