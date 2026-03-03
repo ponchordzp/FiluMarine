@@ -1366,34 +1366,50 @@ function AdminBookingsInner() {
           <TabsContent value="boats" className="space-y-6">
             <Card className="bg-white/95 backdrop-blur-sm">
               <CardContent className="p-6">
-                <BoatManagement />
+                <BoatManagement restrictToBoat={!isSuperAdmin ? assignedBoat : null} readOnlyMode={isCrew} />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="destinations" className="space-y-6">
-            <Card className="bg-white/95 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <DestinationManagement />
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {isSuperAdmin && (
+            <TabsContent value="destinations" className="space-y-6">
+              <Card className="bg-white/95 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <DestinationManagement />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
-          <TabsContent value="expeditions" className="space-y-6">
-            <Card className="bg-white/95 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <ExpeditionManagement />
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {isSuperAdmin && (
+            <TabsContent value="expeditions" className="space-y-6">
+              <Card className="bg-white/95 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <ExpeditionManagement />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
-          <TabsContent value="locations" className="space-y-6">
-            <Card className="bg-white/95 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <LocationsManagement />
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {isSuperAdmin && (
+            <TabsContent value="locations" className="space-y-6">
+              <Card className="bg-white/95 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <LocationsManagement />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
+          {isSuperAdmin && (
+            <TabsContent value="users" className="space-y-6">
+              <Card className="bg-white/95 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <UserManagement />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
               </Tabs>
       </div>
 
