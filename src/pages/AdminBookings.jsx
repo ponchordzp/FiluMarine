@@ -254,14 +254,6 @@ function AdminBookingsInner() {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
-          <style>{`
-            .admin-tabs-list [role="tab"] { color: rgba(255,255,255,0.85) !important; }
-            .admin-tabs-list [role="tab"][data-state="active"] { color: white !important; background: rgba(30,136,229,0.55) !important; }
-            .admin-tabs-list [role="tab"].tab-mechanic { color: rgb(253,186,116) !important; }
-            .admin-tabs-list [role="tab"].tab-mechanic[data-state="active"] { background: rgba(249,115,22,0.45) !important; color: white !important; }
-            .admin-tabs-list [role="tab"].tab-users { color: rgb(216,180,254) !important; }
-            .admin-tabs-list [role="tab"].tab-users[data-state="active"] { background: rgba(168,85,247,0.45) !important; color: white !important; }
-          `}</style>
           <div className="flex flex-wrap items-center gap-2">
             <TabsList className="admin-tabs-list p-1 h-auto flex-wrap" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)' }}>
               <TabsTrigger value="bookings" className="font-medium">Bookings</TabsTrigger>
