@@ -728,15 +728,16 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {collapsedSections['maintenance'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['maintenance'] && <div className="bg-orange-50 p-5 space-y-4">
+                  {locks['maintenance'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
-                      <Label>Last Service Date</Label>
+                      <InfoLabel info="The date when the last full engine service was completed." example="2025-01-15">Last Service Date</InfoLabel>
                       <div className="flex gap-2 mt-1">
-                        <Input type="date" value={formData.last_service_date} onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })} className="flex-1" />
-                        <button type="button" onClick={() => setFormData({ ...formData, last_service_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+Today</button>
+                        <Input type="date" disabled={locks['maintenance']} value={formData.last_service_date} onChange={(e) => setFormData({ ...formData, last_service_date: e.target.value })} className="flex-1" />
+                        {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, last_service_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+Today</button>}
                       </div>
                     </div>
-                    <div><Label>Mechanic Phone (Last Service)</Label><Input type="tel" value={formData.last_service_mechanic_phone} onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" className="mt-1" /></div>
+                    <div><InfoLabel info="Phone number of the mechanic who performed the last service." example="+52 755 123 4567">Mechanic Phone (Last Service)</InfoLabel><Input type="tel" disabled={locks['maintenance']} value={formData.last_service_mechanic_phone} onChange={(e) => setFormData({ ...formData, last_service_mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" className="mt-1" /></div>
                   </div>
 
                   {/* Component Replacement Dates */}
