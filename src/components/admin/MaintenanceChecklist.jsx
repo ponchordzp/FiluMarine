@@ -525,6 +525,10 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
     onChange(setVal(checklist, id, 'lastDate', value));
   };
 
+  const handleInfo = (id, value) => {
+    onChange(setVal(checklist, id, 'info', value));
+  };
+
   const handleAddCustom = () => {
     if (!newItemLabel.trim()) return;
     const id = `custom_${Date.now()}`;
