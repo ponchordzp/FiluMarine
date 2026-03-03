@@ -762,44 +762,44 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         <InfoLabel className="text-xs" info="Date the oil filter was last replaced. Usually every 100 engine hours or 1 year." example="2024-11-10">Oil Filter Last Replaced</InfoLabel>
                         <div className="flex gap-1 mt-1">
                           <Input type="date" disabled={locks['maintenance']} value={formData.oil_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, oil_filter_last_replaced_date: e.target.value })} className="text-sm flex-1" />
-                          <button type="button" onClick={() => setFormData({ ...formData, oil_filter_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                          {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, oil_filter_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>}
                         </div>
                       </div>
                       {formData.engine_config === 'outboard' &&
                       <div>
-                          <Label className="text-xs">Spark Plugs Last Replaced</Label>
+                          <InfoLabel className="text-xs" info="Date spark plugs were last replaced on outboard engine. Usually every 100 hrs or 1 year." example="2024-09-20">Spark Plugs Last Replaced</InfoLabel>
                           <div className="flex gap-1 mt-1">
-                            <Input type="date" value={formData.spark_plugs_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, spark_plugs_last_replaced_date: e.target.value })} className="text-sm flex-1" />
-                            <button type="button" onClick={() => setFormData({ ...formData, spark_plugs_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                            <Input type="date" disabled={locks['maintenance']} value={formData.spark_plugs_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, spark_plugs_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                            {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, spark_plugs_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>}
                           </div>
                         </div>
                       }
                       <div>
-                        <Label className="text-xs">Battery Last Inspected</Label>
+                        <InfoLabel className="text-xs" info="Date batteries were last tested or replaced. Annual inspection recommended." example="2024-08-05">Battery Last Inspected</InfoLabel>
                         <div className="flex gap-1 mt-1">
-                          <Input type="date" value={formData.battery_inspection_date || ''} onChange={(e) => setFormData({ ...formData, battery_inspection_date: e.target.value })} className="text-sm flex-1" />
-                          <button type="button" onClick={() => setFormData({ ...formData, battery_inspection_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                          <Input type="date" disabled={locks['maintenance']} value={formData.battery_inspection_date || ''} onChange={(e) => setFormData({ ...formData, battery_inspection_date: e.target.value })} className="text-sm flex-1" />
+                          {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, battery_inspection_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>}
                         </div>
                       </div>
                       <div>
-                        <Label className="text-xs">Zinc Anodes Last Replaced</Label>
+                        <InfoLabel className="text-xs" info="Date zinc/aluminum anodes protecting the hull from corrosion were last replaced." example="2024-07-15">Zinc Anodes Last Replaced</InfoLabel>
                         <div className="flex gap-1 mt-1">
-                          <Input type="date" value={formData.zinc_anodes_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, zinc_anodes_last_replaced_date: e.target.value })} className="text-sm flex-1" />
-                          <button type="button" onClick={() => setFormData({ ...formData, zinc_anodes_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                          <Input type="date" disabled={locks['maintenance']} value={formData.zinc_anodes_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, zinc_anodes_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                          {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, zinc_anodes_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>}
                         </div>
                       </div>
                       <div>
-                        <Label className="text-xs">Anti-Fouling Paint Last Applied</Label>
+                        <InfoLabel className="text-xs" info="Date anti-fouling bottom paint was last applied to prevent marine growth." example="2024-02-10">Anti-Fouling Paint Last Applied</InfoLabel>
                         <div className="flex gap-1 mt-1">
-                          <Input type="date" value={formData.antifouling_last_applied_date || ''} onChange={(e) => setFormData({ ...formData, antifouling_last_applied_date: e.target.value })} className="text-sm flex-1" />
-                          <button type="button" onClick={() => setFormData({ ...formData, antifouling_last_applied_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                          <Input type="date" disabled={locks['maintenance']} value={formData.antifouling_last_applied_date || ''} onChange={(e) => setFormData({ ...formData, antifouling_last_applied_date: e.target.value })} className="text-sm flex-1" />
+                          {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, antifouling_last_applied_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>}
                         </div>
                       </div>
                       <div>
-                        <Label className="text-xs">Safety Equipment Last Inspected</Label>
+                        <InfoLabel className="text-xs" info="Date life jackets, flares, fire extinguishers, and other safety gear were last inspected." example="2025-01-01">Safety Equipment Last Inspected</InfoLabel>
                         <div className="flex gap-1 mt-1">
-                          <Input type="date" value={formData.safety_equipment_inspection_date || ''} onChange={(e) => setFormData({ ...formData, safety_equipment_inspection_date: e.target.value })} className="text-sm flex-1" />
-                          <button type="button" onClick={() => setFormData({ ...formData, safety_equipment_inspection_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                          <Input type="date" disabled={locks['maintenance']} value={formData.safety_equipment_inspection_date || ''} onChange={(e) => setFormData({ ...formData, safety_equipment_inspection_date: e.target.value })} className="text-sm flex-1" />
+                          {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, safety_equipment_inspection_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>}
                         </div>
                         <p className="text-xs text-orange-700 mt-1">Life jackets, flares, fire extinguishers</p>
                       </div>
@@ -810,20 +810,20 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <div className="bg-white border border-orange-200 rounded-lg p-4 space-y-3">
                     <p className="text-xs font-bold text-orange-900 uppercase tracking-wide">Condition Notes</p>
                     <div className="grid md:grid-cols-2 gap-3">
-                      <div><Label className="text-xs">Hull Condition Notes</Label><Textarea value={formData.hull_condition_notes || ''} onChange={(e) => setFormData({ ...formData, hull_condition_notes: e.target.value })} rows={2} placeholder="e.g., Minor scratches on port side, antifouling in good condition" className="text-sm" /></div>
-                      <div><Label className="text-xs">Propeller Condition Notes</Label><Textarea value={formData.propeller_condition_notes || ''} onChange={(e) => setFormData({ ...formData, propeller_condition_notes: e.target.value })} rows={2} placeholder="e.g., Starboard prop has minor ding at tip" className="text-sm" /></div>
+                      <div><InfoLabel className="text-xs" info="Describe the current condition of the hull — scratches, paint state, etc." example="Minor scratches port side, antifouling good">Hull Condition Notes</InfoLabel><Textarea disabled={locks['maintenance']} value={formData.hull_condition_notes || ''} onChange={(e) => setFormData({ ...formData, hull_condition_notes: e.target.value })} rows={2} placeholder="e.g., Minor scratches on port side, antifouling in good condition" className="text-sm" /></div>
+                      <div><InfoLabel className="text-xs" info="Describe propeller condition — bent blades, cavitation damage, wear." example="Starboard prop has minor ding at tip">Propeller Condition Notes</InfoLabel><Textarea disabled={locks['maintenance']} value={formData.propeller_condition_notes || ''} onChange={(e) => setFormData({ ...formData, propeller_condition_notes: e.target.value })} rows={2} placeholder="e.g., Starboard prop has minor ding at tip" className="text-sm" /></div>
                     </div>
                   </div>
 
                   <div className="bg-orange-100 border border-orange-200 rounded-lg p-3"><p className="text-sm text-orange-900">💡 <strong>Note:</strong> Enter the maintenance cost <strong>per engine</strong>. Total is calculated from engine count above.</p></div>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div><Label>Minor Maintenance Cost (MXN)</Label><Input type="number" min="0" value={formData.minor_maintenance_cost} onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 5000" /><p className="text-xs text-orange-700 mt-1">Oil change, filters, basic service</p></div>
-                    <div><Label>Major Maintenance Cost (MXN)</Label><Input type="number" min="0" value={formData.major_maintenance_cost} onChange={(e) => setFormData({ ...formData, major_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 25000" /><p className="text-xs text-orange-700 mt-1">Engine rebuild, major repairs</p></div>
+                    <div><InfoLabel info="Cost of a minor service per engine (oil, filters, basic check)." example="5000">Minor Maintenance Cost (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['maintenance']} value={formData.minor_maintenance_cost} onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 5000" /><p className="text-xs text-orange-700 mt-1">Oil change, filters, basic service</p></div>
+                    <div><InfoLabel info="Cost of a major service per engine (full overhaul, timing, impeller, etc.)." example="25000">Major Maintenance Cost (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['maintenance']} value={formData.major_maintenance_cost} onChange={(e) => setFormData({ ...formData, major_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 25000" /><p className="text-xs text-orange-700 mt-1">Engine rebuild, major repairs</p></div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4 pt-2 border-t border-orange-200">
-                    <div><Label>Mechanic Name</Label><Input value={formData.mechanic_name} onChange={(e) => setFormData({ ...formData, mechanic_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
-                    <div><Label>Mechanic Phone</Label><Input type="tel" value={formData.mechanic_phone} onChange={(e) => setFormData({ ...formData, mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
-                    <div><Label>Mechanic Email</Label><Input type="email" value={formData.mechanic_email} onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })} placeholder="e.g., mechanic@example.com" /></div>
+                    <div><InfoLabel info="Full name of the preferred mechanic for this boat." example="Juan Pérez">Mechanic Name</InfoLabel><Input disabled={locks['maintenance']} value={formData.mechanic_name} onChange={(e) => setFormData({ ...formData, mechanic_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
+                    <div><InfoLabel info="Phone/WhatsApp of the mechanic. Include country code." example="+52 755 123 4567">Mechanic Phone</InfoLabel><Input type="tel" disabled={locks['maintenance']} value={formData.mechanic_phone} onChange={(e) => setFormData({ ...formData, mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
+                    <div><InfoLabel info="Email of the mechanic for sending reports and service requests." example="mecanico@taller.com">Mechanic Email</InfoLabel><Input type="email" disabled={locks['maintenance']} value={formData.mechanic_email} onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })} placeholder="e.g., mechanic@example.com" /></div>
                   </div>
                   <CustomFieldsManager
                     sectionKey="maintenance"
