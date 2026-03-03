@@ -255,19 +255,29 @@ function AdminBookingsInner() {
 
         <Tabs defaultValue="bookings" className="space-y-6">
           <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap gap-1 p-1 rounded-lg" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)' }}>
+              {[
+                { value: 'bookings', label: 'Bookings' },
+                { value: 'booked-dates', label: 'Booked Dates' },
+                { value: 'blocked-dates', label: 'Blocked Dates' },
+                { value: 'dashboard', label: 'Dashboard' },
+              ].map(tab => (
+                <button key={tab.value} onClick={() => document.querySelector(`[data-radix-collection-item][value="${tab.value}"]`)?.click()} className="px-3 py-1.5 rounded-md text-sm font-medium transition-all" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
             <TabsList style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)' }} className="p-1 h-auto flex-wrap">
-              <TabsTrigger value="bookings" style={{ color: 'rgba(255,255,255,0.75)' }} className="data-[state=active]:text-white data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Bookings</TabsTrigger>
-              <TabsTrigger value="booked-dates" style={{ color: 'rgba(255,255,255,0.75)' }} className="data-[state=active]:text-white data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Booked Dates</TabsTrigger>
-              <TabsTrigger value="blocked-dates" style={{ color: 'rgba(255,255,255,0.75)' }} className="data-[state=active]:text-white data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Blocked Dates</TabsTrigger>
-              <TabsTrigger value="dashboard" style={{ color: 'rgba(255,255,255,0.75)' }} className="data-[state=active]:text-white data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Dashboard</TabsTrigger>
-            </TabsList>
-            <TabsList style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)' }} className="p-1 h-auto flex-wrap">
-              <TabsTrigger value="boats" style={{ color: 'rgba(255,255,255,0.85)', '--tw-text-opacity': '1' }} className="data-[state=active]:text-white data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium [&]:text-white/85">Boat Inventory</TabsTrigger>
-              {isSuperAdmin && <TabsTrigger value="destinations" style={{ color: 'rgba(255,255,255,0.85)' }} className="data-[state=active]:text-white data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Destinations</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="expeditions" style={{ color: 'rgba(255,255,255,0.85)' }} className="data-[state=active]:text-white data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Expeditions</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="locations" style={{ color: 'rgba(255,255,255,0.85)' }} className="data-[state=active]:text-white data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Locations</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="mechanic" style={{ color: 'rgba(253,186,116,0.9)' }} className="data-[state=active]:text-white data-[state=active]:bg-orange-500/50 data-[state=active]:shadow-none font-medium">Mechanic Portal</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="users" style={{ color: 'rgba(216,180,254,0.9)' }} className="data-[state=active]:text-white data-[state=active]:bg-purple-500/50 data-[state=active]:shadow-none font-medium">Users</TabsTrigger>}
+              <TabsTrigger value="bookings" className="sr-only">Bookings</TabsTrigger>
+              <TabsTrigger value="booked-dates" className="sr-only">Booked Dates</TabsTrigger>
+              <TabsTrigger value="blocked-dates" className="sr-only">Blocked Dates</TabsTrigger>
+              <TabsTrigger value="dashboard" className="sr-only">Dashboard</TabsTrigger>
+              <TabsTrigger value="boats" style={{ color: 'white' }} className="data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Boat Inventory</TabsTrigger>
+              {isSuperAdmin && <TabsTrigger value="destinations" style={{ color: 'white' }} className="data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Destinations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="expeditions" style={{ color: 'white' }} className="data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Expeditions</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="locations" style={{ color: 'white' }} className="data-[state=active]:bg-[#1e88e5]/60 data-[state=active]:shadow-none font-medium">Locations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="mechanic" style={{ color: 'rgb(253,186,116)' }} className="data-[state=active]:text-white data-[state=active]:bg-orange-500/50 data-[state=active]:shadow-none font-medium">Mechanic Portal</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="users" style={{ color: 'rgb(216,180,254)' }} className="data-[state=active]:text-white data-[state=active]:bg-purple-500/50 data-[state=active]:shadow-none font-medium">Users</TabsTrigger>}
             </TabsList>
           </div>
 
