@@ -816,6 +816,100 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><InfoLabel info="Phone/WhatsApp of the mechanic. Include country code." example="+52 755 123 4567">Mechanic Phone</InfoLabel><Input type="tel" disabled={locks['maintenance']} value={formData.mechanic_phone} onChange={(e) => setFormData({ ...formData, mechanic_phone: e.target.value })} placeholder="e.g., +52 755 123 4567" /></div>
                     <div><InfoLabel info="Email of the mechanic for sending reports and service requests." example="mecanico@taller.com">Mechanic Email</InfoLabel><Input type="email" disabled={locks['maintenance']} value={formData.mechanic_email} onChange={(e) => setFormData({ ...formData, mechanic_email: e.target.value })} placeholder="e.g., mechanic@example.com" /></div>
                   </div>
+                  {/* Custom Maintenance Components */}
+                  <div className="border-t border-orange-200 pt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-xs font-bold text-orange-900 uppercase tracking-wide">Custom Components for This Vessel</p>
+                      {!locks['maintenance'] && <button type="button" onClick={() => setShowCustomMaintenanceForm(p => !p)} className="flex items-center gap-1 px-2 py-1 bg-orange-600 text-white rounded text-xs hover:bg-orange-700"><Plus className="h-3 w-3" />Add Custom Component</button>}
+                    </div>
+                    {showCustomMaintenanceForm && !locks['maintenance'] && (
+                      <div className="bg-white border border-orange-200 rounded-lg p-3 space-y-2 mb-3">
+                        <p className="text-xs font-semibold text-orange-800">New Custom Component</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <Label className="text-xs">Component Name *</Label>
+                            <Input value={newCustomMaintenanceComponent.name} onChange={e => setNewCustomMaintenanceComponent(p => ({...p, name: e.target.value}))} placeholder="e.g., T-Top Canvas Inspection" className="text-sm h-8" />
+                          </div>
+                          <div>
+                            <Label className="text-xs">Interval (e.g. Every 6 months)</Label>
+                            <Input value={newCustomMaintenanceComponent.interval} onChange={e => setNewCustomMaintenanceComponent(p => ({...p, interval: e.target.value}))} placeholder="e.g., Every 6 months" className="text-sm h-8" />
+                          </div>
+                          <div className="col-span-2">
+                            <Label className="text-xs">Notes (optional)</Label>
+                            <Input value={newCustomMaintenanceComponent.notes} onChange={e => setNewCustomMaintenanceComponent(p => ({...p, notes: e.target.value}))} placeholder="Any additional notes..." className="text-sm h-8" />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button type="button" size="sm" className="bg-orange-600 hover:bg-orange-700 text-white h-7 text-xs"
+                            disabled={!newCustomMaintenanceComponent.name}
+                            onClick={() => {
+                              const id = `custom_maint_${Date.now()}`;
+                              const existingCustom = formData.maintenance_checklist?.__custom__ || [];
+                              setFormData(fd => ({
+                                ...fd,
+                                maintenance_checklist: {
+                                  ...fd.maintenance_checklist,
+                                  __custom__: [...existingCustom, { id, name: newCustomMaintenanceComponent.name, interval: newCustomMaintenanceComponent.interval, notes: newCustomMaintenanceComponent.notes }]
+                                }
+                              }));
+                              setNewCustomMaintenanceComponent({ name: '', interval: '', notes: '' });
+                              setShowCustomMaintenanceForm(false);
+                            }}>
+                            Add Component
+                          </Button>
+                          <Button type="button" variant="outline" size="sm" className="h-7 text-xs" onClick={() => setShowCustomMaintenanceForm(false)}>Cancel</Button>
+                        </div>
+                      </div>
+                    )}
+                    {(formData.maintenance_checklist?.__custom__ || []).length > 0 && (
+                      <div className="space-y-2">
+                        {(formData.maintenance_checklist.__custom__ || []).map((item) => (
+                          <div key={item.id} className="flex items-start gap-2 bg-white border border-orange-200 rounded-lg p-3">
+                            <input type="checkbox"
+                              checked={!!formData.maintenance_checklist[item.id]?.checked}
+                              disabled={locks['maintenance']}
+                              onChange={() => setFormData(fd => ({
+                                ...fd,
+                                maintenance_checklist: {
+                                  ...fd.maintenance_checklist,
+                                  [item.id]: { checked: !fd.maintenance_checklist[item.id]?.checked, date: fd.maintenance_checklist[item.id]?.date || '' }
+                                }
+                              }))}
+                              className="mt-0.5 h-4 w-4 rounded border-orange-400 accent-orange-600"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-slate-800">{item.name}</p>
+                              {item.interval && <p className="text-xs text-orange-700">{item.interval}</p>}
+                              {item.notes && <p className="text-xs text-slate-500">{item.notes}</p>}
+                              {formData.maintenance_checklist[item.id]?.checked && (
+                                <Input type="date" className="mt-1 h-7 text-xs w-40"
+                                  value={formData.maintenance_checklist[item.id]?.date || ''}
+                                  disabled={locks['maintenance']}
+                                  onChange={e => setFormData(fd => ({
+                                    ...fd,
+                                    maintenance_checklist: { ...fd.maintenance_checklist, [item.id]: { ...fd.maintenance_checklist[item.id], date: e.target.value } }
+                                  }))}
+                                  placeholder="Date completed"
+                                />
+                              )}
+                            </div>
+                            {!locks['maintenance'] && (
+                              <button type="button" className="text-red-400 hover:text-red-600 flex-shrink-0"
+                                onClick={() => setFormData(fd => {
+                                  const cl = { ...fd.maintenance_checklist };
+                                  cl.__custom__ = (cl.__custom__ || []).filter(c => c.id !== item.id);
+                                  delete cl[item.id];
+                                  return { ...fd, maintenance_checklist: cl };
+                                })}>
+                                <X className="h-4 w-4" />
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <CustomFieldsManager
                     sectionKey="maintenance"
                     customFields={formData.custom_fields_maintenance || []}
