@@ -260,7 +260,7 @@ function AdminBookingsInner() {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-2">
             <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
               <TabsTrigger value="bookings">Bookings</TabsTrigger>
               <TabsTrigger value="booked-dates">Booked Dates</TabsTrigger>
@@ -269,9 +269,10 @@ function AdminBookingsInner() {
             </TabsList>
             <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
               <TabsTrigger value="boats">Boat Inventory</TabsTrigger>
-              <TabsTrigger value="destinations">Destinations</TabsTrigger>
-              <TabsTrigger value="expeditions">Expeditions</TabsTrigger>
-              <TabsTrigger value="locations">Locations</TabsTrigger>
+              {isSuperAdmin && <TabsTrigger value="destinations">Destinations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="expeditions">Expeditions</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="locations">Locations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="users" className="text-purple-700 font-semibold">Users</TabsTrigger>}
             </TabsList>
           </div>
 
