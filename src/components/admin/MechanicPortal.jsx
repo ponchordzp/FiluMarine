@@ -11,9 +11,175 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   Wrench, AlertTriangle, CheckCircle, Clock, PlusCircle, Upload,
-  ChevronDown, ChevronUp, Gauge, Calendar, FileText, Package, User
+  ChevronDown, ChevronUp, Gauge, Calendar, FileText, Package, User, Download
 } from 'lucide-react';
 import { format, parseISO, differenceInDays } from 'date-fns';
+import { jsPDF } from 'jspdf';
+
+// ── PDF Generator ─────────────────────────────────────────────────────────────
+
+function generateServiceReportPDF(boat, record) {
+  const doc = new jsPDF();
+  const pageW = doc.internal.pageSize.getWidth();
+  const margin = 18;
+  const colW = pageW - margin * 2;
+  let y = 0;
+
+  // Header bar
+  doc.setFillColor(12, 35, 64); // #0c2340
+  doc.rect(0, 0, pageW, 38, 'F');
+
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('SERVICE REPORT', margin, 18);
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  doc.text('FILU Marine — Boat Maintenance Portal', margin, 28);
+
+  // Report number & date
+  const reportNo = `SR-${Date.now().toString().slice(-6)}`;
+  doc.setFontSize(9);
+  doc.text(`Report #${reportNo}`, pageW - margin, 14, { align: 'right' });
+  doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy')}`, pageW - margin, 22, { align: 'right' });
+
+  y = 48;
+
+  // ── Section helper ──
+  const sectionHeader = (title, fillColor = [30, 136, 229]) => {
+    doc.setFillColor(...fillColor);
+    doc.rect(margin, y, colW, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title.toUpperCase(), margin + 3, y + 5.5);
+    y += 12;
+    doc.setTextColor(30, 30, 30);
+  };
+
+  const field = (label, value, indent = 0) => {
+    if (!value && value !== 0) return;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(80, 80, 80);
+    doc.text(`${label}:`, margin + indent, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(20, 20, 20);
+    const lines = doc.splitTextToSize(String(value), colW - 60 - indent);
+    doc.text(lines, margin + 55 + indent, y);
+    y += Math.max(lines.length * 5.5, 6);
+  };
+
+  const divider = () => {
+    doc.setDrawColor(220, 220, 220);
+    doc.line(margin, y, pageW - margin, y);
+    y += 5;
+  };
+
+  // ── BOAT DETAILS ──
+  sectionHeader('Boat Information');
+  field('Boat Name', boat.name);
+  field('Type', boat.type);
+  field('Size', boat.size);
+  field('Location', boat.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo');
+  if (boat.dock_location) field('Dock Location', boat.dock_location);
+  field('Engine Config', boat.engine_config ? (boat.engine_config.charAt(0).toUpperCase() + boat.engine_config.slice(1)) : undefined);
+  if (boat.engine_name) field('Engine Details', boat.engine_name);
+  if (boat.engine_quantity) field('Number of Engines', boat.engine_quantity);
+  y += 4;
+
+  // ── SERVICE DETAILS ──
+  sectionHeader('Service Details', [46, 125, 50]);
+  field('Service Date', record.date ? format(parseISO(record.date), 'EEEE, MMMM d, yyyy') : '');
+  field('Service Type', record.service_type ? record.service_type.charAt(0).toUpperCase() + record.service_type.slice(1) : '');
+  field('Engine Hours at Service', record.engine_hours ? `${record.engine_hours} hrs` : '0 hrs');
+  field('Total Cost', record.cost ? `$${Number(record.cost).toLocaleString()} MXN` : '$0 MXN');
+  y += 4;
+
+  // ── MECHANIC INFO ──
+  sectionHeader('Mechanic Information', [103, 58, 183]);
+  field('Mechanic Name', record.mechanic_name || boat.mechanic_name || 'N/A');
+  field('Phone', record.mechanic_phone || boat.mechanic_phone || 'N/A');
+  if (boat.mechanic_email) field('Email', boat.mechanic_email);
+  y += 4;
+
+  // ── WORK PERFORMED ──
+  sectionHeader('Work Performed', [183, 28, 28]);
+  if (record.work_performed) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(20, 20, 20);
+    const lines = doc.splitTextToSize(record.work_performed, colW);
+    doc.text(lines, margin, y);
+    y += lines.length * 5.5 + 4;
+  }
+
+  // ── PARSE NOTES for parts & labor ──
+  const notesText = record.notes || '';
+  const partsMatch = notesText.match(/Parts used:\s*([\s\S]*?)(?:\nLabor hours:|$)/i);
+  const laborMatch = notesText.match(/Labor hours:\s*([^\n]+)/i);
+  const cleanNotes = notesText
+    .replace(/Parts used:[\s\S]*?(?=\nLabor hours:|\nReport:|$)/i, '')
+    .replace(/Labor hours:[^\n]*/i, '')
+    .replace(/Report:[^\n]*/i, '')
+    .trim();
+
+  // ── PARTS USED ──
+  if (partsMatch?.[1]?.trim()) {
+    sectionHeader('Parts & Materials Used', [255, 143, 0]);
+    const parts = partsMatch[1].trim().split(/[,\n]/).map(p => p.trim()).filter(Boolean);
+    parts.forEach(part => {
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(20, 20, 20);
+      doc.text(`• ${part}`, margin + 3, y);
+      y += 5.5;
+    });
+    y += 4;
+  }
+
+  // ── LABOR HOURS ──
+  if (laborMatch?.[1]) {
+    field('Labor Hours', `${laborMatch[1].trim()} hours`);
+    y += 2;
+  }
+
+  // ── NOTES ──
+  if (cleanNotes) {
+    sectionHeader('Additional Notes & Observations', [96, 125, 139]);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(20, 20, 20);
+    const lines = doc.splitTextToSize(cleanNotes, colW);
+    doc.text(lines, margin, y);
+    y += lines.length * 5.5 + 4;
+  }
+
+  // ── ENGINE HOURS SUMMARY ──
+  y += 2;
+  sectionHeader('Engine Hours Summary', [55, 71, 79]);
+  field('Hours at Last Service', `${boat.last_maintenance_hours || 0} hrs`);
+  field('Current Recorded Hours', `${boat.current_hours || 0} hrs`);
+  field('Service Interval', `Every ${boat.maintenance_interval_hours || 100} hrs`);
+  const nextAt = (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100);
+  field('Next Service Due At', `${nextAt} hrs`);
+  y += 6;
+
+  // ── Footer ──
+  divider();
+  doc.setFontSize(8);
+  doc.setTextColor(150, 150, 150);
+  doc.setFont('helvetica', 'italic');
+  doc.text('This report was automatically generated by the FILU Marine Mechanic Portal.', margin, y);
+  y += 5;
+  doc.text(`Document ID: ${reportNo} · ${format(new Date(), 'MMM d, yyyy HH:mm')}`, margin, y);
+
+  // Save
+  const fileName = `Service_Report_${boat.name.replace(/\s+/g, '_')}_${record.date || 'unknown'}.pdf`;
+  doc.save(fileName);
+}
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
