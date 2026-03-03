@@ -256,18 +256,18 @@ function AdminBookingsInner() {
         <Tabs defaultValue="bookings" className="space-y-6">
           <div className="flex flex-wrap items-center gap-2">
             <TabsList className="admin-tabs-list p-1 h-auto flex-wrap" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)' }}>
-              <TabsTrigger value="bookings" className="font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>Bookings</TabsTrigger>
-              <TabsTrigger value="booked-dates" className="font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>Booked Dates</TabsTrigger>
-              <TabsTrigger value="blocked-dates" className="font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>Blocked Dates</TabsTrigger>
-              <TabsTrigger value="dashboard" className="font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>Dashboard</TabsTrigger>
+              <TabsTrigger value="bookings" className="font-medium">Bookings</TabsTrigger>
+              <TabsTrigger value="booked-dates" className="font-medium">Booked Dates</TabsTrigger>
+              <TabsTrigger value="blocked-dates" className="font-medium">Blocked Dates</TabsTrigger>
+              <TabsTrigger value="dashboard" className="font-medium">Dashboard</TabsTrigger>
             </TabsList>
             <TabsList className="admin-tabs-list p-1 h-auto flex-wrap" style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(16px)' }}>
-              <TabsTrigger value="boats" className="font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>Boat Inventory</TabsTrigger>
-              {isSuperAdmin && <TabsTrigger value="destinations" className="font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>Destinations</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="expeditions" className="font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>Expeditions</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="locations" className="font-medium" style={{ color: 'rgba(255,255,255,0.85)' }}>Locations</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="mechanic" className="font-medium" style={{ color: 'rgb(253,186,116)' }}>Mechanic Portal</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="users" className="font-medium" style={{ color: 'rgb(216,180,254)' }}>Users</TabsTrigger>}
+              <TabsTrigger value="boats" className="font-medium">Boat Inventory</TabsTrigger>
+              {isSuperAdmin && <TabsTrigger value="destinations" className="font-medium">Destinations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="expeditions" className="font-medium">Expeditions</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="locations" className="font-medium">Locations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="mechanic" className="font-medium tab-mechanic">Mechanic Portal</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="users" className="font-medium tab-users">Users</TabsTrigger>}
             </TabsList>
           </div>
 
