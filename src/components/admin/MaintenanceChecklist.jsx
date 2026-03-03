@@ -436,6 +436,10 @@ function setVal(checklist, id, field, value) {
 }
 
 export default function MaintenanceChecklist({ engineConfig, checklist = {}, onChange }) {
+  const [newItemLabel, setNewItemLabel] = useState('');
+  const [newItemInterval, setNewItemInterval] = useState('');
+  const [showAddForm, setShowAddForm] = useState(false);
+
   if (!engineConfig) {
     return (
       <div className="text-center py-6 text-slate-500 text-sm bg-slate-50 rounded-lg border border-dashed border-slate-300">
@@ -446,6 +450,8 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
 
   const sections = engineConfig === 'inboard' ? INBOARD_SECTIONS : OUTBOARD_SECTIONS;
   const layoutLabel = engineConfig === 'inboard' ? 'Layout A — Inboard Diesel Yacht' : 'Layout B — Outboard Center Console';
+
+  const customItems = checklist.__custom__ || [];
 
   const handleToggle = (id) => {
     onChange(setVal(checklist, id, 'checked', !getVal(checklist, id, 'checked')));
@@ -459,11 +465,29 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
     onChange(setVal(checklist, id, 'lastDate', value));
   };
 
+  const handleAddCustom = () => {
+    if (!newItemLabel.trim()) return;
+    const id = `custom_${Date.now()}`;
+    const updated = {
+      ...checklist,
+      __custom__: [...customItems, { id, label: newItemLabel.trim(), interval: newItemInterval.trim() || 'As needed' }],
+    };
+    onChange(updated);
+    setNewItemLabel('');
+    setNewItemInterval('');
+    setShowAddForm(false);
+  };
+
+  const handleRemoveCustom = (id) => {
+    const { [id]: _, ...rest } = checklist;
+    onChange({ ...rest, __custom__: customItems.filter(i => i.id !== id) });
+  };
+
   const allItems = sections.flatMap(s =>
     s.items ? s.items : s.subsections.flatMap(sub => sub.items)
   );
-  const totalChecked = allItems.filter(i => getVal(checklist, i.id, 'checked')).length;
-  const totalAll = allItems.length;
+  const totalChecked = [...allItems, ...customItems].filter(i => getVal(checklist, i.id, 'checked')).length;
+  const totalAll = allItems.length + customItems.length;
   const overallPct = totalAll > 0 ? Math.round((totalChecked / totalAll) * 100) : 0;
 
   return (
@@ -485,9 +509,82 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
         </div>
       </div>
 
+      {/* Info banner */}
+      <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+        <Info className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+        <p className="text-xs text-green-800">Check off each item as it is completed. Log the date it was last done and any relevant notes. Add custom items (e.g. T-Top detailing) using the <strong>+ Add Item</strong> button below.</p>
+      </div>
+
       {sections.map(section => (
         <ChecklistSection key={section.id} section={section} checklist={checklist} onToggle={handleToggle} onNote={handleNote} onDate={handleDate} />
       ))}
+
+      {/* Custom items section */}
+      {customItems.length > 0 && (
+        <div className="rounded-xl overflow-hidden border border-green-300">
+          <div className="bg-green-700 px-4 py-3 flex items-center gap-2">
+            <span className="text-sm font-bold text-white flex-1">Custom Items</span>
+            <span className="text-xs text-white/80">{customItems.filter(i => getVal(checklist, i.id, 'checked')).length}/{customItems.length}</span>
+            <div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden">
+              <div className="h-full bg-white transition-all" style={{ width: `${customItems.length > 0 ? Math.round(customItems.filter(i => getVal(checklist, i.id, 'checked')).length / customItems.length * 100) : 0}%` }} />
+            </div>
+          </div>
+          <div className="bg-green-50 px-4 py-2">
+            {customItems.map(item => (
+              <div key={item.id} className="py-2 border-b border-green-100 last:border-0 flex items-start gap-2">
+                <div className="flex-1">
+                  <ChecklistItem {...item} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={handleToggle} onNoteChange={handleNote} onDateChange={handleDate} />
+                </div>
+                <button type="button" onClick={() => handleRemoveCustom(item.id)} className="mt-2 text-red-400 hover:text-red-600 text-xs flex-shrink-0">✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Add custom item */}
+      {showAddForm ? (
+        <div className="bg-white border-2 border-green-300 rounded-xl p-4 space-y-3">
+          <p className="text-sm font-semibold text-green-800">New Custom Checklist Item</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className="text-xs text-slate-600 font-medium">Item Name *</label>
+              <input
+                autoFocus
+                type="text"
+                value={newItemLabel}
+                onChange={e => setNewItemLabel(e.target.value)}
+                placeholder="e.g., T-Top detailing"
+                className="w-full mt-1 text-sm border border-slate-200 rounded px-3 py-1.5 focus:outline-none focus:border-green-400"
+                onKeyDown={e => e.key === 'Enter' && handleAddCustom()}
+              />
+            </div>
+            <div className="col-span-2">
+              <label className="text-xs text-slate-600 font-medium">Interval (optional)</label>
+              <input
+                type="text"
+                value={newItemInterval}
+                onChange={e => setNewItemInterval(e.target.value)}
+                placeholder="e.g., 3 months, After each trip"
+                className="w-full mt-1 text-sm border border-slate-200 rounded px-3 py-1.5 focus:outline-none focus:border-green-400"
+                onKeyDown={e => e.key === 'Enter' && handleAddCustom()}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button type="button" onClick={handleAddCustom} disabled={!newItemLabel.trim()} className="flex-1 bg-green-600 text-white text-sm py-1.5 rounded-lg hover:bg-green-700 disabled:opacity-40">Add Item</button>
+            <button type="button" onClick={() => setShowAddForm(false)} className="px-4 text-sm text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50">Cancel</button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setShowAddForm(true)}
+          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-green-300 text-green-700 text-sm font-medium hover:bg-green-50 transition-colors"
+        >
+          <Plus className="h-4 w-4" /> Add Custom Item
+        </button>
+      )}
     </div>
   );
 }
