@@ -30,7 +30,7 @@ const expeditionTypes = [
   'sunset_tour'
 ];
 
-export default function BoatManagement() {
+export default function BoatManagement({ restrictToBoat = null, readOnlyMode = false }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBoat, setEditingBoat] = useState(null);
