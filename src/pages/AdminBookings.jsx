@@ -500,70 +500,63 @@ function AdminBookingsInner() {
           {/* ── BOOKED DATES TAB ── */}
           <TabsContent value="booked-dates" className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CalendarIcon className="h-5 w-5" />
-                    Booked Dates Calendar
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Calendar
-                    mode="single"
-                    selected={selectedCalendarDate}
-                    onSelect={setSelectedCalendarDate}
-                    className="rounded-md border"
-                    modifiers={{ booked: (date) => bookings.some(b => b.date === format(date, 'yyyy-MM-dd') && b.status !== 'cancelled') }}
-                    modifiersStyles={{ booked: { backgroundColor: '#dbeafe', color: '#1e40af', fontWeight: 'bold' } }}
-                  />
-                  <div className="p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
-                    <p className="font-medium mb-1">Legend:</p>
-                    <p>🔵 Blue dates = Bookings exist</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <CalendarIcon className="h-4 w-4 text-[#1e88e5]" />
+                  <span className="text-sm font-medium text-white/70">Booked Dates Calendar</span>
+                </div>
+                <Calendar
+                  mode="single"
+                  selected={selectedCalendarDate}
+                  onSelect={setSelectedCalendarDate}
+                  className="rounded-xl border-white/10 bg-transparent text-white"
+                  modifiers={{ booked: (date) => bookings.some(b => b.date === format(date, 'yyyy-MM-dd') && b.status !== 'cancelled') }}
+                  modifiersStyles={{ booked: { backgroundColor: 'rgba(30,136,229,0.35)', color: '#93c5fd', fontWeight: 'bold', borderRadius: '6px' } }}
+                />
+                <div className="mt-3 p-3 rounded-xl text-xs text-blue-300/70" style={{ background: 'rgba(30,136,229,0.1)', border: '1px solid rgba(30,136,229,0.2)' }}>
+                  🔵 Highlighted dates have active bookings
+                </div>
+              </div>
 
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle>{selectedCalendarDate ? `Bookings for ${format(selectedCalendarDate, 'MMM d, yyyy')}` : 'Select a Date'}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-[500px] overflow-y-auto">
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <CalendarIcon className="h-4 w-4 text-white/40" />
+                  <span className="text-sm font-medium text-white/70">{selectedCalendarDate ? `Bookings for ${format(selectedCalendarDate, 'MMM d, yyyy')}` : 'Select a Date'}</span>
+                </div>
+                <div className="space-y-3 max-h-[500px] overflow-y-auto">
                     {!selectedCalendarDate ? (
-                      <p className="text-slate-500 text-center py-8">Select a date to view bookings</p>
+                      <p className="text-white/30 text-center py-8 text-sm">Select a date to view bookings</p>
                     ) : (() => {
                       const dateStr = format(selectedCalendarDate, 'yyyy-MM-dd');
                       const dateBookings = bookings.filter(b => b.date === dateStr && b.status !== 'cancelled');
                       return dateBookings.length === 0 ? (
-                        <p className="text-slate-500 text-center py-8">No bookings for this date</p>
+                        <p className="text-white/30 text-center py-8 text-sm">No bookings for this date</p>
                       ) : dateBookings.map((booking) => {
                         const StatusIcon = statusIcons[booking.status];
                         return (
-                          <div key={booking.id} className="p-4 bg-slate-50 rounded-lg space-y-2 border-l-4 border-blue-500">
+                          <div key={booking.id} className={`p-4 rounded-xl space-y-2 border-l-4 ${statusBorderColor[booking.status]}`} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}>
                             <div className="flex items-start justify-between mb-2">
                               <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <p className="font-semibold text-slate-800">{booking.guest_name}</p>
+                                  <p className="font-semibold text-white text-sm">{booking.guest_name}</p>
                                   {booking.boat_name && (
-                                    <span className="text-sm px-3 py-1 rounded-full bg-[#1e88e5] text-white font-semibold flex items-center gap-1">
+                                    <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(30,136,229,0.2)', border: '1px solid rgba(30,136,229,0.3)', color: '#60b4ff' }}>
                                       {booking.boat_name}
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-xs text-slate-500 font-mono">{booking.confirmation_code}</p>
+                                <p className="text-xs text-white/30 font-mono">{booking.confirmation_code}</p>
                               </div>
                               <Badge className={statusColors[booking.status]}>
                                 <StatusIcon className="h-3 w-3 mr-1" />{booking.status}
                               </Badge>
                             </div>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                              <div className="flex items-center gap-1 text-slate-600"><CalendarIcon className="h-3 w-3" /><div><p className="text-xs text-slate-500">Scheduled:</p><p className="font-medium">{format(parseISO(booking.date), 'MMM d')}</p></div></div>
-                              <div className="flex items-center gap-1 text-slate-600"><Clock className="h-3 w-3" /><div><p className="text-xs text-slate-500">Booked:</p><p className="font-medium">{format(parseISO(booking.created_date), 'MMM d')}</p></div></div>
-                              <div className="flex items-center gap-1 text-slate-600"><Clock className="h-3 w-3" />{booking.time_slot}</div>
-                              <div className="flex items-center gap-1 text-slate-600"><Users className="h-3 w-3" />{booking.guests} guests</div>
+                            <div className="grid grid-cols-2 gap-2 text-xs text-white/50">
+                              <div className="flex items-center gap-1"><Clock className="h-3 w-3" />{booking.time_slot}</div>
+                              <div className="flex items-center gap-1"><Users className="h-3 w-3" />{booking.guests} guests</div>
                             </div>
-                            <div className="flex items-center gap-2 text-sm"><Mail className="h-3 w-3 text-slate-400" /><span className="text-slate-600">{booking.guest_email}</span></div>
-                            <div className="flex items-center gap-2 text-sm"><Phone className="h-3 w-3 text-slate-400" /><span className="text-slate-600">{booking.guest_phone}</span></div>
+                            <div className="flex items-center gap-2 text-xs text-white/40"><Mail className="h-3 w-3" />{booking.guest_email}</div>
+                            <div className="flex items-center gap-2 text-xs text-white/40"><Phone className="h-3 w-3" />{booking.guest_phone}</div>
                             <div className="flex gap-2 mt-2">
                               <Dialog>
                                 <DialogTrigger asChild>
