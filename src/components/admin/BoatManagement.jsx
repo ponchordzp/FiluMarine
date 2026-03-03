@@ -608,7 +608,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {locks['expeditions'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
                   <div>
                     <InfoLabel info="Cost charged for every additional hour beyond the scheduled expedition duration." example="2500">Price Per Additional Hour (MXN)</InfoLabel>
-                    <Input type="number" min="0" value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
+                    <Input type="number" min="0" disabled={locks['expeditions']} value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
                     <p className="text-xs text-indigo-700 mt-1">Cost per extra hour beyond scheduled expedition duration</p>
                   </div>
                   <div className="space-y-3">
