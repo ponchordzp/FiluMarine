@@ -20,6 +20,7 @@ import MaintenanceChecklist from './MaintenanceChecklist';
 import MaintenanceAlerts from './MaintenanceAlerts';
 import MaintenanceLogView from './MaintenanceLogView';
 import CustomFieldsManager from './CustomFieldsManager';
+import { useSectionLocks, SectionLockButton, InfoLabel } from './SectionLock';
 
 const expeditionTypes = [
 'half_day_fishing',
