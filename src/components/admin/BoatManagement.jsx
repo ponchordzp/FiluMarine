@@ -113,7 +113,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
   const toggleSection = (key) => setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const { locks, toggle: toggleLock } = useSectionLocks(['general', 'expeditions', 'equipment', 'engine', 'maintenance', 'supplies', 'sellers', 'recurring']);
+  const { locks, toggle: toggleLock } = useSectionLocks(['general', 'expeditions', 'equipment', 'engine', 'checklist', 'maintenance', 'supplies', 'sellers', 'recurring']);
+  const [newCustomMaintenanceComponent, setNewCustomMaintenanceComponent] = useState({ name: '', interval: '', notes: '' });
+  const [showCustomMaintenanceForm, setShowCustomMaintenanceForm] = useState(false);
 
   const isGeneralComplete = !!(formData.name && formData.type && formData.size && formData.capacity && formData.location);
   const isEngineComplete = !!(formData.engine_config && formData.engine_name && formData.engine_quantity);
