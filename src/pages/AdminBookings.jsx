@@ -814,73 +814,55 @@ function AdminBookingsInner() {
           </TabsContent>
 
           {/* ── BOATS TAB ── */}
-          <TabsContent value="boats" className="space-y-6">
-            <Card className="bg-white/95 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <BoatManagement restrictToBoat={!isSuperAdmin ? assignedBoat : null} readOnlyMode={isCrew} />
-              </CardContent>
-            </Card>
+          <TabsContent value="boats">
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <BoatManagement restrictToBoat={!isSuperAdmin ? assignedBoat : null} readOnlyMode={isCrew} />
+            </div>
           </TabsContent>
 
-          {/* ── DESTINATIONS TAB (SuperAdmin only) ── */}
           {isSuperAdmin && (
-            <TabsContent value="destinations" className="space-y-6">
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <DestinationManagement />
-                </CardContent>
-              </Card>
+            <TabsContent value="destinations">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <DestinationManagement />
+              </div>
             </TabsContent>
           )}
 
-          {/* ── EXPEDITIONS TAB (SuperAdmin only) ── */}
           {isSuperAdmin && (
-            <TabsContent value="expeditions" className="space-y-6">
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <ExpeditionManagement />
-                </CardContent>
-              </Card>
+            <TabsContent value="expeditions">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <ExpeditionManagement />
+              </div>
             </TabsContent>
           )}
 
-          {/* ── LOCATIONS TAB (SuperAdmin only) ── */}
           {isSuperAdmin && (
-            <TabsContent value="locations" className="space-y-6">
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <LocationsManagement />
-                </CardContent>
-              </Card>
+            <TabsContent value="locations">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <LocationsManagement />
+              </div>
             </TabsContent>
           )}
 
-          {/* ── MECHANIC PORTAL TAB (SuperAdmin only) ── */}
           {isSuperAdmin && (
-            <TabsContent value="mechanic" className="space-y-6">
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <MechanicPortal currentUser={currentUser} />
-                </CardContent>
-              </Card>
+            <TabsContent value="mechanic">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <MechanicPortal currentUser={currentUser} />
+              </div>
             </TabsContent>
           )}
 
-          {/* ── USERS TAB (SuperAdmin only) ── */}
           {isSuperAdmin && (
-            <TabsContent value="users" className="space-y-6">
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="p-6">
-                  <UserManagement />
-                </CardContent>
-              </Card>
+            <TabsContent value="users">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <UserManagement />
+              </div>
             </TabsContent>
           )}
         </Tabs>
       </div>
 
-      {/* Bottom Edge */}
-      <div className="h-1 bg-gradient-to-r from-[#0c2340] via-[#1e88e5] to-[#0c2340]"></div>
+      <div className="h-px mt-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(30,136,229,0.5), transparent)' }} />
 
       {/* Expense Data Entry Dialog */}
       {expenseBooking && (
