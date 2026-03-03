@@ -409,7 +409,7 @@ function AdminBookingsInner() {
                               </Button>
                               <Dialog>
                                 <DialogTrigger asChild>
-                                  <Button size="sm" variant="outline" className="text-xs border-white/10 text-white/60 hover:text-white hover:bg-white/10" onClick={() => setSelectedBooking(booking)}>
+                                  <Button size="sm" className="text-xs text-blue-200 hover:text-white" style={{ background: 'rgba(30,136,229,0.15)', border: '1px solid rgba(30,136,229,0.3)' }} onClick={() => setSelectedBooking(booking)}>
                                     <Info className="h-3 w-3 mr-1.5" />
                                     Details
                                   </Button>
