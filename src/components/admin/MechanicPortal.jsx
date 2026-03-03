@@ -290,6 +290,7 @@ function WorkOrderForm({ boat, onClose }) {
     };
 
     updateBoatMutation.mutate({ id: boat.id, data: updatedData });
+    setSavedRecord(newRecord); // optimistic: show PDF button immediately after submit attempt
   };
 
   return (
