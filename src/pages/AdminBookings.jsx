@@ -640,100 +640,94 @@ function AdminBookingsInner() {
                     <CalendarIcon className="h-4 w-4 text-[#1e88e5]" />
                     <span className="text-sm font-medium text-white/70">Calendar Overview</span>
                   </div>
-                    <Calendar
-                      mode="single"
-                      className="rounded-md border w-full"
-                      modifiers={{
-                        today: (date) => format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'),
-                        available: (date) => {
-                          const dateStr = format(date, 'yyyy-MM-dd');
-                          const todayStr = format(new Date(), 'yyyy-MM-dd');
-                          return !blockedDates.some(b => b.date === dateStr) && !bookings.some(b => b.date === dateStr && b.status !== 'cancelled') && date >= new Date() && dateStr !== todayStr;
-                        },
-                        booked: (date) => {
-                          const dateStr = format(date, 'yyyy-MM-dd');
-                          return bookings.some(b => b.date === dateStr && b.status !== 'cancelled') && !blockedDates.some(b => b.date === dateStr) && dateStr !== format(new Date(), 'yyyy-MM-dd');
-                        },
-                        blocked: (date) => {
-                          const dateStr = format(date, 'yyyy-MM-dd');
-                          return blockedDates.some(b => b.date === dateStr) && dateStr !== format(new Date(), 'yyyy-MM-dd');
-                        },
-                      }}
-                      modifiersStyles={{
-                        today: { backgroundColor: '#fef3c7', color: '#92400e', fontWeight: 'bold', border: '2px solid #fbbf24' },
-                        available: { backgroundColor: '#dcfce7', color: '#166534', fontWeight: 'bold' },
-                        booked: { backgroundColor: '#dbeafe', color: '#1e40af', fontWeight: 'bold' },
-                        blocked: { backgroundColor: '#fee2e2', color: '#991b1b', fontWeight: 'bold', textDecoration: 'line-through' },
-                      }}
-                    />
-                    <div className="p-4 bg-slate-50 rounded-lg text-sm text-slate-700 space-y-2">
-                      <p className="font-semibold mb-2">Legend:</p>
-                      <div className="flex items-center gap-2"><div className="w-6 h-6 rounded bg-yellow-100 border-2 border-yellow-400"></div><span>Today</span></div>
-                      <div className="flex items-center gap-2"><div className="w-6 h-6 rounded bg-green-100 border border-green-300"></div><span>Available</span></div>
-                      <div className="flex items-center gap-2"><div className="w-6 h-6 rounded bg-blue-100 border border-blue-300"></div><span>Booked</span></div>
-                      <div className="flex items-center gap-2"><div className="w-6 h-6 rounded bg-red-100 border border-red-300"></div><span>Blocked</span></div>
-                    </div>
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-slate-800 flex items-center gap-2"><Info className="h-4 w-4" />Smart Suggestions</h4>
-                      {(() => {
-                        const suggestions = [];
-                        const weekendBookings = bookings.filter(b => { const d = new Date(b.date); return (d.getDay() === 0 || d.getDay() === 6) && b.status !== 'cancelled'; }).length;
-                        if (weekendBookings > 5) suggestions.push({ type: 'success', text: 'High weekend demand! Consider premium pricing.' });
-                        const today = new Date();
-                        const next7 = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); });
-                        const avail7 = next7.filter(ds => !blockedDates.some(b => b.date === ds) && !bookings.some(b => b.date === ds && b.status !== 'cancelled')).length;
-                        if (avail7 > 5) suggestions.push({ type: 'warning', text: `${avail7} days available in next week. Consider promotional campaigns.` });
-                        if (blockedDates.length > 10) suggestions.push({ type: 'info', text: 'Multiple dates blocked. Review if all are still necessary.' });
-                        return suggestions.length > 0 ? suggestions.map((s, i) => (
-                          <div key={i} className={`p-3 rounded-lg border ${s.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : s.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-800' : 'bg-blue-50 border-blue-200 text-blue-800'}`}>
-                            <p className="text-sm">{s.text}</p>
-                          </div>
-                        )) : <p className="text-sm text-slate-500 italic">No suggestions at this time</p>;
-                      })()}
-                    </div>
-                  </CardContent>
-                </Card>
+                  <Calendar
+                    mode="single"
+                    className="rounded-xl border-white/10 bg-transparent text-white w-full"
+                    modifiers={{
+                      today: (date) => format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'),
+                      available: (date) => { const ds = format(date, 'yyyy-MM-dd'); const ts = format(new Date(), 'yyyy-MM-dd'); return !blockedDates.some(b => b.date === ds) && !bookings.some(b => b.date === ds && b.status !== 'cancelled') && date >= new Date() && ds !== ts; },
+                      booked: (date) => { const ds = format(date, 'yyyy-MM-dd'); return bookings.some(b => b.date === ds && b.status !== 'cancelled') && !blockedDates.some(b => b.date === ds) && ds !== format(new Date(), 'yyyy-MM-dd'); },
+                      blocked: (date) => { const ds = format(date, 'yyyy-MM-dd'); return blockedDates.some(b => b.date === ds) && ds !== format(new Date(), 'yyyy-MM-dd'); },
+                    }}
+                    modifiersStyles={{
+                      today: { backgroundColor: 'rgba(251,191,36,0.3)', color: '#fde68a', fontWeight: 'bold', border: '1px solid rgba(251,191,36,0.5)', borderRadius: '6px' },
+                      available: { backgroundColor: 'rgba(16,185,129,0.25)', color: '#6ee7b7', fontWeight: 'bold', borderRadius: '6px' },
+                      booked: { backgroundColor: 'rgba(30,136,229,0.3)', color: '#93c5fd', fontWeight: 'bold', borderRadius: '6px' },
+                      blocked: { backgroundColor: 'rgba(239,68,68,0.25)', color: '#fca5a5', fontWeight: 'bold', textDecoration: 'line-through', borderRadius: '6px' },
+                    }}
+                  />
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {[
+                      { color: 'rgba(251,191,36,0.3)', border: 'rgba(251,191,36,0.5)', label: 'Today' },
+                      { color: 'rgba(16,185,129,0.25)', border: 'rgba(16,185,129,0.3)', label: 'Available' },
+                      { color: 'rgba(30,136,229,0.3)', border: 'rgba(30,136,229,0.3)', label: 'Booked' },
+                      { color: 'rgba(239,68,68,0.25)', border: 'rgba(239,68,68,0.3)', label: 'Blocked' },
+                    ].map(l => (
+                      <div key={l.label} className="flex items-center gap-2">
+                        <div className="w-4 h-4 rounded" style={{ background: l.color, border: `1px solid ${l.border}` }} />
+                        <span className="text-white/40">{l.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-2 pt-2">
+                    <p className="text-xs text-white/40 uppercase tracking-wider flex items-center gap-1"><Info className="h-3 w-3" /> Smart Suggestions</p>
+                    {(() => {
+                      const suggestions = [];
+                      const weekendBookings = bookings.filter(b => { const d = new Date(b.date); return (d.getDay() === 0 || d.getDay() === 6) && b.status !== 'cancelled'; }).length;
+                      if (weekendBookings > 5) suggestions.push({ type: 'success', text: 'High weekend demand! Consider premium pricing.' });
+                      const today = new Date();
+                      const next7 = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); });
+                      const avail7 = next7.filter(ds => !blockedDates.some(b => b.date === ds) && !bookings.some(b => b.date === ds && b.status !== 'cancelled')).length;
+                      if (avail7 > 5) suggestions.push({ type: 'warning', text: `${avail7} days available next week. Consider promotions.` });
+                      if (blockedDates.length > 10) suggestions.push({ type: 'info', text: 'Many dates blocked. Review if all are still needed.' });
+                      return suggestions.length > 0 ? suggestions.map((s, i) => (
+                        <div key={i} className={`p-2.5 rounded-lg text-xs ${s.type === 'success' ? 'text-emerald-300' : s.type === 'warning' ? 'text-amber-300' : 'text-blue-300'}`} style={{ background: s.type === 'success' ? 'rgba(16,185,129,0.1)' : s.type === 'warning' ? 'rgba(245,158,11,0.1)' : 'rgba(59,130,246,0.1)', border: `1px solid ${s.type === 'success' ? 'rgba(16,185,129,0.2)' : s.type === 'warning' ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.2)'}` }}>
+                          {s.text}
+                        </div>
+                      )) : <p className="text-xs text-white/25 italic">No suggestions at this time</p>;
+                    })()}
+                  </div>
+                </div>
 
-                <Card className="bg-white/95 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><CalendarIcon className="h-5 w-5 text-yellow-600" />Trips Today</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3 max-h-[300px] overflow-y-auto">
-                      {(() => {
-                        const todayStr = format(new Date(), 'yyyy-MM-dd');
-                        const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'cancelled');
-                        return todayBookings.length === 0 ? (
-                          <div className="text-center py-8">
-                            <CalendarIcon className="h-10 w-10 text-slate-300 mx-auto mb-2" />
-                            <p className="text-slate-500">No trips today</p>
-                          </div>
-                        ) : todayBookings.map((booking) => {
-                          const StatusIcon = statusIcons[booking.status];
-                          return (
-                            <div key={booking.id} className="p-4 bg-yellow-50 rounded-lg space-y-2 border-l-4 border-yellow-500">
-                              <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-semibold text-slate-800">{booking.guest_name}</p>
-                                    {booking.boat_name && <span className="text-sm px-3 py-1 rounded-full bg-[#1e88e5] text-white font-semibold">{booking.boat_name}</span>}
-                                  </div>
-                                  <p className="text-xs text-slate-500 font-mono">{booking.confirmation_code}</p>
+                <div className="rounded-2xl p-5" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', backdropFilter: 'blur(16px)' }}>
+                  <div className="flex items-center gap-2 mb-4">
+                    <CalendarIcon className="h-4 w-4 text-amber-400" />
+                    <span className="text-sm font-medium text-amber-300/80">Trips Today</span>
+                  </div>
+                  <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                    {(() => {
+                      const todayStr = format(new Date(), 'yyyy-MM-dd');
+                      const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'cancelled');
+                      return todayBookings.length === 0 ? (
+                        <div className="text-center py-8">
+                          <CalendarIcon className="h-10 w-10 text-amber-500/20 mx-auto mb-2" />
+                          <p className="text-white/30 text-sm">No trips today</p>
+                        </div>
+                      ) : todayBookings.map((booking) => {
+                        const StatusIcon = statusIcons[booking.status];
+                        return (
+                          <div key={booking.id} className="p-3 rounded-xl space-y-2 border-l-4 border-amber-400" style={{ background: 'rgba(255,255,255,0.05)' }}>
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <p className="font-semibold text-white text-sm">{booking.guest_name}</p>
+                                  {booking.boat_name && <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(30,136,229,0.25)', color: '#60b4ff' }}>{booking.boat_name}</span>}
                                 </div>
-                                <Badge className={statusColors[booking.status]}><StatusIcon className="h-3 w-3 mr-1" />{booking.status}</Badge>
+                                <p className="text-xs text-white/30 font-mono">{booking.confirmation_code}</p>
                               </div>
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="flex items-center gap-1 text-slate-600"><Clock className="h-3 w-3" />{booking.time_slot}</div>
-                                <div className="flex items-center gap-1 text-slate-600"><Users className="h-3 w-3" />{booking.guests} guests</div>
-                              </div>
-                              <div className="flex items-center gap-2 text-sm"><Phone className="h-3 w-3 text-slate-400" /><span className="text-slate-600">{booking.guest_phone}</span></div>
+                              <Badge className={statusColors[booking.status]}><StatusIcon className="h-3 w-3 mr-1" />{booking.status}</Badge>
                             </div>
-                          );
-                        });
-                      })()}
-                    </div>
-                  </CardContent>
-                </Card>
+                            <div className="flex gap-3 text-xs text-white/40">
+                              <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{booking.time_slot}</span>
+                              <span className="flex items-center gap-1"><Users className="h-3 w-3" />{booking.guests}</span>
+                              <span className="flex items-center gap-1"><Phone className="h-3 w-3" />{booking.guest_phone}</span>
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                </div>
               </div>
               <div className="space-y-6"></div>
             </div>
