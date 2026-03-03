@@ -534,12 +534,14 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Boat Inventory{restrictToBoat ? ` — ${restrictToBoat}` : ''}</h2>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+          {!readOnlyMode && (
           <DialogTrigger asChild>
             <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
               <Plus className="h-4 w-4 mr-2" />
               Add Boat
             </Button>
           </DialogTrigger>
+          )}
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">{editingBoat ? `Editing: ${editingBoat.name}` : 'Add New Boat'}</DialogTitle>
