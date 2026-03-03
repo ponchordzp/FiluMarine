@@ -179,10 +179,10 @@ function AdminBookingsInner() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-[#060d14] flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-slate-300 border-t-slate-800 rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-slate-600">Loading bookings...</p>
+          <div className="w-16 h-16 border-4 border-white/10 border-t-[#1e88e5] rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-white/60">Loading bookings...</p>
         </div>
       </div>
     );
