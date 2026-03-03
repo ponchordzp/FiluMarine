@@ -670,6 +670,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <Gauge className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Engine Configuration</h3>
                   {(() => {const f = [formData.engine_config, formData.engine_name, formData.engine_year, formData.engine_quantity];const n = f.filter((x) => x !== null && x !== undefined && String(x).trim() !== '' && x !== 0).length;return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n / f.length * 100)}%` }} /></div></>;})()}
+                  <SectionLockButton sectionKey="engine" locks={locks} toggle={toggleLock} isComplete={isEngineComplete} />
                   {collapsedSections['engine'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['engine'] && <div className="bg-amber-50 p-5 space-y-4">
