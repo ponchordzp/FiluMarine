@@ -195,103 +195,73 @@ function AdminBookingsInner() {
     : { label: 'Crew', cls: 'bg-emerald-500' };
 
   return (
-    <div className="min-h-screen bg-[#0f1e2e]">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #060d14 0%, #0c1f30 50%, #060d14 100%)' }}>
+      {/* Ambient glow blobs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #1e88e5 0%, transparent 70%)' }} />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full opacity-8" style={{ background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)' }} />
+      </div>
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#0c2340] to-[#1e88e5] text-white py-12">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex items-center justify-between mb-4">
+      <div className="relative" style={{ background: 'linear-gradient(135deg, rgba(12,35,64,0.95) 0%, rgba(30,136,229,0.6) 100%)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="flex items-center justify-between mb-5">
             <Link
               to={createPageUrl('Home')}
-              className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-white/60 hover:text-white transition-colors text-sm"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Home
             </Link>
             <div className="flex items-center gap-3">
-              <span className={`text-xs font-bold px-2 py-1 rounded-full text-white ${roleBadge.cls}`}>{roleBadge.label}</span>
-              <span className="font-semibold text-white bg-white/20 px-3 py-1 rounded-full">
+              <span className={`text-xs font-bold px-3 py-1.5 rounded-full text-white ${roleBadge.cls}`}>{roleBadge.label}</span>
+              <span className="font-medium text-white text-sm px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
                 {currentUser?.full_name || currentUser?.username}
               </span>
-              <button onClick={handleLogout} className="text-white/70 hover:text-white text-sm underline">Logout</button>
+              <button onClick={handleLogout} className="text-white/50 hover:text-white text-sm transition-colors">Logout</button>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Booking Management</h1>
-              <p className="text-white/80">View and manage all customer bookings</p>
+              <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Booking Management</h1>
+              <p className="text-white/50 text-sm">View and manage all customer bookings</p>
             </div>
-            <Button
-              variant="outline"
-              className="bg-white/10 hover:bg-white/20 border-white/30 text-white"
-              onClick={() => alert('Simulation mode activated - Generate test bookings for demo purposes')}
-            >
-              <Gauge className="h-4 w-4 mr-2" />
-              Simulation Mode
-            </Button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 -mt-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 relative">
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          <Card className="bg-white/95 backdrop-blur-sm">
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-slate-800">{stats.total}</p>
-                <p className="text-sm text-slate-500">Total Bookings</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
-                <p className="text-sm text-slate-500">Pending</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-emerald-600">{stats.confirmed}</p>
-                <p className="text-sm text-slate-500">Confirmed</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{stats.completed}</p>
-                <p className="text-sm text-slate-500">Completed</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-red-600">{stats.cancelled}</p>
-                <p className="text-sm text-slate-500">Cancelled</p>
-              </div>
-            </CardContent>
-          </Card>
+          {[
+            { label: 'Total', value: stats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50' },
+            { label: 'Pending', value: stats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70' },
+            { label: 'Confirmed', value: stats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70' },
+            { label: 'Completed', value: stats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70' },
+            { label: 'Cancelled', value: stats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70' },
+          ].map(s => (
+            <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
+              <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
+              <p className={`text-xs mt-1 ${s.sub}`}>{s.label}</p>
+            </div>
+          ))}
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
           <div className="flex flex-wrap items-center gap-2">
-            <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
-              <TabsTrigger value="bookings">Bookings</TabsTrigger>
-              <TabsTrigger value="booked-dates">Booked Dates</TabsTrigger>
-              <TabsTrigger value="blocked-dates">Blocked Dates</TabsTrigger>
-              <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+            <TabsList style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)' }} className="p-1">
+              <TabsTrigger value="bookings" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/15">Bookings</TabsTrigger>
+              <TabsTrigger value="booked-dates" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/15">Booked Dates</TabsTrigger>
+              <TabsTrigger value="blocked-dates" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/15">Blocked Dates</TabsTrigger>
+              <TabsTrigger value="dashboard" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/15">Dashboard</TabsTrigger>
             </TabsList>
-            <TabsList className="bg-white/95 backdrop-blur-sm border shadow-sm">
-              <TabsTrigger value="boats">Boat Inventory</TabsTrigger>
-              {isSuperAdmin && <TabsTrigger value="destinations">Destinations</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="expeditions">Expeditions</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="locations">Locations</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="mechanic" className="text-orange-700 font-semibold">Mechanic Portal</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="users" className="text-purple-700 font-semibold">Users</TabsTrigger>}
+            <TabsList style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', backdropFilter: 'blur(16px)' }} className="p-1">
+              <TabsTrigger value="boats" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/15">Boat Inventory</TabsTrigger>
+              {isSuperAdmin && <TabsTrigger value="destinations" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/15">Destinations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="expeditions" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/15">Expeditions</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="locations" className="text-white/70 data-[state=active]:text-white data-[state=active]:bg-white/15">Locations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="mechanic" className="text-orange-300 data-[state=active]:text-white data-[state=active]:bg-orange-500/30">Mechanic Portal</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="users" className="text-purple-300 data-[state=active]:text-white data-[state=active]:bg-purple-500/30">Users</TabsTrigger>}
             </TabsList>
           </div>
 
