@@ -736,91 +736,80 @@ function AdminBookingsInner() {
           {/* ── BLOCKED DATES TAB ── */}
           <TabsContent value="blocked-dates" className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Plus className="h-5 w-5" />Block New Date</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label>Select Date</Label>
-                    <Calendar
-                      mode="single"
-                      selected={blockDate}
-                      onSelect={setBlockDate}
-                      className="rounded-md border w-full"
-                      modifiers={{ blocked: (date) => blockedDates.some(b => b.date === format(date, 'yyyy-MM-dd')) }}
-                      modifiersStyles={{ blocked: { backgroundColor: '#fee2e2', color: '#991b1b', fontWeight: 'bold' } }}
-                    />
-                  </div>
-                  <div className="p-3 bg-red-50 rounded-lg text-sm text-red-800">
-                    <p className="font-medium mb-1">Note:</p>
-                    <p>🔴 Red dates are already blocked</p>
-                  </div>
-                  <div>
-                    <Label>Select Boat</Label>
-                    <Select value={blockBoat} onValueChange={setBlockBoat}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="both">Both Boats</SelectItem>
-                        <SelectItem value="FILU">FILU Only</SelectItem>
-                        <SelectItem value="TYCOON">TYCOON Only</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Reason (Optional)</Label>
-                    <Textarea placeholder="e.g., Weather, maintenance, private event..." value={blockReason} onChange={(e) => setBlockReason(e.target.value)} rows={3} />
-                  </div>
-                  <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending} className="w-full bg-red-600 hover:bg-red-700">
-                    <Ban className="h-4 w-4 mr-2" />
-                    {blockDateMutation.isPending ? 'Blocking...' : 'Block Date'}
-                  </Button>
-                </CardContent>
-              </Card>
+              <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', backdropFilter: 'blur(16px)' }}>
+                <div className="flex items-center gap-2">
+                  <Ban className="h-4 w-4 text-red-400" />
+                  <span className="text-sm font-medium text-red-300/80">Block New Date</span>
+                </div>
+                <Calendar
+                  mode="single"
+                  selected={blockDate}
+                  onSelect={setBlockDate}
+                  className="rounded-xl border-white/10 bg-transparent text-white w-full"
+                  modifiers={{ blocked: (date) => blockedDates.some(b => b.date === format(date, 'yyyy-MM-dd')) }}
+                  modifiersStyles={{ blocked: { backgroundColor: 'rgba(239,68,68,0.3)', color: '#fca5a5', fontWeight: 'bold', borderRadius: '6px' } }}
+                />
+                <div className="p-2.5 rounded-lg text-xs text-red-300/70" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  🔴 Red dates are already blocked
+                </div>
+                <div>
+                  <Label className="text-white/50 text-xs">Select Boat</Label>
+                  <Select value={blockBoat} onValueChange={setBlockBoat}>
+                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="both">Both Boats</SelectItem>
+                      <SelectItem value="FILU">FILU Only</SelectItem>
+                      <SelectItem value="TYCOON">TYCOON Only</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-white/50 text-xs">Reason (Optional)</Label>
+                  <Textarea placeholder="e.g., Weather, maintenance, private event..." value={blockReason} onChange={(e) => setBlockReason(e.target.value)} rows={3} className="mt-1 bg-white/5 border-white/10 text-white placeholder:text-white/30" />
+                </div>
+                <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending} className="w-full bg-red-600/80 hover:bg-red-600 border-red-500/50 text-white" style={{ border: '1px solid rgba(239,68,68,0.4)' }}>
+                  <Ban className="h-4 w-4 mr-2" />
+                  {blockDateMutation.isPending ? 'Blocking...' : 'Block Date'}
+                </Button>
+              </div>
 
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Blocked Dates ({blockedDates.length})</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 max-h-[600px] overflow-y-auto">
-                    {blockedDates.length === 0 ? (
-                      <div className="text-center py-12">
-                        <Ban className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                        <p className="text-slate-500">No blocked dates</p>
-                        <p className="text-sm text-slate-400 mt-1">Use the form to block dates</p>
-                      </div>
-                    ) : (
-                      blockedDates.sort((a, b) => new Date(a.date) - new Date(b.date)).map((blocked) => (
-                        <div key={blocked.id} className="flex items-start justify-between p-3 bg-red-50 rounded-lg border border-red-100 hover:border-red-200 transition-colors">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <CalendarIcon className="h-4 w-4 text-red-600 flex-shrink-0" />
-                              <p className="font-semibold text-slate-800 truncate">{format(parseISO(blocked.date), 'EEE, MMM d, yyyy')}</p>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Badge className={blocked.boat_name === 'both' ? 'bg-slate-600 text-white' : blocked.boat_name === 'FILU' ? 'bg-[#1e88e5] text-white' : 'bg-purple-600 text-white'}>
-                                {blocked.boat_name || 'both'}
-                              </Badge>
-                            </div>
-                            {blocked.reason && <p className="text-xs text-slate-600 mt-2 line-clamp-2">{blocked.reason}</p>}
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <div className="flex items-center gap-2 mb-4">
+                  <CalendarIcon className="h-4 w-4 text-red-400" />
+                  <span className="text-sm font-medium text-white/70">Blocked Dates ({blockedDates.length})</span>
+                </div>
+                <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                  {blockedDates.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Ban className="h-12 w-12 text-white/10 mx-auto mb-3" />
+                      <p className="text-white/30 text-sm">No blocked dates</p>
+                    </div>
+                  ) : (
+                    blockedDates.sort((a, b) => new Date(a.date) - new Date(b.date)).map((blocked) => (
+                      <div key={blocked.id} className="flex items-start justify-between p-3 rounded-xl" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)' }}>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <CalendarIcon className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
+                            <p className="font-semibold text-white text-sm truncate">{format(parseISO(blocked.date), 'EEE, MMM d, yyyy')}</p>
                           </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 ml-2 flex-shrink-0"
-                            onClick={() => { setSelectedBlockedDate(blocked); setUnlockDialogOpen(true); }}
-                          >
-                            <Unlock className="h-4 w-4" />
-                          </Button>
+                          <Badge className={blocked.boat_name === 'both' ? 'bg-white/10 text-white/60 border border-white/15' : blocked.boat_name === 'FILU' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'}>
+                            {blocked.boat_name || 'both'}
+                          </Badge>
+                          {blocked.reason && <p className="text-xs text-white/30 mt-1.5 line-clamp-2">{blocked.reason}</p>}
                         </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+                        <Button
+                          size="sm"
+                          className="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 ml-2 flex-shrink-0"
+                          style={{ border: '1px solid rgba(16,185,129,0.25)' }}
+                          onClick={() => { setSelectedBlockedDate(blocked); setUnlockDialogOpen(true); }}
+                        >
+                          <Unlock className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
             </div>
           </TabsContent>
 
