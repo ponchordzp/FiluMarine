@@ -26,10 +26,24 @@ import UserManagement from '@/components/admin/UserManagement';
 import MechanicPortal from '@/components/admin/MechanicPortal';
 
 const statusColors = {
-  pending: 'bg-amber-100 text-amber-800',
-  confirmed: 'bg-emerald-100 text-emerald-800',
-  cancelled: 'bg-red-100 text-red-800',
-  completed: 'bg-blue-100 text-blue-800',
+  pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
+  confirmed: 'bg-emerald-400/20 text-emerald-200 border border-emerald-400/40',
+  cancelled: 'bg-red-400/20 text-red-200 border border-red-400/40',
+  completed: 'bg-blue-400/20 text-blue-200 border border-blue-400/40',
+};
+
+const statusBorderColor = {
+  pending:   'border-l-amber-400',
+  confirmed: 'border-l-emerald-400',
+  cancelled: 'border-l-red-400',
+  completed: 'border-l-blue-400',
+};
+
+const statusGlow = {
+  pending:   'shadow-amber-500/10',
+  confirmed: 'shadow-emerald-500/10',
+  cancelled: 'shadow-red-500/10',
+  completed: 'shadow-blue-500/10',
 };
 
 const statusIcons = {
