@@ -22,13 +22,13 @@ import MaintenanceLogView from './MaintenanceLogView';
 import CustomFieldsManager from './CustomFieldsManager';
 
 const expeditionTypes = [
-  'half_day_fishing',
-  'full_day_fishing',
-  'extended_fishing',
-  'snorkeling',
-  'coastal_leisure',
-  'sunset_tour'
-];
+'half_day_fishing',
+'full_day_fishing',
+'extended_fishing',
+'snorkeling',
+'coastal_leisure',
+'sunset_tour'];
+
 
 export default function BoatManagement({ restrictToBoat = null, readOnlyMode = false }) {
   const queryClient = useQueryClient();
@@ -92,14 +92,14 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     status: 'active',
     maintenance_checklist: {},
     custom_fields_general: [],
-    custom_fields_maintenance: [],
+    custom_fields_maintenance: []
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [newSupplier, setNewSupplier] = useState({ name: '', phone: '', email: '', specialty: '' });
-  const [newRecurringCost, setNewRecurringCost] = useState({ 
-    name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: '' 
+  const [newRecurringCost, setNewRecurringCost] = useState({
+    name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: ''
   });
   const [personalTripDialogOpen, setPersonalTripDialogOpen] = useState(false);
   const [selectedBoatForTrips, setSelectedBoatForTrips] = useState(null);
@@ -109,54 +109,54 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const [tripHistoryExpanded, setTripHistoryExpanded] = useState({});
   const [collapsedSections, setCollapsedSections] = useState({});
   const dialogContentRef = React.useRef(null);
-  
-  const toggleSection = (key) => setCollapsedSections(prev => ({ ...prev, [key]: !prev[key] }));
-  
+
+  const toggleSection = (key) => setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
+
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
-    queryFn: () => base44.entities.BoatInventory.list('-created_date'),
+    queryFn: () => base44.entities.BoatInventory.list('-created_date')
   });
 
   const { data: bookings = [] } = useQuery({
     queryKey: ['bookings-stats'],
-    queryFn: () => base44.entities.Booking.list(),
+    queryFn: () => base44.entities.Booking.list()
   });
 
   const { data: expenses = [] } = useQuery({
     queryKey: ['expenses-stats'],
-    queryFn: () => base44.entities.BookingExpense.list(),
+    queryFn: () => base44.entities.BookingExpense.list()
   });
 
   const { data: personalTrips = [] } = useQuery({
     queryKey: ['personal-trips'],
-    queryFn: () => base44.entities.PersonalTrip.list('-trip_date'),
+    queryFn: () => base44.entities.PersonalTrip.list('-trip_date')
   });
 
   const getBoatStats = (boatName, boatId) => {
-    const boatBookings = bookings.filter(b => b.boat_name === boatName && b.status !== 'cancelled');
+    const boatBookings = bookings.filter((b) => b.boat_name === boatName && b.status !== 'cancelled');
     const today = new Date();
-    const futureBookings = boatBookings.filter(b => new Date(b.date) >= today);
-    const pastBookings = boatBookings.filter(b => new Date(b.date) < today);
-    const completedBookings = boatBookings.filter(b => b.status === 'completed');
+    const futureBookings = boatBookings.filter((b) => new Date(b.date) >= today);
+    const pastBookings = boatBookings.filter((b) => new Date(b.date) < today);
+    const completedBookings = boatBookings.filter((b) => b.status === 'completed');
     const totalRevenue = completedBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
-    const bookingIds = completedBookings.map(b => b.id);
-    const boatExpenses = expenses.filter(e => bookingIds.includes(e.booking_id));
+    const bookingIds = completedBookings.map((b) => b.id);
+    const boatExpenses = expenses.filter((e) => bookingIds.includes(e.booking_id));
     const totalExpenses = boatExpenses.reduce((sum, e) => {
       return sum + (e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0);
     }, 0);
     const netProfit = totalRevenue - totalExpenses;
-    const roi = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : 0;
+    const roi = totalRevenue > 0 ? (netProfit / totalRevenue * 100).toFixed(1) : 0;
     const expeditionCounts = {};
-    boatBookings.forEach(b => {
+    boatBookings.forEach((b) => {
       const exp = b.experience_type || 'unknown';
       expeditionCounts[exp] = (expeditionCounts[exp] || 0) + 1;
     });
     const frequentTrip = Object.entries(expeditionCounts).sort((a, b) => b[1] - a[1])[0];
-    const lastTrip = pastBookings.filter(b => b.status === 'completed').sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+    const lastTrip = pastBookings.filter((b) => b.status === 'completed').sort((a, b) => new Date(b.date) - new Date(a.date))[0];
     const totalEngineHoursFromBookings = boatBookings.reduce((sum, b) => sum + (b.engine_hours_used || 0), 0);
-    const boatPersonalTrips = personalTrips.filter(t => t.boat_id === boatId);
+    const boatPersonalTrips = personalTrips.filter((t) => t.boat_id === boatId);
     const personalTripsEngineHours = boatPersonalTrips.reduce((sum, t) => sum + (t.engine_hours_used || 0), 0);
-    
+
     return {
       total: boatBookings.length,
       future: futureBookings.length,
@@ -180,7 +180,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boats'] });
       resetForm();
-    },
+    }
   });
 
   const updateMutation = useMutation({
@@ -188,14 +188,14 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boats'] });
       resetForm();
-    },
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.BoatInventory.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['boats'] });
-    },
+    }
   });
 
   const resetForm = () => {
@@ -256,13 +256,13 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       status: 'active',
       maintenance_checklist: {},
       custom_fields_general: [],
-      custom_fields_maintenance: [],
+      custom_fields_maintenance: []
     });
     setImageFile(null);
     setImagePreview('');
     setNewSupplier({ name: '', phone: '', email: '', specialty: '' });
-    setNewRecurringCost({ 
-      name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: '' 
+    setNewRecurringCost({
+      name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: ''
     });
     setEditingBoat(null);
     setDialogOpen(false);
@@ -285,10 +285,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     setEditingBoat(boat);
     const customEquip = boat.custom_equipment || [];
     const customVisibility = boat.custom_equipment_visibility || [];
-    const normalizedCustomVisibility = customEquip.map((_, idx) => 
-      typeof customVisibility[idx] === 'boolean' ? customVisibility[idx] : true
+    const normalizedCustomVisibility = customEquip.map((_, idx) =>
+    typeof customVisibility[idx] === 'boolean' ? customVisibility[idx] : true
     );
-    
+
     setFormData({
       ...boat,
       dock_location: boat.dock_location || '',
@@ -327,7 +327,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       },
       equipment_visibility: boat.equipment_visibility || {},
       custom_equipment: customEquip,
-      custom_equipment_visibility: normalizedCustomVisibility,
+      custom_equipment_visibility: normalizedCustomVisibility
     });
     setImagePreview(boat.image || '');
     setDialogOpen(true);
@@ -357,16 +357,16 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   };
 
   const toggleExpedition = (expedition) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      available_expeditions: prev.available_expeditions.includes(expedition)
-        ? prev.available_expeditions.filter(e => e !== expedition)
-        : [...prev.available_expeditions, expedition]
+      available_expeditions: prev.available_expeditions.includes(expedition) ?
+      prev.available_expeditions.filter((e) => e !== expedition) :
+      [...prev.available_expeditions, expedition]
     }));
   };
 
   const toggleEquipment = (equipment) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       equipment: {
         ...prev.equipment,
@@ -377,7 +377,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
   const toggleEquipmentVisibility = (equipmentKey, customIndex = null) => {
     if (customIndex !== null) {
-      setFormData(prev => {
+      setFormData((prev) => {
         const newVisibility = [...(prev.custom_equipment_visibility || [])];
         const currentValue = newVisibility[customIndex] !== false;
         newVisibility[customIndex] = !currentValue;
@@ -387,7 +387,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
         };
       });
     } else {
-      setFormData(prev => {
+      setFormData((prev) => {
         const currentValue = prev.equipment_visibility?.[equipmentKey] !== false;
         return {
           ...prev,
@@ -402,7 +402,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
   const addCustomEquipment = () => {
     if (!newEquipment.trim()) return;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       custom_equipment: [...prev.custom_equipment, newEquipment.trim()],
       custom_equipment_visibility: [...(prev.custom_equipment_visibility || []), true]
@@ -411,7 +411,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   };
 
   const removeCustomEquipment = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       custom_equipment: prev.custom_equipment.filter((_, i) => i !== index),
       custom_equipment_visibility: (prev.custom_equipment_visibility || []).filter((_, i) => i !== index)
@@ -419,20 +419,20 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   };
 
   const updateExpeditionPrice = (expType, field, value) => {
-    setFormData(prev => {
-      const existing = prev.expedition_pricing.find(e => e.expedition_type === expType);
+    setFormData((prev) => {
+      const existing = prev.expedition_pricing.find((e) => e.expedition_type === expType);
       if (existing) {
         return {
           ...prev,
-          expedition_pricing: prev.expedition_pricing.map(e => 
-            e.expedition_type === expType ? { ...e, [field]: field.includes('hours') || field.includes('mxn') ? (parseFloat(value) || 0) : value } : e
+          expedition_pricing: prev.expedition_pricing.map((e) =>
+          e.expedition_type === expType ? { ...e, [field]: field.includes('hours') || field.includes('mxn') ? parseFloat(value) || 0 : value } : e
           )
         };
       } else {
         return {
           ...prev,
-          expedition_pricing: [...prev.expedition_pricing, { 
-            expedition_type: expType, 
+          expedition_pricing: [...prev.expedition_pricing, {
+            expedition_type: expType,
             duration_hours: field === 'duration_hours' ? parseFloat(value) || 0 : 0,
             price_mxn: field === 'price_mxn' ? parseFloat(value) || 0 : 0,
             pickup_location: field === 'pickup_location' ? value : '',
@@ -444,59 +444,59 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   };
 
   const addSupply = (supply) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       supplies_inventory: [...prev.supplies_inventory, { ...supply, id: Date.now() }]
     }));
   };
 
   const removeSupply = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       supplies_inventory: prev.supplies_inventory.filter((_, i) => i !== index)
     }));
   };
 
   const updateSupplyStatus = (index, status) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      supplies_inventory: prev.supplies_inventory.map((item, i) => 
-        i === index ? { ...item, status } : item
+      supplies_inventory: prev.supplies_inventory.map((item, i) =>
+      i === index ? { ...item, status } : item
       )
     }));
   };
 
   const updateSupplyQuantity = (index, quantity) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      supplies_inventory: prev.supplies_inventory.map((item, i) => 
-        i === index ? { ...item, quantity: parseInt(quantity) || 0 } : item
+      supplies_inventory: prev.supplies_inventory.map((item, i) =>
+      i === index ? { ...item, quantity: parseInt(quantity) || 0 } : item
       )
     }));
   };
 
   const updateSupplyField = (index, field, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      supplies_inventory: prev.supplies_inventory.map((item, i) => 
-        i === index ? { ...item, [field]: value } : item
+      supplies_inventory: prev.supplies_inventory.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item
       )
     }));
   };
 
   const addRecurringCost = () => {
     if (!newRecurringCost.name) return;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       recurring_costs: [...(prev.recurring_costs || []), { ...newRecurringCost, id: Date.now() }]
     }));
-    setNewRecurringCost({ 
-      name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: '' 
+    setNewRecurringCost({
+      name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: ''
     });
   };
 
   const removeRecurringCost = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       recurring_costs: (prev.recurring_costs || []).filter((_, i) => i !== index)
     }));
@@ -509,13 +509,13 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     const totalDays = durationMonths * 30;
     const elapsedDays = Math.floor((now - purchased) / (1000 * 60 * 60 * 24));
     const remainingDays = Math.max(0, totalDays - elapsedDays);
-    const percentageRemaining = Math.max(0, Math.min(100, (remainingDays / totalDays) * 100));
+    const percentageRemaining = Math.max(0, Math.min(100, remainingDays / totalDays * 100));
     return { remainingDays, percentageRemaining, expired: remainingDays === 0 };
   };
 
   const addSupplier = () => {
     if (!newSupplier.name) return;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       supply_sellers: [...prev.supply_sellers, { ...newSupplier, id: Date.now() }]
     }));
@@ -523,7 +523,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   };
 
   const removeSupplier = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       supply_sellers: prev.supply_sellers.filter((_, i) => i !== index)
     }));
@@ -532,16 +532,16 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Boat Inventory{restrictToBoat ? ` — ${restrictToBoat}` : ''}</h2>
+        <h2 className="bg-transparent text-slate-50 text-2xl font-semibold">Boat Inventory{restrictToBoat ? ` — ${restrictToBoat}` : ''}</h2>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          {!readOnlyMode && (
+          {!readOnlyMode &&
           <DialogTrigger asChild>
-            <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
+            <Button onClick={() => {resetForm();setDialogOpen(true);}}>
               <Plus className="h-4 w-4 mr-2" />
               Add Boat
             </Button>
           </DialogTrigger>
-          )}
+          }
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl">{editingBoat ? `Editing: ${editingBoat.name}` : 'Add New Boat'}</DialogTitle>
@@ -553,10 +553,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <button type="button" onClick={() => toggleSection('general')} className="w-full bg-sky-600 px-5 py-3 flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">General Information</h3>
-                  {(() => { const f=[formData.name,formData.type,formData.size,formData.capacity,formData.location,formData.description,formData.image||imagePreview]; const n=f.filter(x=>x&&String(x).trim()!=='').length; return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{width:`${Math.round(n/f.length*100)}%`}}/></div></>; })()}
+                  {(() => {const f = [formData.name, formData.type, formData.size, formData.capacity, formData.location, formData.description, formData.image || imagePreview];const n = f.filter((x) => x && String(x).trim() !== '').length;return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n / f.length * 100)}%` }} /></div></>;})()}
                   {collapsedSections['general'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['general'] && (<div className="bg-sky-50 p-5 space-y-4">
+                {!collapsedSections['general'] && <div className="bg-sky-50 p-5 space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><Label>Boat Name *</Label><Input required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
                     <div><Label>Type *</Label><Input required value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console, Yacht" /></div>
@@ -578,37 +578,37 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <CustomFieldsManager
                     sectionKey="general"
                     customFields={formData.custom_fields_general || []}
-                    onChange={(fields) => setFormData(prev => ({ ...prev, custom_fields_general: fields }))}
-                  />
-                </div>)}
+                    onChange={(fields) => setFormData((prev) => ({ ...prev, custom_fields_general: fields }))} />
+
+                </div>}
               </div>
 
               {/* ── SECTION 2: Expeditions & Pricing ── indigo */}
-              {formData.boat_mode === 'rental_and_maintenance' && (
+              {formData.boat_mode === 'rental_and_maintenance' &&
               <div className="rounded-xl overflow-hidden border border-indigo-200 mb-4">
                 <button type="button" onClick={() => toggleSection('expeditions')} className="w-full bg-indigo-600 px-5 py-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Expeditions &amp; Pricing</h3>
                   {collapsedSections['expeditions'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['expeditions'] && (<div className="bg-indigo-50 p-5 space-y-4">
+                {!collapsedSections['expeditions'] && <div className="bg-indigo-50 p-5 space-y-4">
                   <div>
                     <Label>Price Per Additional Hour (MXN)</Label>
                     <Input type="number" min="0" value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
                     <p className="text-xs text-indigo-700 mt-1">Cost per extra hour beyond scheduled expedition duration</p>
                   </div>
                   <div className="space-y-3">
-                    {expeditionTypes.map(exp => {
+                    {expeditionTypes.map((exp) => {
                       const isSelected = formData.available_expeditions.includes(exp);
-                      const pricing = formData.expedition_pricing.find(p => p.expedition_type === exp);
+                      const pricing = formData.expedition_pricing.find((p) => p.expedition_type === exp);
                       return (
                         <div key={exp} className={`p-4 rounded-lg border-2 transition-all ${isSelected ? 'border-indigo-400 bg-white shadow-sm' : 'border-indigo-100 bg-indigo-50/50'}`}>
                           <button type="button" onClick={() => toggleExpedition(exp)} className="w-full flex items-center gap-3 mb-2">
                             <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-indigo-600' : 'bg-white border-2 border-indigo-300'}`}>{isSelected && <Check className="h-3 w-3 text-white" />}</div>
                             <span className="text-sm font-semibold capitalize text-left text-indigo-900">{exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ')}</span>
                           </button>
-                          {isSelected && (
-                            <div className="space-y-4 mt-3 pl-8">
+                          {isSelected &&
+                          <div className="space-y-4 mt-3 pl-8">
                               <div className="grid grid-cols-2 gap-3">
                                 <div><Label className="text-xs">Duration (hours)</Label><Input type="number" min="0" step="0.5" value={pricing?.duration_hours || ''} onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)} placeholder="e.g., 4" className="text-sm" /></div>
                                 <div><Label className="text-xs">Price (MXN)</Label><Input type="number" min="0" value={pricing?.price_mxn || ''} onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)} placeholder="e.g., 8000" className="text-sm" /></div>
@@ -618,49 +618,49 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                 <PickupAndDeparture pickupAndDepartures={expeditionPickupDepartures[exp] || []} onUpdate={(items) => setExpeditionPickupDepartures({ ...expeditionPickupDepartures, [exp]: items })} expeditionType={exp} location={formData.location} />
                               </div>
                             </div>
-                          )}
-                        </div>
-                      );
+                          }
+                        </div>);
+
                     })}
                   </div>
-                </div>)}
+                </div>}
               </div>
-              )}
+              }
 
               {/* ── SECTION 3: Equipment ── teal */}
-              {formData.boat_mode === 'rental_and_maintenance' && (
-                <div className="rounded-xl overflow-hidden border border-teal-200 mb-4">
+              {formData.boat_mode === 'rental_and_maintenance' &&
+              <div className="rounded-xl overflow-hidden border border-teal-200 mb-4">
                   <button type="button" onClick={() => toggleSection('equipment')} className="w-full bg-teal-600 px-5 py-3 flex items-center gap-2">
                     <Package className="h-4 w-4 text-white" />
                     <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Equipment</h3>
                     {collapsedSections['equipment'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                   </button>
-                  {!collapsedSections['equipment'] && (<div className="bg-teal-50 p-5">
-                    <EquipmentManager 
-                      equipment={formData.equipment}
-                      customEquipment={formData.custom_equipment}
-                      equipmentVisibility={formData.equipment_visibility}
-                      customEquipmentVisibility={formData.custom_equipment_visibility}
-                      onToggleEquipment={toggleEquipment}
-                      onToggleVisibility={toggleEquipmentVisibility}
-                      onAddCustom={addCustomEquipment}
-                      onRemoveCustom={removeCustomEquipment}
-                      newEquipment={newEquipment}
-                      onNewEquipmentChange={setNewEquipment}
-                    />
-                  </div>)}
+                  {!collapsedSections['equipment'] && <div className="bg-teal-50 p-5">
+                    <EquipmentManager
+                    equipment={formData.equipment}
+                    customEquipment={formData.custom_equipment}
+                    equipmentVisibility={formData.equipment_visibility}
+                    customEquipmentVisibility={formData.custom_equipment_visibility}
+                    onToggleEquipment={toggleEquipment}
+                    onToggleVisibility={toggleEquipmentVisibility}
+                    onAddCustom={addCustomEquipment}
+                    onRemoveCustom={removeCustomEquipment}
+                    newEquipment={newEquipment}
+                    onNewEquipmentChange={setNewEquipment} />
+
+                  </div>}
                 </div>
-              )}
+              }
 
               {/* ── SECTION 4: Engine ── amber */}
               <div id="section-engine" className="rounded-xl overflow-hidden border border-amber-200 mb-4">
                 <button type="button" onClick={() => toggleSection('engine')} className="w-full bg-amber-500 px-5 py-3 flex items-center gap-2">
                   <Gauge className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Engine Configuration</h3>
-                  {(() => { const f=[formData.engine_config,formData.engine_name,formData.engine_year,formData.engine_quantity]; const n=f.filter(x=>x!==null&&x!==undefined&&String(x).trim()!==''&&x!==0).length; return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{width:`${Math.round(n/f.length*100)}%`}}/></div></>; })()}
+                  {(() => {const f = [formData.engine_config, formData.engine_name, formData.engine_year, formData.engine_quantity];const n = f.filter((x) => x !== null && x !== undefined && String(x).trim() !== '' && x !== 0).length;return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n / f.length * 100)}%` }} /></div></>;})()}
                   {collapsedSections['engine'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['engine'] && (<div className="bg-amber-50 p-5 space-y-4">
+                {!collapsedSections['engine'] && <div className="bg-amber-50 p-5 space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><Label>Engine Type</Label><Select value={formData.engine_config} onValueChange={(value) => setFormData({ ...formData, engine_config: value })}><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger><SelectContent><SelectItem value="inboard">Inboard</SelectItem><SelectItem value="outboard">Outboard</SelectItem></SelectContent></Select></div>
                     <div><Label>Number of Engines</Label><Input type="number" min="1" value={formData.engine_quantity} onChange={(e) => setFormData({ ...formData, engine_quantity: parseInt(e.target.value) || 1 })} /></div>
@@ -672,16 +672,16 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><Label>Hours at Last Maintenance</Label><Input type="number" min="0" value={formData.last_maintenance_hours} onChange={(e) => setFormData({ ...formData, last_maintenance_hours: parseInt(e.target.value) || 0 })} /></div>
                     <div><Label>Current Hours</Label><Input type="number" min="0" value={formData.current_hours} onChange={(e) => setFormData({ ...formData, current_hours: parseInt(e.target.value) || 0 })} /></div>
                   </div>
-                  {formData.current_hours > 0 && (
-                    <div className="p-4 bg-white rounded-lg border border-amber-200">
+                  {formData.current_hours > 0 &&
+                  <div className="p-4 bg-white rounded-lg border border-amber-200">
                       <div className="grid grid-cols-3 gap-4 text-center">
                         <div><p className="text-xs text-amber-700 font-medium">Since Last Service</p><p className="text-2xl font-bold text-slate-900">{formData.current_hours - formData.last_maintenance_hours}</p></div>
-                        <div><p className="text-xs text-amber-700 font-medium">Until Next Service</p><p className={`text-2xl font-bold ${(formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours) <= 10 ? 'text-red-600' : 'text-green-600'}`}>{Math.max(0, formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours)}</p></div>
+                        <div><p className="text-xs text-amber-700 font-medium">Until Next Service</p><p className={`text-2xl font-bold ${formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours <= 10 ? 'text-red-600' : 'text-green-600'}`}>{Math.max(0, formData.last_maintenance_hours + formData.maintenance_interval_hours - formData.current_hours)}</p></div>
                         <div><p className="text-xs text-amber-700 font-medium">Next Service At</p><p className="text-2xl font-bold text-amber-600">{formData.last_maintenance_hours + formData.maintenance_interval_hours} hrs</p></div>
                       </div>
                     </div>
-                  )}
-                </div>)}
+                  }
+                </div>}
               </div>
 
               {/* ── SECTION 4b: Maintenance Checklist ── green (engine-type specific) */}
@@ -695,13 +695,13 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   </h3>
                   {collapsedSections['checklist'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['checklist'] && (<div className="bg-green-50 p-5">
+                {!collapsedSections['checklist'] && <div className="bg-green-50 p-5">
                   <MaintenanceChecklist
                     engineConfig={formData.engine_config}
                     checklist={formData.maintenance_checklist || {}}
-                    onChange={(val) => setFormData(prev => ({ ...prev, maintenance_checklist: val }))}
-                  />
-                </div>)}
+                    onChange={(val) => setFormData((prev) => ({ ...prev, maintenance_checklist: val }))} />
+
+                </div>}
               </div>
 
               {/* ── SECTION 5: Maintenance ── orange/red */}
@@ -709,10 +709,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <button type="button" onClick={() => toggleSection('maintenance')} className="w-full bg-orange-600 px-5 py-3 flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Maintenance</h3>
-                  {(() => { const f=[formData.last_service_date,formData.last_service_mechanic_phone,formData.impeller_last_replaced_date,formData.fuel_filter_last_replaced_date,formData.oil_filter_last_replaced_date,formData.battery_inspection_date,formData.zinc_anodes_last_replaced_date,formData.antifouling_last_applied_date,formData.safety_equipment_inspection_date,formData.hull_condition_notes,formData.propeller_condition_notes,formData.mechanic_name,formData.mechanic_phone]; const n=f.filter(x=>x&&String(x).trim()!=='').length; return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{width:`${Math.round(n/f.length*100)}%`}}/></div></>; })()}
+                  {(() => {const f = [formData.last_service_date, formData.last_service_mechanic_phone, formData.impeller_last_replaced_date, formData.fuel_filter_last_replaced_date, formData.oil_filter_last_replaced_date, formData.battery_inspection_date, formData.zinc_anodes_last_replaced_date, formData.antifouling_last_applied_date, formData.safety_equipment_inspection_date, formData.hull_condition_notes, formData.propeller_condition_notes, formData.mechanic_name, formData.mechanic_phone];const n = f.filter((x) => x && String(x).trim() !== '').length;return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n / f.length * 100)}%` }} /></div></>;})()}
                   {collapsedSections['maintenance'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['maintenance'] && (<div className="bg-orange-50 p-5 space-y-4">
+                {!collapsedSections['maintenance'] && <div className="bg-orange-50 p-5 space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <Label>Last Service Date</Label>
@@ -749,15 +749,15 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                           <button type="button" onClick={() => setFormData({ ...formData, oil_filter_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
                         </div>
                       </div>
-                      {formData.engine_config === 'outboard' && (
-                        <div>
+                      {formData.engine_config === 'outboard' &&
+                      <div>
                           <Label className="text-xs">Spark Plugs Last Replaced</Label>
                           <div className="flex gap-1 mt-1">
                             <Input type="date" value={formData.spark_plugs_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, spark_plugs_last_replaced_date: e.target.value })} className="text-sm flex-1" />
                             <button type="button" onClick={() => setFormData({ ...formData, spark_plugs_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
                           </div>
                         </div>
-                      )}
+                      }
                       <div>
                         <Label className="text-xs">Battery Last Inspected</Label>
                         <div className="flex gap-1 mt-1">
@@ -812,9 +812,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <CustomFieldsManager
                     sectionKey="maintenance"
                     customFields={formData.custom_fields_maintenance || []}
-                    onChange={(fields) => setFormData(prev => ({ ...prev, custom_fields_maintenance: fields }))}
-                  />
-                </div>)}
+                    onChange={(fields) => setFormData((prev) => ({ ...prev, custom_fields_maintenance: fields }))} />
+
+                </div>}
               </div>
 
               {/* ── SECTION 6: Supplies Inventory ── emerald */}
@@ -824,15 +824,15 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supplies Inventory</h3>
                   {collapsedSections['supplies'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['supplies'] && (<div className="bg-emerald-50 p-5 space-y-3">
+                {!collapsedSections['supplies'] && <div className="bg-emerald-50 p-5 space-y-3">
                   <p className="text-sm text-emerald-800">Track all materials and supplies needed to keep your boat in optimal condition.</p>
                   <SuppliesManager supplies={formData.supplies_inventory} onAddSupply={addSupply} onRemoveSupply={removeSupply} onUpdateSupply={updateSupplyField} />
-                  {formData.supplies_inventory.length > 0 && (
-                    <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                  {formData.supplies_inventory.length > 0 &&
+                  <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       {formData.supplies_inventory.map((supply, index) => {
-                        const timeRemaining = supply.duration_months > 0 && supply.purchased_date ? calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months) : null;
-                        const totalCost = (supply.quantity || 0) * (supply.price_per_unit || 0);
-                        return (
+                      const timeRemaining = supply.duration_months > 0 && supply.purchased_date ? calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months) : null;
+                      const totalCost = (supply.quantity || 0) * (supply.price_per_unit || 0);
+                      return (
                         <div key={index} className={`p-3 rounded-lg border-2 transition-all ${supply.status === 'in_stock' ? 'bg-white border-emerald-300' : 'bg-red-50 border-red-300'}`}>
                           <div className="flex items-start gap-3">
                             <Package className={`h-4 w-4 mt-1 flex-shrink-0 ${supply.status === 'in_stock' ? 'text-emerald-600' : 'text-red-600'}`} />
@@ -854,11 +854,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                 <div><Label className="text-xs text-slate-600">Duration (mo)</Label><Input type="number" min="0" value={supply.duration_months || 0} onChange={(e) => updateSupplyField(index, 'duration_months', parseInt(e.target.value) || 0)} className="h-7 text-sm" /></div>
                               </div>
                               {supply.duration_months > 0 && <div><Label className="text-xs text-slate-600">Purchased Date</Label><Input type="date" value={supply.purchased_date || ''} onChange={(e) => updateSupplyField(index, 'purchased_date', e.target.value)} className="h-7 text-sm" /></div>}
-                              {supply.duration_months > 0 && (
-                                <div className="space-y-1">
-                                  {timeRemaining ? (<><div className="flex justify-between text-xs"><span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>{timeRemaining.expired ? '⚠️ Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}</span><span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span></div><div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden"><div className={`h-full transition-all ${timeRemaining.percentageRemaining > 50 ? 'bg-green-500' : timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${timeRemaining.percentageRemaining}%` }} /></div></>) : (<div className="bg-amber-50 border border-amber-300 rounded p-2"><p className="text-xs text-amber-700">⚠️ Set purchase date to track duration</p></div>)}
+                              {supply.duration_months > 0 &&
+                              <div className="space-y-1">
+                                  {timeRemaining ? <><div className="flex justify-between text-xs"><span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>{timeRemaining.expired ? '⚠️ Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}</span><span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span></div><div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden"><div className={`h-full transition-all ${timeRemaining.percentageRemaining > 50 ? 'bg-green-500' : timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${timeRemaining.percentageRemaining}%` }} /></div></> : <div className="bg-amber-50 border border-amber-300 rounded p-2"><p className="text-xs text-amber-700">⚠️ Set purchase date to track duration</p></div>}
                                 </div>
-                              )}
+                              }
                               <div className="flex items-center gap-2">
                                 <button type="button" onClick={() => updateSupplyStatus(index, 'in_stock')} className={`px-3 py-1 text-xs rounded-md transition-all ${supply.status === 'in_stock' ? 'bg-emerald-600 text-white' : 'bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50'}`}>In Stock</button>
                                 <button type="button" onClick={() => updateSupplyStatus(index, 'needed')} className={`px-3 py-1 text-xs rounded-md transition-all ${supply.status === 'needed' ? 'bg-red-600 text-white' : 'bg-white border border-red-300 text-red-700 hover:bg-red-50'}`}>Needed</button>
@@ -866,12 +866,12 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                               {supply.notes && <p className="text-xs text-slate-600 bg-white p-2 rounded">{supply.notes}</p>}
                             </div>
                           </div>
-                        </div>
-                        );
-                      })}
+                        </div>);
+
+                    })}
                     </div>
-                  )}
-                </div>)}
+                  }
+                </div>}
               </div>
 
               {/* ── SECTION 7: Supply Sellers ── cyan */}
@@ -881,11 +881,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supply Sellers</h3>
                   {collapsedSections['sellers'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['sellers'] && (<div className="bg-cyan-50 p-5 space-y-3">
-                  {formData.supply_sellers && formData.supply_sellers.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.supply_sellers.map((supplier, index) => (
-                        <div key={index} className="p-3 bg-white rounded-lg border-2 border-cyan-300">
+                {!collapsedSections['sellers'] && <div className="bg-cyan-50 p-5 space-y-3">
+                  {formData.supply_sellers && formData.supply_sellers.length > 0 &&
+                  <div className="space-y-2">
+                      {formData.supply_sellers.map((supplier, index) =>
+                    <div key={index} className="p-3 bg-white rounded-lg border-2 border-cyan-300">
                           <div className="flex items-start gap-3">
                             <Package className="h-4 w-4 mt-1 flex-shrink-0 text-cyan-600" />
                             <div className="flex-1 min-w-0">
@@ -901,9 +901,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                             </div>
                           </div>
                         </div>
-                      ))}
+                    )}
                     </div>
-                  )}
+                  }
                   <div className="bg-white p-4 rounded-lg border border-cyan-200 space-y-3">
                     <p className="font-semibold text-sm text-cyan-800">Add Supplier</p>
                     <div className="grid md:grid-cols-2 gap-3">
@@ -915,7 +915,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <Button type="button" onClick={addSupplier} disabled={!newSupplier.name} variant="outline" size="sm" className="w-full border-cyan-400 text-cyan-700 hover:bg-cyan-50"><Plus className="h-4 w-4 mr-2" />Add Supplier</Button>
                   </div>
                   <div><Label>Owner Phone (for notifications)</Label><Input type="tel" value={formData.owner_phone} onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })} placeholder="e.g., +52 755 987 6543" className="mt-1" /><p className="text-xs text-cyan-700 mt-1">Receive maintenance quotes and updates</p></div>
-                </div>)}
+                </div>}
               </div>
 
               {/* ── SECTION 8: Recurring Costs ── purple */}
@@ -925,12 +925,12 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Recurring Costs</h3>
                   {collapsedSections['recurring'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
-                {!collapsedSections['recurring'] && (<div className="bg-purple-50 p-5 space-y-3">
+                {!collapsedSections['recurring'] && <div className="bg-purple-50 p-5 space-y-3">
                   <p className="text-sm text-purple-800">Track periodic payments: docking fees, insurance, crew salaries, permits, etc.</p>
-                  {formData.recurring_costs && formData.recurring_costs.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.recurring_costs.map((cost, index) => (
-                        <div key={index} className="p-3 bg-white rounded-lg border-2 border-purple-300">
+                  {formData.recurring_costs && formData.recurring_costs.length > 0 &&
+                  <div className="space-y-2">
+                      {formData.recurring_costs.map((cost, index) =>
+                    <div key={index} className="p-3 bg-white rounded-lg border-2 border-purple-300">
                           <div className="flex items-start gap-3">
                             <Calendar className="h-4 w-4 mt-1 flex-shrink-0 text-purple-600" />
                             <div className="flex-1">
@@ -950,9 +950,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                             </div>
                           </div>
                         </div>
-                      ))}
+                    )}
                     </div>
-                  )}
+                  }
                   <div className="bg-white p-4 rounded-lg border border-purple-200 space-y-3">
                     <p className="font-semibold text-sm text-purple-800">Add Recurring Cost</p>
                     <div className="grid md:grid-cols-2 gap-3">
@@ -965,7 +965,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     </div>
                     <Button type="button" onClick={addRecurringCost} disabled={!newRecurringCost.name || !newRecurringCost.amount} variant="outline" size="sm" className="w-full border-purple-400 text-purple-700 hover:bg-purple-50"><Plus className="h-4 w-4 mr-2" />Add Recurring Cost</Button>
                   </div>
-                </div>)}
+                </div>}
               </div>
 
               <div className="flex gap-2 pt-2">
@@ -978,7 +978,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {boats.filter(boat => boat.image && (!restrictToBoat || boat.name === restrictToBoat)).map((boat) => {
+        {boats.filter((boat) => boat.image && (!restrictToBoat || boat.name === restrictToBoat)).map((boat) => {
           const stats = getBoatStats(boat.name, boat.id);
           const actualCurrentHours = (boat.current_hours || 0) + stats.totalEngineHoursFromBookings + stats.personalTripsEngineHours;
           const hoursSinceLastMaintenance = actualCurrentHours - (boat.last_maintenance_hours || 0);
@@ -990,7 +990,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
           const isRentalMode = boat.boat_mode === 'rental_and_maintenance';
 
           return (
-          <Card key={boat.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Card key={boat.id} className="overflow-hidden hover:shadow-lg transition-shadow">
             <div className="aspect-video relative">
               <img src={boat.image} alt={boat.name} className="w-full h-full object-cover" />
               <div className="absolute top-2 right-2 flex gap-2">
@@ -1017,13 +1017,13 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               </div>
 
               <MaintenanceAlerts
-                boat={boat}
-                actualCurrentHours={actualCurrentHours}
-                onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)}
-              />
+                  boat={boat}
+                  actualCurrentHours={actualCurrentHours}
+                  onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)} />
+
               <MaintenanceLogView boat={boat} />
 
-              {boat.current_hours >= 0 && (
+              {boat.current_hours >= 0 &&
                 <div className="mt-3 pt-3 border-t">
                   <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-2 mb-2"><Gauge className="h-3 w-3" />Engine Hours</h4>
                   {maintenanceOverdue && <div className="p-2 bg-red-50 border border-red-300 rounded-lg mb-2"><p className="text-xs font-bold text-red-800">⚠️ OVERDUE</p></div>}
@@ -1041,79 +1041,79 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div className={`p-1.5 rounded text-center ${maintenanceOverdue ? 'bg-red-100 border border-red-400' : maintenanceDue ? 'bg-amber-100 border border-amber-400' : 'bg-green-50'}`}><p className="text-slate-500" style={{ fontSize: '10px' }}>Until Service</p><p className={`font-bold text-sm ${maintenanceOverdue ? 'text-red-700' : maintenanceDue ? 'text-amber-700' : 'text-green-600'}`}>{hoursUntilMaintenance.toFixed(1)}</p></div>
                   </div>
                 </div>
-              )}
+                }
 
               {/* Trip History - collapsible */}
               <div className="mt-3 pt-3 border-t">
                 <button
-                  type="button"
-                  onClick={() => setTripHistoryExpanded(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))}
-                  className="w-full flex items-center justify-between gap-2 mb-2 group"
-                >
+                    type="button"
+                    onClick={() => setTripHistoryExpanded((prev) => ({ ...prev, [boat.id]: !prev[boat.id] }))}
+                    className="w-full flex items-center justify-between gap-2 mb-2 group">
+
                   <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-1.5"><MapPin className="h-3 w-3" />Trip History</h4>
                   {tripHistoryExpanded[boat.id] ? <ChevronUp className="h-3 w-3 text-slate-400" /> : <ChevronDown className="h-3 w-3 text-slate-400" />}
                 </button>
 
-                {tripHistoryExpanded[boat.id] && (
+                {tripHistoryExpanded[boat.id] &&
                   <>
                     <div className="flex items-center justify-end gap-1.5 mb-2">
-                      <Button variant="outline" size="sm" onClick={() => { setSelectedBoatForTrips(boat); setPersonalTripDialogOpen(true); }} className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"><Plus className="h-3 w-3 mr-1" />Log</Button>
+                      <Button variant="outline" size="sm" onClick={() => {setSelectedBoatForTrips(boat);setPersonalTripDialogOpen(true);}} className="h-6 px-2 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"><Plus className="h-3 w-3 mr-1" />Log</Button>
                       <Select value={tripHistoryFilter} onValueChange={setTripHistoryFilter}><SelectTrigger className="w-20 h-6 text-xs"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="all">All</SelectItem><SelectItem value="rental">Rental</SelectItem><SelectItem value="personal">Personal</SelectItem></SelectContent></Select>
                     </div>
                     <div className="space-y-1.5 max-h-[360px] overflow-y-auto">
                       {(() => {
-                        const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
-                        const boatPersonalTrips = personalTrips.filter(t => t.boat_id === boat.id);
+                        const boatBookings = bookings.filter((b) => b.boat_name === boat.name && b.status !== 'cancelled');
+                        const boatPersonalTrips = personalTrips.filter((t) => t.boat_id === boat.id);
                         const allTrips = [
-                          ...boatBookings.map(b => {
-                            const expense = expenses.find(e => e.booking_id === b.id);
-                            const totalExpenses = expense ? ((expense.fuel_cost || 0) + (expense.crew_cost || 0) + (expense.maintenance_cost || 0) + (expense.cleaning_cost || 0) + (expense.supplies_cost || 0) + (expense.other_cost || 0)) : 0;
-                            const revenue = b.total_price || 0;
-                            const profit = revenue - totalExpenses;
-                            const roi = revenue > 0 ? ((profit / revenue) * 100) : 0;
-                            return { type: 'rental', date: b.date, title: b.experience_type?.replace(/_/g, ' ') || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi };
-                          }),
-                          ...boatPersonalTrips.map(t => {
-                            const totalCost = ((t.fuel_quantity || 0) * (t.fuel_price_per_unit || 0) + (t.additional_expenses || 0) + (t.supplies_used?.reduce((sum, s) => sum + (s.price || 0), 0) || 0));
-                            return { type: 'personal', date: t.trip_date, title: t.destination || 'Personal Trip', guests: t.guests, hours: t.engine_hours_used || 0, notes: t.notes, expenses: totalCost, revenue: 0, profit: -totalCost, roi: 0 };
-                          })
-                        ].sort((a, b) => new Date(b.date) - new Date(a.date));
-                        const filteredTrips = allTrips.filter(trip => tripHistoryFilter === 'all' || trip.type === tripHistoryFilter);
+                        ...boatBookings.map((b) => {
+                          const expense = expenses.find((e) => e.booking_id === b.id);
+                          const totalExpenses = expense ? (expense.fuel_cost || 0) + (expense.crew_cost || 0) + (expense.maintenance_cost || 0) + (expense.cleaning_cost || 0) + (expense.supplies_cost || 0) + (expense.other_cost || 0) : 0;
+                          const revenue = b.total_price || 0;
+                          const profit = revenue - totalExpenses;
+                          const roi = revenue > 0 ? profit / revenue * 100 : 0;
+                          return { type: 'rental', date: b.date, title: b.experience_type?.replace(/_/g, ' ') || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi };
+                        }),
+                        ...boatPersonalTrips.map((t) => {
+                          const totalCost = (t.fuel_quantity || 0) * (t.fuel_price_per_unit || 0) + (t.additional_expenses || 0) + (t.supplies_used?.reduce((sum, s) => sum + (s.price || 0), 0) || 0);
+                          return { type: 'personal', date: t.trip_date, title: t.destination || 'Personal Trip', guests: t.guests, hours: t.engine_hours_used || 0, notes: t.notes, expenses: totalCost, revenue: 0, profit: -totalCost, roi: 0 };
+                        })].
+                        sort((a, b) => new Date(b.date) - new Date(a.date));
+                        const filteredTrips = allTrips.filter((trip) => tripHistoryFilter === 'all' || trip.type === tripHistoryFilter);
                         if (filteredTrips.length === 0) return <div className="text-center py-4 text-slate-500 text-xs">No trips yet</div>;
                         return filteredTrips.map((trip, idx) => <TripHistoryCard key={idx} trip={trip} />);
                       })()}
                     </div>
                   </>
-                )}
+                  }
               </div>
 
-              <Button variant="ghost" size="sm" onClick={() => setExpandedBoats(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))} className="w-full mt-2 h-8">{isExpanded ? <><ChevronUp className="h-3 w-3 mr-1" /><span className="text-xs">Hide Equipment, Expeditions & Statistics</span></> : <><ChevronDown className="h-3 w-3 mr-1" /><span className="text-xs">Show Equipment, Expeditions & Statistics</span></>}</Button>
+              <Button variant="ghost" size="sm" onClick={() => setExpandedBoats((prev) => ({ ...prev, [boat.id]: !prev[boat.id] }))} className="w-full mt-2 h-8">{isExpanded ? <><ChevronUp className="h-3 w-3 mr-1" /><span className="text-xs">Hide Equipment, Expeditions & Statistics</span></> : <><ChevronDown className="h-3 w-3 mr-1" /><span className="text-xs">Show Equipment, Expeditions & Statistics</span></>}</Button>
 
-              {isExpanded && isRentalMode && (
+              {isExpanded && isRentalMode &&
                 <div className="mb-4">
                   <h4 className="text-xs font-semibold text-slate-700 mb-2">Equipment</h4>
                   <div className="flex flex-wrap gap-1">
-                    {boat.equipment && Object.entries(boat.equipment).filter(([_, v]) => v).map(([key]) => (<span key={key} className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded capitalize">{key.replace(/_/g, ' ')}</span>))}
-                    {boat.custom_equipment && boat.custom_equipment.map((eq, idx) => (<span key={idx} className="text-xs px-2 py-1 bg-cyan-50 text-cyan-700 rounded capitalize">{eq}</span>))}
+                    {boat.equipment && Object.entries(boat.equipment).filter(([_, v]) => v).map(([key]) => <span key={key} className="text-xs px-2 py-1 bg-emerald-50 text-emerald-700 rounded capitalize">{key.replace(/_/g, ' ')}</span>)}
+                    {boat.custom_equipment && boat.custom_equipment.map((eq, idx) => <span key={idx} className="text-xs px-2 py-1 bg-cyan-50 text-cyan-700 rounded capitalize">{eq}</span>)}
                   </div>
                 </div>
-              )}
+                }
 
-              {isExpanded && isRentalMode && boat.available_expeditions && boat.available_expeditions.length > 0 && (
+              {isExpanded && isRentalMode && boat.available_expeditions && boat.available_expeditions.length > 0 &&
                 <div className="mb-4">
                   <h4 className="text-xs font-semibold text-slate-700 mb-2">Available Expeditions</h4>
                   <div className="flex flex-wrap gap-1">
-                    {boat.available_expeditions.map((exp) => (<span key={exp} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">{exp.replace(/_/g, ' ')}</span>))}
+                    {boat.available_expeditions.map((exp) => <span key={exp} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">{exp.replace(/_/g, ' ')}</span>)}
                   </div>
                 </div>
-              )}
+                }
 
-              {isExpanded && boat.maintenance_records && boat.maintenance_records.length > 0 && (
+              {isExpanded && boat.maintenance_records && boat.maintenance_records.length > 0 &&
                 <div className="pt-4 border-t space-y-2">
                   <h4 className="font-semibold text-sm text-slate-700 mb-3 flex items-center gap-2"><Wrench className="h-4 w-4" />Maintenance History ({boat.maintenance_records.length} records)</h4>
                   <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                    {boat.maintenance_records.sort((a, b) => new Date(b.date) - new Date(a.date)).map((record, idx) => (
-                      <div key={idx} className="p-3 bg-slate-50 rounded-lg border text-xs">
+                    {boat.maintenance_records.sort((a, b) => new Date(b.date) - new Date(a.date)).map((record, idx) =>
+                    <div key={idx} className="p-3 bg-slate-50 rounded-lg border text-xs">
                         <div className="flex items-start justify-between mb-2">
                           <div><p className="font-semibold text-slate-800">{format(parseISO(record.date), 'MMM d, yyyy')}</p><Badge className={record.service_type === 'major' ? 'bg-purple-100 text-purple-800 text-xs' : record.service_type === 'minor' ? 'bg-blue-100 text-blue-800 text-xs' : record.service_type === 'repair' ? 'bg-red-100 text-red-800 text-xs' : 'bg-slate-100 text-slate-800 text-xs'}>{record.service_type}</Badge></div>
                           <p className="font-bold text-green-700">${record.cost?.toLocaleString()} MXN</p>
@@ -1123,12 +1123,12 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         {record.mechanic_name && <p className="text-slate-600"><strong>Mechanic:</strong> {record.mechanic_name}{record.mechanic_phone && ` (${record.mechanic_phone})`}</p>}
                         {record.notes && <p className="text-slate-500 mt-1 italic">{record.notes}</p>}
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
-              )}
+                }
 
-              {isExpanded && isRentalMode && (
+              {isExpanded && isRentalMode &&
                 <div className="pt-4 border-t space-y-3">
                   <h4 className="font-semibold text-sm text-slate-700 mb-3">Booking Statistics</h4>
                   <div className="grid grid-cols-3 gap-2">
@@ -1142,25 +1142,25 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><p className="text-slate-500 text-xs">Future / Past</p><p className="font-semibold text-lg">{stats.future} / {stats.past}</p></div>
                   </div>
                   <div className="pt-2"><p className="text-slate-500 text-xs">Most Frequent Trip</p><p className="font-medium text-sm capitalize">{stats.frequentTrip} ({stats.frequentTripCount}x)</p></div>
-                  {stats.lastTrip && (<div className="pt-3 border-t"><p className="text-slate-500 text-xs mb-2">Last Completed Trip</p><div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm"><p className="font-medium capitalize">{stats.lastTrip.experience_type?.replace(/_/g, ' ')}</p><p className="text-xs text-slate-600">{format(parseISO(stats.lastTrip.date), 'MMM d, yyyy')} • {stats.lastTrip.guests} guests</p></div></div>)}
-                  {boat.last_service_date && (<div className="pt-2"><p className="text-slate-500 text-xs mb-1">Last Service</p><div className="bg-blue-50 p-2 rounded text-xs"><p className="font-medium">{format(parseISO(boat.last_service_date), 'MMM d, yyyy')}</p>{boat.last_service_mechanic_phone && <p className="text-slate-600 mt-1">Mechanic: {boat.last_service_mechanic_phone}</p>}</div></div>)}
-                  {boat.mechanic_name && (<div className="pt-2"><p className="text-slate-500 text-xs mb-1">Mechanic</p><div className="bg-slate-50 p-2 rounded text-xs space-y-1"><p className="font-medium">{boat.mechanic_name}</p>{boat.mechanic_phone && <p className="text-slate-600">📞 {boat.mechanic_phone}</p>}{boat.mechanic_email && <p className="text-slate-600">✉️ {boat.mechanic_email}</p>}</div></div>)}
+                  {stats.lastTrip && <div className="pt-3 border-t"><p className="text-slate-500 text-xs mb-2">Last Completed Trip</p><div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm"><p className="font-medium capitalize">{stats.lastTrip.experience_type?.replace(/_/g, ' ')}</p><p className="text-xs text-slate-600">{format(parseISO(stats.lastTrip.date), 'MMM d, yyyy')} • {stats.lastTrip.guests} guests</p></div></div>}
+                  {boat.last_service_date && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Last Service</p><div className="bg-blue-50 p-2 rounded text-xs"><p className="font-medium">{format(parseISO(boat.last_service_date), 'MMM d, yyyy')}</p>{boat.last_service_mechanic_phone && <p className="text-slate-600 mt-1">Mechanic: {boat.last_service_mechanic_phone}</p>}</div></div>}
+                  {boat.mechanic_name && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Mechanic</p><div className="bg-slate-50 p-2 rounded text-xs space-y-1"><p className="font-medium">{boat.mechanic_name}</p>{boat.mechanic_phone && <p className="text-slate-600">📞 {boat.mechanic_phone}</p>}{boat.mechanic_email && <p className="text-slate-600">✉️ {boat.mechanic_email}</p>}</div></div>}
                   {needsMaintenance && <div className="pt-2"><Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Action Needed: Schedule Maintenance</Badge></div>}
                 </div>
-              )}
+                }
             </CardContent>
             <div className="flex gap-2 px-4 pb-3">
               <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1 h-8 text-xs"><Edit className="h-3 w-3 mr-1" />{readOnlyMode ? 'View / Fill Maintenance' : 'Edit'}</Button>
-              {!readOnlyMode && <Button variant="destructive" size="sm" onClick={() => { if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) deleteMutation.mutate(boat.id); }} className="h-8"><Trash2 className="h-3 w-3" /></Button>}
+              {!readOnlyMode && <Button variant="destructive" size="sm" onClick={() => {if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) deleteMutation.mutate(boat.id);}} className="h-8"><Trash2 className="h-3 w-3" /></Button>}
             </div>
-          </Card>
-          );
+          </Card>);
+
         })}
       </div>
       
-      {selectedBoatForTrips && (
-        <PersonalTripDialog boat={selectedBoatForTrips} open={personalTripDialogOpen} onOpenChange={(open) => { setPersonalTripDialogOpen(open); if (!open) setSelectedBoatForTrips(null); }} />
-      )}
-    </div>
-  );
+      {selectedBoatForTrips &&
+      <PersonalTripDialog boat={selectedBoatForTrips} open={personalTripDialogOpen} onOpenChange={(open) => {setPersonalTripDialogOpen(open);if (!open) setSelectedBoatForTrips(null);}} />
+      }
+    </div>);
+
 }
