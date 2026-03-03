@@ -247,12 +247,15 @@ function WorkOrderForm({ boat, onClose }) {
   });
   const [uploading, setUploading] = useState(false);
   const [reportUrl, setReportUrl] = useState('');
+  const [savedRecord, setSavedRecord] = useState(null);
 
   const updateBoatMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BoatInventory.update(id, data),
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['boats'] });
-      onClose();
+      // keep dialog open briefly to show PDF button
+      const rec = vars.data.maintenance_records[vars.data.maintenance_records.length - 1];
+      setSavedRecord(rec);
     },
   });
 
