@@ -560,53 +560,38 @@ function AdminBookingsInner() {
                             <div className="flex gap-2 mt-2">
                               <Dialog>
                                 <DialogTrigger asChild>
-                                  <Button variant="outline" size="sm" className="flex-1" onClick={() => setSelectedBooking(booking)}>
-                                    <Info className="h-3 w-3 mr-2" />Details
+                                  <Button size="sm" variant="outline" className="flex-1 text-xs border-white/10 text-white/60 hover:text-white hover:bg-white/10" onClick={() => setSelectedBooking(booking)}>
+                                    <Info className="h-3 w-3 mr-1.5" />Details
                                   </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                                   <DialogHeader><DialogTitle>Booking Details</DialogTitle></DialogHeader>
                                   {selectedBooking && (
-                                    <div className="space-y-6">
-                                      <div className="grid grid-cols-2 gap-4">
-                                        <div><Label className="text-slate-500">Guest Name</Label><p className="font-medium">{selectedBooking.guest_name}</p></div>
-                                        <div><Label className="text-slate-500">Status</Label><div className="mt-1"><Badge className={statusColors[selectedBooking.status]}>{selectedBooking.status}</Badge></div></div>
-                                        <div><Label className="text-slate-500">Email</Label><p className="font-medium flex items-center gap-2"><Mail className="h-4 w-4" />{selectedBooking.guest_email}</p></div>
-                                        <div><Label className="text-slate-500">Phone</Label><p className="font-medium flex items-center gap-2"><Phone className="h-4 w-4" />{selectedBooking.guest_phone}</p></div>
-                                        <div><Label className="text-slate-500">Location</Label><p className="font-medium">{selectedBooking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</p></div>
-                                        <div><Label className="text-slate-500">Experience</Label><p className="font-medium">{selectedBooking.experience_type?.replace(/_/g, ' ')}</p></div>
-                                        <div><Label className="text-slate-500">Boat</Label><p className="font-medium">{selectedBooking.boat_name || 'N/A'}</p></div>
-                                        <div><Label className="text-slate-500">Pickup Location</Label><p className="font-medium">{selectedBooking.pickup_location || 'N/A'}</p></div>
-                                        <div><Label className="text-slate-500">Date</Label><p className="font-medium">{format(new Date(selectedBooking.date), 'EEEE, MMMM d, yyyy')}</p></div>
-                                        <div><Label className="text-slate-500">Time</Label><p className="font-medium">{selectedBooking.time_slot}</p></div>
-                                        <div><Label className="text-slate-500">Guests</Label><p className="font-medium">{selectedBooking.guests}</p></div>
-                                        <div><Label className="text-slate-500">Total Price</Label><p className="font-medium">${selectedBooking.total_price?.toLocaleString()} MXN</p></div>
-                                        <div><Label className="text-slate-500">Deposit Paid</Label><p className="font-medium">${selectedBooking.deposit_paid?.toLocaleString()} MXN</p></div>
-                                        <div><Label className="text-slate-500">Payment Method</Label><p className="font-medium">{selectedBooking.payment_method}</p></div>
+                                    <div className="space-y-4">
+                                      <div className="grid grid-cols-2 gap-3">
+                                        <div><Label className="text-slate-500 text-xs">Guest Name</Label><p className="font-medium text-sm">{selectedBooking.guest_name}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Status</Label><div className="mt-1"><Badge className="bg-slate-100 text-slate-700">{selectedBooking.status}</Badge></div></div>
+                                        <div><Label className="text-slate-500 text-xs">Email</Label><p className="font-medium text-sm flex items-center gap-1"><Mail className="h-3 w-3" />{selectedBooking.guest_email}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Phone</Label><p className="font-medium text-sm flex items-center gap-1"><Phone className="h-3 w-3" />{selectedBooking.guest_phone}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Location</Label><p className="font-medium text-sm">{selectedBooking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Experience</Label><p className="font-medium text-sm capitalize">{selectedBooking.experience_type?.replace(/_/g, ' ')}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Boat</Label><p className="font-medium text-sm">{selectedBooking.boat_name || 'N/A'}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Pickup</Label><p className="font-medium text-sm">{selectedBooking.pickup_location || 'N/A'}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Date</Label><p className="font-medium text-sm">{format(new Date(selectedBooking.date), 'EEE, MMM d, yyyy')}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Time</Label><p className="font-medium text-sm">{selectedBooking.time_slot}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Guests</Label><p className="font-medium text-sm">{selectedBooking.guests}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Total Price</Label><p className="font-medium text-sm text-emerald-600">${selectedBooking.total_price?.toLocaleString()} MXN</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Deposit</Label><p className="font-medium text-sm">${selectedBooking.deposit_paid?.toLocaleString()} MXN</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Payment</Label><p className="font-medium text-sm capitalize">{selectedBooking.payment_method}</p></div>
                                       </div>
-                                      {selectedBooking.payment_screenshot && (
-                                        <div>
-                                          <Label className="text-slate-500">Payment Screenshot</Label>
-                                          <div className="mt-2"><a href={selectedBooking.payment_screenshot} target="_blank" rel="noopener noreferrer"><img src={selectedBooking.payment_screenshot} alt="Payment proof" className="w-full max-w-md h-48 object-cover rounded-lg border hover:opacity-80 transition-opacity cursor-pointer" /></a></div>
-                                        </div>
-                                      )}
-                                      {selectedBooking.add_ons?.length > 0 && (
-                                        <div>
-                                          <Label className="text-slate-500">Add-ons</Label>
-                                          <ul className="mt-1 list-disc list-inside">{selectedBooking.add_ons.map((addon, i) => <li key={i} className="text-sm">{addon.replace(/_/g, ' ')}</li>)}</ul>
-                                        </div>
-                                      )}
-                                      {selectedBooking.special_requests && (
-                                        <div>
-                                          <Label className="text-slate-500">Special Requests</Label>
-                                          <p className="mt-1 text-sm bg-slate-50 p-3 rounded-lg">{selectedBooking.special_requests}</p>
-                                        </div>
-                                      )}
+                                      {selectedBooking.payment_screenshot && (<div><Label className="text-slate-500 text-xs">Payment Screenshot</Label><div className="mt-2"><a href={selectedBooking.payment_screenshot} target="_blank" rel="noopener noreferrer"><img src={selectedBooking.payment_screenshot} alt="Payment proof" className="w-full max-w-md h-48 object-cover rounded-lg border hover:opacity-80 transition-opacity cursor-pointer" /></a></div></div>)}
+                                      {selectedBooking.add_ons?.length > 0 && (<div><Label className="text-slate-500 text-xs">Add-ons</Label><ul className="mt-1 list-disc list-inside">{selectedBooking.add_ons.map((addon, i) => <li key={i} className="text-sm">{addon.replace(/_/g, ' ')}</li>)}</ul></div>)}
+                                      {selectedBooking.special_requests && (<div><Label className="text-slate-500 text-xs">Special Requests</Label><p className="mt-1 text-sm bg-slate-50 p-3 rounded-lg">{selectedBooking.special_requests}</p></div>)}
                                       <div>
-                                        <Label className="text-slate-500 mb-2 block">Change Status</Label>
+                                        <Label className="text-slate-500 text-xs mb-2 block">Change Status</Label>
                                         <div className="flex gap-2 flex-wrap">
                                           {['pending','confirmed','completed','cancelled'].map(s => (
-                                            <Button key={s} size="sm" variant={selectedBooking.status === s ? 'default' : 'outline'} onClick={() => handleStatusChange(selectedBooking.id, s)} className="capitalize">{s}</Button>
+                                            <Button key={s} size="sm" variant={selectedBooking.status === s ? 'default' : 'outline'} onClick={() => handleStatusChange(selectedBooking.id, s)} className="capitalize text-xs">{s}</Button>
                                           ))}
                                         </div>
                                       </div>
@@ -615,9 +600,10 @@ function AdminBookingsInner() {
                                 </DialogContent>
                               </Dialog>
                               <Button
-                                variant="destructive"
                                 size="sm"
-                                onClick={() => { if (window.confirm(`Delete booking ${booking.confirmation_code}? This action cannot be undone.`)) deleteBookingMutation.mutate(booking.id); }}
+                                className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400"
+                                style={{ border: '1px solid rgba(239,68,68,0.2)' }}
+                                onClick={() => { if (window.confirm(`Delete booking ${booking.confirmation_code}?`)) deleteBookingMutation.mutate(booking.id); }}
                                 disabled={deleteBookingMutation.isPending}
                               >
                                 <Trash2 className="h-3 w-3" />
@@ -628,8 +614,7 @@ function AdminBookingsInner() {
                       });
                     })()}
                   </div>
-                </CardContent>
-              </Card>
+              </div>
             </div>
           </TabsContent>
 
