@@ -601,6 +601,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <button type="button" onClick={() => toggleSection('expeditions')} className="w-full bg-indigo-600 px-5 py-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Expeditions &amp; Pricing</h3>
+                  {(() => {const n = formData.available_expeditions?.length || 0; const t = expeditionTypes.length; return <><span className="text-xs text-white/80 mr-1">{n}/{t}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n/t*100)}%` }} /></div></>;})()}
                   <SectionLockButton sectionKey="expeditions" locks={locks} toggle={toggleLock} isComplete={isExpeditionsComplete} />
                   {collapsedSections['expeditions'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
