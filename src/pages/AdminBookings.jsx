@@ -117,6 +117,8 @@ function AdminBookingsInner() {
   });
 
   const filteredBookings = bookings.filter(booking => {
+    // Role-based boat restriction
+    if (!isSuperAdmin && assignedBoat && booking.boat_name !== assignedBoat) return false;
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
     if (locationFilter !== 'all' && booking.location !== locationFilter) return false;
