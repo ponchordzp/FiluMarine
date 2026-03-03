@@ -489,6 +489,7 @@ function AdminBookingsInner() {
                             </div>
                             </div>
                             </div>
+                            </div>
                             </motion.div>
                             );
                             })
