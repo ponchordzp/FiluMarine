@@ -346,13 +346,13 @@ function AdminBookingsInner() {
                   </Select>
                 </div>
                 <div className="flex items-end">
-                  <Button
-                    className="w-full text-white/80 hover:text-white"
-                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
+                  <button
+                    className="w-full px-4 py-2 rounded-md text-sm font-medium transition-all hover:bg-white/15"
+                    style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.85)' }}
                     onClick={() => { setStatusFilter('all'); setBoatFilter('all'); setLocationFilter('all'); setDateRangeFilter('all'); setSearchTerm(''); }}
                   >
                     Clear
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
