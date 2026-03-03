@@ -621,53 +621,25 @@ function AdminBookingsInner() {
           {/* ── DASHBOARD TAB ── */}
           <TabsContent value="dashboard" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-yellow-600">
-                      {bookings.filter(b => b.date === format(new Date(), 'yyyy-MM-dd') && b.status !== 'cancelled').length}
-                    </p>
-                    <p className="text-sm text-slate-500">Trips Today</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-green-600">
-                      {(() => {
-                        const today = new Date();
-                        const next30Days = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); });
-                        return next30Days.filter(dateStr => !bookings.some(b => b.date === dateStr && b.status !== 'cancelled')).length;
-                      })()}
-                    </p>
-                    <p className="text-sm text-slate-500">Available (Next 30 Days)</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CardContent className="pt-6">
-                  <div className="text-center">
-                    <p className="text-3xl font-bold text-blue-600">
-                      {(() => {
-                        const today = new Date();
-                        const next30Days = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); });
-                        return next30Days.filter(dateStr => bookings.some(b => b.date === dateStr && b.status !== 'cancelled')).length;
-                      })()}
-                    </p>
-                    <p className="text-sm text-slate-500">Booked (Next 30 Days)</p>
-                  </div>
-                </CardContent>
-              </Card>
+              {[
+                { label: 'Trips Today', value: bookings.filter(b => b.date === format(new Date(), 'yyyy-MM-dd') && b.status !== 'cancelled').length, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300' },
+                { label: 'Available (Next 30d)', value: (() => { const today = new Date(); const next30 = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); }); return next30.filter(ds => !bookings.some(b => b.date === ds && b.status !== 'cancelled')).length; })(), color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300' },
+                { label: 'Booked (Next 30d)', value: (() => { const today = new Date(); const next30 = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); }); return next30.filter(ds => bookings.some(b => b.date === ds && b.status !== 'cancelled')).length; })(), color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300' },
+              ].map(s => (
+                <div key={s.label} className="rounded-2xl p-5 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
+                  <p className={`text-3xl font-bold ${s.text}`}>{s.value}</p>
+                  <p className="text-white/40 text-sm mt-1">{s.label}</p>
+                </div>
+              ))}
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-6">
-                <Card className="bg-white/95 backdrop-blur-sm">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><CalendarIcon className="h-5 w-5" />Calendar Overview</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
+                <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                  <div className="flex items-center gap-2">
+                    <CalendarIcon className="h-4 w-4 text-[#1e88e5]" />
+                    <span className="text-sm font-medium text-white/70">Calendar Overview</span>
+                  </div>
                     <Calendar
                       mode="single"
                       className="rounded-md border w-full"
