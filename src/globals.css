@@ -69,6 +69,30 @@ css
   }
 }
 
+/* Admin tabs - force white text on dark background */
+.admin-tabs-list [role="tab"] {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.admin-tabs-list [role="tab"][data-state="active"] {
+  color: #ffffff !important;
+  background-color: rgba(30, 136, 229, 0.55) !important;
+  box-shadow: none !important;
+}
+.admin-tabs-list [role="tab"].tab-mechanic {
+  color: rgb(253, 186, 116) !important;
+}
+.admin-tabs-list [role="tab"].tab-mechanic[data-state="active"] {
+  background-color: rgba(249, 115, 22, 0.45) !important;
+  color: #ffffff !important;
+}
+.admin-tabs-list [role="tab"].tab-users {
+  color: rgb(216, 180, 254) !important;
+}
+.admin-tabs-list [role="tab"].tab-users[data-state="active"] {
+  background-color: rgba(168, 85, 247, 0.45) !important;
+  color: #ffffff !important;
+}
+
 /* Hide Google Translate banner */
 .goog-te-banner-frame {
   display: none !important;
