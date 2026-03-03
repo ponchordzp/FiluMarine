@@ -617,7 +617,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                       const pricing = formData.expedition_pricing.find((p) => p.expedition_type === exp);
                       return (
                         <div key={exp} className={`p-4 rounded-lg border-2 transition-all ${isSelected ? 'border-indigo-400 bg-white shadow-sm' : 'border-indigo-100 bg-indigo-50/50'}`}>
-                          <button type="button" onClick={() => toggleExpedition(exp)} className="w-full flex items-center gap-3 mb-2">
+                          <button type="button" disabled={locks['expeditions']} onClick={() => !locks['expeditions'] && toggleExpedition(exp)} className="w-full flex items-center gap-3 mb-2">
                             <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-indigo-600' : 'bg-white border-2 border-indigo-300'}`}>{isSelected && <Check className="h-3 w-3 text-white" />}</div>
                             <span className="text-sm font-semibold capitalize text-left text-indigo-900">{exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ')}</span>
                           </button>
