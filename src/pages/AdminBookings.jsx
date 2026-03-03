@@ -175,8 +175,9 @@ function AdminBookingsInner() {
     );
   }
 
+  const roleBadge = isSuperAdmin ? { label: 'Super Admin', cls: 'bg-purple-500' } : isAdmin ? { label: 'Admin', cls: 'bg-blue-500' } : { label: 'Crew', cls: 'bg-emerald-500' };
+
   return (
-    <AdminAuth>
     <div className="min-h-screen bg-[#0f1e2e]">
       <div className="bg-gradient-to-r from-[#0c2340] to-[#1e88e5] text-white py-12">
         <div className="max-w-7xl mx-auto px-6">
@@ -189,10 +190,11 @@ function AdminBookingsInner() {
               Back to Home
             </Link>
             <div className="flex items-center gap-3">
-              <span className="text-white/80 text-sm">Logged in as:</span>
+              <span className={`text-xs font-bold px-2 py-1 rounded-full text-white ${roleBadge.cls}`}>{roleBadge.label}</span>
               <span className="font-semibold text-white bg-white/20 px-3 py-1 rounded-full">
-                {adminUsername}
+                {currentUser?.full_name || currentUser?.username}
               </span>
+              <button onClick={handleLogout} className="text-white/70 hover:text-white text-sm underline">Logout</button>
             </div>
           </div>
           <div className="flex items-center justify-between">
