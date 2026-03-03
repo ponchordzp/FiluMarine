@@ -469,7 +469,7 @@ function AdminBookingsInner() {
                               </Dialog>
 
                               <Select value={booking.status} onValueChange={(value) => handleStatusChange(booking.id, value)}>
-                                <SelectTrigger className="w-[140px]"><SelectValue /></SelectTrigger>
+                                <SelectTrigger className="w-[130px] text-xs bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="pending">Pending</SelectItem>
                                   <SelectItem value="confirmed">Confirmed</SelectItem>
@@ -478,17 +478,18 @@ function AdminBookingsInner() {
                                 </SelectContent>
                               </Select>
                               <Button
-                                variant="destructive"
                                 size="sm"
+                                className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/20"
+                                style={{ border: '1px solid rgba(239,68,68,0.2)' }}
                                 onClick={() => { if (window.confirm(`Delete booking ${booking.confirmation_code}? This cannot be undone.`)) deleteBookingMutation.mutate(booking.id); }}
                                 disabled={deleteBookingMutation.isPending}
                               >
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-3 w-3" />
                               </Button>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     </motion.div>
                   );
                 })
