@@ -1150,8 +1150,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               )}
             </CardContent>
             <div className="flex gap-2 px-4 pb-3">
-              <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1 h-8 text-xs"><Edit className="h-3 w-3 mr-1" />Edit</Button>
-              <Button variant="destructive" size="sm" onClick={() => { if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) deleteMutation.mutate(boat.id); }} className="h-8"><Trash2 className="h-3 w-3" /></Button>
+              <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1 h-8 text-xs"><Edit className="h-3 w-3 mr-1" />{readOnlyMode ? 'View / Fill Maintenance' : 'Edit'}</Button>
+              {!readOnlyMode && <Button variant="destructive" size="sm" onClick={() => { if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) deleteMutation.mutate(boat.id); }} className="h-8"><Trash2 className="h-3 w-3" /></Button>}
             </div>
           </Card>
           );
