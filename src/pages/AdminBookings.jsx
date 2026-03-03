@@ -961,6 +961,17 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
+          {/* ── MECHANIC PORTAL TAB (SuperAdmin only) ── */}
+          {isSuperAdmin && (
+            <TabsContent value="mechanic" className="space-y-6">
+              <Card className="bg-white/95 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <MechanicPortal currentUser={currentUser} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
+
           {/* ── USERS TAB (SuperAdmin only) ── */}
           {isSuperAdmin && (
             <TabsContent value="users" className="space-y-6">
