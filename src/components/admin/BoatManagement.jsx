@@ -113,6 +113,15 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
   const toggleSection = (key) => setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
+  const { locks, toggle: toggleLock } = useSectionLocks(['general', 'expeditions', 'equipment', 'engine', 'maintenance', 'supplies', 'sellers', 'recurring']);
+
+  const isGeneralComplete = !!(formData.name && formData.type && formData.size && formData.capacity && formData.location);
+  const isEngineComplete = !!(formData.engine_config && formData.engine_name && formData.engine_quantity);
+  const isMaintenanceComplete = !!(formData.last_service_date && formData.mechanic_name && formData.mechanic_phone);
+  const isExpeditionsComplete = formData.available_expeditions?.length > 0;
+  const isSellersComplete = !!(formData.owner_phone);
+
+
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
     queryFn: () => base44.entities.BoatInventory.list('-created_date')
