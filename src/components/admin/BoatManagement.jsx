@@ -897,9 +897,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <button type="button" onClick={() => toggleSection('sellers')} className="w-full bg-cyan-600 px-5 py-3 flex items-center gap-2">
                   <Package className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supply Sellers</h3>
+                  <SectionLockButton sectionKey="sellers" locks={locks} toggle={toggleLock} isComplete={isSellersComplete} />
                   {collapsedSections['sellers'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['sellers'] && <div className="bg-cyan-50 p-5 space-y-3">
+                  {locks['sellers'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
                   {formData.supply_sellers && formData.supply_sellers.length > 0 &&
                   <div className="space-y-2">
                       {formData.supply_sellers.map((supplier, index) =>
