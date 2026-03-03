@@ -28,7 +28,7 @@ export default function DestinationManagement() {
 
   const { data: destinations = [] } = useQuery({
     queryKey: ['destinations'],
-    queryFn: () => base44.entities.DestinationContent.list('-created_date'),
+    queryFn: () => base44.entities.DestinationContent.list('-created_date')
   });
 
   const createMutation = useMutation({
@@ -36,7 +36,7 @@ export default function DestinationManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['destinations'] });
       resetForm();
-    },
+    }
   });
 
   const updateMutation = useMutation({
@@ -44,14 +44,14 @@ export default function DestinationManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['destinations'] });
       resetForm();
-    },
+    }
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.DestinationContent.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['destinations'] });
-    },
+    }
   });
 
   const resetForm = () => {
@@ -96,7 +96,7 @@ export default function DestinationManagement() {
 
   const addActivity = () => {
     if (activityInput.trim()) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         activities: [...prev.activities, activityInput.trim()]
       }));
@@ -105,14 +105,14 @@ export default function DestinationManagement() {
   };
 
   const removeActivity = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       activities: prev.activities.filter((_, i) => i !== index)
     }));
   };
 
   const updateImage = (index, value) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       images: prev.images.map((img, i) => i === index ? value : img)
     }));
@@ -121,10 +121,10 @@ export default function DestinationManagement() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Destination Content Management</h2>
+        <h2 className="text-slate-50 text-2xl font-semibold">Destination Content Management</h2>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
+            <Button onClick={() => {resetForm();setDialogOpen(true);}}>
               <Plus className="h-4 w-4 mr-2" />
               Add Destination
             </Button>
@@ -141,8 +141,8 @@ export default function DestinationManagement() {
                     required
                     value={formData.destination_id}
                     onChange={(e) => setFormData({ ...formData, destination_id: e.target.value })}
-                    placeholder="e.g., playa-las-gatas"
-                  />
+                    placeholder="e.g., playa-las-gatas" />
+
                 </div>
                 <div>
                   <Label>Name *</Label>
@@ -150,8 +150,8 @@ export default function DestinationManagement() {
                     required
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., Playa Las Gatas"
-                  />
+                    placeholder="e.g., Playa Las Gatas" />
+
                 </div>
                 <div>
                   <Label>Location *</Label>
@@ -159,16 +159,16 @@ export default function DestinationManagement() {
                     required
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    placeholder="e.g., Zihuatanejo, Guerrero, Mexico"
-                  />
+                    placeholder="e.g., Zihuatanejo, Guerrero, Mexico" />
+
                 </div>
                 <div>
                   <Label>Coordinates</Label>
                   <Input
                     value={formData.coordinates}
                     onChange={(e) => setFormData({ ...formData, coordinates: e.target.value })}
-                    placeholder="e.g., 17.6294° N, 101.5589° W"
-                  />
+                    placeholder="e.g., 17.6294° N, 101.5589° W" />
+
                 </div>
                 <div>
                   <Label>Region *</Label>
@@ -190,8 +190,8 @@ export default function DestinationManagement() {
                   value={formData.summary}
                   onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
                   rows={5}
-                  placeholder="Detailed description of the destination..."
-                />
+                  placeholder="Detailed description of the destination..." />
+
               </div>
 
               {/* Activities */}
@@ -202,23 +202,23 @@ export default function DestinationManagement() {
                     value={activityInput}
                     onChange={(e) => setActivityInput(e.target.value)}
                     placeholder="Add an activity..."
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addActivity())}
-                  />
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addActivity())} />
+
                   <Button type="button" onClick={addActivity}>Add</Button>
                 </div>
                 <div className="space-y-2">
-                  {formData.activities.map((activity, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded">
+                  {formData.activities.map((activity, index) =>
+                  <div key={index} className="flex items-center gap-2 p-2 bg-slate-50 rounded">
                       <span className="flex-1 text-sm">{activity}</span>
                       <button
-                        type="button"
-                        onClick={() => removeActivity(index)}
-                        className="text-red-600 hover:text-red-700"
-                      >
+                      type="button"
+                      onClick={() => removeActivity(index)}
+                      className="text-red-600 hover:text-red-700">
+
                         <X className="h-4 w-4" />
                       </button>
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -226,19 +226,19 @@ export default function DestinationManagement() {
               <div>
                 <Label className="mb-2 block">Images (4 required)</Label>
                 <div className="grid grid-cols-2 gap-3">
-                  {formData.images.map((img, index) => (
-                    <div key={index}>
+                  {formData.images.map((img, index) =>
+                  <div key={index}>
                       <Label className="text-xs">Image {index + 1}</Label>
                       <Input
-                        value={img}
-                        onChange={(e) => updateImage(index, e.target.value)}
-                        placeholder="https://..."
-                      />
-                      {img && (
-                        <img src={img} alt={`Preview ${index + 1}`} className="mt-2 w-full h-24 object-cover rounded" />
-                      )}
+                      value={img}
+                      onChange={(e) => updateImage(index, e.target.value)}
+                      placeholder="https://..." />
+
+                      {img &&
+                    <img src={img} alt={`Preview ${index + 1}`} className="mt-2 w-full h-24 object-cover rounded" />
+                    }
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
 
@@ -257,17 +257,17 @@ export default function DestinationManagement() {
 
       {/* Destination List */}
       <div className="grid md:grid-cols-2 gap-4">
-        {destinations.map(dest => (
-          <Card key={dest.id}>
+        {destinations.map((dest) =>
+        <Card key={dest.id}>
             <CardContent className="p-4">
               <div className="flex gap-4">
-                {dest.images?.[0] && (
-                  <img
-                    src={dest.images[0]}
-                    alt={dest.name}
-                    className="w-24 h-24 object-cover rounded-lg"
-                  />
-                )}
+                {dest.images?.[0] &&
+              <img
+                src={dest.images[0]}
+                alt={dest.name}
+                className="w-24 h-24 object-cover rounded-lg" />
+
+              }
                 <div className="flex-1">
                   <div className="flex items-start justify-between mb-2">
                     <div>
@@ -288,14 +288,14 @@ export default function DestinationManagement() {
                       <Edit className="h-3 w-3" />
                     </Button>
                     <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => {
-                        if (confirm(`Delete ${dest.name}?`)) {
-                          deleteMutation.mutate(dest.id);
-                        }
-                      }}
-                    >
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => {
+                      if (confirm(`Delete ${dest.name}?`)) {
+                        deleteMutation.mutate(dest.id);
+                      }
+                    }}>
+
                       <Trash2 className="h-3 w-3" />
                     </Button>
                   </div>
@@ -303,8 +303,8 @@ export default function DestinationManagement() {
               </div>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
