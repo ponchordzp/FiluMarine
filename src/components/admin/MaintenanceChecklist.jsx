@@ -495,7 +495,7 @@ function setVal(checklist, id, field, value) {
   return { ...checklist, [id]: { ...base, [field]: value } };
 }
 
-export default function MaintenanceChecklist({ engineConfig, checklist = {}, onChange }) {
+export default function MaintenanceChecklist({ engineConfig, checklist = {}, onChange, isSuperAdmin = false }) {
   const [newItemLabel, setNewItemLabel] = useState('');
   const [newItemInterval, setNewItemInterval] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
