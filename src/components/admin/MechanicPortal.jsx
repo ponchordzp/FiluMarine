@@ -520,9 +520,19 @@ function BoatMechanicCard({ boat, currentUser }) {
               <div key={idx} className="p-3 bg-slate-50 rounded-lg border text-xs space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-slate-800">{format(parseISO(rec.date), 'MMM d, yyyy')}</span>
-                  <Badge className={rec.service_type === 'major' ? 'bg-purple-100 text-purple-800' : rec.service_type === 'repair' ? 'bg-red-100 text-red-800' : rec.service_type === 'inspection' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-800'}>
-                    {rec.service_type}
-                  </Badge>
+                  <div className="flex items-center gap-1.5">
+                    <Badge className={rec.service_type === 'major' ? 'bg-purple-100 text-purple-800' : rec.service_type === 'repair' ? 'bg-red-100 text-red-800' : rec.service_type === 'inspection' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-800'}>
+                      {rec.service_type}
+                    </Badge>
+                    <button
+                      type="button"
+                      onClick={() => generateServiceReportPDF(boat, rec)}
+                      className="flex items-center gap-1 px-2 py-0.5 bg-[#1e88e5] text-white rounded text-xs hover:bg-[#1976d2] transition-colors"
+                      title="Download PDF Report"
+                    >
+                      <Download className="h-3 w-3" /> PDF
+                    </button>
+                  </div>
                 </div>
                 {rec.engine_hours && <p className="text-slate-600"><Gauge className="h-3 w-3 inline mr-1" />{rec.engine_hours} hrs</p>}
                 {rec.work_performed && <p className="text-slate-600">{rec.work_performed}</p>}
