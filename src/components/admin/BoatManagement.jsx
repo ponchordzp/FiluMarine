@@ -564,6 +564,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <MapPin className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">General Information</h3>
                   {(() => {const f = [formData.name, formData.type, formData.size, formData.capacity, formData.location, formData.description, formData.image || imagePreview];const n = f.filter((x) => x && String(x).trim() !== '').length;return <><span className="text-xs text-white/80 mr-1">{n}/{f.length}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n / f.length * 100)}%` }} /></div></>;})()}
+                  <SectionLockButton sectionKey="general" locks={locks} toggle={toggleLock} isComplete={isGeneralComplete} />
                   {collapsedSections['general'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['general'] && <div className="bg-sky-50 p-5 space-y-4">
