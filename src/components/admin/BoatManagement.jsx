@@ -745,23 +745,23 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <p className="text-xs font-bold text-orange-900 uppercase tracking-wide">Component Replacement Dates</p>
                     <div className="grid md:grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs">Impeller Last Replaced</Label>
+                        <InfoLabel className="text-xs" info="Date the water pump impeller was last replaced. Usually every 1-2 years." example="2024-06-01">Impeller Last Replaced</InfoLabel>
                         <div className="flex gap-1 mt-1">
-                          <Input type="date" value={formData.impeller_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, impeller_last_replaced_date: e.target.value })} className="text-sm flex-1" />
-                          <button type="button" onClick={() => setFormData({ ...formData, impeller_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                          <Input type="date" disabled={locks['maintenance']} value={formData.impeller_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, impeller_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                          {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, impeller_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>}
                         </div>
                       </div>
                       <div>
-                        <Label className="text-xs">Fuel Filter Last Replaced</Label>
+                        <InfoLabel className="text-xs" info="Date the fuel filter was last replaced. Usually every annual service." example="2024-12-01">Fuel Filter Last Replaced</InfoLabel>
                         <div className="flex gap-1 mt-1">
-                          <Input type="date" value={formData.fuel_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, fuel_filter_last_replaced_date: e.target.value })} className="text-sm flex-1" />
-                          <button type="button" onClick={() => setFormData({ ...formData, fuel_filter_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
+                          <Input type="date" disabled={locks['maintenance']} value={formData.fuel_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, fuel_filter_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                          {!locks['maintenance'] && <button type="button" onClick={() => setFormData({ ...formData, fuel_filter_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>}
                         </div>
                       </div>
                       <div>
-                        <Label className="text-xs">Oil Filter Last Replaced</Label>
+                        <InfoLabel className="text-xs" info="Date the oil filter was last replaced. Usually every 100 engine hours or 1 year." example="2024-11-10">Oil Filter Last Replaced</InfoLabel>
                         <div className="flex gap-1 mt-1">
-                          <Input type="date" value={formData.oil_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, oil_filter_last_replaced_date: e.target.value })} className="text-sm flex-1" />
+                          <Input type="date" disabled={locks['maintenance']} value={formData.oil_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, oil_filter_last_replaced_date: e.target.value })} className="text-sm flex-1" />
                           <button type="button" onClick={() => setFormData({ ...formData, oil_filter_last_replaced_date: new Date().toISOString().split('T')[0] })} className="px-2 py-1 bg-orange-500 text-white rounded text-xs hover:bg-orange-600 flex-shrink-0" title="Set to today">+</button>
                         </div>
                       </div>
