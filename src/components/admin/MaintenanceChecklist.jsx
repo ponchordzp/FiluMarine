@@ -491,7 +491,7 @@ function getVal(checklist, id, field) {
 
 function setVal(checklist, id, field, value) {
   const existing = checklist[id];
-  const base = existing && typeof existing === 'object' ? existing : { checked: !!existing, note: '', lastDate: '' };
+  const base = existing && typeof existing === 'object' ? existing : { checked: !!existing, note: '', lastDate: '', info: '' };
   return { ...checklist, [id]: { ...base, [field]: value } };
 }
 
