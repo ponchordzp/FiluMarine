@@ -378,6 +378,23 @@ function WorkOrderForm({ boat, onClose }) {
         </Button>
         <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
       </div>
+
+      {savedRecord && (
+        <div className="mt-3 p-3 bg-emerald-50 border border-emerald-300 rounded-lg flex items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-emerald-800">✓ Service logged successfully!</p>
+            <p className="text-xs text-emerald-600">Download the auto-generated PDF report.</p>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            className="bg-[#1e88e5] hover:bg-[#1976d2] flex-shrink-0"
+            onClick={() => generateServiceReportPDF(boat, savedRecord)}
+          >
+            <Download className="h-4 w-4 mr-1" /> Download PDF
+          </Button>
+        </div>
+      )}
     </form>
   );
 }
