@@ -624,8 +624,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                           {isSelected &&
                           <div className="space-y-4 mt-3 pl-8">
                               <div className="grid grid-cols-2 gap-3">
-                                <div><Label className="text-xs">Duration (hours)</Label><Input type="number" min="0" step="0.5" value={pricing?.duration_hours || ''} onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)} placeholder="e.g., 4" className="text-sm" /></div>
-                                <div><Label className="text-xs">Price (MXN)</Label><Input type="number" min="0" value={pricing?.price_mxn || ''} onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)} placeholder="e.g., 8000" className="text-sm" /></div>
+                                <div><InfoLabel className="text-xs" info="Scheduled duration of this expedition in hours." example="4">Duration (hours)</InfoLabel><Input type="number" min="0" step="0.5" disabled={locks['expeditions']} value={pricing?.duration_hours || ''} onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)} placeholder="e.g., 4" className="text-sm" /></div>
+                                <div><InfoLabel className="text-xs" info="Base price in Mexican Pesos (MXN) for this expedition on this boat." example="8000">Price (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['expeditions']} value={pricing?.price_mxn || ''} onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)} placeholder="e.g., 8000" className="text-sm" /></div>
                               </div>
                               <div>
                                 <Label className="text-xs font-semibold mb-2 block">Pickup Locations &amp; Departure Times</Label>
