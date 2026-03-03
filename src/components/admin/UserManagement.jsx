@@ -1,0 +1,399 @@
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Plus, Edit, Trash2, Eye, EyeOff, Shield, Anchor, Users, CheckCircle, XCircle, Key } from 'lucide-react';
+import { format, parseISO } from 'date-fns';
+
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function validatePassword(password) {
+  const errors = [];
+  if (password.length < 8) errors.push('At least 8 characters');
+  if (!/[A-Z]/.test(password)) errors.push('At least one uppercase letter');
+  if (!/[a-z]/.test(password)) errors.push('At least one lowercase letter');
+  if (!/[0-9]/.test(password)) errors.push('At least one number');
+  if (!/[^A-Za-z0-9]/.test(password)) errors.push('At least one special character');
+  return errors;
+}
+
+const roleConfig = {
+  superadmin: { label: 'Super Admin', color: 'bg-purple-100 text-purple-800', icon: Shield, description: 'Full access — can create users, manage all boats and settings' },
+  admin: { label: 'Admin (Boat Owner)', color: 'bg-blue-100 text-blue-800', icon: Anchor, description: 'Can view Bookings, Dates, Dashboard & their assigned boat' },
+  crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' },
+};
+
+const emptyForm = {
+  username: '',
+  full_name: '',
+  email: '',
+  role: 'crew',
+  assigned_boat: '',
+  is_active: true,
+  password: '',
+  confirm_password: '',
+};
+
+export default function UserManagement() {
+  const queryClient = useQueryClient();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [resetPasswordUser, setResetPasswordUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [resetSaving, setResetSaving] = useState(false);
+
+  const { data: appUsers = [] } = useQuery({
+    queryKey: ['app-users'],
+    queryFn: () => base44.entities.AppUser.list('-created_date'),
+  });
+
+  const { data: boats = [] } = useQuery({
+    queryKey: ['boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data) => base44.entities.AppUser.create(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] }),
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.AppUser.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] }),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.AppUser.delete(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] }),
+  });
+
+  const openCreate = () => {
+    setEditingUser(null);
+    setForm(emptyForm);
+    setError('');
+    setDialogOpen(true);
+  };
+
+  const openEdit = (user) => {
+    setEditingUser(user);
+    setForm({
+      username: user.username,
+      full_name: user.full_name || '',
+      email: user.email || '',
+      role: user.role,
+      assigned_boat: user.assigned_boat || '',
+      is_active: user.is_active !== false,
+      password: '',
+      confirm_password: '',
+    });
+    setError('');
+    setDialogOpen(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!editingUser) {
+      // Creating new user — password required
+      if (!form.password) { setError('Password is required'); return; }
+      const pwErrors = validatePassword(form.password);
+      if (pwErrors.length > 0) { setError('Password requirements: ' + pwErrors.join(', ')); return; }
+      if (form.password !== form.confirm_password) { setError('Passwords do not match'); return; }
+    }
+
+    // Username uniqueness check
+    const existing = appUsers.find(u => u.username.toLowerCase() === form.username.toLowerCase() && u.id !== editingUser?.id);
+    if (existing) { setError('Username already exists'); return; }
+
+    setSaving(true);
+    const payload = {
+      username: form.username.trim(),
+      full_name: form.full_name.trim(),
+      email: form.email.trim(),
+      role: form.role,
+      assigned_boat: (form.role === 'admin' || form.role === 'crew') ? form.assigned_boat : '',
+      is_active: form.is_active,
+    };
+
+    if (!editingUser || form.password) {
+      payload.password_hash = await hashPassword(form.password || '');
+    }
+
+    if (editingUser) {
+      await updateMutation.mutateAsync({ id: editingUser.id, data: payload });
+    } else {
+      await createMutation.mutateAsync(payload);
+    }
+    setSaving(false);
+    setDialogOpen(false);
+  };
+
+  const handleResetPassword = async () => {
+    if (!newPassword) return;
+    const pwErrors = validatePassword(newPassword);
+    if (pwErrors.length > 0) { alert('Password requirements not met: ' + pwErrors.join(', ')); return; }
+    setResetSaving(true);
+    const hash = await hashPassword(newPassword);
+    await updateMutation.mutateAsync({ id: resetPasswordUser.id, data: { password_hash: hash } });
+    setResetSaving(false);
+    setResetPasswordUser(null);
+    setNewPassword('');
+  };
+
+  const toggleActive = async (user) => {
+    await updateMutation.mutateAsync({ id: user.id, data: { is_active: !user.is_active } });
+  };
+
+  const pwErrors = form.password ? validatePassword(form.password) : [];
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-slate-900">User Management</h2>
+          <p className="text-sm text-slate-500 mt-1">Create and manage users, roles, and boat assignments</p>
+        </div>
+        <Button onClick={openCreate} className="bg-purple-600 hover:bg-purple-700">
+          <Plus className="h-4 w-4 mr-2" />
+          Create User
+        </Button>
+      </div>
+
+      {/* Role Legend */}
+      <div className="grid md:grid-cols-3 gap-4">
+        {Object.entries(roleConfig).map(([key, cfg]) => {
+          const Icon = cfg.icon;
+          return (
+            <Card key={key} className="border-2 border-slate-100">
+              <CardContent className="pt-4 pb-4">
+                <div className="flex items-start gap-3">
+                  <div className={`p-2 rounded-lg ${key === 'superadmin' ? 'bg-purple-100' : key === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
+                    <Icon className={`h-4 w-4 ${key === 'superadmin' ? 'text-purple-600' : key === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`} />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-sm text-slate-800">{cfg.label}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{cfg.description}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Users List */}
+      <div className="space-y-3">
+        {appUsers.length === 0 ? (
+          <Card>
+            <CardContent className="py-12 text-center">
+              <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-500">No users yet. Create the first user above.</p>
+            </CardContent>
+          </Card>
+        ) : (
+          appUsers.map((user) => {
+            const cfg = roleConfig[user.role] || roleConfig.crew;
+            const Icon = cfg.icon;
+            return (
+              <Card key={user.id} className={`border-2 ${user.is_active === false ? 'border-slate-200 opacity-60' : 'border-slate-100'}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${user.role === 'superadmin' ? 'bg-purple-100' : user.role === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
+                      <Icon className={`h-5 w-5 ${user.role === 'superadmin' ? 'text-purple-600' : user.role === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-semibold text-slate-800">{user.full_name || user.username}</p>
+                        <Badge className={cfg.color}>{cfg.label}</Badge>
+                        {user.is_active === false && <Badge className="bg-slate-100 text-slate-600">Inactive</Badge>}
+                      </div>
+                      <p className="text-sm text-slate-500">@{user.username}</p>
+                      <div className="flex gap-3 mt-1 flex-wrap">
+                        {user.email && <p className="text-xs text-slate-500">✉ {user.email}</p>}
+                        {user.assigned_boat && <p className="text-xs text-blue-600 font-medium">⚓ {user.assigned_boat}</p>}
+                        {user.last_login && <p className="text-xs text-slate-400">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <Button variant="ghost" size="sm" onClick={() => toggleActive(user)} title={user.is_active === false ? 'Activate' : 'Deactivate'} className={user.is_active === false ? 'text-slate-400 hover:text-emerald-600' : 'text-emerald-600 hover:text-slate-400'}>
+                        {user.is_active === false ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => { setResetPasswordUser(user); setNewPassword(''); }} className="text-amber-600 hover:text-amber-700">
+                        <Key className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(user)} className="text-slate-600 hover:text-slate-800">
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => { if (window.confirm(`Delete user "${user.username}"?`)) deleteMutation.mutate(user.id); }} className="text-red-500 hover:text-red-700">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })
+        )}
+      </div>
+
+      {/* Create/Edit Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editingUser ? `Edit User: ${editingUser.username}` : 'Create New User'}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Username *</Label>
+                <Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required placeholder="e.g., juan_perez" />
+              </div>
+              <div>
+                <Label>Full Name</Label>
+                <Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} placeholder="e.g., Juan Pérez" />
+              </div>
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="e.g., juan@example.com" />
+            </div>
+            <div>
+              <Label>Role *</Label>
+              <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="superadmin">Super Admin</SelectItem>
+                  <SelectItem value="admin">Admin (Boat Owner)</SelectItem>
+                  <SelectItem value="crew">Crew</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {(form.role === 'admin' || form.role === 'crew') && (
+              <div>
+                <Label>Assigned Boat *</Label>
+                <Select value={form.assigned_boat} onValueChange={(v) => setForm({ ...form, assigned_boat: v })}>
+                  <SelectTrigger><SelectValue placeholder="Select a boat..." /></SelectTrigger>
+                  <SelectContent>
+                    {boats.map(b => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div>
+              <Label>{editingUser ? 'New Password (leave blank to keep current)' : 'Password *'}</Label>
+              <div className="relative">
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  required={!editingUser}
+                  placeholder="Min 8 chars, upper, lower, number, special"
+                />
+                <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {form.password && pwErrors.length > 0 && (
+                <ul className="mt-1 space-y-0.5">
+                  {pwErrors.map(e => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}
+                </ul>
+              )}
+              {form.password && pwErrors.length === 0 && (
+                <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>
+              )}
+            </div>
+            {(form.password || !editingUser) && (
+              <div>
+                <Label>Confirm Password</Label>
+                <div className="relative">
+                  <Input
+                    type={showConfirm ? 'text' : 'password'}
+                    value={form.confirm_password}
+                    onChange={(e) => setForm({ ...form, confirm_password: e.target.value })}
+                    placeholder="Repeat password"
+                  />
+                  <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                {form.confirm_password && form.password !== form.confirm_password && (
+                  <p className="text-xs text-red-600 mt-1">✗ Passwords do not match</p>
+                )}
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <input type="checkbox" id="is_active" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="rounded" />
+              <Label htmlFor="is_active" className="cursor-pointer">Active (can log in)</Label>
+            </div>
+            {error && <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>}
+            <div className="flex gap-2 pt-2">
+              <Button type="submit" disabled={saving} className="flex-1 bg-purple-600 hover:bg-purple-700">
+                {saving ? 'Saving...' : editingUser ? 'Update User' : 'Create User'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reset Password Dialog */}
+      <Dialog open={!!resetPasswordUser} onOpenChange={(open) => { if (!open) setResetPasswordUser(null); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-amber-600" />
+              Reset Password — {resetPasswordUser?.username}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>New Password</Label>
+              <div className="relative">
+                <Input
+                  type={showNewPassword ? 'text' : 'password'}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter new password"
+                />
+                <button type="button" onClick={() => setShowNewPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {newPassword && (() => {
+                const errs = validatePassword(newPassword);
+                return errs.length > 0
+                  ? <ul className="mt-1">{errs.map(e => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul>
+                  : <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>;
+              })()}
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleResetPassword} disabled={resetSaving || !newPassword} className="flex-1 bg-amber-600 hover:bg-amber-700">
+                {resetSaving ? 'Saving...' : 'Reset Password'}
+              </Button>
+              <Button variant="outline" onClick={() => setResetPasswordUser(null)}>Cancel</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
