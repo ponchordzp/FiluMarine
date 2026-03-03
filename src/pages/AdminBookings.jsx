@@ -16,12 +16,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Plus, Trash2, Filter, ArrowLeft, Gauge, PenSquare, Unlock } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
-import AdminAuth from '@/components/AdminAuth';
+import AdminAuth, { useAuth } from '@/components/AdminAuth';
 import ExpenseDataEntry from '@/components/ExpenseDataEntry';
 import BoatManagement from '@/components/admin/BoatManagement';
 import DestinationManagement from '@/components/admin/DestinationManagement';
 import ExpeditionManagement from '@/components/admin/ExpeditionManagement';
 import LocationsManagement from '@/components/admin/LocationsManagement';
+import UserManagement from '@/components/admin/UserManagement';
 
 const statusColors = {
   pending: 'bg-amber-100 text-amber-800',
