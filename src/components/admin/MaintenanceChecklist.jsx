@@ -1,5 +1,57 @@
 import React, { useState } from 'react';
-import { Check, ChevronDown, ChevronUp, Plus, Info } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Plus, Info, Pencil, X } from 'lucide-react';
+
+// Editable tooltip — SuperAdmin can click the pencil to change the tooltip text
+function EditableInfo({ text, onSave, isSuperAdmin }) {
+  const [show, setShow] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(text);
+
+  const handleSave = () => {
+    onSave(draft);
+    setEditing(false);
+  };
+
+  return (
+    <span className="relative inline-flex items-center ml-1">
+      <button
+        type="button"
+        onMouseEnter={() => !editing && setShow(true)}
+        onMouseLeave={() => !editing && setShow(false)}
+        onFocus={() => !editing && setShow(true)}
+        onBlur={() => !editing && setShow(false)}
+        onClick={() => { if (isSuperAdmin) { setEditing(true); setShow(false); } }}
+        className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 hover:bg-blue-200 flex items-center justify-center flex-shrink-0 transition-colors"
+        tabIndex={-1}
+        title={isSuperAdmin ? 'Click to edit tooltip' : undefined}
+      >
+        <Info className="h-2.5 w-2.5" />
+      </button>
+      {show && !editing && (
+        <div className="absolute z-50 left-5 top-0 w-64 bg-slate-800 text-white text-xs rounded-lg p-2.5 shadow-xl pointer-events-none">
+          <p className="leading-relaxed">{text}</p>
+          {isSuperAdmin && <p className="mt-1 text-slate-400 italic">Click ⓘ to edit</p>}
+        </div>
+      )}
+      {editing && isSuperAdmin && (
+        <div className="absolute z-50 left-5 top-0 w-72 bg-white border border-blue-300 rounded-lg p-3 shadow-2xl" style={{ minWidth: 260 }}>
+          <p className="text-xs font-bold text-blue-800 mb-1.5 flex items-center gap-1"><Pencil className="h-3 w-3" /> Edit Tooltip</p>
+          <textarea
+            autoFocus
+            className="w-full text-xs border border-slate-200 rounded px-2 py-1.5 focus:outline-none focus:border-blue-400 resize-none"
+            rows={3}
+            value={draft}
+            onChange={e => setDraft(e.target.value)}
+          />
+          <div className="flex gap-2 mt-2">
+            <button type="button" onClick={handleSave} className="flex-1 bg-blue-600 text-white text-xs py-1 rounded hover:bg-blue-700">Save</button>
+            <button type="button" onClick={() => { setDraft(text); setEditing(false); }} className="px-3 text-xs border border-slate-200 rounded hover:bg-slate-50"><X className="h-3 w-3" /></button>
+          </div>
+        </div>
+      )}
+    </span>
+  );
+}
 
 // ── INBOARD CHECKLIST DEFINITION ──────────────────────────────────────────────
 const INBOARD_SECTIONS = [
