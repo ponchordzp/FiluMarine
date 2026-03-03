@@ -978,7 +978,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {boats.filter(boat => boat.image).map((boat) => {
+        {boats.filter(boat => boat.image && (!restrictToBoat || boat.name === restrictToBoat)).map((boat) => {
           const stats = getBoatStats(boat.name, boat.id);
           const actualCurrentHours = (boat.current_hours || 0) + stats.totalEngineHoursFromBookings + stats.personalTripsEngineHours;
           const hoursSinceLastMaintenance = actualCurrentHours - (boat.last_maintenance_hours || 0);
