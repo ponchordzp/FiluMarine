@@ -158,7 +158,7 @@ export default function ExpeditionManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="text-slate-50 flex items-center justify-between flex-wrap gap-3">
         <h2 className="text-slate-50 text-2xl font-semibold">Expedition Management</h2>
         <div className="flex items-center gap-3">
           <Select value={locationFilter} onValueChange={setLocationFilter}>
@@ -171,7 +171,7 @@ export default function ExpeditionManagement() {
               <SelectItem value="acapulco">Acapulco</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}}>
+          <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}} className="bg-purple-600 text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
             <Plus className="h-4 w-4 mr-2" />
             Add Expedition
           </Button>
