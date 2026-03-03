@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Plus, Info } from 'lucide-react';
 
 // ── INBOARD CHECKLIST DEFINITION ──────────────────────────────────────────────
 const INBOARD_SECTIONS = [
