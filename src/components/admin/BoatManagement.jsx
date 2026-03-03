@@ -711,6 +711,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     {formData.engine_config === 'inboard' && <span className="ml-2 text-green-200 font-normal normal-case text-xs">(Inboard Diesel Yacht)</span>}
                     {formData.engine_config === 'outboard' && <span className="ml-2 text-green-200 font-normal normal-case text-xs">(Outboard Center Console)</span>}
                   </h3>
+                  {(() => {const cl = formData.maintenance_checklist||{};const custom = cl.__custom__||[];const checked = Object.entries(cl).filter(([k,v])=>k!=='__custom__'&&(typeof v==='object'?v.checked:!!v)).length + custom.filter(i=>cl[i.id]?.checked).length;const total = Object.keys(cl).filter(k=>k!=='__custom__').length + custom.length;return total > 0 ? <><span className="text-xs text-white/80 mr-1">{checked}/{total}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(checked/total*100)}%` }} /></div></> : null;})()}
                   {collapsedSections['checklist'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['checklist'] && <div className="bg-green-50 p-5">
