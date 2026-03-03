@@ -875,6 +875,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <button type="button" onClick={() => toggleSection('sellers')} className="w-full bg-cyan-600 px-5 py-3 flex items-center gap-2">
                   <Package className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supply Sellers</h3>
+                  {(() => {const n = [formData.owner_phone, ...(formData.supply_sellers||[]).map(s=>s.name)].filter(x=>x&&String(x).trim()!=='').length;const t = 1+(formData.supply_sellers||[]).length||1;return <><span className="text-xs text-white/80 mr-1">{n}/{t}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n/t*100)}%` }} /></div></>;})()}
                   <SectionLockButton sectionKey="sellers" locks={locks} toggle={toggleLock} isComplete={isSellersComplete} />
                   {collapsedSections['sellers'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
