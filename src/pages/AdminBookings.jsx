@@ -58,14 +58,8 @@ function AdminBookingsInner() {
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
   const [expenseBooking, setExpenseBooking] = useState(null);
-  const [adminUsername, setAdminUsername] = useState('');
   const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
   const [selectedBlockedDate, setSelectedBlockedDate] = useState(null);
-
-  React.useEffect(() => {
-    const username = sessionStorage.getItem('admin_username') || 'Admin';
-    setAdminUsername(username);
-  }, []);
 
   const queryClient = useQueryClient();
 
