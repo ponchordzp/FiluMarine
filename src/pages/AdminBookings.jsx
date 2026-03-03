@@ -38,7 +38,14 @@ const statusIcons = {
   completed: CheckCircle2,
 };
 
-export default function AdminBookings() {
+function AdminBookingsInner() {
+  const { currentUser, handleLogout } = useAuth();
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+  const isAdmin = currentUser?.role === 'admin';
+  const isCrew = currentUser?.role === 'crew';
+  // Admins and crew can only see their assigned boat
+  const assignedBoat = currentUser?.assigned_boat || '';
+
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [boatFilter, setBoatFilter] = useState('all');
