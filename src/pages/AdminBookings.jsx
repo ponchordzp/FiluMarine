@@ -23,6 +23,7 @@ import DestinationManagement from '@/components/admin/DestinationManagement';
 import ExpeditionManagement from '@/components/admin/ExpeditionManagement';
 import LocationsManagement from '@/components/admin/LocationsManagement';
 import UserManagement from '@/components/admin/UserManagement';
+import MechanicPortal from '@/components/admin/MechanicPortal';
 
 const statusColors = {
   pending: 'bg-amber-100 text-amber-800',
