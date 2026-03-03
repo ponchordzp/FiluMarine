@@ -222,9 +222,15 @@ function AdminBookingsInner() {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-white mb-1 tracking-tight">Booking Management</h1>
-              <p className="text-white/50 text-sm">View and manage all customer bookings</p>
+            <div className="flex items-center gap-4">
+              <img src="https://i.imgur.com/YourLogo.png" alt="FILU" className="h-10 hidden" />
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-lg tracking-tight" style={{ background: 'linear-gradient(135deg, #1e88e5 0%, #0c2340 100%)', border: '1px solid rgba(30,136,229,0.5)' }}>F</div>
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-0.5 tracking-tight">FILU <span className="text-white/50 font-light">Admin</span></h1>
+                  <p className="text-white/40 text-sm">Booking Management Portal</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
