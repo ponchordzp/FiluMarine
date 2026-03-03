@@ -659,6 +659,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     {collapsedSections['equipment'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                   </button>
                   {!collapsedSections['equipment'] && <div className="bg-teal-50 p-5">
+                    {locks['equipment'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5 mb-3"><span>🔒 Section locked — unlock to edit.</span></div>}
                     <EquipmentManager
                     equipment={formData.equipment}
                     customEquipment={formData.custom_equipment}
