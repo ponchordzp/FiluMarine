@@ -16,7 +16,7 @@ async function hashPassword(password) {
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function validatePassword(password) {
@@ -32,7 +32,7 @@ function validatePassword(password) {
 const roleConfig = {
   superadmin: { label: 'Super Admin', color: 'bg-purple-100 text-purple-800', icon: Shield, description: 'Full access — can create users, manage all boats and settings' },
   admin: { label: 'Admin (Boat Owner)', color: 'bg-blue-100 text-blue-800', icon: Anchor, description: 'Can view Bookings, Dates, Dashboard & their assigned boat' },
-  crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' },
+  crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' }
 };
 
 const emptyForm = {
@@ -43,7 +43,7 @@ const emptyForm = {
   assigned_boat: '',
   is_active: true,
   password: '',
-  confirm_password: '',
+  confirm_password: ''
 };
 
 export default function UserManagement() {
@@ -62,27 +62,27 @@ export default function UserManagement() {
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ['app-users'],
-    queryFn: () => base44.entities.AppUser.list('-created_date'),
+    queryFn: () => base44.entities.AppUser.list('-created_date')
   });
 
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
-    queryFn: () => base44.entities.BoatInventory.list(),
+    queryFn: () => base44.entities.BoatInventory.list()
   });
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.AppUser.create(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] })
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.AppUser.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] })
   });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.AppUser.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] })
   });
 
   const openCreate = () => {
@@ -102,7 +102,7 @@ export default function UserManagement() {
       assigned_boat: user.assigned_boat || '',
       is_active: user.is_active !== false,
       password: '',
-      confirm_password: '',
+      confirm_password: ''
     });
     setError('');
     setDialogOpen(true);
@@ -114,15 +114,15 @@ export default function UserManagement() {
 
     if (!editingUser) {
       // Creating new user — password required
-      if (!form.password) { setError('Password is required'); return; }
+      if (!form.password) {setError('Password is required');return;}
       const pwErrors = validatePassword(form.password);
-      if (pwErrors.length > 0) { setError('Password requirements: ' + pwErrors.join(', ')); return; }
-      if (form.password !== form.confirm_password) { setError('Passwords do not match'); return; }
+      if (pwErrors.length > 0) {setError('Password requirements: ' + pwErrors.join(', '));return;}
+      if (form.password !== form.confirm_password) {setError('Passwords do not match');return;}
     }
 
     // Username uniqueness check
-    const existing = appUsers.find(u => u.username.toLowerCase() === form.username.toLowerCase() && u.id !== editingUser?.id);
-    if (existing) { setError('Username already exists'); return; }
+    const existing = appUsers.find((u) => u.username.toLowerCase() === form.username.toLowerCase() && u.id !== editingUser?.id);
+    if (existing) {setError('Username already exists');return;}
 
     setSaving(true);
     const payload = {
@@ -130,8 +130,8 @@ export default function UserManagement() {
       full_name: form.full_name.trim(),
       email: form.email.trim(),
       role: form.role,
-      assigned_boat: (form.role === 'admin' || form.role === 'crew') ? form.assigned_boat : '',
-      is_active: form.is_active,
+      assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '',
+      is_active: form.is_active
     };
 
     if (!editingUser || form.password) {
@@ -150,7 +150,7 @@ export default function UserManagement() {
   const handleResetPassword = async () => {
     if (!newPassword) return;
     const pwErrors = validatePassword(newPassword);
-    if (pwErrors.length > 0) { alert('Password requirements not met: ' + pwErrors.join(', ')); return; }
+    if (pwErrors.length > 0) {alert('Password requirements not met: ' + pwErrors.join(', '));return;}
     setResetSaving(true);
     const hash = await hashPassword(newPassword);
     await updateMutation.mutateAsync({ id: resetPasswordUser.id, data: { password_hash: hash } });
@@ -169,7 +169,7 @@ export default function UserManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-semibold text-slate-900">User Management</h2>
+          <h2 className="text-slate-50 text-2xl font-semibold">User Management</h2>
           <p className="text-sm text-slate-500 mt-1">Create and manage users, roles, and boat assignments</p>
         </div>
         <Button onClick={openCreate} className="bg-purple-600 hover:bg-purple-700">
@@ -195,26 +195,26 @@ export default function UserManagement() {
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          );
+            </Card>);
+
         })}
       </div>
 
       {/* Users List */}
       <div className="space-y-3">
-        {appUsers.length === 0 ? (
-          <Card>
+        {appUsers.length === 0 ?
+        <Card>
             <CardContent className="py-12 text-center">
               <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
               <p className="text-slate-500">No users yet. Create the first user above.</p>
             </CardContent>
-          </Card>
-        ) : (
-          appUsers.map((user) => {
-            const cfg = roleConfig[user.role] || roleConfig.crew;
-            const Icon = cfg.icon;
-            return (
-              <Card key={user.id} className={`border-2 ${user.is_active === false ? 'border-slate-200 opacity-60' : 'border-slate-100'}`}>
+          </Card> :
+
+        appUsers.map((user) => {
+          const cfg = roleConfig[user.role] || roleConfig.crew;
+          const Icon = cfg.icon;
+          return (
+            <Card key={user.id} className={`border-2 ${user.is_active === false ? 'border-slate-200 opacity-60' : 'border-slate-100'}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${user.role === 'superadmin' ? 'bg-purple-100' : user.role === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
@@ -237,22 +237,22 @@ export default function UserManagement() {
                       <Button variant="ghost" size="sm" onClick={() => toggleActive(user)} title={user.is_active === false ? 'Activate' : 'Deactivate'} className={user.is_active === false ? 'text-slate-400 hover:text-emerald-600' : 'text-emerald-600 hover:text-slate-400'}>
                         {user.is_active === false ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => { setResetPasswordUser(user); setNewPassword(''); }} className="text-amber-600 hover:text-amber-700">
+                      <Button variant="ghost" size="sm" onClick={() => {setResetPasswordUser(user);setNewPassword('');}} className="text-amber-600 hover:text-amber-700">
                         <Key className="h-4 w-4" />
                       </Button>
                       <Button variant="ghost" size="sm" onClick={() => openEdit(user)} className="text-slate-600 hover:text-slate-800">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => { if (window.confirm(`Delete user "${user.username}"?`)) deleteMutation.mutate(user.id); }} className="text-red-500 hover:text-red-700">
+                      <Button variant="ghost" size="sm" onClick={() => {if (window.confirm(`Delete user "${user.username}"?`)) deleteMutation.mutate(user.id);}} className="text-red-500 hover:text-red-700">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            );
-          })
-        )}
+              </Card>);
+
+        })
+        }
       </div>
 
       {/* Create/Edit Dialog */}
@@ -287,17 +287,17 @@ export default function UserManagement() {
                 </SelectContent>
               </Select>
             </div>
-            {(form.role === 'admin' || form.role === 'crew') && (
-              <div>
+            {(form.role === 'admin' || form.role === 'crew') &&
+            <div>
                 <Label>Assigned Boat *</Label>
                 <Select value={form.assigned_boat} onValueChange={(v) => setForm({ ...form, assigned_boat: v })}>
                   <SelectTrigger><SelectValue placeholder="Select a boat..." /></SelectTrigger>
                   <SelectContent>
-                    {boats.map(b => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}
+                    {boats.map((b) => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-            )}
+            }
             <div>
               <Label>{editingUser ? 'New Password (leave blank to keep current)' : 'Password *'}</Label>
               <div className="relative">
@@ -306,40 +306,40 @@ export default function UserManagement() {
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required={!editingUser}
-                  placeholder="Min 8 chars, upper, lower, number, special"
-                />
-                <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  placeholder="Min 8 chars, upper, lower, number, special" />
+
+                <button type="button" onClick={() => setShowPassword((p) => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {form.password && pwErrors.length > 0 && (
-                <ul className="mt-1 space-y-0.5">
-                  {pwErrors.map(e => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}
+              {form.password && pwErrors.length > 0 &&
+              <ul className="mt-1 space-y-0.5">
+                  {pwErrors.map((e) => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}
                 </ul>
-              )}
-              {form.password && pwErrors.length === 0 && (
-                <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>
-              )}
+              }
+              {form.password && pwErrors.length === 0 &&
+              <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>
+              }
             </div>
-            {(form.password || !editingUser) && (
-              <div>
+            {(form.password || !editingUser) &&
+            <div>
                 <Label>Confirm Password</Label>
                 <div className="relative">
                   <Input
-                    type={showConfirm ? 'text' : 'password'}
-                    value={form.confirm_password}
-                    onChange={(e) => setForm({ ...form, confirm_password: e.target.value })}
-                    placeholder="Repeat password"
-                  />
-                  <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  type={showConfirm ? 'text' : 'password'}
+                  value={form.confirm_password}
+                  onChange={(e) => setForm({ ...form, confirm_password: e.target.value })}
+                  placeholder="Repeat password" />
+
+                  <button type="button" onClick={() => setShowConfirm((p) => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                     {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                {form.confirm_password && form.password !== form.confirm_password && (
-                  <p className="text-xs text-red-600 mt-1">✗ Passwords do not match</p>
-                )}
+                {form.confirm_password && form.password !== form.confirm_password &&
+              <p className="text-xs text-red-600 mt-1">✗ Passwords do not match</p>
+              }
               </div>
-            )}
+            }
             <div className="flex items-center gap-2">
               <input type="checkbox" id="is_active" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="rounded" />
               <Label htmlFor="is_active" className="cursor-pointer">Active (can log in)</Label>
@@ -356,7 +356,7 @@ export default function UserManagement() {
       </Dialog>
 
       {/* Reset Password Dialog */}
-      <Dialog open={!!resetPasswordUser} onOpenChange={(open) => { if (!open) setResetPasswordUser(null); }}>
+      <Dialog open={!!resetPasswordUser} onOpenChange={(open) => {if (!open) setResetPasswordUser(null);}}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -372,17 +372,17 @@ export default function UserManagement() {
                   type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
-                />
-                <button type="button" onClick={() => setShowNewPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  placeholder="Enter new password" />
+
+                <button type="button" onClick={() => setShowNewPassword((p) => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
               {newPassword && (() => {
                 const errs = validatePassword(newPassword);
-                return errs.length > 0
-                  ? <ul className="mt-1">{errs.map(e => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul>
-                  : <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>;
+                return errs.length > 0 ?
+                <ul className="mt-1">{errs.map((e) => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul> :
+                <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>;
               })()}
             </div>
             <div className="flex gap-2">
@@ -394,6 +394,6 @@ export default function UserManagement() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 }
