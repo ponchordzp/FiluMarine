@@ -276,6 +276,7 @@ function AdminBookingsInner() {
               {isSuperAdmin && <TabsTrigger value="destinations">Destinations</TabsTrigger>}
               {isSuperAdmin && <TabsTrigger value="expeditions">Expeditions</TabsTrigger>}
               {isSuperAdmin && <TabsTrigger value="locations">Locations</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="mechanic" className="text-orange-700 font-semibold">Mechanic Portal</TabsTrigger>}
               {isSuperAdmin && <TabsTrigger value="users" className="text-purple-700 font-semibold">Users</TabsTrigger>}
             </TabsList>
           </div>
