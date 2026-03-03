@@ -532,7 +532,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Boat Inventory Management</h2>
+        <h2 className="text-2xl font-semibold">Boat Inventory{restrictToBoat ? ` — ${restrictToBoat}` : ''}</h2>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => { resetForm(); setDialogOpen(true); }}>
