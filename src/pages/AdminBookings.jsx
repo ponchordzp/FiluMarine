@@ -1514,6 +1514,13 @@ function AdminBookingsInner() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function AdminBookings() {
+  return (
+    <AdminAuth>
+      <AdminBookingsInner />
     </AdminAuth>
   );
 }
