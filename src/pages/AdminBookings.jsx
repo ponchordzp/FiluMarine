@@ -267,168 +267,144 @@ function AdminBookingsInner() {
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">
-            <Card className="bg-white/95 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Filter className="h-5 w-5" />
-                  Filters
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-6 gap-4">
-                  <div>
-                    <Label>Search</Label>
-                    <Input
-                      placeholder="Name, email, code..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  <div>
-                    <Label>Location</Label>
-                    <Select value={locationFilter} onValueChange={setLocationFilter}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Locations</SelectItem>
-                        <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
-                        <SelectItem value="acapulco">Acapulco</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Status</Label>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="confirmed">Confirmed</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Boat</Label>
-                    <Select value={boatFilter} onValueChange={setBoatFilter}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Boats</SelectItem>
-                        <SelectItem value="FILU">FILU</SelectItem>
-                        <SelectItem value="TYCOON">TYCOON</SelectItem>
-                        <SelectItem value="Pirula">Pirula</SelectItem>
-                        <SelectItem value="La Güera">La Güera</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Time Range</Label>
-                    <Select value={dateRangeFilter} onValueChange={setDateRangeFilter}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Time</SelectItem>
-                        <SelectItem value="week">Last 7 Days</SelectItem>
-                        <SelectItem value="month">Last 30 Days</SelectItem>
-                        <SelectItem value="year">Last Year</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex items-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setStatusFilter('all');
-                        setBoatFilter('all');
-                        setLocationFilter('all');
-                        setDateRangeFilter('all');
-                        setSearchTerm('');
-                      }}
-                    >
-                      Clear Filters
-                    </Button>
-                  </div>
+            <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="flex items-center gap-2 mb-4">
+                <Filter className="h-4 w-4 text-white/40" />
+                <span className="text-sm font-medium text-white/60 uppercase tracking-wider">Filters</span>
+              </div>
+              <div className="grid md:grid-cols-6 gap-3">
+                <div>
+                  <Label className="text-white/50 text-xs">Search</Label>
+                  <Input
+                    placeholder="Name, email, code..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="mt-1 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#1e88e5]/50"
+                  />
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <Label className="text-white/50 text-xs">Location</Label>
+                  <Select value={locationFilter} onValueChange={setLocationFilter}>
+                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Locations</SelectItem>
+                      <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
+                      <SelectItem value="acapulco">Acapulco</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-white/50 text-xs">Status</Label>
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="confirmed">Confirmed</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-white/50 text-xs">Boat</Label>
+                  <Select value={boatFilter} onValueChange={setBoatFilter}>
+                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Boats</SelectItem>
+                      <SelectItem value="FILU">FILU</SelectItem>
+                      <SelectItem value="TYCOON">TYCOON</SelectItem>
+                      <SelectItem value="Pirula">Pirula</SelectItem>
+                      <SelectItem value="La Güera">La Güera</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-white/50 text-xs">Time Range</Label>
+                  <Select value={dateRangeFilter} onValueChange={setDateRangeFilter}>
+                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Time</SelectItem>
+                      <SelectItem value="week">Last 7 Days</SelectItem>
+                      <SelectItem value="month">Last 30 Days</SelectItem>
+                      <SelectItem value="year">Last Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button
+                    variant="outline"
+                    className="w-full border-white/15 text-white/60 hover:text-white hover:bg-white/10"
+                    onClick={() => { setStatusFilter('all'); setBoatFilter('all'); setLocationFilter('all'); setDateRangeFilter('all'); setSearchTerm(''); }}
+                  >
+                    Clear
+                  </Button>
+                </div>
+              </div>
+            </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               {filteredBookings.length === 0 ? (
-                <Card className="bg-white/95 backdrop-blur-sm">
-                  <CardContent className="py-12 text-center">
-                    <p className="text-slate-500">No bookings found</p>
-                  </CardContent>
-                </Card>
+                <div className="rounded-2xl p-12 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                  <p className="text-white/40">No bookings found</p>
+                </div>
               ) : (
                 filteredBookings.map((booking) => {
                   const StatusIcon = statusIcons[booking.status];
                   return (
-                    <motion.div key={booking.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                      <Card className="bg-white/95 backdrop-blur-sm hover:shadow-lg transition-shadow">
-                        <CardContent className="p-6">
+                    <motion.div key={booking.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
+                      <div
+                        className={`rounded-2xl border-l-4 ${statusBorderColor[booking.status]} overflow-hidden`}
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}
+                      >
+                        <div className="p-5">
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex-1 space-y-3">
-                              <div className="flex items-start gap-3">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <h3 className="font-semibold text-lg text-slate-800">{booking.guest_name}</h3>
+                              <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1.5">
+                                    <h3 className="font-semibold text-base text-white">{booking.guest_name}</h3>
                                     <Badge className={statusColors[booking.status]}>
                                       <StatusIcon className="h-3 w-3 mr-1" />
                                       {booking.status}
                                     </Badge>
                                   </div>
-                                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                                    <p className="text-sm text-slate-500">
-                                      Code: <span className="font-mono font-semibold">{booking.confirmation_code}</span>
+                                  <div className="flex items-center gap-2 mb-3 flex-wrap">
+                                    <p className="text-xs text-white/40">
+                                      Code: <span className="font-mono text-white/60">{booking.confirmation_code}</span>
                                     </p>
-                                    <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-700 font-medium">
+                                    <span className="text-xs px-2 py-0.5 rounded-full text-white/50" style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
                                       {booking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}
                                     </span>
                                     {booking.boat_name && (
-                                      <span className="text-xs px-2 py-1 rounded-full bg-[#1e88e5]/10 text-[#1e88e5] font-medium">
+                                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(30,136,229,0.2)', border: '1px solid rgba(30,136,229,0.35)', color: '#60b4ff' }}>
                                         {booking.boat_name}
                                       </span>
                                     )}
                                   </div>
-                                  <div className="space-y-2 text-sm">
-                                    <div className="flex items-center gap-2 text-slate-600">
-                                      <CalendarIcon className="h-4 w-4" />
-                                      <span><strong>Scheduled:</strong> {format(parseISO(booking.date), 'MMM d, yyyy')}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-slate-600">
-                                      <Clock className="h-4 w-4" />
-                                      <span><strong>Booked on:</strong> {format(parseISO(booking.created_date), 'MMM d, yyyy h:mm a')}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-slate-600">
-                                      <Clock className="h-4 w-4" />
-                                      <span><strong>Time:</strong> {booking.time_slot}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-slate-600">
-                                      <Users className="h-4 w-4" />
-                                      {booking.guests} guests
-                                    </div>
-                                    <div className="flex items-center gap-2 text-slate-600">
-                                      <DollarSign className="h-4 w-4" />
-                                      ${booking.total_price?.toLocaleString()} MXN
-                                    </div>
+                                  <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-white/50">
+                                    <div className="flex items-center gap-1.5"><CalendarIcon className="h-3 w-3 text-[#1e88e5]/60" /><span>{format(parseISO(booking.date), 'MMM d, yyyy')}</span></div>
+                                    <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 text-white/30" /><span>{booking.time_slot}</span></div>
+                                    <div className="flex items-center gap-1.5"><Users className="h-3 w-3 text-white/30" /><span>{booking.guests} guests</span></div>
+                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-emerald-400/60" /><span className="text-emerald-300/80 font-medium">${booking.total_price?.toLocaleString()} MXN</span></div>
+                                    <div className="flex items-center gap-1.5 col-span-2"><Clock className="h-3 w-3 text-white/20" /><span className="text-white/30">Booked {format(parseISO(booking.created_date), 'MMM d, yyyy')}</span></div>
                                   </div>
-                                </div>
                               </div>
                             </div>
 
                             <div className="flex flex-col gap-2">
                               <Button
-                                variant="outline"
                                 size="sm"
-                                className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200"
+                                className="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/25"
+                                style={{ border: '1px solid rgba(16,185,129,0.25)' }}
                                 onClick={() => { setExpenseBooking(booking); setExpenseDialogOpen(true); }}
                               >
-                                <PenSquare className="h-4 w-4 mr-2" />
+                                <PenSquare className="h-3 w-3 mr-1.5" />
                                 Data Entry
                               </Button>
                               <Dialog>
                                 <DialogTrigger asChild>
-                                  <Button variant="outline" size="sm" onClick={() => setSelectedBooking(booking)}>
-                                    <Info className="h-4 w-4 mr-2" />
+                                  <Button size="sm" variant="outline" className="text-xs border-white/10 text-white/60 hover:text-white hover:bg-white/10" onClick={() => setSelectedBooking(booking)}>
+                                    <Info className="h-3 w-3 mr-1.5" />
                                     Details
                                   </Button>
                                 </DialogTrigger>
