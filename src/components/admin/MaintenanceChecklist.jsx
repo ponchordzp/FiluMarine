@@ -466,13 +466,13 @@ function ChecklistSection({ section, checklist, onToggle, onNote, onDate, isSupe
       {open && (
         <div className={`${c.bg} px-4 py-3`}>
           {section.items && section.items.map(item => (
-            <ChecklistItem key={item.id} {...item} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={onToggle} onNoteChange={onNote} onDateChange={onDate} />
+                <ChecklistItem key={item.id} {...item} info={getVal(checklist, item.id, 'info')} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={onToggle} onNoteChange={onNote} onDateChange={onDate} isSuperAdmin={isSuperAdmin} onInfoChange={onInfoChange} />
           ))}
           {section.subsections && section.subsections.map(sub => (
             <div key={sub.label} className="mb-4 last:mb-0">
               <p className={`text-xs font-bold uppercase tracking-wide px-2 py-1 rounded mb-2 inline-block ${c.sub}`}>{sub.label}</p>
               {sub.items.map(item => (
-                <ChecklistItem key={item.id} {...item} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={onToggle} onNoteChange={onNote} onDateChange={onDate} />
+                <ChecklistItem key={item.id} {...item} info={getVal(checklist, item.id, 'info')} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={onToggle} onNoteChange={onNote} onDateChange={onDate} isSuperAdmin={isSuperAdmin} onInfoChange={onInfoChange} />
               ))}
             </div>
           ))}
