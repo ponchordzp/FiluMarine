@@ -122,6 +122,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const isMaintenanceComplete = !!(formData.last_service_date && formData.mechanic_name && formData.mechanic_phone);
   const isExpeditionsComplete = formData.available_expeditions?.length > 0;
   const isSellersComplete = !!(formData.owner_phone);
+  const isEquipmentComplete = Object.values(formData.equipment || {}).some(Boolean) || (formData.custom_equipment || []).length > 0;
+  const isSuppliesComplete = (formData.supplies_inventory || []).length > 0;
+  const isRecurringComplete = (formData.recurring_costs || []).length > 0;
+  const isChecklistComplete = Object.keys(formData.maintenance_checklist || {}).filter(k => k !== '__custom__').length > 0;
 
 
   const { data: boats = [] } = useQuery({
