@@ -539,18 +539,22 @@ function AdminBookingsInner() {
 
                             {/* ── BOOKED DATES TAB ── */}
           <TabsContent value="booked-dates" className="space-y-6">
+            {(() => {
+              // Filter bookings to only this user's boat if not superadmin
+              const visibleBookings = isSuperAdmin ? bookings : bookings.filter(b => b.boat_name === assignedBoat);
+              return (
             <div className="grid md:grid-cols-2 gap-6">
               <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2 mb-4">
                   <CalendarIcon className="h-4 w-4 text-[#1e88e5]" />
-                  <span className="text-sm font-medium text-white/70">Booked Dates Calendar</span>
+                  <span className="text-sm font-medium text-white/70">Booked Dates Calendar{!isSuperAdmin && assignedBoat ? ` — ${assignedBoat}` : ''}</span>
                 </div>
                 <Calendar
                   mode="single"
                   selected={selectedCalendarDate}
                   onSelect={setSelectedCalendarDate}
                   className="rounded-xl border-white/10 bg-transparent text-white"
-                  modifiers={{ booked: (date) => bookings.some(b => b.date === format(date, 'yyyy-MM-dd') && b.status !== 'cancelled') }}
+                  modifiers={{ booked: (date) => visibleBookings.some(b => b.date === format(date, 'yyyy-MM-dd') && b.status !== 'cancelled') }}
                   modifiersStyles={{ booked: { backgroundColor: 'rgba(30,136,229,0.35)', color: '#93c5fd', fontWeight: 'bold', borderRadius: '6px' } }}
                 />
                 <div className="mt-3 p-3 rounded-xl text-xs text-blue-300/70" style={{ background: 'rgba(30,136,229,0.1)', border: '1px solid rgba(30,136,229,0.2)' }}>
@@ -568,7 +572,7 @@ function AdminBookingsInner() {
                       <p className="text-white/30 text-center py-8 text-sm">Select a date to view bookings</p>
                     ) : (() => {
                       const dateStr = format(selectedCalendarDate, 'yyyy-MM-dd');
-                      const dateBookings = bookings.filter(b => b.date === dateStr && b.status !== 'cancelled');
+                      const dateBookings = visibleBookings.filter(b => b.date === dateStr && b.status !== 'cancelled');
                       return dateBookings.length === 0 ? (
                         <p className="text-white/30 text-center py-8 text-sm">No bookings for this date</p>
                       ) : dateBookings.map((booking) => {
