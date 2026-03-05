@@ -306,10 +306,11 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
             <div><Label>Email</Label><Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="e.g., juan@example.com" /></div>
             <div>
               <Label>Role *</Label>
-              <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
+              <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })} disabled={form.role === 'superadmin' && !isSuperAdmin}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   {isSuperAdmin && <SelectItem value="superadmin">Super Admin</SelectItem>}
+                  {form.role === 'superadmin' && !isSuperAdmin && <SelectItem value="superadmin">Super Admin (Cannot change)</SelectItem>}
                   <SelectItem value="operator_admin">Operator Admin</SelectItem>
                   <SelectItem value="admin">Admin (Boat Owner)</SelectItem>
                   <SelectItem value="crew">Crew</SelectItem>
