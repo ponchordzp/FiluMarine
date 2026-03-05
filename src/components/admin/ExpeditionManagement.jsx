@@ -150,6 +150,11 @@ export default function ExpeditionManagement({ operatorFilter = null, currentUse
   };
 
   const filtered = expeditions.filter((exp) => {
+    // Operator scope filter
+    if (activeOperator) {
+      const expOp = (exp.operator || '').toLowerCase();
+      if (expOp !== activeOperator.toLowerCase()) return false;
+    }
     if (locationFilter === 'all') return true;
     return exp.location === locationFilter || exp.location === 'both';
   });
