@@ -148,6 +148,7 @@ export default function UserManagement({ currentUser }) {
   });
 
   const countByRole = (role) => scopedUsers.filter(u => u.role === role).length;
+  const [permissionsOpen, setPermissionsOpen] = useState(false);
 
   return (
     <div className="space-y-6">
