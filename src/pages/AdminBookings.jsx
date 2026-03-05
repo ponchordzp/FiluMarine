@@ -221,14 +221,25 @@ function AdminBookingsInner() {
     });
   };
 
+  const [expandedRows, setExpandedRows] = useState({ financial: true, bookings: true });
+
+  const toggleRowExpansion = (category) => {
+    setExpandedRows(prev => ({ ...prev, [category]: !prev[category] }));
+  };
+
+  // Calculate visible expenses
+  const visibleExpenses = expenses.filter(exp => {
+    const booking = visibleBookings.find(b => b.id === exp.booking_id);
+    return booking !== undefined;
+  });
+
   const stats = {
+    // Booking KPIs
     total: visibleBookings.length,
     pending: visibleBookings.filter(b => b.status === 'pending').length,
     confirmed: visibleBookings.filter(b => b.status === 'confirmed').length,
     completed: visibleBookings.filter(b => b.status === 'completed').length,
     cancelled: visibleBookings.filter(b => b.status === 'cancelled').length,
-    // New KPIs
-    revenue: visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0),
     nextDaysBooked: (() => {
       const today = new Date();
       const next30 = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); });
@@ -236,6 +247,24 @@ function AdminBookingsInner() {
     })(),
     avgGuestSize: visibleBookings.length > 0 ? Math.round(visibleBookings.reduce((sum, b) => sum + (b.guests || 0), 0) / visibleBookings.length) : 0,
     confirmationRate: visibleBookings.length > 0 ? Math.round((visibleBookings.filter(b => b.status !== 'pending').length / visibleBookings.length) * 100) : 0,
+    // Financial KPIs
+    revenue: visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0),
+    totalExpenses: visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0),
+    netProfit: (() => {
+      const rev = visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
+      const exp = visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
+      return rev - exp;
+    })(),
+    roi: (() => {
+      const rev = visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
+      const exp = visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
+      return exp > 0 ? Math.round(((rev - exp) / exp) * 100) : 0;
+    })(),
+    costPerGuest: (() => {
+      const totalGuests = visibleBookings.reduce((sum, b) => sum + (b.guests || 0), 0);
+      const exp = visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
+      return totalGuests > 0 ? Math.round(exp / totalGuests) : 0;
+    })(),
   };
 
   if (isLoading) {
