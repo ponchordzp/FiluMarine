@@ -60,7 +60,7 @@ function getOperatorForUser(user, operators) {
   return operators.find(o => o.name.toLowerCase() === 'filu') || null;
 }
 
-export default function UserManagement({ currentUser }) {
+export default function UserManagement({ currentUser, operatorFilter: externalOperatorFilter = 'all' }) {
   const isOperatorAdmin = currentUser?.role === 'operator_admin';
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const currentUserOperator = currentUser?.operator || 'FILU';
@@ -77,7 +77,10 @@ export default function UserManagement({ currentUser }) {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [resetSaving, setResetSaving] = useState(false);
   const [roleTab, setRoleTab] = useState('all');
-  const [operatorFilter, setOperatorFilter] = useState('all');
+  const [localOperatorFilter, setLocalOperatorFilter] = useState('all');
+
+  // Use external filter when set (from global operator dropdown), otherwise use local filter
+  const operatorFilter = externalOperatorFilter !== 'all' ? externalOperatorFilter : localOperatorFilter;
 
   const operators = loadOperators();
 
