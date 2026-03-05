@@ -390,16 +390,43 @@ function AdminBookingsInner() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
         {/* Financial KPIs - Collapsible Row 1 */}
-          <div className="mb-4 rounded-2xl p-4" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
-            <button onClick={() => toggleRowExpansion('financial')} className="w-full flex items-center justify-between mb-3 hover:opacity-80 transition-opacity">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">💵</span>
-                <span className="text-sm font-semibold text-emerald-300 uppercase tracking-wider">Financial</span>
+        <div className="mb-4 rounded-2xl p-4" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
+          <button onClick={() => toggleRowExpansion('financial')} className="w-full flex items-center justify-between mb-3 hover:opacity-80 transition-opacity">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">💵</span>
+              <span className="text-sm font-semibold text-emerald-300 uppercase tracking-wider">Financial</span>
+            </div>
+            <ChevronDown className={`h-4 w-4 text-emerald-300/60 transition-transform ${expandedRows.financial ? '' : '-rotate-90'}`} />
+          </button>
+          {expandedRows.financial && (
+            <>
+              <div className="grid md:grid-cols-3 gap-3 mb-4">
+                <div>
+                  <Label className="text-white/50 text-xs">Time Range</Label>
+                  <Select value={financialTimeFilter} onValueChange={setFinancialTimeFilter}>
+                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Time</SelectItem>
+                      <SelectItem value="week">Last 7 Days</SelectItem>
+                      <SelectItem value="month">Last 30 Days</SelectItem>
+                      <SelectItem value="year">Last Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-white/50 text-xs">Boat</Label>
+                  <Select value={financialBoatFilter} onValueChange={setFinancialBoatFilter}>
+                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Boats</SelectItem>
+                      {financialFilteredBoats.map(boat => (
+                        <SelectItem key={boat} value={boat}>{boat}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <ChevronDown className={`h-4 w-4 text-emerald-300/60 transition-transform ${expandedRows.financial ? '' : '-rotate-90'}`} />
-            </button>
-            {expandedRows.financial && (
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                   { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '💰' },
                   { label: 'Expenses', value: `$${(stats.totalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '📉' },
