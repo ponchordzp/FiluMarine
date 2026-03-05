@@ -82,6 +82,8 @@ function AdminBookingsInner() {
   const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
   const [selectedBlockedDate, setSelectedBlockedDate] = useState(null);
   const [globalOperatorFilter, setGlobalOperatorFilter] = useState('all');
+  const [financialTimeFilter, setFinancialTimeFilter] = useState('all');
+  const [financialBoatFilter, setFinancialBoatFilter] = useState('all');
 
   const queryClient = useQueryClient();
 
