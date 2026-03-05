@@ -157,10 +157,25 @@ export default function UserManagement({ currentUser }) {
           <h2 className="text-slate-50 text-2xl font-semibold">User Management</h2>
           <p className="text-sm text-slate-500 mt-1">Create and manage users, roles, and boat assignments</p>
         </div>
-        <Button onClick={openCreate} className="bg-purple-600 hover:bg-purple-700">
-          <Plus className="h-4 w-4 mr-2" />Create User
-        </Button>
+        <div className="flex gap-2">
+          {isSuperAdmin && (
+            <Button variant="outline" size="sm" onClick={() => setPermissionsOpen(o => !o)} className="gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+              <Settings className="h-4 w-4" />
+              {permissionsOpen ? 'Hide' : 'Role Permissions'}
+            </Button>
+          )}
+          <Button onClick={openCreate} className="bg-purple-600 hover:bg-purple-700">
+            <Plus className="h-4 w-4 mr-2" />Create User
+          </Button>
+        </div>
       </div>
+
+      {/* Role Permissions Manager — SuperAdmin only */}
+      {isSuperAdmin && permissionsOpen && (
+        <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+          <RolePermissionsManager />
+        </div>
+      )}
 
       {/* Role legend */}
       <div className="grid md:grid-cols-3 gap-4">
