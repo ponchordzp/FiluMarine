@@ -920,6 +920,14 @@ function AdminBookingsInner() {
           )}
 
           {isSuperAdmin && (
+            <TabsContent value="operators">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <OperatorsDashboard />
+              </div>
+            </TabsContent>
+          )}
+
+          {isSuperAdmin && (
             <TabsContent value="checklist-template">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <div className="mb-4">
