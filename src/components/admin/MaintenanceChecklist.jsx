@@ -964,7 +964,7 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
         <div className="flex items-center justify-between mb-2">
           <div>
             <p className="text-sm font-semibold text-slate-800">{layoutLabel}</p>
-            <p className="text-xs text-slate-500">{totalChecked} of {totalAll} items checked</p>
+            <p className="text-xs text-slate-500">{totalChecked} of {totalAll} items checked (N/A excluded)</p>
           </div>
           <span className={`text-lg font-bold ${overallPct === 100 ? 'text-green-600' : overallPct >= 50 ? 'text-amber-600' : 'text-red-500'}`}>{overallPct}%</span>
         </div>
