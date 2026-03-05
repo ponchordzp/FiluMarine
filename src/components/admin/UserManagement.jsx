@@ -104,7 +104,7 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
     const existing = appUsers.find(u => u.username.toLowerCase() === form.username.toLowerCase() && u.id !== editingUser?.id);
     if (existing) { setError('Username already exists'); return; }
     setSaving(true);
-    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: form.operator.trim(), is_active: form.is_active };
+    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: (form.role === 'boat_owner' || form.role === 'crew') ? form.assigned_boat : '', operator: form.operator.trim(), is_active: form.is_active };
     if (!editingUser || form.password) payload.password_hash = await hashPassword(form.password || '');
     if (editingUser) { await updateMutation.mutateAsync({ id: editingUser.id, data: payload }); }
     else { await createMutation.mutateAsync(payload); }
