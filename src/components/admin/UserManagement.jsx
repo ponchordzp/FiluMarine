@@ -60,7 +60,7 @@ function getOperatorForUser(user, operators) {
   return operators.find(o => o.name.toLowerCase() === 'filu') || null;
 }
 
-export default function UserManagement({ currentUser, operatorFilter: externalOperatorFilter = 'all' }) {
+export default function UserManagement({ currentUser }) {
   const isOperatorAdmin = currentUser?.role === 'operator_admin';
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const currentUserOperator = currentUser?.operator || 'FILU';
@@ -77,10 +77,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [resetSaving, setResetSaving] = useState(false);
   const [roleTab, setRoleTab] = useState('all');
-  const [localOperatorFilter, setLocalOperatorFilter] = useState('all');
-
-  // Use external filter when set (from global operator dropdown), otherwise use local filter
-  const operatorFilter = externalOperatorFilter !== 'all' ? externalOperatorFilter : localOperatorFilter;
+  const [operatorFilter, setOperatorFilter] = useState('all');
 
   const operators = loadOperators();
 
@@ -220,20 +217,22 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
         </div>
 
         {/* Operator filter */}
-        <div className="flex items-center gap-2">
-          <Building2 className="h-3.5 w-3.5 text-white/40" />
-          <select
-            value={operatorFilter}
-            onChange={e => setLocalOperatorFilter(e.target.value)}
-            className="text-xs rounded-lg px-2.5 py-1.5 text-white/70 border"
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
-          >
-            <option value="all">All Operators</option>
-            {operators.map(op => (
-              <option key={op.id} value={op.name}>{op.name}</option>
-            ))}
-          </select>
-        </div>
+        {isSuperAdmin && externalOperatorFilter === 'all' && (
+          <div className="flex items-center gap-2">
+            <Building2 className="h-3.5 w-3.5 text-white/40" />
+            <select
+              value={operatorFilter}
+              onChange={e => setLocalOperatorFilter(e.target.value)}
+              className="text-xs rounded-lg px-2.5 py-1.5 text-white/70 border"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
+            >
+              <option value="all">All Operators</option>
+              {operators.map(op => (
+                <option key={op.id} value={op.name}>{op.name}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Users list */}
