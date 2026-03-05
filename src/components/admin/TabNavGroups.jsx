@@ -47,7 +47,7 @@ const families = [
         tabs: [
           { value: 'boats', label: '⚓ Boat Inventory' },
           { value: 'mechanic', label: '🔧 Mechanic Portal' },
-          { value: 'checklist-template', label: '✅ Checklist Template', superAdminOnly: true },
+          { value: 'checklist-template', label: '✅ Checklist Template' },
         ],
       },
       {
@@ -56,7 +56,6 @@ const families = [
         color: 'rgba(20,184,166,0.15)',
         border: 'rgba(20,184,166,0.35)',
         textColor: '#5eead4',
-        superAdminOnly: true,
         tabs: [
           { value: 'locations', label: '📍 Locations' },
           { value: 'expeditions', label: '🎣 Expeditions' },
@@ -77,14 +76,11 @@ const families = [
   },
 ];
 
-function FamilyGroup({ family, open, onToggle, indent = false, isSuperAdmin }) {
+function FamilyGroup({ family, open, onToggle, indent = false }) {
   const hasChildren = family.children && family.children.length > 0;
   const [childOpen, setChildOpen] = useState({});
 
   const toggleChild = (id) => setChildOpen(prev => ({ ...prev, [id]: !prev[id] }));
-
-  // Filter children based on permissions
-  const visibleChildren = (family.children || []).filter(c => !c.superAdminOnly || isSuperAdmin);
 
   return (
     <div className={`flex flex-col gap-1.5 ${indent ? 'ml-4 pl-3 border-l-2' : ''}`}
@@ -111,19 +107,18 @@ function FamilyGroup({ family, open, onToggle, indent = false, isSuperAdmin }) {
             className="admin-tabs-list p-1 h-auto flex-wrap w-fit"
             style={{ background: family.color, border: `1px solid ${family.border}`, backdropFilter: 'blur(16px)' }}
           >
-            {family.tabs.filter(t => !t.superAdminOnly || isSuperAdmin).map(t => (
+            {family.tabs.map(t => (
               <TabsTrigger key={t.value} value={t.value} className="font-medium text-xs">{t.label}</TabsTrigger>
             ))}
           </TabsList>
 
           {/* Child families */}
-          {hasChildren && visibleChildren.map(child => (
+          {hasChildren && family.children.map(child => (
             <FamilyGroup
               key={child.id}
               family={child}
               open={!!childOpen[child.id]}
               onToggle={() => toggleChild(child.id)}
-              isSuperAdmin={isSuperAdmin}
               indent
             />
           ))}
@@ -133,21 +128,19 @@ function FamilyGroup({ family, open, onToggle, indent = false, isSuperAdmin }) {
   );
 }
 
-export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin }) {
-  const canSeeOperatorsFamily = isSuperAdmin || isOperatorAdmin;
+export default function TabNavGroups({ isSuperAdmin }) {
   const [open, setOpen] = useState({ bookings: true, operators: false });
 
   const toggle = (id) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
 
   return (
     <div className="flex flex-col gap-2">
-      {families.filter(f => !f.adminOnly || canSeeOperatorsFamily).map(family => (
+      {families.filter(f => !f.adminOnly || isSuperAdmin).map(family => (
         <FamilyGroup
           key={family.id}
           family={family}
           open={!!open[family.id]}
           onToggle={() => toggle(family.id)}
-          isSuperAdmin={isSuperAdmin}
         />
       ))}
     </div>

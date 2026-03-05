@@ -36,8 +36,7 @@ function validatePassword(password) {
 
 const roleConfig = {
   superadmin: { label: 'Super Admin', color: 'bg-purple-100 text-purple-800', icon: Shield, description: 'Full access — can create users, manage all boats and settings' },
-  operatoradmin: { label: 'Operator Admin', color: 'bg-orange-100 text-orange-800', icon: Building2, description: 'Manages their operator\'s fleet, crew, mechanic portal & can create Boat Owners / Crew' },
-  boat_owner: { label: 'Boat Owner', color: 'bg-blue-100 text-blue-800', icon: Anchor, description: 'Can view Bookings, Dates, Dashboard & their assigned boat' },
+  admin: { label: 'Admin (Boat Owner)', color: 'bg-blue-100 text-blue-800', icon: Anchor, description: 'Can view Bookings, Dates, Dashboard & their assigned boat' },
   crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' }
 };
 
@@ -46,12 +45,9 @@ const emptyForm = { username: '', full_name: '', email: '', role: 'crew', assign
 const ROLE_TABS = [
   { value: 'all', label: 'All' },
   { value: 'superadmin', label: 'Super Admins' },
-  { value: 'operatoradmin', label: 'Operator Admins' },
-  { value: 'boat_owner', label: 'Boat Owners' },
+  { value: 'admin', label: 'Admins' },
   { value: 'crew', label: 'Crew' },
 ];
-
-
 
 function getOperatorForUser(user, operators) {
   if (!user) return null;
@@ -61,7 +57,7 @@ function getOperatorForUser(user, operators) {
   return operators.find(o => o.name.toLowerCase() === 'filu') || null;
 }
 
-export default function UserManagement({ isSuperAdmin = true, currentUserOperator = null }) {
+export default function UserManagement() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -104,7 +100,7 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
     const existing = appUsers.find(u => u.username.toLowerCase() === form.username.toLowerCase() && u.id !== editingUser?.id);
     if (existing) { setError('Username already exists'); return; }
     setSaving(true);
-    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: (form.role === 'boat_owner' || form.role === 'crew') ? form.assigned_boat : '', operator: form.operator.trim(), is_active: form.is_active };
+    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: form.operator.trim(), is_active: form.is_active };
     if (!editingUser || form.password) payload.password_hash = await hashPassword(form.password || '');
     if (editingUser) { await updateMutation.mutateAsync({ id: editingUser.id, data: payload }); }
     else { await createMutation.mutateAsync(payload); }
@@ -125,17 +121,8 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
 
   const pwErrors = form.password ? validatePassword(form.password) : [];
 
-  // For OperatorAdmin: only show users of their own operator
-  const baseUsers = currentUserOperator
-    ? appUsers.filter(u => {
-        const opName = (u.operator || '').toLowerCase();
-        const myOp = currentUserOperator.toLowerCase();
-        return myOp === 'filu' ? (!u.operator || opName === 'filu') : opName === myOp;
-      })
-    : appUsers;
-
   // Filtered users
-  const filteredUsers = baseUsers.filter(u => {
+  const filteredUsers = appUsers.filter(u => {
     const roleMatch = roleTab === 'all' || u.role === roleTab;
     let opMatch = true;
     if (operatorFilter !== 'all') {
@@ -145,12 +132,7 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
     return roleMatch && opMatch;
   });
 
-  const countByRole = (role) => baseUsers.filter(u => u.role === role).length;
-
-  // Roles that an OperatorAdmin can create
-  const creatableRoles = isSuperAdmin
-    ? ['superadmin', 'operatoradmin', 'boat_owner', 'crew']
-    : ['boat_owner', 'crew'];
+  const countByRole = (role) => appUsers.filter(u => u.role === role).length;
 
   return (
     <div className="space-y-6">
@@ -162,12 +144,6 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
         <Button onClick={openCreate} className="bg-purple-600 hover:bg-purple-700">
           <Plus className="h-4 w-4 mr-2" />Create User
         </Button>
-      </div>
-      {!isSuperAdmin && (
-        <div className="p-3 rounded-lg text-xs text-orange-300" style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)' }}>
-          ⚠️ As Operator Admin you can create Boat Owners and Crew only. Only a Super Admin can create Operator Admins.
-        </div>
-      )}
       </div>
 
       {/* Role legend */}
@@ -298,14 +274,13 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
               <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {creatableRoles.includes('superadmin') && <SelectItem value="superadmin">Super Admin</SelectItem>}
-                  {creatableRoles.includes('operatoradmin') && <SelectItem value="operatoradmin">Operator Admin</SelectItem>}
-                  {creatableRoles.includes('boat_owner') && <SelectItem value="boat_owner">Boat Owner</SelectItem>}
-                  {creatableRoles.includes('crew') && <SelectItem value="crew">Crew</SelectItem>}
+                  <SelectItem value="superadmin">Super Admin</SelectItem>
+                  <SelectItem value="admin">Admin (Boat Owner)</SelectItem>
+                  <SelectItem value="crew">Crew</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            {(form.role === 'boat_owner' || form.role === 'crew') && (
+            {(form.role === 'admin' || form.role === 'crew') && (
               <div>
                 <Label>Assigned Boat</Label>
                 <Select value={form.assigned_boat} onValueChange={v => setForm({ ...form, assigned_boat: v })}>
