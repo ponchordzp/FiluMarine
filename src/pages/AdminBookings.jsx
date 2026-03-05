@@ -442,16 +442,46 @@ function AdminBookingsInner() {
               <div className="grid md:grid-cols-3 gap-3 mb-4">
                 <div>
                   <Label className="text-white/50 text-xs">Time Range</Label>
-                  <Select value={financialTimeFilter} onValueChange={setFinancialTimeFilter}>
+                  <Select value={financialTimeFilter} onValueChange={(val) => { setFinancialTimeFilter(val); if (val !== 'custom') setShowCustomDatePicker(false); }}>
                     <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Time</SelectItem>
-                      <SelectItem value="week">Last 7 Days</SelectItem>
-                      <SelectItem value="month">Last 30 Days</SelectItem>
-                      <SelectItem value="year">Last Year</SelectItem>
+                      <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
+                      <SelectItem value="last-week">Last Week (Sun-Sun)</SelectItem>
+                      <SelectItem value="last-month">Last Month</SelectItem>
+                      <SelectItem value="last-3-months">Last 3 Months</SelectItem>
+                      <SelectItem value="this-year">This Year</SelectItem>
+                      <SelectItem value="custom">Custom Range</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+                {financialTimeFilter === 'custom' && (
+                  <>
+                    <Dialog open={showCustomDatePicker} onOpenChange={setShowCustomDatePicker}>
+                      <DialogTrigger asChild>
+                        <Button className="mt-6 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border-blue-500/25" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
+                          📅 {customDateRange.from && customDateRange.to ? `${format(customDateRange.from, 'MMM d')} - ${format(customDateRange.to, 'MMM d')}` : 'Select Dates'}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label className="text-xs text-white/50 mb-2 block">From</Label>
+                            <Calendar selected={customDateRange.from} onSelect={(date) => setCustomDateRange(prev => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-transparent text-white" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-white/50 mb-2 block">To</Label>
+                            <Calendar selected={customDateRange.to} onSelect={(date) => setCustomDateRange(prev => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-transparent text-white" />
+                          </div>
+                          <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePicker(false)} disabled={!customDateRange.from || !customDateRange.to}>
+                            Apply Range
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </>
+                )}
                 <div>
                   <Label className="text-white/50 text-xs">Boat</Label>
                   <Select value={financialBoatFilter} onValueChange={setFinancialBoatFilter}>
