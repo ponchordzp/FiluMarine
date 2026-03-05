@@ -982,7 +982,19 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
       </div>
 
       {sections.map(section => (
-        <ChecklistSection key={section.id} section={section} checklist={checklist} onToggle={handleToggle} onNote={handleNote} onDate={handleDate} isSuperAdmin={isSuperAdmin} onInfoChange={handleInfo} />
+        <ChecklistSection
+          key={section.id}
+          section={section}
+          checklist={checklist}
+          onToggle={handleToggle}
+          onToggleNA={handleToggleNA}
+          onNote={handleNote}
+          onDate={handleDate}
+          onAddSectionItem={handleAddSectionItem}
+          onRemoveSectionItem={handleRemoveSectionItem}
+          isSuperAdmin={isSuperAdmin}
+          onInfoChange={handleInfo}
+        />
       ))}
 
       {/* Custom items section */}
