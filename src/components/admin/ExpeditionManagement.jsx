@@ -117,6 +117,8 @@ export default function ExpeditionManagement({ operatorFilter = null, currentUse
   const handleSubmit = async (e) => {
     e.preventDefault();
     let finalData = { ...formData };
+    // Always stamp operator
+    if (activeOperator) finalData.operator = activeOperator;
     if (imageFile) {
       setUploading(true);
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
