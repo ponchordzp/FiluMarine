@@ -125,8 +125,17 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
 
   const pwErrors = form.password ? validatePassword(form.password) : [];
 
+  // For OperatorAdmin: only show users of their own operator
+  const baseUsers = currentUserOperator
+    ? appUsers.filter(u => {
+        const opName = (u.operator || '').toLowerCase();
+        const myOp = currentUserOperator.toLowerCase();
+        return myOp === 'filu' ? (!u.operator || opName === 'filu') : opName === myOp;
+      })
+    : appUsers;
+
   // Filtered users
-  const filteredUsers = appUsers.filter(u => {
+  const filteredUsers = baseUsers.filter(u => {
     const roleMatch = roleTab === 'all' || u.role === roleTab;
     let opMatch = true;
     if (operatorFilter !== 'all') {
