@@ -224,8 +224,10 @@ function AdminBookingsInner() {
 
   const roleBadge = isSuperAdmin
     ? { label: 'Super Admin', cls: 'bg-purple-500' }
-    : isAdmin
-    ? { label: 'Admin', cls: 'bg-blue-500' }
+    : isOperatorAdmin
+    ? { label: 'Operator Admin', cls: 'bg-orange-500' }
+    : isBoatOwner
+    ? { label: 'Boat Owner', cls: 'bg-blue-500' }
     : { label: 'Crew', cls: 'bg-emerald-500' };
 
   return (
