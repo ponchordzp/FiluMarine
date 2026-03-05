@@ -411,23 +411,24 @@ function SectionEditor({ section, overrides, addedItems, onSaveOverride, onRemov
   );
 }
 
-function EngineTypeEditor({ engineType, label, sections }) {
+function EngineTypeEditor({ engineType, label, sections, operatorScope }) {
   const queryClient = useQueryClient();
 
   const { data: configs = [] } = useQuery({
-    queryKey: ['global-checklist-config', engineType],
+    queryKey: ['global-checklist-config', engineType, operatorScope],
     queryFn: () => base44.entities.GlobalChecklistConfig.filter({ engine_type: engineType }),
   });
 
-  const config = configs[0] || null;
+  // Find config scoped to this operator (or global if no operator)
+  const config = configs.find(c => (c.operator || '') === (operatorScope || '')) || null;
   const overrides = config?.overrides || {};
   const addedItems = config?.added_items || [];
 
   const saveMutation = useMutation({
     mutationFn: (data) => config
       ? base44.entities.GlobalChecklistConfig.update(config.id, data)
-      : base44.entities.GlobalChecklistConfig.create({ engine_type: engineType, ...data }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['global-checklist-config', engineType] }),
+      : base44.entities.GlobalChecklistConfig.create({ engine_type: engineType, operator: operatorScope || '', ...data }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['global-checklist-config', engineType, operatorScope] }),
   });
 
   const handleSaveOverride = (itemId, changes) => {
