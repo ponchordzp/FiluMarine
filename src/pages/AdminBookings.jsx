@@ -539,12 +539,9 @@ function AdminBookingsInner() {
                             </TabsContent>
 
                             {/* ── BOOKED DATES TAB ── */}
-          <TabsContent value="booked-dates" className="space-y-6">
-            {(() => {
-              // Filter bookings to only this user's boat if not superadmin
-              const visibleBookings = isSuperAdmin ? bookings : bookings.filter(b => b.boat_name === assignedBoat);
-              return (
-            <div className="grid md:grid-cols-2 gap-6">
+                            <TabsContent value="booked-dates" className="space-y-6">
+                            {/* visibleBookings computed inline via variable */}
+                            <div className="grid md:grid-cols-2 gap-6">
               <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2 mb-4">
                   <CalendarIcon className="h-4 w-4 text-[#1e88e5]" />
