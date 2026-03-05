@@ -100,6 +100,8 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setError('');
+    // Only superadmin can create superadmin users
+    if (!editingUser && form.role === 'superadmin' && !isSuperAdmin) { setError('Only SuperAdmin can create SuperAdmin users'); return; }
     if (!editingUser) {
       if (!form.password) { setError('Password is required'); return; }
       const pwErrors = validatePassword(form.password);
