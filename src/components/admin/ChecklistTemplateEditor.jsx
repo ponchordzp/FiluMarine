@@ -159,14 +159,7 @@ const INBOARD_SECTIONS_META = [
     { id: 'safe_raft', label: 'Life raft serviced', interval: '1–3 years' },
     { id: 'safe_surv', label: 'Insurance survey completed', interval: '2–5 years' },
   ]},
-  { id: 'hull_ext', label: '9. Hull & Exterior', color: 'teal', items: [
-    { id: 'hull_paint', label: 'Bottom paint inspection', interval: '12 months' },
-    { id: 'hull_thru', label: 'Through-hulls inspected', interval: '12 months' },
-    { id: 'hull_anod', label: 'Anodes replaced', interval: '6–12 months' },
-    { id: 'hull_moist', label: 'Hull moisture reading', interval: '2 years' },
-    { id: 'hull_deck', label: 'Deck hardware sealed', interval: '2 years' },
-  ]},
-  { id: 'haul_out', label: '10. Haul-Out Checklist', color: 'slate', items: [
+  { id: 'haul_out', label: '13. Haul-Out Checklist', color: 'slate', items: [
     { id: 'haul_wash', label: 'Pressure wash', interval: 'Each haul-out' },
     { id: 'haul_run', label: 'Running gear inspection', interval: 'Each haul-out' },
     { id: 'haul_prop', label: 'Prop speed coating applied', interval: 'Each haul-out' },
