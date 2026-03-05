@@ -269,7 +269,7 @@ function AdminBookingsInner() {
               {isSuperAdmin && <TabsTrigger value="locations" className="font-medium">Locations</TabsTrigger>}
               {isSuperAdmin && <TabsTrigger value="mechanic" className="font-medium tab-mechanic">Mechanic Portal</TabsTrigger>}
               {isSuperAdmin && <TabsTrigger value="users" className="font-medium tab-users">Users</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="checklist-template" className="font-medium" style={{ color: 'rgb(134,239,172)' }} data-state-active-style="background:rgba(34,197,94,0.45)">Checklist Template</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="checklist-template" className="font-medium tab-checklist">Checklist Template</TabsTrigger>}
             </TabsList>
           </div>
 
