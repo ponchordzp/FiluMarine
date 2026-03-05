@@ -781,6 +781,12 @@ function AdminBookingsInner() {
 
           {/* ── BLOCKED DATES TAB ── */}
           <TabsContent value="blocked-dates" className="space-y-6">
+            {(() => {
+              // Non-superadmin only sees blocks relevant to their boat
+              const visibleBlocked = isSuperAdmin
+                ? blockedDates
+                : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
+              return (
             <div className="grid md:grid-cols-2 gap-6">
               <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2">
@@ -792,7 +798,7 @@ function AdminBookingsInner() {
                   selected={blockDate}
                   onSelect={setBlockDate}
                   className="rounded-xl border-white/10 bg-transparent text-white w-full"
-                  modifiers={{ blocked: (date) => blockedDates.some(b => b.date === format(date, 'yyyy-MM-dd')) }}
+                  modifiers={{ blocked: (date) => visibleBlocked.some(b => b.date === format(date, 'yyyy-MM-dd')) }}
                   modifiersStyles={{ blocked: { backgroundColor: 'rgba(239,68,68,0.3)', color: '#fca5a5', fontWeight: 'bold', borderRadius: '6px' } }}
                 />
                 <div className="p-2.5 rounded-lg text-xs text-red-300/70" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
@@ -800,20 +806,27 @@ function AdminBookingsInner() {
                 </div>
                 <div>
                   <Label className="text-white/50 text-xs">Select Boat</Label>
-                  <Select value={blockBoat} onValueChange={setBlockBoat}>
-                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="both">Both Boats</SelectItem>
-                      <SelectItem value="FILU">FILU Only</SelectItem>
-                      <SelectItem value="TYCOON">TYCOON Only</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {isSuperAdmin ? (
+                    <Select value={blockBoat} onValueChange={setBlockBoat}>
+                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="both">All Boats</SelectItem>
+                        {allBoats.map(boat => (
+                          <SelectItem key={boat.id} value={boat.name}>{boat.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="mt-1 px-3 py-2 rounded-md text-sm text-white/70" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      {assignedBoat || 'No boat assigned'}
+                    </div>
+                  )}
                 </div>
                 <div>
                   <Label className="text-white/50 text-xs">Reason (Optional)</Label>
                   <Textarea placeholder="e.g., Weather, maintenance, private event..." value={blockReason} onChange={(e) => setBlockReason(e.target.value)} rows={3} className="mt-1 bg-white/5 border-white/10 text-white placeholder:text-white/30" />
                 </div>
-                <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending} className="w-full bg-red-600/80 hover:bg-red-600 border-red-500/50 text-white" style={{ border: '1px solid rgba(239,68,68,0.4)' }}>
+                <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending || (!isSuperAdmin && !assignedBoat)} className="w-full bg-red-600/80 hover:bg-red-600 border-red-500/50 text-white" style={{ border: '1px solid rgba(239,68,68,0.4)' }}>
                   <Ban className="h-4 w-4 mr-2" />
                   {blockDateMutation.isPending ? 'Blocking...' : 'Block Date'}
                 </Button>
@@ -822,41 +835,45 @@ function AdminBookingsInner() {
               <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2 mb-4">
                   <CalendarIcon className="h-4 w-4 text-red-400" />
-                  <span className="text-sm font-medium text-white/70">Blocked Dates ({blockedDates.length})</span>
+                  <span className="text-sm font-medium text-white/70">Blocked Dates ({visibleBlocked.length}){!isSuperAdmin && assignedBoat ? ` — ${assignedBoat}` : ''}</span>
                 </div>
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
-                  {blockedDates.length === 0 ? (
+                  {visibleBlocked.length === 0 ? (
                     <div className="text-center py-12">
                       <Ban className="h-12 w-12 text-white/10 mx-auto mb-3" />
                       <p className="text-white/30 text-sm">No blocked dates</p>
                     </div>
                   ) : (
-                    blockedDates.sort((a, b) => new Date(a.date) - new Date(b.date)).map((blocked) => (
+                    visibleBlocked.sort((a, b) => new Date(a.date) - new Date(b.date)).map((blocked) => (
                       <div key={blocked.id} className="flex items-start justify-between p-3 rounded-xl" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)' }}>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <CalendarIcon className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
                             <p className="font-semibold text-white text-sm truncate">{format(parseISO(blocked.date), 'EEE, MMM d, yyyy')}</p>
                           </div>
-                          <Badge className={blocked.boat_name === 'both' ? 'bg-white/10 text-white/60 border border-white/15' : blocked.boat_name === 'FILU' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' : 'bg-purple-500/20 text-purple-300 border border-purple-500/30'}>
-                            {blocked.boat_name || 'both'}
+                          <Badge className={blocked.boat_name === 'both' ? 'bg-white/10 text-white/60 border border-white/15' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'}>
+                            {blocked.boat_name === 'both' ? 'All Boats' : blocked.boat_name}
                           </Badge>
                           {blocked.reason && <p className="text-xs text-white/30 mt-1.5 line-clamp-2">{blocked.reason}</p>}
                         </div>
-                        <Button
-                          size="sm"
-                          className="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 ml-2 flex-shrink-0"
-                          style={{ border: '1px solid rgba(16,185,129,0.25)' }}
-                          onClick={() => { setSelectedBlockedDate(blocked); setUnlockDialogOpen(true); }}
-                        >
-                          <Unlock className="h-3.5 w-3.5" />
-                        </Button>
+                        {isSuperAdmin && (
+                          <Button
+                            size="sm"
+                            className="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 ml-2 flex-shrink-0"
+                            style={{ border: '1px solid rgba(16,185,129,0.25)' }}
+                            onClick={() => { setSelectedBlockedDate(blocked); setUnlockDialogOpen(true); }}
+                          >
+                            <Unlock className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                       </div>
                     ))
                   )}
                 </div>
               </div>
             </div>
+              );
+            })()}
           </TabsContent>
 
           {/* ── BOATS TAB ── */}
