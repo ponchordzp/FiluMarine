@@ -1143,7 +1143,17 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {boats.filter((boat) => boat.image && (!restrictToBoat || boat.name === restrictToBoat)).map((boat) => {
+        {boats.filter((boat) => {
+          if (!boat.image) return false;
+          if (restrictToBoat && boat.name !== restrictToBoat) return false;
+          if (operatorFilter && operatorFilter !== 'all') {
+            const bOp = (boat.operator || '').toLowerCase();
+            const fOp = operatorFilter.toLowerCase();
+            const match = fOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === fOp;
+            if (!match) return false;
+          }
+          return true;
+        }).map((boat) => {
           const stats = getBoatStats(boat.name, boat.id);
           const actualCurrentHours = (boat.current_hours || 0) + stats.totalEngineHoursFromBookings + stats.personalTripsEngineHours;
           const hoursSinceLastMaintenance = actualCurrentHours - (boat.last_maintenance_hours || 0);
