@@ -867,6 +867,18 @@ function AdminBookingsInner() {
               </div>
             </TabsContent>
           )}
+
+          {isSuperAdmin && (
+            <TabsContent value="checklist-template">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <div className="mb-4">
+                  <h2 className="text-xl font-bold text-white mb-1">Maintenance Checklist Template</h2>
+                  <p className="text-sm text-white/50">Edit items, intervals, and add/remove fields globally for all boats by engine type.</p>
+                </div>
+                <ChecklistTemplateEditor />
+              </div>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
 
