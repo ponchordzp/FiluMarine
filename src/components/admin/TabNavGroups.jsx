@@ -47,7 +47,7 @@ const families = [
         tabs: [
           { value: 'boats', label: '⚓ Boat Inventory' },
           { value: 'mechanic', label: '🔧 Mechanic Portal' },
-          { value: 'checklist-template', label: '✅ Checklist Template' },
+          { value: 'checklist-template', label: '✅ Checklist Template', superAdminOnly: true },
         ],
       },
       {
@@ -56,6 +56,7 @@ const families = [
         color: 'rgba(20,184,166,0.15)',
         border: 'rgba(20,184,166,0.35)',
         textColor: '#5eead4',
+        superAdminOnly: true,
         tabs: [
           { value: 'locations', label: '📍 Locations' },
           { value: 'expeditions', label: '🎣 Expeditions' },
