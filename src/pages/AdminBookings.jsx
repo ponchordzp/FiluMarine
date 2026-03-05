@@ -258,12 +258,8 @@ function AdminBookingsInner() {
     roi: (() => {
       const rev = visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
       const exp = visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
-      return exp > 0 ? Math.round(((rev - exp) / exp) * 100) : 0;
-    })(),
-    costPerGuest: (() => {
-      const totalGuests = visibleBookings.reduce((sum, b) => sum + (b.guests || 0), 0);
-      const exp = visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
-      return totalGuests > 0 ? Math.round(exp / totalGuests) : 0;
+      const profit = rev - exp;
+      return rev > 0 ? Math.min(100, Math.round((profit / rev) * 100)) : 0;
     })(),
   };
 
