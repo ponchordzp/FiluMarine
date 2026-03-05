@@ -902,6 +902,14 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
     onChange(setVal(checklist, id, 'checked', !getVal(checklist, id, 'checked')));
   };
 
+  const handleToggleNA = (id) => {
+    const newNA = !getVal(checklist, id, 'na');
+    // If marking N/A, also uncheck
+    let updated = setVal(checklist, id, 'na', newNA);
+    if (newNA) updated = setVal(updated, id, 'checked', false);
+    onChange(updated);
+  };
+
   const handleNote = (id, value) => {
     onChange(setVal(checklist, id, 'note', value));
   };
@@ -912,6 +920,17 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
 
   const handleInfo = (id, value) => {
     onChange(setVal(checklist, id, 'info', value));
+  };
+
+  const handleAddSectionItem = (sectionCustomKey, item) => {
+    const existing = checklist[sectionCustomKey] || [];
+    onChange({ ...checklist, [sectionCustomKey]: [...existing, item] });
+  };
+
+  const handleRemoveSectionItem = (sectionCustomKey, itemId) => {
+    const existing = checklist[sectionCustomKey] || [];
+    const { [itemId]: _, ...rest } = checklist;
+    onChange({ ...rest, [sectionCustomKey]: existing.filter(i => i.id !== itemId) });
   };
 
   const handleAddCustom = () => {
