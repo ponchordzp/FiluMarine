@@ -547,6 +547,48 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     }));
   };
 
+  // If showAddBoatOnly: render just the form inline (used from Operators tab dialog)
+  if (showAddBoatOnly) {
+    return (
+      <form onSubmit={handleSubmit} className="space-y-0">
+        {/* Operator field pre-filled */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 flex items-center gap-2">
+          <span className="text-sm text-blue-800">This boat will be assigned to operator: <strong>{defaultOperator}</strong></span>
+        </div>
+        {/* General Info section only for quick add */}
+        <div className="rounded-xl overflow-hidden border border-sky-200 mb-4">
+          <div className="w-full bg-sky-600 px-5 py-3 flex items-center gap-2">
+            <MapPin className="h-4 w-4 text-white" />
+            <h3 className="text-sm font-bold text-white tracking-wide uppercase">General Information</h3>
+          </div>
+          <div className="bg-sky-50 p-5 space-y-4">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div><Label>Boat Name *</Label><Input required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1" /></div>
+              <div><Label>Type *</Label><Input required value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console" className="mt-1" /></div>
+              <div><Label>Size *</Label><Input required value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} placeholder="e.g., 25ft" className="mt-1" /></div>
+              <div><Label>Capacity *</Label><Input required value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" className="mt-1" /></div>
+              <div><Label>Location *</Label><Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem><SelectItem value="acapulco">Acapulco</SelectItem></SelectContent></Select></div>
+              <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
+              <div className="md:col-span-2"><Label>Operator</Label><Input value={formData.operator || ''} onChange={(e) => setFormData({ ...formData, operator: e.target.value })} placeholder="e.g., FILU" className="mt-1" /></div>
+            </div>
+            <div><Label>Description</Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} className="mt-1" /></div>
+            <div>
+              <Label>Boat Image</Label>
+              <div className="space-y-2 mt-1">
+                {imagePreview && <div className="relative w-full h-48 rounded-lg overflow-hidden border border-sky-200"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
+                <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2 pt-2">
+          <Button type="submit" disabled={createMutation.isPending || uploading}>{uploading ? 'Uploading...' : 'Create Boat'}</Button>
+        </div>
+        {createMutation.isSuccess && <p className="text-green-600 text-sm mt-2">✓ Boat created! You can find it in the Boat Inventory tab.</p>}
+      </form>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
