@@ -713,12 +713,12 @@ function getSectionAllItems(section) {
 
 function SectionProgress({ section, checklist }) {
   const allItems = getSectionAllItems(section);
-  const checked = allItems.filter(i => {
-    const v = checklist[i.id];
-    return v && typeof v === 'object' ? v.checked : !!v;
-  }).length;
-  const pct = allItems.length > 0 ? Math.round((checked / allItems.length) * 100) : 0;
-  return { checked, total: allItems.length, pct };
+  // N/A items don't count toward total
+  const applicable = allItems.filter(i => !getVal(checklist, i.id, 'na'));
+  const checked = applicable.filter(i => getVal(checklist, i.id, 'checked')).length;
+  const total = applicable.length;
+  const pct = total > 0 ? Math.round((checked / total) * 100) : 100;
+  return { checked, total, pct };
 }
 
 function ChecklistSection({ section, checklist, onToggle, onToggleNA, onNote, onDate, onAddSectionItem, onRemoveSectionItem, isSuperAdmin, onInfoChange }) {
