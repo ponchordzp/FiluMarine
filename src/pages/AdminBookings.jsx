@@ -441,6 +441,14 @@ function AdminBookingsInner() {
                                         {booking.boat_name}
                                       </span>
                                     )}
+                                    {(() => {
+                                      const boatData = allBoats.find(b => b.name === booking.boat_name);
+                                      return boatData?.operator ? (
+                                        <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(99,102,241,0.2)', border: '1px solid rgba(99,102,241,0.35)', color: '#a5b4fc' }}>
+                                          {boatData.operator}
+                                        </span>
+                                      ) : null;
+                                    })()}
                                   </div>
                                   <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-white/50">
                                     <div className="flex items-center gap-1.5"><CalendarIcon className="h-3 w-3 text-[#1e88e5]/60" /><span>{format(parseISO(booking.date), 'MMM d, yyyy')}</span></div>
