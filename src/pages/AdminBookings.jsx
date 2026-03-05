@@ -894,7 +894,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="destinations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <DestinationManagement />
+                <DestinationManagement operatorFilter={isSuperAdmin ? globalOperatorFilter : null} currentUserOperator={isOperatorAdmin ? currentUserOperator : ''} />
               </div>
             </TabsContent>
           )}
@@ -902,7 +902,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="expeditions">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <ExpeditionManagement />
+                <ExpeditionManagement operatorFilter={isSuperAdmin ? globalOperatorFilter : null} currentUserOperator={isOperatorAdmin ? currentUserOperator : ''} />
               </div>
             </TabsContent>
           )}
@@ -910,7 +910,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="locations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <LocationsManagement />
+                <LocationsManagement operatorFilter={isSuperAdmin ? globalOperatorFilter : null} currentUserOperator={isOperatorAdmin ? currentUserOperator : ''} />
               </div>
             </TabsContent>
           )}
