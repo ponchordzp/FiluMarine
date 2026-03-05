@@ -783,12 +783,6 @@ function AdminBookingsInner() {
 
           {/* ── BLOCKED DATES TAB ── */}
           <TabsContent value="blocked-dates" className="space-y-6">
-            {(() => {
-              // Non-superadmin only sees blocks relevant to their boat
-              const visibleBlocked = isSuperAdmin
-                ? blockedDates
-                : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
-              return (
             <div className="grid md:grid-cols-2 gap-6">
               <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2">
