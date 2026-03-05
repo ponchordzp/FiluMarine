@@ -868,8 +868,6 @@ function AdminBookingsInner() {
                 </div>
               </div>
             </div>
-              );
-            })()}
           </TabsContent>
 
           {/* ── BOATS TAB ── */}
