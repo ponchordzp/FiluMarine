@@ -1178,7 +1178,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
             <CardContent className="p-4">
               <div className="mb-2">
                 <div className="flex items-start justify-between mb-1">
-                  <div><h3 className="text-lg font-semibold text-slate-900">{boat.name}</h3><p className="text-xs text-slate-600">{boat.type} • {boat.size}</p></div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900">{boat.name}</h3>
+                    <p className="text-xs text-slate-600">{boat.type} • {boat.size}</p>
+                    {boat.operator && <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-200 font-medium">{boat.operator}</span>}
+                  </div>
                   <Badge className={boat.status === 'active' ? 'bg-emerald-100 text-emerald-800' : boat.status === 'maintenance' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'}>{boat.status}</Badge>
                 </div>
                 <div className="mt-2 p-2 bg-slate-50 rounded-lg border">
