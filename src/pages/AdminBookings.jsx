@@ -664,8 +664,6 @@ function AdminBookingsInner() {
                   </div>
               </div>
             </div>
-              );
-            })()}
           </TabsContent>
 
           {/* ── DASHBOARD TAB ── */}
