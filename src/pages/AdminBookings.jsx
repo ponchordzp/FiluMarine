@@ -578,11 +578,11 @@ function AdminBookingsInner() {
                         <div className="grid md:grid-cols-2 gap-6">
                           <div>
                             <Label className="text-xs text-white/50 mb-2 block">From</Label>
-                            <Calendar selected={customDateRangeBooking.from} onSelect={(date) => setCustomDateRangeBooking(prev => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-transparent text-white" />
+                            <Calendar selected={customDateRangeBooking.from} onSelect={(date) => setCustomDateRangeBooking(prev => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
                           </div>
                           <div>
                             <Label className="text-xs text-white/50 mb-2 block">To</Label>
-                            <Calendar selected={customDateRangeBooking.to} onSelect={(date) => setCustomDateRangeBooking(prev => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-transparent text-white" />
+                            <Calendar selected={customDateRangeBooking.to} onSelect={(date) => setCustomDateRangeBooking(prev => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
                           </div>
                         </div>
                         <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerBooking(false)} disabled={!customDateRangeBooking.from || !customDateRangeBooking.to}>
