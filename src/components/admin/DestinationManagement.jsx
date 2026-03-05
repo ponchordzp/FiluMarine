@@ -10,7 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, MapPin, Image as ImageIcon, X } from 'lucide-react';
 
-export default function DestinationManagement() {
+export default function DestinationManagement({ operatorFilter = null, currentUserOperator = '' }) {
+  const activeOperator = operatorFilter && operatorFilter !== 'all' ? operatorFilter : (currentUserOperator || null);
+
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDest, setEditingDest] = useState(null);
