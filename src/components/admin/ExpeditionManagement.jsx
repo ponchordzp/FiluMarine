@@ -54,7 +54,7 @@ const emptyForm = {
   sort_order: 0
 };
 
-export default function ExpeditionManagement() {
+export default function ExpeditionManagement({ operatorFilter = null, currentUserOperator = '' }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
@@ -64,6 +64,9 @@ export default function ExpeditionManagement() {
   const [uploading, setUploading] = useState(false);
   const [customInclude, setCustomInclude] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
+
+  // Resolve the active operator scope
+  const activeOperator = operatorFilter && operatorFilter !== 'all' ? operatorFilter : (currentUserOperator || null);
 
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
