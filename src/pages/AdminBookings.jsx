@@ -217,11 +217,20 @@ function AdminBookingsInner() {
   };
 
   const stats = {
-    total: bookings.length,
-    pending: bookings.filter(b => b.status === 'pending').length,
-    confirmed: bookings.filter(b => b.status === 'confirmed').length,
-    completed: bookings.filter(b => b.status === 'completed').length,
-    cancelled: bookings.filter(b => b.status === 'cancelled').length,
+    total: visibleBookings.length,
+    pending: visibleBookings.filter(b => b.status === 'pending').length,
+    confirmed: visibleBookings.filter(b => b.status === 'confirmed').length,
+    completed: visibleBookings.filter(b => b.status === 'completed').length,
+    cancelled: visibleBookings.filter(b => b.status === 'cancelled').length,
+    // New KPIs
+    revenue: visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0),
+    nextDaysBooked: (() => {
+      const today = new Date();
+      const next30 = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); });
+      return next30.filter(ds => visibleBookings.some(b => b.date === ds && b.status !== 'cancelled')).length;
+    })(),
+    avgGuestSize: visibleBookings.length > 0 ? Math.round(visibleBookings.reduce((sum, b) => sum + (b.guests || 0), 0) / visibleBookings.length) : 0,
+    confirmationRate: visibleBookings.length > 0 ? Math.round((visibleBookings.filter(b => b.status !== 'pending').length / visibleBookings.length) * 100) : 0,
   };
 
   if (isLoading) {
