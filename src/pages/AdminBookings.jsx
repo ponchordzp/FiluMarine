@@ -281,13 +281,38 @@ function AdminBookingsInner() {
   const financialFilteredBookings = visibleBookings.filter(b => {
     if (financialBoatFilter !== 'all' && b.boat_name !== financialBoatFilter) return false;
     if (financialTimeFilter !== 'all') {
-      const range = getFinancialTimeRange();
+      const range = getTimeRange(financialTimeFilter, customDateRangeFinancial);
       if (!range) return true;
       const bookingDate = new Date(b.date);
       if (bookingDate < range.start || bookingDate > range.end) return false;
     }
     return true;
   });
+
+  // Filter bookings for booking KPIs section
+  const bookingFilteredBoats = bookingBoatFilter === 'all' 
+    ? (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
+    : [bookingBoatFilter];
+
+  const bookingFilteredBookings = visibleBookings.filter(b => {
+    if (bookingBoatFilter !== 'all' && b.boat_name !== bookingBoatFilter) return false;
+    if (bookingTimeFilter !== 'all') {
+      const range = getTimeRange(bookingTimeFilter, customDateRangeBooking);
+      if (!range) return true;
+      const bookingDate = new Date(b.date);
+      if (bookingDate < range.start || bookingDate > range.end) return false;
+    }
+    return true;
+  });
+
+  // Calculate booking stats using filtered data
+  const bookingStats = {
+    total: bookingFilteredBookings.length,
+    pending: bookingFilteredBookings.filter(b => b.status === 'pending').length,
+    confirmed: bookingFilteredBookings.filter(b => b.status === 'confirmed').length,
+    completed: bookingFilteredBookings.filter(b => b.status === 'completed').length,
+    cancelled: bookingFilteredBookings.filter(b => b.status === 'cancelled').length,
+  };
 
   // Calculate visible expenses
   const visibleExpenses = expenses.filter(exp => {
