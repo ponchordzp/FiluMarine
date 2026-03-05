@@ -147,6 +147,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin }) {
           family={family}
           open={!!open[family.id]}
           onToggle={() => toggle(family.id)}
+          isSuperAdmin={isSuperAdmin}
         />
       ))}
     </div>
