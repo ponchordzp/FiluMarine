@@ -84,8 +84,12 @@ function AdminBookingsInner() {
   const [globalOperatorFilter, setGlobalOperatorFilter] = useState('all');
   const [financialTimeFilter, setFinancialTimeFilter] = useState('all');
   const [financialBoatFilter, setFinancialBoatFilter] = useState('all');
-  const [customDateRange, setCustomDateRange] = useState({ from: null, to: null });
-  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
+  const [bookingTimeFilter, setBookingTimeFilter] = useState('all');
+  const [bookingBoatFilter, setBookingBoatFilter] = useState('all');
+  const [customDateRangeFinancial, setCustomDateRangeFinancial] = useState({ from: null, to: null });
+  const [customDateRangeBooking, setCustomDateRangeBooking] = useState({ from: null, to: null });
+  const [showCustomDatePickerFinancial, setShowCustomDatePickerFinancial] = useState(false);
+  const [showCustomDatePickerBooking, setShowCustomDatePickerBooking] = useState(false);
 
   const queryClient = useQueryClient();
 
