@@ -203,6 +203,7 @@ export default function OperatorsDashboard() {
   const [operators, setOperators] = useState(loadOperators);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
+  const [addBoatForOperator, setAddBoatForOperator] = useState(null);
   const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', color: '#1e88e5' });
 
   const { data: boats = [] } = useQuery({ queryKey: ['all-boats'], queryFn: () => base44.entities.BoatInventory.list() });
