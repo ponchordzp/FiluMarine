@@ -188,11 +188,11 @@ export default function ExpeditionManagement({ operatorFilter = null, currentUse
         </div>
       </div>
 
-      {expeditions.length === 0 &&
+      {filtered.length === 0 &&
       <Card className="bg-amber-50 border-amber-200">
           <CardContent className="py-8 text-center text-amber-800">
-            <p className="font-medium">No expeditions found.</p>
-            <p className="text-sm mt-1">The initial expedition data hasn't been loaded yet. Add expeditions manually or they will sync from the home page data.</p>
+            <p className="font-medium">No expeditions found{activeOperator ? ` for ${activeOperator}` : ''}.</p>
+            <p className="text-sm mt-1">Add expeditions using the button above — they will appear on the home page once added.</p>
           </CardContent>
         </Card>
       }
