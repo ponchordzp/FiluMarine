@@ -224,7 +224,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
           <Building2 className="h-3.5 w-3.5 text-white/40" />
           <select
             value={operatorFilter}
-            onChange={e => setOperatorFilter(e.target.value)}
+            onChange={e => setLocalOperatorFilter(e.target.value)}
             className="text-xs rounded-lg px-2.5 py-1.5 text-white/70 border"
             style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
           >
