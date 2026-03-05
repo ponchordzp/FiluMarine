@@ -767,16 +767,16 @@ function ChecklistSection({ section, checklist, onToggle, onNote, onDate, isSupe
   );
 }
 
-// checklist shape: { [id]: { checked: bool, note: string, lastDate: string, info: string } | bool (legacy) }
+// checklist shape: { [id]: { checked: bool, na: bool, note: string, lastDate: string, info: string } | bool (legacy) }
 function getVal(checklist, id, field) {
   const v = checklist[id];
-  if (!v || typeof v !== 'object') return field === 'checked' ? !!v : '';
-  return v[field] ?? (field === 'checked' ? false : '');
+  if (!v || typeof v !== 'object') return field === 'checked' ? !!v : (field === 'na' ? false : '');
+  return v[field] ?? (field === 'checked' || field === 'na' ? false : '');
 }
 
 function setVal(checklist, id, field, value) {
   const existing = checklist[id];
-  const base = existing && typeof existing === 'object' ? existing : { checked: !!existing, note: '', lastDate: '', info: '' };
+  const base = existing && typeof existing === 'object' ? existing : { checked: !!existing, na: false, note: '', lastDate: '', info: '' };
   return { ...checklist, [id]: { ...base, [field]: value } };
 }
 
