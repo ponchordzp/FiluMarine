@@ -45,6 +45,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     capacity: '',
     location: 'ixtapa_zihuatanejo',
     dock_location: '',
+    operator: defaultOperator || '',
     crew_members: 0,
     boat_mode: 'rental_and_maintenance',
     available_expeditions: [],
