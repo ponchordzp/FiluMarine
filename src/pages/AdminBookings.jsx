@@ -439,6 +439,7 @@ function AdminBookingsInner() {
                     <p className={`text-xs mt-0.5 ${s.sub}`}>{s.label}</p>
                   </div>
                 ))}
+                </div>
                 </>
                 )}
                 </div>
