@@ -136,6 +136,12 @@ function AdminBookingsInner() {
     },
   });
 
+  // Role-scoped visible data
+  const visibleBookings = isSuperAdmin ? bookings : bookings.filter(b => b.boat_name === assignedBoat);
+  const visibleBlocked = isSuperAdmin
+    ? blockedDates
+    : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
+
   const filteredBookings = bookings.filter(booking => {
     if (!isSuperAdmin && assignedBoat && booking.boat_name !== assignedBoat) return false;
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
