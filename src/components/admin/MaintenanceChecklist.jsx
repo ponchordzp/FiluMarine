@@ -478,6 +478,9 @@ function ChecklistSection({ section, checklist, onToggle, onNote, onDate, isSupe
               ))}
             </div>
           ))}
+          {section._extraItems && section._extraItems.map(item => (
+            <ChecklistItem key={item.id} {...item} info={getVal(checklist, item.id, 'info')} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={onToggle} onNoteChange={onNote} onDateChange={onDate} isSuperAdmin={isSuperAdmin} onInfoChange={onInfoChange} />
+          ))}
         </div>
       )}
     </div>
