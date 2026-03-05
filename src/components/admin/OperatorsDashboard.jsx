@@ -96,7 +96,8 @@ function OperatorCard({ operator, boats, crew, bookings, onEdit, onDelete, onAdd
               {operator.description && <p className="text-xs text-white/40 mt-0.5">{operator.description}</p>}
             </div>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-1 items-center">
+            <button onClick={() => onAddBoat(operator.name)} className="p-1.5 rounded-lg hover:bg-blue-500/20 text-white/40 hover:text-blue-300 transition-colors" title="Add boat to this operator"><Plus className="h-3.5 w-3.5" /></button>
             <button onClick={() => onEdit(operator)} className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white/80 transition-colors"><Edit className="h-3.5 w-3.5" /></button>
             <button onClick={() => onDelete(operator.id)} className="p-1.5 rounded-lg hover:bg-red-500/20 text-white/40 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
           </div>
