@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { Check, ChevronDown, ChevronUp, Plus, Info, Pencil, X } from 'lucide-react';
 
 // Editable tooltip — SuperAdmin can click the pencil to change the tooltip text
