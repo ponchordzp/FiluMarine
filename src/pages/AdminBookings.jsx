@@ -315,7 +315,7 @@ function AdminBookingsInner() {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
-          <TabNavGroups isSuperAdmin={isSuperAdmin} />
+          <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} />
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">
