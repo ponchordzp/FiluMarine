@@ -305,7 +305,7 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
                 </SelectContent>
               </Select>
             </div>
-            {(form.role === 'admin' || form.role === 'crew') && (
+            {(form.role === 'boat_owner' || form.role === 'crew') && (
               <div>
                 <Label>Assigned Boat</Label>
                 <Select value={form.assigned_boat} onValueChange={v => setForm({ ...form, assigned_boat: v })}>
