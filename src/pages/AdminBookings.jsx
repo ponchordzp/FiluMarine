@@ -293,26 +293,7 @@ function AdminBookingsInner() {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
-          <div className="flex flex-wrap items-center gap-2">
-            {/* Bookings group — blue */}
-            <TabsList className="admin-tabs-list p-1 h-auto flex-wrap" style={{ background: 'rgba(30,136,229,0.12)', border: '1px solid rgba(30,136,229,0.3)', backdropFilter: 'blur(16px)' }}>
-              <TabsTrigger value="bookings" className="font-medium">📋 Bookings</TabsTrigger>
-              <TabsTrigger value="booked-dates" className="font-medium">📅 Booked Dates</TabsTrigger>
-              <TabsTrigger value="blocked-dates" className="font-medium">🚫 Blocked Dates</TabsTrigger>
-              <TabsTrigger value="dashboard" className="font-medium">📊 Dashboard</TabsTrigger>
-            </TabsList>
-            {/* Management group — mixed colors per tab */}
-            <TabsList className="admin-tabs-list p-1 h-auto flex-wrap" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
-              <TabsTrigger value="boats" className="font-medium">⚓ Boat Inventory</TabsTrigger>
-              {isSuperAdmin && <TabsTrigger value="destinations" className="font-medium">🗺️ Destinations</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="expeditions" className="font-medium">🎣 Expeditions</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="locations" className="font-medium">📍 Locations</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="mechanic" className="font-medium tab-mechanic">🔧 Mechanic Portal</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="users" className="font-medium tab-users">👥 Users</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="operators" className="font-medium">🚢 Operators</TabsTrigger>}
-              {isSuperAdmin && <TabsTrigger value="checklist-template" className="font-medium tab-checklist">✅ Checklist Template</TabsTrigger>}
-            </TabsList>
-          </div>
+          <TabNavGroups isSuperAdmin={isSuperAdmin} />
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">
