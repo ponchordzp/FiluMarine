@@ -51,12 +51,7 @@ const ROLE_TABS = [
   { value: 'crew', label: 'Crew' },
 ];
 
-const ROLE_TABS = [
-  { value: 'all', label: 'All' },
-  { value: 'superadmin', label: 'Super Admins' },
-  { value: 'admin', label: 'Admins' },
-  { value: 'crew', label: 'Crew' },
-];
+
 
 function getOperatorForUser(user, operators) {
   if (!user) return null;
