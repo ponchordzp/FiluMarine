@@ -197,22 +197,19 @@ function AdminBookingsInner() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #060d14 0%, #0c1f30 50%, #060d14 100%)' }}>
-      {/* Ambient glow blobs */}
+      {/* Ambient glow blob — blue only */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #1e88e5 0%, transparent 70%)' }} />
-        <div className="absolute top-[-15%] right-[-10%] w-[50vw] h-[50vw] rounded-full opacity-6" style={{ background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)' }} />
+        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full opacity-8" style={{ background: 'radial-gradient(circle, #1565c0 0%, transparent 70%)' }} />
       </div>
 
       {/* Header */}
-      <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-        {/* Rich gradient background */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0d2a4a 30%, #1565c0 65%, #1e88e5 100%)' }} />
-        {/* Mesh/noise overlay */}
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 60% 0%, rgba(100,180,255,0.18) 0%, transparent 70%), radial-gradient(ellipse 40% 80% at 10% 50%, rgba(21,101,192,0.25) 0%, transparent 60%)', mixBlendMode: 'screen' }} />
+      <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        {/* Dark navy gradient — no bright blues at the end */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #050d1a 0%, #091a30 40%, #0d2444 100%)' }} />
         {/* Subtle grid lines */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
         {/* Bottom accent line */}
-        <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #1e88e5 30%, #42a5f5 60%, transparent 100%)' }} />
+        <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #1565c0 30%, #1e88e5 60%, transparent 100%)' }} />
 
         <div className="relative max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-5">
