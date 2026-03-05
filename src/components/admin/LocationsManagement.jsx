@@ -106,6 +106,7 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
         <div>
           <h2 className="text-slate-50 text-2xl font-semibold">Locations</h2>
           <p className="text-sm text-slate-500 mt-1">Manage the locations shown to users on the home page. Changes sync in real time.</p>
+          {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
         </div>
         <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}} className="bg-purple-600 text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
           <Plus className="h-4 w-4 mr-2" />

@@ -159,7 +159,10 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
   return (
     <div className="space-y-6">
       <div className="text-slate-50 flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-slate-50 text-2xl font-semibold">Expedition Management</h2>
+        <div>
+          <h2 className="text-slate-50 text-2xl font-semibold">Expedition Management</h2>
+          {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
+        </div>
         <div className="flex items-center gap-3">
           <Select value={locationFilter} onValueChange={setLocationFilter}>
             <SelectTrigger className="w-44">
