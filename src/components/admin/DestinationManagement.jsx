@@ -10,9 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, MapPin, Image as ImageIcon, X } from 'lucide-react';
 
-export default function DestinationManagement({ operatorFilter = null, currentUserOperator = '' }) {
-  const activeOperator = operatorFilter && operatorFilter !== 'all' ? operatorFilter : (currentUserOperator || null);
-
+export default function DestinationManagement() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDest, setEditingDest] = useState(null);
@@ -31,11 +29,6 @@ export default function DestinationManagement({ operatorFilter = null, currentUs
   const { data: destinations = [] } = useQuery({
     queryKey: ['destinations'],
     queryFn: () => base44.entities.DestinationContent.list('-created_date')
-  });
-
-  const filteredDestinations = destinations.filter(dest => {
-    if (!activeOperator) return true;
-    return (dest.operator || '').toLowerCase() === activeOperator.toLowerCase();
   });
 
   const createMutation = useMutation({
@@ -94,12 +87,10 @@ export default function DestinationManagement({ operatorFilter = null, currentUs
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const data = { ...formData };
-    if (activeOperator) data.operator = activeOperator;
     if (editingDest) {
-      updateMutation.mutate({ id: editingDest.id, data });
+      updateMutation.mutate({ id: editingDest.id, data: formData });
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(formData);
     }
   };
 
@@ -264,19 +255,9 @@ export default function DestinationManagement({ operatorFilter = null, currentUs
         </Dialog>
       </div>
 
-      {filteredDestinations.length === 0 && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="py-10 text-center text-blue-700">
-            <MapPin className="h-10 w-10 mx-auto mb-2 text-blue-400" />
-            <p className="font-medium">No destinations yet{activeOperator ? ` for ${activeOperator}` : ''}.</p>
-            <p className="text-sm mt-1">Add destinations to display them on the home page.</p>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Destination List */}
       <div className="grid md:grid-cols-2 gap-4">
-        {filteredDestinations.map((dest) =>
+        {destinations.map((dest) =>
         <Card key={dest.id}>
             <CardContent className="p-4">
               <div className="flex gap-4">

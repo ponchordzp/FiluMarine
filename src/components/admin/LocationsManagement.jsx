@@ -20,15 +20,13 @@ const emptyForm = {
   sort_order: 0
 };
 
-export default function LocationsManagement({ operatorFilter = null, currentUserOperator = '' }) {
+export default function LocationsManagement() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLoc, setEditingLoc] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
   const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
-
-  const activeOperator = operatorFilter && operatorFilter !== 'all' ? operatorFilter : (currentUserOperator || null);
 
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
@@ -49,11 +47,6 @@ export default function LocationsManagement({ operatorFilter = null, currentUser
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Location.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['locations'] })
-  });
-
-  const filteredLocations = locations.filter(loc => {
-    if (!activeOperator) return true;
-    return (loc.operator || '').toLowerCase() === activeOperator.toLowerCase();
   });
 
   const toggleVisibility = (loc) => {
@@ -100,7 +93,6 @@ export default function LocationsManagement({ operatorFilter = null, currentUser
     }
     setUploading(false);
     const data = { ...formData, image: finalImage };
-    if (activeOperator) data.operator = activeOperator;
     if (editingLoc) {
       updateMutation.mutate({ id: editingLoc.id, data });
     } else {
@@ -121,18 +113,18 @@ export default function LocationsManagement({ operatorFilter = null, currentUser
         </Button>
       </div>
 
-      {filteredLocations.length === 0 &&
+      {locations.length === 0 &&
       <Card className="bg-blue-50 border-blue-200">
           <CardContent className="py-10 text-center text-blue-700">
             <MapPin className="h-10 w-10 mx-auto mb-2 text-blue-400" />
-            <p className="font-medium">No locations yet{activeOperator ? ` for ${activeOperator}` : ''}.</p>
+            <p className="font-medium">No locations yet.</p>
             <p className="text-sm mt-1">Add locations to display them on the home page.</p>
           </CardContent>
         </Card>
       }
 
       <div className="grid md:grid-cols-2 gap-5">
-        {filteredLocations.map((loc) =>
+        {locations.map((loc) =>
         <Card key={loc.id} className={`overflow-hidden transition-all ${!loc.visible ? 'opacity-60 border-dashed' : ''}`}>
             {loc.image &&
           <div className="relative h-40 overflow-hidden">

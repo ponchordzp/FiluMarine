@@ -54,7 +54,7 @@ const emptyForm = {
   sort_order: 0
 };
 
-export default function ExpeditionManagement({ operatorFilter = null, currentUserOperator = '' }) {
+export default function ExpeditionManagement() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
@@ -64,9 +64,6 @@ export default function ExpeditionManagement({ operatorFilter = null, currentUse
   const [uploading, setUploading] = useState(false);
   const [customInclude, setCustomInclude] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
-
-  // Resolve the active operator scope
-  const activeOperator = operatorFilter && operatorFilter !== 'all' ? operatorFilter : (currentUserOperator || null);
 
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
@@ -117,8 +114,6 @@ export default function ExpeditionManagement({ operatorFilter = null, currentUse
   const handleSubmit = async (e) => {
     e.preventDefault();
     let finalData = { ...formData };
-    // Always stamp operator
-    if (activeOperator) finalData.operator = activeOperator;
     if (imageFile) {
       setUploading(true);
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
@@ -152,11 +147,6 @@ export default function ExpeditionManagement({ operatorFilter = null, currentUse
   };
 
   const filtered = expeditions.filter((exp) => {
-    // Operator scope filter
-    if (activeOperator) {
-      const expOp = (exp.operator || '').toLowerCase();
-      if (expOp !== activeOperator.toLowerCase()) return false;
-    }
     if (locationFilter === 'all') return true;
     return exp.location === locationFilter || exp.location === 'both';
   });
@@ -188,11 +178,11 @@ export default function ExpeditionManagement({ operatorFilter = null, currentUse
         </div>
       </div>
 
-      {filtered.length === 0 &&
+      {expeditions.length === 0 &&
       <Card className="bg-amber-50 border-amber-200">
           <CardContent className="py-8 text-center text-amber-800">
-            <p className="font-medium">No expeditions found{activeOperator ? ` for ${activeOperator}` : ''}.</p>
-            <p className="text-sm mt-1">Add expeditions using the button above — they will appear on the home page once added.</p>
+            <p className="font-medium">No expeditions found.</p>
+            <p className="text-sm mt-1">The initial expedition data hasn't been loaded yet. Add expeditions manually or they will sync from the home page data.</p>
           </CardContent>
         </Card>
       }

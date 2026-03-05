@@ -411,24 +411,23 @@ function SectionEditor({ section, overrides, addedItems, onSaveOverride, onRemov
   );
 }
 
-function EngineTypeEditor({ engineType, label, sections, operatorScope }) {
+function EngineTypeEditor({ engineType, label, sections }) {
   const queryClient = useQueryClient();
 
   const { data: configs = [] } = useQuery({
-    queryKey: ['global-checklist-config', engineType, operatorScope],
+    queryKey: ['global-checklist-config', engineType],
     queryFn: () => base44.entities.GlobalChecklistConfig.filter({ engine_type: engineType }),
   });
 
-  // Find config scoped to this operator (or global if no operator)
-  const config = configs.find(c => (c.operator || '') === (operatorScope || '')) || null;
+  const config = configs[0] || null;
   const overrides = config?.overrides || {};
   const addedItems = config?.added_items || [];
 
   const saveMutation = useMutation({
     mutationFn: (data) => config
       ? base44.entities.GlobalChecklistConfig.update(config.id, data)
-      : base44.entities.GlobalChecklistConfig.create({ engine_type: engineType, operator: operatorScope || '', ...data }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['global-checklist-config', engineType, operatorScope] }),
+      : base44.entities.GlobalChecklistConfig.create({ engine_type: engineType, ...data }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['global-checklist-config', engineType] }),
   });
 
   const handleSaveOverride = (itemId, changes) => {
@@ -489,10 +488,8 @@ function EngineTypeEditor({ engineType, label, sections, operatorScope }) {
   );
 }
 
-export default function ChecklistTemplateEditor({ operatorFilter = null, currentUserOperator = '' }) {
+export default function ChecklistTemplateEditor() {
   const [activeEngine, setActiveEngine] = useState('inboard');
-
-  const operatorScope = operatorFilter && operatorFilter !== 'all' ? operatorFilter : (currentUserOperator || '');
 
   return (
     <div className="space-y-4">
@@ -514,24 +511,22 @@ export default function ChecklistTemplateEditor({ operatorFilter = null, current
           </button>
         </div>
         <div className="flex-1 p-2.5 rounded-lg text-xs text-amber-200/80" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>
-          Changes apply to <strong>{operatorScope ? `${operatorScope} fleet` : 'all boats'}</strong> of this engine type. Each boat can still add its own custom items.
+          Changes here apply to <strong>all boats</strong> of this engine type. Each boat can still add its own custom items.
         </div>
       </div>
 
       {activeEngine === 'inboard' && (
         <EngineTypeEditor
           engineType="inboard"
-          label={`Inboard Diesel Yacht — ${operatorScope ? operatorScope + ' Template' : 'Global Template'}`}
+          label="Inboard Diesel Yacht — Global Template"
           sections={INBOARD_SECTIONS_META}
-          operatorScope={operatorScope}
         />
       )}
       {activeEngine === 'outboard' && (
         <EngineTypeEditor
           engineType="outboard"
-          label={`Outboard Center Console — ${operatorScope ? operatorScope + ' Template' : 'Global Template'}`}
+          label="Outboard Center Console — Global Template"
           sections={OUTBOARD_SECTIONS_META}
-          operatorScope={operatorScope}
         />
       )}
     </div>
