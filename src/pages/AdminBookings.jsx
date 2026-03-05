@@ -309,6 +309,7 @@ function AdminBookingsInner() {
               {isSuperAdmin && <TabsTrigger value="locations" className="font-medium">📍 Locations</TabsTrigger>}
               {isSuperAdmin && <TabsTrigger value="mechanic" className="font-medium tab-mechanic">🔧 Mechanic Portal</TabsTrigger>}
               {isSuperAdmin && <TabsTrigger value="users" className="font-medium tab-users">👥 Users</TabsTrigger>}
+              {isSuperAdmin && <TabsTrigger value="operators" className="font-medium">🚢 Operators</TabsTrigger>}
               {isSuperAdmin && <TabsTrigger value="checklist-template" className="font-medium tab-checklist">✅ Checklist Template</TabsTrigger>}
             </TabsList>
           </div>
