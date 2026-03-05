@@ -100,6 +100,11 @@ function AdminBookingsInner() {
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
+  const { data: expenses = [] } = useQuery({
+    queryKey: ['booking-expenses'],
+    queryFn: () => base44.entities.BookingExpense.list(),
+  });
+
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.Booking.update(id, { status }),
     onSuccess: () => {
