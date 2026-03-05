@@ -26,6 +26,7 @@ import UserManagement from '@/components/admin/UserManagement';
 import MechanicPortal from '@/components/admin/MechanicPortal';
 import ChecklistTemplateEditor from '@/components/admin/ChecklistTemplateEditor';
 import OperatorsDashboard from '@/components/admin/OperatorsDashboard';
+import TabNavGroups from '@/components/admin/TabNavGroups';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
