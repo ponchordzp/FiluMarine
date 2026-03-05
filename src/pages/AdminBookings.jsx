@@ -59,9 +59,12 @@ const statusIcons = {
 function AdminBookingsInner() {
   const { currentUser, handleLogout } = useAuth();
   const isSuperAdmin = currentUser?.role === 'superadmin';
-  const isAdmin = currentUser?.role === 'admin';
+  const isOperatorAdmin = currentUser?.role === 'operatoradmin';
+  const isBoatOwner = currentUser?.role === 'boat_owner';
   const isCrew = currentUser?.role === 'crew';
+  const isAdmin = isBoatOwner; // legacy alias
   const assignedBoat = currentUser?.assigned_boat || '';
+  const operatorName = currentUser?.operator || '';
 
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
