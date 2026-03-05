@@ -36,7 +36,7 @@ function StatBox({ icon: Icon, label, value, color }) {
   );
 }
 
-function OperatorCard({ operator, boats, crew, bookings, onEdit, onDelete }) {
+function OperatorCard({ operator, boats, crew, bookings, onEdit, onDelete, onAddBoat }) {
   const opName = (operator.name || '').toLowerCase();
 
   const opBoats = boats.filter(b => {
