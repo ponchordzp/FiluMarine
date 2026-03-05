@@ -54,7 +54,7 @@ const emptyForm = {
   sort_order: 0
 };
 
-export default function ExpeditionManagement() {
+export default function ExpeditionManagement({ operatorFilter = 'all' }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);

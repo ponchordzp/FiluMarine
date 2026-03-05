@@ -586,9 +586,10 @@ function BoatMechanicCard({ boat, currentUser }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function MechanicPortal({ currentUser }) {
+export default function MechanicPortal({ currentUser, operatorFilter = 'all' }) {
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const isAdmin = currentUser?.role === 'admin';
+  const isOperatorAdmin = currentUser?.role === 'operator_admin';
   const assignedBoat = currentUser?.assigned_boat || '';
 
   const { data: boats = [], isLoading } = useQuery({
@@ -597,8 +598,13 @@ export default function MechanicPortal({ currentUser }) {
   });
 
   const visibleBoats = boats.filter(boat => {
-    if (isSuperAdmin) return true;
     if (isAdmin || currentUser?.role === 'crew') return assignedBoat ? boat.name === assignedBoat : true;
+    // Apply operator filter for superadmin/operator_admin
+    if (operatorFilter && operatorFilter !== 'all') {
+      const bOp = (boat.operator || '').toLowerCase();
+      const fOp = operatorFilter.toLowerCase();
+      if (!(fOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === fOp)) return false;
+    }
     return true;
   });
 

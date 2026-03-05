@@ -445,6 +445,7 @@ function AdminBookingsInner() {
                                         {booking.boat_name}
                                       </span>
                                     )}
+                                    {(() => { const boat = allBoats.find(b => b.name === booking.boat_name); return boat?.operator ? <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(251,146,60,0.2)', border: '1px solid rgba(251,146,60,0.35)', color: '#fdba74' }}>{boat.operator}</span> : null; })()}
                                   </div>
                                   <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-white/50">
                                     <div className="flex items-center gap-1.5"><CalendarIcon className="h-3 w-3 text-[#1e88e5]/60" /><span>{format(parseISO(booking.date), 'MMM d, yyyy')}</span></div>
@@ -898,7 +899,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="destinations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <DestinationManagement />
+                <DestinationManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
           )}
@@ -906,7 +907,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="expeditions">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <ExpeditionManagement />
+                <ExpeditionManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
           )}
@@ -914,7 +915,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="locations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <LocationsManagement />
+                <LocationsManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
           )}
@@ -922,7 +923,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="mechanic">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <MechanicPortal currentUser={currentUser} />
+                <MechanicPortal currentUser={currentUser} operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
           )}
@@ -950,7 +951,7 @@ function AdminBookingsInner() {
                   <h2 className="text-xl font-bold text-white mb-1">Maintenance Checklist Template</h2>
                   <p className="text-sm text-white/50">Edit items, intervals, and add/remove fields globally for all boats by engine type.</p>
                 </div>
-                <ChecklistTemplateEditor />
+                <ChecklistTemplateEditor operatorFilter={globalOperatorFilter} />
               </div>
             </TabsContent>
           )}

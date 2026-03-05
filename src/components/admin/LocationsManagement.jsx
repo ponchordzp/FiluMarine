@@ -20,7 +20,7 @@ const emptyForm = {
   sort_order: 0
 };
 
-export default function LocationsManagement() {
+export default function LocationsManagement({ operatorFilter = 'all' }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLoc, setEditingLoc] = useState(null);
