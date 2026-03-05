@@ -31,8 +31,18 @@ const expeditionTypes = [
 'sunset_tour'];
 
 
+const OPERATOR_STORAGE_KEY = 'filu_operators';
+function loadOperatorNames() {
+  try {
+    const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
+    if (raw) return JSON.parse(raw).map(o => o.name).filter(Boolean);
+  } catch {}
+  return ['FILU'];
+}
+
 export default function BoatManagement({ restrictToBoat = null, readOnlyMode = false, isSuperAdmin = false, defaultOperator = '', showAddBoatOnly = false }) {
   const queryClient = useQueryClient();
+  const operatorNames = loadOperatorNames();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBoat, setEditingBoat] = useState(null);
   const [expandedBoats, setExpandedBoats] = useState({});
