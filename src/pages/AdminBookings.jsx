@@ -354,38 +354,60 @@ function AdminBookingsInner() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
-        {/* Stats Cards - Row 1 */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
-            {[
-              { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '💰' },
-              { label: 'Booked (30d)', value: stats.nextDaysBooked, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '📅' },
-              { label: 'Confirmation', value: `${stats.confirmationRate}%`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '✅' },
-              { label: 'Avg Guests', value: stats.avgGuestSize, color: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.3)', text: 'text-violet-300', sub: 'text-violet-400/70', svg: '👥' },
-              { label: 'Total', value: stats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50', svg: '📊' },
-            ].map(s => (
-              <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
-                <p className="text-2xl mb-2">{s.svg}</p>
-                <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
-                <p className={`text-xs mt-1 ${s.sub}`}>{s.label}</p>
+        {/* Financial KPIs - Collapsible Row 1 */}
+          <div className="mb-4 rounded-2xl p-4" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
+            <button onClick={() => toggleRowExpansion('financial')} className="w-full flex items-center justify-between mb-3 hover:opacity-80 transition-opacity">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">💵</span>
+                <span className="text-sm font-semibold text-emerald-300 uppercase tracking-wider">Financial</span>
               </div>
-            ))}
+              <ChevronDown className={`h-4 w-4 text-emerald-300/60 transition-transform ${expandedRows.financial ? '' : '-rotate-90'}`} />
+            </button>
+            {expandedRows.financial && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {[
+                  { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '💰' },
+                  { label: 'Expenses', value: `$${(stats.totalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '📉' },
+                  { label: 'Net Profit', value: `$${(stats.netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '📊' },
+                  { label: 'ROI', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-400/70', svg: '📈' },
+                  { label: 'Cost/Guest', value: `$${stats.costPerGuest}`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '👤' },
+                ].map(s => (
+                  <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                    <p className="text-xl mb-1">{s.svg}</p>
+                    <p className={`text-lg font-bold ${s.text}`}>{s.value}</p>
+                    <p className={`text-xs mt-0.5 ${s.sub}`}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Stats Cards - Row 2 */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-            {[
-              { label: 'Pending', value: stats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '⏳' },
-              { label: 'Confirmed', value: stats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '✔️' },
-              { label: 'Completed', value: stats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '🎯' },
-              { label: 'Cancelled', value: stats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '❌' },
-              { label: 'Conversion', value: `${stats.confirmationRate}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-400/70', svg: '📈' },
-            ].map(s => (
-              <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
-                <p className="text-2xl mb-2">{s.svg}</p>
-                <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
-                <p className={`text-xs mt-1 ${s.sub}`}>{s.label}</p>
+          {/* Booking KPIs - Collapsible Row 2 */}
+          <div className="mb-8 rounded-2xl p-4" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', backdropFilter: 'blur(16px)' }}>
+            <button onClick={() => toggleRowExpansion('bookings')} className="w-full flex items-center justify-between mb-3 hover:opacity-80 transition-opacity">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">📅</span>
+                <span className="text-sm font-semibold text-blue-300 uppercase tracking-wider">Bookings</span>
               </div>
-            ))}
+              <ChevronDown className={`h-4 w-4 text-blue-300/60 transition-transform ${expandedRows.bookings ? '' : '-rotate-90'}`} />
+            </button>
+            {expandedRows.bookings && (
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {[
+                  { label: 'Total', value: stats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50', svg: '📊' },
+                  { label: 'Pending', value: stats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '⏳' },
+                  { label: 'Confirmed', value: stats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '✔️' },
+                  { label: 'Completed', value: stats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '🎯' },
+                  { label: 'Cancelled', value: stats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '❌' },
+                ].map(s => (
+                  <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                    <p className="text-xl mb-1">{s.svg}</p>
+                    <p className={`text-lg font-bold ${s.text}`}>{s.value}</p>
+                    <p className={`text-xs mt-0.5 ${s.sub}`}>{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
