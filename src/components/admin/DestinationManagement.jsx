@@ -33,6 +33,11 @@ export default function DestinationManagement({ operatorFilter = null, currentUs
     queryFn: () => base44.entities.DestinationContent.list('-created_date')
   });
 
+  const filteredDestinations = destinations.filter(dest => {
+    if (!activeOperator) return true;
+    return (dest.operator || '').toLowerCase() === activeOperator.toLowerCase();
+  });
+
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.DestinationContent.create(data),
     onSuccess: () => {
