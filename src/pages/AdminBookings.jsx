@@ -236,15 +236,52 @@ function AdminBookingsInner() {
     ? (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
     : [financialBoatFilter];
 
+  const getFinancialTimeRange = () => {
+    const now = new Date();
+    const dateStr = b => b.date;
+    
+    switch (financialTimeFilter) {
+      case 'this-week': {
+        const start = startOfWeek(now, { weekStartsOn: 0 });
+        const end = endOfWeek(now, { weekStartsOn: 0 });
+        return { start, end };
+      }
+      case 'last-week': {
+        const lastWeekEnd = new Date(startOfWeek(now, { weekStartsOn: 0 }));
+        lastWeekEnd.setDate(lastWeekEnd.getDate() - 1);
+        const start = startOfWeek(lastWeekEnd, { weekStartsOn: 0 });
+        const end = endOfWeek(lastWeekEnd, { weekStartsOn: 0 });
+        return { start, end };
+      }
+      case 'last-month': {
+        const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const start = startOfMonth(firstDay);
+        const end = endOfMonth(firstDay);
+        return { start, end };
+      }
+      case 'last-3-months': {
+        const start = subDays(startOfMonth(now), 90);
+        return { start, end: now };
+      }
+      case 'this-year': {
+        const start = startOfYear(now);
+        return { start, end: now };
+      }
+      case 'custom': {
+        return customDateRange.from && customDateRange.to ? { start: customDateRange.from, end: customDateRange.to } : null;
+      }
+      default:
+        return null;
+    }
+  };
+
   const financialFilteredBookings = visibleBookings.filter(b => {
     if (financialBoatFilter !== 'all' && b.boat_name !== financialBoatFilter) return false;
     if (financialTimeFilter !== 'all') {
+      const range = getFinancialTimeRange();
+      if (!range) return true;
       const bookingDate = new Date(b.date);
-      const now = new Date();
-      const daysDiff = Math.floor((now - bookingDate) / (1000 * 60 * 60 * 24));
-      if (financialTimeFilter === 'week' && daysDiff > 7) return false;
-      if (financialTimeFilter === 'month' && daysDiff > 30) return false;
-      if (financialTimeFilter === 'year' && daysDiff > 365) return false;
+      if (bookingDate < range.start || bookingDate > range.end) return false;
     }
     return true;
   });
