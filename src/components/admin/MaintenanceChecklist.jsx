@@ -721,11 +721,43 @@ function SectionProgress({ section, checklist }) {
   return { checked, total: allItems.length, pct };
 }
 
-function ChecklistSection({ section, checklist, onToggle, onNote, onDate, isSuperAdmin, onInfoChange }) {
+function ChecklistSection({ section, checklist, onToggle, onToggleNA, onNote, onDate, onAddSectionItem, onRemoveSectionItem, isSuperAdmin, onInfoChange }) {
   const [open, setOpen] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newLabel, setNewLabel] = useState('');
+  const [newInterval, setNewInterval] = useState('');
   const c = COLOR_MAP[section.color] || COLOR_MAP.slate;
   const { checked, total, pct } = SectionProgress({ section, checklist });
   const complete = pct === 100;
+
+  const renderItem = (item) => (
+    <ChecklistItem
+      key={item.id}
+      {...item}
+      info={getVal(checklist, item.id, 'info')}
+      checked={getVal(checklist, item.id, 'checked')}
+      na={getVal(checklist, item.id, 'na')}
+      note={getVal(checklist, item.id, 'note')}
+      lastDate={getVal(checklist, item.id, 'lastDate')}
+      onToggle={onToggle}
+      onToggleNA={onToggleNA}
+      onNoteChange={onNote}
+      onDateChange={onDate}
+      isSuperAdmin={isSuperAdmin}
+      onInfoChange={onInfoChange}
+    />
+  );
+
+  const sectionCustomKey = `__section_custom_${section.id}__`;
+  const sectionCustomItems = checklist[sectionCustomKey] || [];
+
+  const handleAdd = () => {
+    if (!newLabel.trim()) return;
+    onAddSectionItem(sectionCustomKey, { id: `sc_${section.id}_${Date.now()}`, label: newLabel.trim(), interval: newInterval.trim() || 'As needed' });
+    setNewLabel('');
+    setNewInterval('');
+    setShowAddForm(false);
+  };
 
   return (
     <div className={`rounded-xl overflow-hidden border ${c.border} mb-3`}>
@@ -747,20 +779,48 @@ function ChecklistSection({ section, checklist, onToggle, onNote, onDate, isSupe
 
       {open && (
         <div className={`${c.bg} px-4 py-3`}>
-          {section.items && section.items.map(item => (
-                <ChecklistItem key={item.id} {...item} info={getVal(checklist, item.id, 'info')} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={onToggle} onNoteChange={onNote} onDateChange={onDate} isSuperAdmin={isSuperAdmin} onInfoChange={onInfoChange} />
-          ))}
+          {section.items && section.items.map(renderItem)}
           {section.subsections && section.subsections.map(sub => (
             <div key={sub.label} className="mb-4 last:mb-0">
               <p className={`text-xs font-bold uppercase tracking-wide px-2 py-1 rounded mb-2 inline-block ${c.sub}`}>{sub.label}</p>
-              {sub.items.map(item => (
-                <ChecklistItem key={item.id} {...item} info={getVal(checklist, item.id, 'info')} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={onToggle} onNoteChange={onNote} onDateChange={onDate} isSuperAdmin={isSuperAdmin} onInfoChange={onInfoChange} />
-              ))}
+              {sub.items.map(renderItem)}
             </div>
           ))}
-          {section._extraItems && section._extraItems.map(item => (
-            <ChecklistItem key={item.id} {...item} info={getVal(checklist, item.id, 'info')} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={onToggle} onNoteChange={onNote} onDateChange={onDate} isSuperAdmin={isSuperAdmin} onInfoChange={onInfoChange} />
+          {section._extraItems && section._extraItems.map(renderItem)}
+
+          {/* Section-specific custom items */}
+          {sectionCustomItems.map(item => (
+            <div key={item.id} className="flex items-start gap-1">
+              <div className="flex-1">
+                <ChecklistItem
+                  {...item}
+                  checked={getVal(checklist, item.id, 'checked')}
+                  na={getVal(checklist, item.id, 'na')}
+                  note={getVal(checklist, item.id, 'note')}
+                  lastDate={getVal(checklist, item.id, 'lastDate')}
+                  onToggle={onToggle}
+                  onToggleNA={onToggleNA}
+                  onNoteChange={onNote}
+                  onDateChange={onDate}
+                />
+              </div>
+              <button type="button" onClick={() => onRemoveSectionItem(sectionCustomKey, item.id)} className="mt-2.5 text-red-400 hover:text-red-600 flex-shrink-0"><X className="h-3.5 w-3.5" /></button>
+            </div>
           ))}
+
+          {/* Add item to section */}
+          {showAddForm ? (
+            <div className="mt-2 flex items-center gap-2 bg-white border border-green-300 rounded px-2 py-1.5">
+              <input autoFocus value={newLabel} onChange={e => setNewLabel(e.target.value)} placeholder="New item..." className="flex-1 text-xs outline-none" onKeyDown={e => e.key === 'Enter' && handleAdd()} />
+              <input value={newInterval} onChange={e => setNewInterval(e.target.value)} placeholder="Interval" className="w-24 text-xs outline-none border-l border-slate-200 pl-2" onKeyDown={e => e.key === 'Enter' && handleAdd()} />
+              <button type="button" onClick={handleAdd} disabled={!newLabel.trim()} className="p-1 text-green-600 hover:text-green-800 disabled:opacity-40"><Check className="h-3.5 w-3.5" /></button>
+              <button type="button" onClick={() => setShowAddForm(false)} className="p-1 text-slate-400"><X className="h-3.5 w-3.5" /></button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setShowAddForm(true)} className="mt-2 flex items-center gap-1 text-xs text-green-700 hover:text-green-900 font-medium">
+              <Plus className="h-3 w-3" /> Add item
+            </button>
+          )}
         </div>
       )}
     </div>
