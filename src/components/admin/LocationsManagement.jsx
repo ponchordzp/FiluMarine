@@ -20,13 +20,15 @@ const emptyForm = {
   sort_order: 0
 };
 
-export default function LocationsManagement() {
+export default function LocationsManagement({ operatorFilter = null, currentUserOperator = '' }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLoc, setEditingLoc] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
   const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+
+  const activeOperator = operatorFilter && operatorFilter !== 'all' ? operatorFilter : (currentUserOperator || null);
 
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
