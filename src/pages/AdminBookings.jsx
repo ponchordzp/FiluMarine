@@ -878,10 +878,16 @@ function AdminBookingsInner() {
           {/* ── BOATS TAB ── */}
           <TabsContent value="boats">
             <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-              <BoatManagement restrictToBoat={!isSuperAdmin ? assignedBoat : null} readOnlyMode={isCrew} isSuperAdmin={isSuperAdmin} />
+              <BoatManagement
+                restrictToBoat={isBoatOwner ? assignedBoat : null}
+                restrictToOperator={isOperatorAdmin ? operatorName : null}
+                readOnlyMode={isCrew}
+                isSuperAdmin={isSuperAdmin}
+              />
             </div>
           </TabsContent>
 
+          {/* Destinations — SuperAdmin only */}
           {isSuperAdmin && (
             <TabsContent value="destinations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
@@ -890,6 +896,7 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
+          {/* Expeditions — SuperAdmin only */}
           {isSuperAdmin && (
             <TabsContent value="expeditions">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
@@ -898,6 +905,7 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
+          {/* Locations — SuperAdmin only */}
           {isSuperAdmin && (
             <TabsContent value="locations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
@@ -906,22 +914,25 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
-          {isSuperAdmin && (
+          {/* Mechanic Portal — SuperAdmin + OperatorAdmin */}
+          {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="mechanic">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <MechanicPortal currentUser={currentUser} />
+                <MechanicPortal currentUser={currentUser} restrictToOperator={isOperatorAdmin ? operatorName : null} />
               </div>
             </TabsContent>
           )}
 
-          {isSuperAdmin && (
+          {/* Users — SuperAdmin + OperatorAdmin */}
+          {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="users">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <UserManagement />
+                <UserManagement isSuperAdmin={isSuperAdmin} currentUserOperator={isOperatorAdmin ? operatorName : null} />
               </div>
             </TabsContent>
           )}
 
+          {/* Operators — SuperAdmin only */}
           {isSuperAdmin && (
             <TabsContent value="operators">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
@@ -930,6 +941,7 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
+          {/* Checklist Template — SuperAdmin only */}
           {isSuperAdmin && (
             <TabsContent value="checklist-template">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
