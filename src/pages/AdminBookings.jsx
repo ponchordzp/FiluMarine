@@ -918,7 +918,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="mechanic">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <MechanicPortal currentUser={currentUser} />
+                <MechanicPortal currentUser={currentUser} operatorFilter={isSuperAdmin ? globalOperatorFilter : null} />
               </div>
             </TabsContent>
           )}
