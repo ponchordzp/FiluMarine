@@ -298,9 +298,10 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
               <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="superadmin">Super Admin</SelectItem>
-                  <SelectItem value="admin">Admin (Boat Owner)</SelectItem>
-                  <SelectItem value="crew">Crew</SelectItem>
+                  {creatableRoles.includes('superadmin') && <SelectItem value="superadmin">Super Admin</SelectItem>}
+                  {creatableRoles.includes('operatoradmin') && <SelectItem value="operatoradmin">Operator Admin</SelectItem>}
+                  {creatableRoles.includes('boat_owner') && <SelectItem value="boat_owner">Boat Owner</SelectItem>}
+                  {creatableRoles.includes('crew') && <SelectItem value="crew">Crew</SelectItem>}
                 </SelectContent>
               </Select>
             </div>
