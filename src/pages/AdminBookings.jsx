@@ -204,8 +204,17 @@ function AdminBookingsInner() {
       </div>
 
       {/* Header */}
-      <div className="relative" style={{ background: 'linear-gradient(135deg, rgba(12,35,64,0.95) 0%, rgba(30,136,229,0.6) 100%)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        {/* Rich gradient background */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #0a1628 0%, #0d2a4a 30%, #1565c0 65%, #1e88e5 100%)' }} />
+        {/* Mesh/noise overlay */}
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 80% 60% at 60% 0%, rgba(100,180,255,0.18) 0%, transparent 70%), radial-gradient(ellipse 40% 80% at 10% 50%, rgba(21,101,192,0.25) 0%, transparent 60%)', mixBlendMode: 'screen' }} />
+        {/* Subtle grid lines */}
+        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        {/* Bottom accent line */}
+        <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #1e88e5 30%, #42a5f5 60%, transparent 100%)' }} />
+
+        <div className="relative max-w-7xl mx-auto px-6 py-8">
           <div className="flex items-center justify-between mb-5">
             <Link
               to={createPageUrl('Home')}
@@ -216,7 +225,7 @@ function AdminBookingsInner() {
             </Link>
             <div className="flex items-center gap-3">
               <span className={`text-xs font-bold px-3 py-1.5 rounded-full text-white ${roleBadge.cls}`}>{roleBadge.label}</span>
-              <span className="font-medium text-white text-sm px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <span className="font-medium text-white text-sm px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)' }}>
                 {currentUser?.full_name || currentUser?.username}
               </span>
               <button onClick={handleLogout} className="text-white/50 hover:text-white text-sm transition-colors">Logout</button>
@@ -224,12 +233,11 @@ function AdminBookingsInner() {
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <img src="https://i.imgur.com/YourLogo.png" alt="FILU" className="h-10 hidden" />
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-white text-lg tracking-tight" style={{ background: 'linear-gradient(135deg, #1e88e5 0%, #0c2340 100%)', border: '1px solid rgba(30,136,229,0.5)' }}>F</div>
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white text-xl tracking-tight shadow-lg shadow-blue-900/40" style={{ background: 'linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%)', border: '1px solid rgba(100,180,255,0.4)' }}>F</div>
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-0.5 tracking-tight">FILU <span className="text-white/50 font-light">Admin</span></h1>
-                  <p className="text-white/40 text-sm">Booking Management Portal</p>
+                  <h1 className="text-3xl font-bold text-white mb-0.5 tracking-tight drop-shadow-lg">FILU <span className="text-blue-200/70 font-light">Admin</span></h1>
+                  <p className="text-blue-200/50 text-sm tracking-wide">Booking Management Portal</p>
                 </div>
               </div>
             </div>
