@@ -69,7 +69,7 @@ function AdminBookingsInner() {
   const [searchTerm, setSearchTerm] = useState('');
   const [blockDate, setBlockDate] = useState(null);
   const [blockReason, setBlockReason] = useState('');
-  const [blockBoat, setBlockBoat] = useState('both');
+  const [blockBoat, setBlockBoat] = useState(isSuperAdmin ? 'both' : assignedBoat);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(null);
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
   const [expenseBooking, setExpenseBooking] = useState(null);
