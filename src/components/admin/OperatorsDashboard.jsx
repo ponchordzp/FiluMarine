@@ -21,7 +21,6 @@ function loadOperators() {
 
 function saveOperators(ops) {
   localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(ops));
-  window.dispatchEvent(new Event('operators_updated'));
 }
 
 const COLORS = ['#1e88e5','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899','#6366f1'];

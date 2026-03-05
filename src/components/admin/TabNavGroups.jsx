@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -156,19 +156,7 @@ function loadOperators() {
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, operatorFilter, onOperatorFilterChange }) {
   const [open, setOpen] = useState({ bookings: true, operators: false });
-  const [operators, setOperators] = useState(() => isSuperAdmin ? loadOperators() : []);
-
-  // Re-read operators from localStorage whenever OperatorsDashboard saves a change
-  React.useEffect(() => {
-    if (!isSuperAdmin) return;
-    const handleStorage = () => setOperators(loadOperators());
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener('operators_updated', handleStorage);
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener('operators_updated', handleStorage);
-    };
-  }, [isSuperAdmin]);
+  const operators = isSuperAdmin ? loadOperators() : [];
 
   const toggle = (id) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
