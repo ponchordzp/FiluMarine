@@ -234,34 +234,34 @@ function AdminBookingsInner() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-4">
-                {/* Nautical flags F-I-L-U in grayscale */}
-                <div className="flex items-end gap-1">
-                  {/* F flag: white top-left/bottom-right, black top-right/bottom-left (quartered) */}
-                  <svg width="28" height="36" viewBox="0 0 28 36" className="drop-shadow-md flex-shrink-0">
-                    <rect x="0" y="0" width="14" height="18" fill="#d1d5db"/>
-                    <rect x="14" y="0" width="14" height="18" fill="#374151"/>
-                    <rect x="0" y="18" width="14" height="18" fill="#374151"/>
-                    <rect x="14" y="18" width="14" height="18" fill="#d1d5db"/>
-                    <rect x="0" y="0" width="28" height="36" fill="none" stroke="#6b7280" strokeWidth="0.5"/>
+                {/* Nautical flags F-I-L-U in grayscale, transparent background */}
+                <div className="flex items-end gap-0.5">
+                  {/* F flag: quartered, alternating white/gray — like Denison style */}
+                  <svg width="24" height="32" viewBox="0 0 24 32" fill="none" className="drop-shadow flex-shrink-0">
+                    <rect x="0" y="0" width="12" height="16" fill="rgba(255,255,255,0.9)"/>
+                    <rect x="12" y="0" width="12" height="16" fill="rgba(255,255,255,0.25)"/>
+                    <rect x="0" y="16" width="12" height="16" fill="rgba(255,255,255,0.25)"/>
+                    <rect x="12" y="16" width="12" height="16" fill="rgba(255,255,255,0.9)"/>
+                    <rect x="0" y="0" width="24" height="32" stroke="rgba(255,255,255,0.4)" strokeWidth="0.75" fill="none"/>
                   </svg>
-                  {/* I flag: yellow circle on white — grayscale: light gray circle on white */}
-                  <svg width="28" height="36" viewBox="0 0 28 36" className="drop-shadow-md flex-shrink-0">
-                    <rect x="0" y="0" width="28" height="36" fill="#f3f4f6"/>
-                    <circle cx="14" cy="18" r="8" fill="#6b7280"/>
-                    <rect x="0" y="0" width="28" height="36" fill="none" stroke="#9ca3af" strokeWidth="0.5"/>
+                  {/* I flag: white with gray circle (yellow circle on white) */}
+                  <svg width="24" height="32" viewBox="0 0 24 32" fill="none" className="drop-shadow flex-shrink-0">
+                    <rect x="0" y="0" width="24" height="32" fill="rgba(255,255,255,0.9)"/>
+                    <circle cx="12" cy="16" r="7" fill="rgba(255,255,255,0.2)"/>
+                    <rect x="0" y="0" width="24" height="32" stroke="rgba(255,255,255,0.4)" strokeWidth="0.75" fill="none"/>
                   </svg>
-                  {/* L flag: black/yellow diagonal halves — grayscale: dark/light halves */}
-                  <svg width="28" height="36" viewBox="0 0 28 36" className="drop-shadow-md flex-shrink-0">
-                    <polygon points="0,0 28,0 28,36 0,36" fill="#374151"/>
-                    <polygon points="0,0 28,18 0,36" fill="#d1d5db"/>
-                    <rect x="0" y="0" width="28" height="36" fill="none" stroke="#6b7280" strokeWidth="0.5"/>
+                  {/* L flag: diagonal split black/yellow — two triangles */}
+                  <svg width="24" height="32" viewBox="0 0 24 32" fill="none" className="drop-shadow flex-shrink-0">
+                    <polygon points="0,0 24,0 24,32 0,32" fill="rgba(255,255,255,0.25)"/>
+                    <polygon points="0,0 24,16 0,32" fill="rgba(255,255,255,0.9)"/>
+                    <rect x="0" y="0" width="24" height="32" stroke="rgba(255,255,255,0.4)" strokeWidth="0.75" fill="none"/>
                   </svg>
-                  {/* U flag: white with red cross — grayscale: white with dark gray cross */}
-                  <svg width="28" height="36" viewBox="0 0 28 36" className="drop-shadow-md flex-shrink-0">
-                    <rect x="0" y="0" width="28" height="36" fill="#f3f4f6"/>
-                    <rect x="0" y="14" width="28" height="8" fill="#374151"/>
-                    <rect x="10" y="0" width="8" height="36" fill="#374151"/>
-                    <rect x="0" y="0" width="28" height="36" fill="none" stroke="#9ca3af" strokeWidth="0.5"/>
+                  {/* U flag: white with cross (red cross on white) */}
+                  <svg width="24" height="32" viewBox="0 0 24 32" fill="none" className="drop-shadow flex-shrink-0">
+                    <rect x="0" y="0" width="24" height="32" fill="rgba(255,255,255,0.9)"/>
+                    <rect x="0" y="12" width="24" height="8" fill="rgba(255,255,255,0.2)"/>
+                    <rect x="8" y="0" width="8" height="32" fill="rgba(255,255,255,0.2)"/>
+                    <rect x="0" y="0" width="24" height="32" stroke="rgba(255,255,255,0.4)" strokeWidth="0.75" fill="none"/>
                   </svg>
                 </div>
                 <div>
