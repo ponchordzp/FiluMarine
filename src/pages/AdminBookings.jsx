@@ -234,7 +234,36 @@ function AdminBookingsInner() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white text-xl tracking-tight shadow-lg shadow-blue-900/40" style={{ background: 'linear-gradient(135deg, #1e88e5 0%, #0d47a1 100%)', border: '1px solid rgba(100,180,255,0.4)' }}>F</div>
+                {/* Nautical flags F-I-L-U in grayscale */}
+                <div className="flex items-end gap-1">
+                  {/* F flag: white top-left/bottom-right, black top-right/bottom-left (quartered) */}
+                  <svg width="28" height="36" viewBox="0 0 28 36" className="drop-shadow-md flex-shrink-0">
+                    <rect x="0" y="0" width="14" height="18" fill="#d1d5db"/>
+                    <rect x="14" y="0" width="14" height="18" fill="#374151"/>
+                    <rect x="0" y="18" width="14" height="18" fill="#374151"/>
+                    <rect x="14" y="18" width="14" height="18" fill="#d1d5db"/>
+                    <rect x="0" y="0" width="28" height="36" fill="none" stroke="#6b7280" strokeWidth="0.5"/>
+                  </svg>
+                  {/* I flag: yellow circle on white — grayscale: light gray circle on white */}
+                  <svg width="28" height="36" viewBox="0 0 28 36" className="drop-shadow-md flex-shrink-0">
+                    <rect x="0" y="0" width="28" height="36" fill="#f3f4f6"/>
+                    <circle cx="14" cy="18" r="8" fill="#6b7280"/>
+                    <rect x="0" y="0" width="28" height="36" fill="none" stroke="#9ca3af" strokeWidth="0.5"/>
+                  </svg>
+                  {/* L flag: black/yellow diagonal halves — grayscale: dark/light halves */}
+                  <svg width="28" height="36" viewBox="0 0 28 36" className="drop-shadow-md flex-shrink-0">
+                    <polygon points="0,0 28,0 28,36 0,36" fill="#374151"/>
+                    <polygon points="0,0 28,18 0,36" fill="#d1d5db"/>
+                    <rect x="0" y="0" width="28" height="36" fill="none" stroke="#6b7280" strokeWidth="0.5"/>
+                  </svg>
+                  {/* U flag: white with red cross — grayscale: white with dark gray cross */}
+                  <svg width="28" height="36" viewBox="0 0 28 36" className="drop-shadow-md flex-shrink-0">
+                    <rect x="0" y="0" width="28" height="36" fill="#f3f4f6"/>
+                    <rect x="0" y="14" width="28" height="8" fill="#374151"/>
+                    <rect x="10" y="0" width="8" height="36" fill="#374151"/>
+                    <rect x="0" y="0" width="28" height="36" fill="none" stroke="#9ca3af" strokeWidth="0.5"/>
+                  </svg>
+                </div>
                 <div>
                   <h1 className="text-3xl font-bold text-white mb-0.5 tracking-tight drop-shadow-lg">FILU <span className="text-blue-200/70 font-light">Admin</span></h1>
                   <p className="text-blue-200/50 text-sm tracking-wide">Booking Management Portal</p>
