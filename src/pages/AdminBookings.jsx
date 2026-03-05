@@ -240,11 +240,10 @@ function AdminBookingsInner() {
     ? (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
     : [financialBoatFilter];
 
-  const getFinancialTimeRange = () => {
+  const getTimeRange = (timeFilter, customRange) => {
     const now = new Date();
-    const dateStr = b => b.date;
     
-    switch (financialTimeFilter) {
+    switch (timeFilter) {
       case 'this-week': {
         const start = startOfWeek(now, { weekStartsOn: 0 });
         const end = endOfWeek(now, { weekStartsOn: 0 });
@@ -272,7 +271,7 @@ function AdminBookingsInner() {
         return { start, end: now };
       }
       case 'custom': {
-        return customDateRange.from && customDateRange.to ? { start: customDateRange.from, end: customDateRange.to } : null;
+        return customRange.from && customRange.to ? { start: customRange.from, end: customRange.to } : null;
       }
       default:
         return null;
