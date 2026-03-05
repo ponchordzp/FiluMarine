@@ -116,12 +116,13 @@ function FamilyGroup({ family, open, onToggle, indent = false, isSuperAdmin }) {
           </TabsList>
 
           {/* Child families */}
-          {hasChildren && family.children.map(child => (
+          {hasChildren && visibleChildren.map(child => (
             <FamilyGroup
               key={child.id}
               family={child}
               open={!!childOpen[child.id]}
               onToggle={() => toggleChild(child.id)}
+              isSuperAdmin={isSuperAdmin}
               indent
             />
           ))}
