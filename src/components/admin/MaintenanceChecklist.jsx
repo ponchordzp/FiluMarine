@@ -502,6 +502,15 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
   const [newItemInterval, setNewItemInterval] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
 
+  const { data: globalConfigs = [] } = useQuery({
+    queryKey: ['global-checklist-config', engineConfig],
+    queryFn: () => engineConfig ? base44.entities.GlobalChecklistConfig.filter({ engine_type: engineConfig }) : [],
+    enabled: !!engineConfig,
+  });
+  const globalConfig = globalConfigs[0] || null;
+  const globalOverrides = globalConfig?.overrides || {};
+  const globalAdded = globalConfig?.added_items || [];
+
   if (!engineConfig) {
     return (
       <div className="text-center py-6 text-slate-500 text-sm bg-slate-50 rounded-lg border border-dashed border-slate-300">
@@ -510,7 +519,38 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
     );
   }
 
-  const sections = engineConfig === 'inboard' ? INBOARD_SECTIONS : OUTBOARD_SECTIONS;
+  const rawSections = engineConfig === 'inboard' ? INBOARD_SECTIONS : OUTBOARD_SECTIONS;
+
+  // Apply global overrides: update labels/intervals, hide removed items, append added items per section
+  const sections = rawSections.map(section => {
+    const applyOverrides = (items) => items
+      .filter(item => !globalOverrides[item.id]?.removed)
+      .map(item => ({
+        ...item,
+        label: globalOverrides[item.id]?.label ?? item.label,
+        interval: globalOverrides[item.id]?.interval ?? item.interval,
+      }));
+
+    const sectionGlobalAdded = globalAdded
+      .filter(i => i.section_id === section.id)
+      .map(i => ({ id: i.id, label: i.label, interval: i.interval }));
+
+    if (section.items) {
+      return { ...section, items: [...applyOverrides(section.items), ...sectionGlobalAdded] };
+    } else {
+      return {
+        ...section,
+        subsections: section.subsections.map(sub => ({
+          ...sub,
+          items: applyOverrides(sub.items),
+        })),
+        // append global added to the section as extra items outside subsections isn't ideal;
+        // we add them as a final flat item array if any
+        _extraItems: sectionGlobalAdded,
+      };
+    }
+  });
+
   const layoutLabel = engineConfig === 'inboard' ? 'Layout A — Inboard Diesel Yacht' : 'Layout B — Outboard Center Console';
 
   const customItems = checklist.__custom__ || [];
