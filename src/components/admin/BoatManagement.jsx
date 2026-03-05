@@ -40,7 +40,7 @@ function loadOperatorNames() {
   return ['FILU'];
 }
 
-export default function BoatManagement({ restrictToBoat = null, readOnlyMode = false, isSuperAdmin = false, defaultOperator = '', showAddBoatOnly = false }) {
+export default function BoatManagement({ restrictToBoat = null, readOnlyMode = false, isSuperAdmin = false, defaultOperator = '', showAddBoatOnly = false, operatorFilter = null }) {
   const queryClient = useQueryClient();
   const operatorNames = loadOperatorNames();
   const [dialogOpen, setDialogOpen] = useState(false);
