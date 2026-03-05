@@ -952,9 +952,10 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
   };
 
   const allItems = sections.flatMap(s => getSectionAllItems(s));
-  const totalChecked = [...allItems, ...customItems].filter(i => getVal(checklist, i.id, 'checked')).length;
-  const totalAll = allItems.length + customItems.length;
-  const overallPct = totalAll > 0 ? Math.round((totalChecked / totalAll) * 100) : 0;
+  const allApplicable = [...allItems, ...customItems].filter(i => !getVal(checklist, i.id, 'na'));
+  const totalChecked = allApplicable.filter(i => getVal(checklist, i.id, 'checked')).length;
+  const totalAll = allApplicable.length;
+  const overallPct = totalAll > 0 ? Math.round((totalChecked / totalAll) * 100) : 100;
 
   return (
     <div className="space-y-3">
