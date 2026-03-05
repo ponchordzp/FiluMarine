@@ -224,30 +224,222 @@ const INBOARD_SECTIONS = [
     id: 'electrical_inb',
     label: '6. Electrical System',
     color: 'violet',
-    items: [
-      { id: 'elec_house', label: 'House batteries load tested', interval: '6 months' },
-      { id: 'elec_start', label: 'Engine start batteries tested', interval: '6 months' },
-      { id: 'elec_alt', label: 'Alternator output verified', interval: '12 months' },
-      { id: 'elec_shore', label: 'Shore power system inspected', interval: '12 months' },
-      { id: 'elec_inv', label: 'Inverter/charger inspected', interval: '12 months' },
+    subsections: [
+      {
+        label: 'Daily',
+        items: [
+          { id: 'elec_d_svc', label: 'Check and charge service batteries', interval: 'Daily' },
+        ],
+      },
+      {
+        label: 'Weekly',
+        items: [
+          { id: 'elec_w_eng', label: 'Check and charge engine batteries', interval: 'Weekly' },
+          { id: 'elec_w_gen', label: 'Check and charge generator batteries', interval: 'Weekly' },
+        ],
+      },
+      {
+        label: 'Monthly',
+        items: [
+          { id: 'elec_m_breaker', label: 'Test circuit breakers using test button', interval: 'Monthly' },
+        ],
+      },
+      {
+        label: 'Spare Parts',
+        items: [
+          { id: 'elec_sp_fuse', label: 'Spare: Spare fuses', interval: 'Keep onboard' },
+          { id: 'elec_sp_other', label: 'Spare: Other electrical consumables', interval: 'Keep onboard' },
+        ],
+      },
+      {
+        label: 'Additional',
+        items: [
+          { id: 'elec_house', label: 'House batteries load tested', interval: '6 months' },
+          { id: 'elec_start', label: 'Engine start batteries tested', interval: '6 months' },
+          { id: 'elec_alt', label: 'Alternator output verified', interval: '12 months' },
+          { id: 'elec_shore', label: 'Shore power system inspected', interval: '12 months' },
+          { id: 'elec_inv', label: 'Inverter/charger inspected', interval: '12 months' },
+        ],
+      },
     ],
   },
   {
-    id: 'hvac',
-    label: '7. HVAC & Plumbing',
-    color: 'cyan',
+    id: 'steering_inb',
+    label: '7. Steering',
+    color: 'orange',
     items: [
-      { id: 'hvac_ac', label: 'Air conditioning serviced', interval: '12 months' },
-      { id: 'hvac_sea', label: 'Seawater strainers cleaned', interval: '3 months' },
-      { id: 'hvac_water', label: 'Watermaker flushed', interval: '30 days' },
-      { id: 'hvac_pump', label: 'Freshwater pump tested', interval: '6 months' },
-      { id: 'hvac_bilge', label: 'Bilge pumps tested', interval: '3 months' },
-      { id: 'hvac_float', label: 'Float switches tested', interval: '3 months' },
+      { id: 'steer_m_hyd', label: 'Check hydraulic oil in autopilot system', interval: 'Monthly' },
+      { id: 'steer_m_pump', label: 'Check autopilot pump', interval: 'Monthly' },
+      { id: 'steer_bi_grease', label: 'Grease steering mechanism / steering construction', interval: 'Biannual' },
+    ],
+  },
+  {
+    id: 'watermaker_inb',
+    label: '8. Watermaker',
+    color: 'cyan',
+    subsections: [
+      {
+        label: 'Weekly',
+        items: [
+          { id: 'wm_w_run', label: 'Run and flush watermaker (even if water not required)', interval: 'Weekly' },
+        ],
+      },
+      {
+        label: 'When Needed',
+        items: [
+          { id: 'wm_w_5mic', label: 'Replace 5-micron filter', interval: 'When needed' },
+          { id: 'wm_w_bleed', label: 'Bleed system periodically', interval: 'When needed' },
+        ],
+      },
+      {
+        label: 'Yearly',
+        items: [
+          { id: 'wm_y_rinse', label: 'Rinse and winterize system with chemicals and fresh water', interval: 'Yearly' },
+          { id: 'wm_y_filt', label: 'Replace filters', interval: 'Yearly' },
+        ],
+      },
+      {
+        label: 'HVAC & Plumbing',
+        items: [
+          { id: 'hvac_water', label: 'Watermaker flushed', interval: '30 days' },
+          { id: 'hvac_sea', label: 'Seawater strainers cleaned', interval: '3 months' },
+          { id: 'hvac_pump', label: 'Freshwater pump tested', interval: '6 months' },
+          { id: 'hvac_bilge', label: 'Bilge pumps tested', interval: '3 months' },
+          { id: 'hvac_float', label: 'Float switches tested', interval: '3 months' },
+          { id: 'hvac_ac', label: 'Air conditioning serviced', interval: '12 months' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'decks_hull_inb',
+    label: '9. Decks & Hull',
+    color: 'teal',
+    subsections: [
+      {
+        label: 'Daily',
+        items: [
+          { id: 'deck_d_wash', label: 'Wash boat and remove salt (vinegar spray recommended)', interval: 'Daily' },
+        ],
+      },
+      {
+        label: 'Weekly',
+        items: [
+          { id: 'deck_w_sponge', label: 'Wash boat and apply sponge cleaning', interval: 'Weekly' },
+          { id: 'deck_w_wax', label: 'Wax where required', interval: 'Weekly' },
+        ],
+      },
+      {
+        label: 'Monthly',
+        items: [
+          { id: 'deck_m_hull', label: 'Inspect underwater hull, propeller, rudder and keel', interval: 'Monthly' },
+          { id: 'deck_m_locker', label: 'Clean lockers and lazarette', interval: 'Monthly' },
+          { id: 'deck_m_steel', label: 'Polish stainless steel fittings', interval: 'Monthly' },
+          { id: 'deck_m_wline', label: 'Clean waterline and hull', interval: 'Monthly' },
+          { id: 'deck_m_hatch', label: 'Polish hatches to remove scratches', interval: 'Monthly' },
+        ],
+      },
+      {
+        label: 'Quarterly',
+        items: [
+          { id: 'deck_q_instr', label: 'Clean forward-looking instruments (log, depth sounder)', interval: 'Quarterly' },
+        ],
+      },
+      {
+        label: 'Yearly',
+        items: [
+          { id: 'deck_y_teak', label: 'Apply teak cleaner', interval: 'Yearly' },
+          { id: 'deck_y_btn', label: 'Replace electronic push buttons / switches', interval: 'Yearly' },
+          { id: 'deck_y_anti', label: 'Apply antifouling paint', interval: 'Yearly' },
+          { id: 'deck_y_polish', label: 'Polish hull', interval: 'Yearly' },
+          { id: 'deck_y_anode_bow', label: 'Replace sacrificial anodes — Bow thruster', interval: 'Yearly' },
+          { id: 'deck_y_anode_shaft', label: 'Replace sacrificial anodes — Propeller shaft', interval: 'Yearly' },
+          { id: 'deck_y_anode_gori', label: 'Replace sacrificial anodes — Gori prop', interval: 'Yearly' },
+          { id: 'deck_y_windlass', label: 'Check oil in anchor windlass', interval: 'Yearly' },
+        ],
+      },
+      {
+        label: 'Additional',
+        items: [
+          { id: 'hull_paint', label: 'Bottom paint inspection', interval: '12 months' },
+          { id: 'hull_thru', label: 'Through-hulls inspected', interval: '12 months' },
+          { id: 'hull_anod', label: 'Anodes replaced', interval: '6–12 months' },
+          { id: 'hull_moist', label: 'Hull moisture reading', interval: '2 years' },
+          { id: 'hull_deck', label: 'Deck hardware sealed', interval: '2 years' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'interior_inb',
+    label: '10. Interior',
+    color: 'indigo',
+    subsections: [
+      {
+        label: 'Daily',
+        items: [
+          { id: 'int_d_fresh', label: 'Check freshwater supply', interval: 'Daily' },
+        ],
+      },
+      {
+        label: 'Weekly',
+        items: [
+          { id: 'int_w_gas', label: 'Check gas bottles', interval: 'Weekly' },
+        ],
+      },
+      {
+        label: 'Monthly',
+        items: [
+          { id: 'int_m_manifold', label: 'Check and clean manifold strainers', interval: 'Monthly' },
+          { id: 'int_m_grey', label: 'Clean grey water shower filters', interval: 'Monthly' },
+        ],
+      },
+      {
+        label: 'Yearly',
+        items: [
+          { id: 'int_y_acgas', label: 'Check air-conditioning gas', interval: 'Yearly' },
+          { id: 'int_y_acfilt', label: 'Clean air-conditioning filters', interval: 'Yearly' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'tender_inb',
+    label: '11. Tender',
+    color: 'slate',
+    subsections: [
+      {
+        label: 'Weekly',
+        items: [
+          { id: 'tend_w_fuel', label: 'Check fuel in outboard engine', interval: 'Weekly' },
+          { id: 'tend_w_sparefuel', label: 'Check fuel in spare fuel can', interval: 'Weekly' },
+          { id: 'tend_w_batt', label: 'Check and charge tender battery', interval: 'Weekly' },
+        ],
+      },
+      {
+        label: 'Scheduled / When Needed',
+        items: [
+          { id: 'tend_s_filter', label: 'Replace water separator or filter', interval: 'Every 100h or annually' },
+        ],
+      },
+      {
+        label: 'Yearly',
+        items: [
+          { id: 'tend_y_service', label: 'Service tender outboard engine', interval: 'Yearly' },
+        ],
+      },
+      {
+        label: 'Spare Parts',
+        items: [
+          { id: 'tend_sp_filter', label: 'Spare: Spare filter', interval: 'Keep onboard' },
+          { id: 'tend_sp_prop', label: 'Spare: Spare propeller', interval: 'Keep onboard' },
+        ],
+      },
     ],
   },
   {
     id: 'safety_inb',
-    label: '8. Safety & Compliance',
+    label: '12. Safety & Compliance',
     color: 'rose',
     items: [
       { id: 'safe_fire', label: 'Fire suppression inspected', interval: '1 year' },
