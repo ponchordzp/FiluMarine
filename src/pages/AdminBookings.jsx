@@ -596,9 +596,10 @@ function AdminBookingsInner() {
                                     <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 text-white/30" /><span>{booking.time_slot}</span></div>
                                     <div className="flex items-center gap-1.5"><Users className="h-3 w-3 text-white/30" /><span>{booking.guests} guests</span></div>
                                     <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-emerald-400/60" /><span className="text-emerald-300/80 font-medium">${booking.total_price?.toLocaleString()} MXN</span></div>
-                                    <div className="flex items-center gap-1.5 col-span-2"><Clock className="h-3 w-3 text-white/20" /><span className="text-white/30">Booked {format(parseISO(booking.created_date), 'MMM d, yyyy')}</span></div>
+                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-red-400/60" /><span className="text-red-300/80 font-medium">${getBookingExpenses(booking.id)?.toLocaleString()} Exp</span></div>
+                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-purple-400/60" /><span className="text-purple-300/80 font-medium">{getBookingProfitMargin(booking)}% ROI</span></div>
                                   </div>
-                              </div>
+                                  </div>
                             </div>
 
                             <div className="flex flex-col gap-2">
