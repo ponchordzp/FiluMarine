@@ -143,13 +143,30 @@ function AdminBookingsInner() {
   });
 
   // Role-scoped visible data
-  const visibleBookings = isSuperAdmin ? bookings : bookings.filter(b => b.boat_name === assignedBoat);
+  // Operator admin sees all boats in their operator's fleet
+  const operatorBoatNames = isOperatorAdmin
+    ? allBoats.filter(b => {
+        const bOp = (b.operator || '').toLowerCase();
+        const uOp = currentUserOperator.toLowerCase();
+        return uOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === uOp;
+      }).map(b => b.name)
+    : [];
+
+  const visibleBookings = isSuperAdmin
+    ? bookings
+    : isOperatorAdmin
+    ? bookings.filter(b => operatorBoatNames.includes(b.boat_name))
+    : bookings.filter(b => b.boat_name === assignedBoat);
+
   const visibleBlocked = isSuperAdmin
     ? blockedDates
+    : isOperatorAdmin
+    ? blockedDates.filter(b => b.boat_name === 'both' || operatorBoatNames.includes(b.boat_name))
     : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
 
   const filteredBookings = bookings.filter(booking => {
-    if (!isSuperAdmin && assignedBoat && booking.boat_name !== assignedBoat) return false;
+    if (!isSuperAdmin && !isOperatorAdmin && assignedBoat && booking.boat_name !== assignedBoat) return false;
+    if (isOperatorAdmin && !operatorBoatNames.includes(booking.boat_name)) return false;
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
     if (locationFilter !== 'all' && booking.location !== locationFilter) return false;
@@ -209,6 +226,8 @@ function AdminBookingsInner() {
 
   const roleBadge = isSuperAdmin
     ? { label: 'Super Admin', cls: 'bg-purple-500' }
+    : isOperatorAdmin
+    ? { label: 'Operator Admin', cls: 'bg-orange-500' }
     : isAdmin
     ? { label: 'Admin', cls: 'bg-blue-500' }
     : { label: 'Crew', cls: 'bg-emerald-500' };
@@ -298,7 +317,7 @@ function AdminBookingsInner() {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
-          <TabNavGroups isSuperAdmin={isSuperAdmin} />
+          <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} />
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">
@@ -790,12 +809,12 @@ function AdminBookingsInner() {
                 </div>
                 <div>
                   <Label className="text-white/50 text-xs">Select Boat</Label>
-                  {isSuperAdmin ? (
+                  {hasElevatedAccess ? (
                     <Select value={blockBoat} onValueChange={setBlockBoat}>
                       <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="both">All Boats</SelectItem>
-                        {allBoats.map(boat => (
+                        {isSuperAdmin && <SelectItem value="both">All Boats</SelectItem>}
+                        {(isSuperAdmin ? allBoats : allBoats.filter(b => operatorBoatNames.includes(b.name))).map(boat => (
                           <SelectItem key={boat.id} value={boat.name}>{boat.name}</SelectItem>
                         ))}
                       </SelectContent>
@@ -810,7 +829,7 @@ function AdminBookingsInner() {
                   <Label className="text-white/50 text-xs">Reason (Optional)</Label>
                   <Textarea placeholder="e.g., Weather, maintenance, private event..." value={blockReason} onChange={(e) => setBlockReason(e.target.value)} rows={3} className="mt-1 bg-white/5 border-white/10 text-white placeholder:text-white/30" />
                 </div>
-                <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending || (!isSuperAdmin && !assignedBoat)} className="w-full bg-red-600/80 hover:bg-red-600 border-red-500/50 text-white" style={{ border: '1px solid rgba(239,68,68,0.4)' }}>
+                <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending || (!hasElevatedAccess && !assignedBoat)} className="w-full bg-red-600/80 hover:bg-red-600 border-red-500/50 text-white" style={{ border: '1px solid rgba(239,68,68,0.4)' }}>
                   <Ban className="h-4 w-4 mr-2" />
                   {blockDateMutation.isPending ? 'Blocking...' : 'Block Date'}
                 </Button>
@@ -840,7 +859,7 @@ function AdminBookingsInner() {
                           </Badge>
                           {blocked.reason && <p className="text-xs text-white/30 mt-1.5 line-clamp-2">{blocked.reason}</p>}
                         </div>
-                        {isSuperAdmin && (
+                        {hasElevatedAccess && (
                           <Button
                             size="sm"
                             className="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 ml-2 flex-shrink-0"
@@ -861,11 +880,11 @@ function AdminBookingsInner() {
           {/* ── BOATS TAB ── */}
           <TabsContent value="boats">
             <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-              <BoatManagement restrictToBoat={!isSuperAdmin ? assignedBoat : null} readOnlyMode={isCrew} isSuperAdmin={isSuperAdmin} />
+              <BoatManagement restrictToBoat={!hasElevatedAccess ? assignedBoat : null} readOnlyMode={isCrew} isSuperAdmin={isSuperAdmin} />
             </div>
           </TabsContent>
 
-          {isSuperAdmin && (
+          {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="destinations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <DestinationManagement />
@@ -873,7 +892,7 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
-          {isSuperAdmin && (
+          {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="expeditions">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <ExpeditionManagement />
@@ -881,7 +900,7 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
-          {isSuperAdmin && (
+          {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="locations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <LocationsManagement />
@@ -889,7 +908,7 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
-          {isSuperAdmin && (
+          {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="mechanic">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <MechanicPortal currentUser={currentUser} />
@@ -897,10 +916,10 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
-          {isSuperAdmin && (
+          {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="users">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
-                <UserManagement />
+                <UserManagement currentUser={currentUser} />
               </div>
             </TabsContent>
           )}
