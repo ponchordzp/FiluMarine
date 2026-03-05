@@ -36,7 +36,8 @@ function validatePassword(password) {
 
 const roleConfig = {
   superadmin: { label: 'Super Admin', color: 'bg-purple-100 text-purple-800', icon: Shield, description: 'Full access — can create users, manage all boats and settings' },
-  admin: { label: 'Admin (Boat Owner)', color: 'bg-blue-100 text-blue-800', icon: Anchor, description: 'Can view Bookings, Dates, Dashboard & their assigned boat' },
+  operatoradmin: { label: 'Operator Admin', color: 'bg-orange-100 text-orange-800', icon: Building2, description: 'Manages their operator\'s fleet, crew, mechanic portal & can create Boat Owners / Crew' },
+  boat_owner: { label: 'Boat Owner', color: 'bg-blue-100 text-blue-800', icon: Anchor, description: 'Can view Bookings, Dates, Dashboard & their assigned boat' },
   crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' }
 };
 
