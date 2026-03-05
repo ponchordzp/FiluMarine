@@ -168,10 +168,11 @@ function AdminBookingsInner() {
 
   const handleBlockDate = () => {
     if (!blockDate) return;
+    const boatToBlock = isSuperAdmin ? blockBoat : assignedBoat;
     blockDateMutation.mutate({
       date: format(blockDate, 'yyyy-MM-dd'),
       reason: blockReason || 'Blocked by admin',
-      boat_name: blockBoat,
+      boat_name: boatToBlock,
     });
   };
 
