@@ -432,7 +432,7 @@ function ChecklistItem({ id, label, interval, info, checked, note, lastDate, onT
 function SectionProgress({ section, checklist }) {
   const allItems = section.items
     ? section.items
-    : section.subsections.flatMap(s => s.items);
+    : [...section.subsections.flatMap(s => s.items), ...(section._extraItems || [])];
   const checked = allItems.filter(i => {
     const v = checklist[i.id];
     return v && typeof v === 'object' ? v.checked : !!v;
