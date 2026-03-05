@@ -229,9 +229,32 @@ function AdminBookingsInner() {
     setExpandedRows(prev => ({ ...prev, [category]: !prev[category] }));
   };
 
+  // Filter bookings/expenses for financial KPIs
+  const financialFilteredBoats = financialBoatFilter === 'all' 
+    ? (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
+    : [financialBoatFilter];
+
+  const financialFilteredBookings = visibleBookings.filter(b => {
+    if (financialBoatFilter !== 'all' && b.boat_name !== financialBoatFilter) return false;
+    if (financialTimeFilter !== 'all') {
+      const bookingDate = new Date(b.date);
+      const now = new Date();
+      const daysDiff = Math.floor((now - bookingDate) / (1000 * 60 * 60 * 24));
+      if (financialTimeFilter === 'week' && daysDiff > 7) return false;
+      if (financialTimeFilter === 'month' && daysDiff > 30) return false;
+      if (financialTimeFilter === 'year' && daysDiff > 365) return false;
+    }
+    return true;
+  });
+
   // Calculate visible expenses
   const visibleExpenses = expenses.filter(exp => {
     const booking = visibleBookings.find(b => b.id === exp.booking_id);
+    return booking !== undefined;
+  });
+
+  const financialExpenses = expenses.filter(exp => {
+    const booking = financialFilteredBookings.find(b => b.id === exp.booking_id);
     return booking !== undefined;
   });
 
