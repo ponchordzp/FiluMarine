@@ -153,14 +153,23 @@ function AdminBookingsInner() {
       }).map(b => b.name)
     : [];
 
+  // Apply superadmin global operator filter
+  const superAdminOperatorBoats = isSuperAdmin && globalOperatorFilter !== 'all'
+    ? allBoats.filter(b => {
+        const bOp = (b.operator || '').toLowerCase();
+        const filterOp = globalOperatorFilter.toLowerCase();
+        return filterOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === filterOp;
+      }).map(b => b.name)
+    : null;
+
   const visibleBookings = isSuperAdmin
-    ? bookings
+    ? (superAdminOperatorBoats ? bookings.filter(b => superAdminOperatorBoats.includes(b.boat_name)) : bookings)
     : isOperatorAdmin
     ? bookings.filter(b => operatorBoatNames.includes(b.boat_name))
     : bookings.filter(b => b.boat_name === assignedBoat);
 
   const visibleBlocked = isSuperAdmin
-    ? blockedDates
+    ? (superAdminOperatorBoats ? blockedDates.filter(b => b.boat_name === 'both' || superAdminOperatorBoats.includes(b.boat_name)) : blockedDates)
     : isOperatorAdmin
     ? blockedDates.filter(b => b.boat_name === 'both' || operatorBoatNames.includes(b.boat_name))
     : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
@@ -168,6 +177,7 @@ function AdminBookingsInner() {
   const filteredBookings = bookings.filter(booking => {
     if (!isSuperAdmin && !isOperatorAdmin && assignedBoat && booking.boat_name !== assignedBoat) return false;
     if (isOperatorAdmin && !operatorBoatNames.includes(booking.boat_name)) return false;
+    if (isSuperAdmin && superAdminOperatorBoats && !superAdminOperatorBoats.includes(booking.boat_name)) return false;
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
     if (locationFilter !== 'all' && booking.location !== locationFilter) return false;
