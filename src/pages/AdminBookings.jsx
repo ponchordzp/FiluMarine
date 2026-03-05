@@ -320,16 +320,34 @@ function AdminBookingsInner() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
-        {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        {/* Stats Cards - Row 1 */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
             {[
-              { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70' },
-              { label: 'Booked (30d)', value: stats.nextDaysBooked, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70' },
-              { label: 'Confirmation', value: `${stats.confirmationRate}%`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70' },
-              { label: 'Avg Guests', value: stats.avgGuestSize, color: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.3)', text: 'text-violet-300', sub: 'text-violet-400/70' },
-              { label: 'Total Bookings', value: stats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50' },
+              { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '💰' },
+              { label: 'Booked (30d)', value: stats.nextDaysBooked, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '📅' },
+              { label: 'Confirmation', value: `${stats.confirmationRate}%`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '✅' },
+              { label: 'Avg Guests', value: stats.avgGuestSize, color: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.3)', text: 'text-violet-300', sub: 'text-violet-400/70', svg: '👥' },
+              { label: 'Total', value: stats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50', svg: '📊' },
             ].map(s => (
               <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
+                <p className="text-2xl mb-2">{s.svg}</p>
+                <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
+                <p className={`text-xs mt-1 ${s.sub}`}>{s.label}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats Cards - Row 2 */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            {[
+              { label: 'Pending', value: stats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '⏳' },
+              { label: 'Confirmed', value: stats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '✔️' },
+              { label: 'Completed', value: stats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '🎯' },
+              { label: 'Cancelled', value: stats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '❌' },
+              { label: 'Conversion', value: `${stats.confirmationRate}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-400/70', svg: '📈' },
+            ].map(s => (
+              <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
+                <p className="text-2xl mb-2">{s.svg}</p>
                 <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
                 <p className={`text-xs mt-1 ${s.sub}`}>{s.label}</p>
               </div>
