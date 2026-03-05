@@ -153,13 +153,9 @@ function AdminBookingsInner() {
       }).map(b => b.name)
     : [];
 
-  // Apply superadmin global operator filter
+  // Apply superadmin global operator filter — strict match
   const superAdminOperatorBoats = isSuperAdmin && globalOperatorFilter !== 'all'
-    ? allBoats.filter(b => {
-        const bOp = (b.operator || '').toLowerCase();
-        const filterOp = globalOperatorFilter.toLowerCase();
-        return filterOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === filterOp;
-      }).map(b => b.name)
+    ? allBoats.filter(b => (b.operator || '').toLowerCase() === globalOperatorFilter.toLowerCase()).map(b => b.name)
     : null;
 
   const visibleBookings = isSuperAdmin
