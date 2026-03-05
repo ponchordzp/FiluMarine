@@ -94,10 +94,12 @@ export default function DestinationManagement({ operatorFilter = null, currentUs
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const data = { ...formData };
+    if (activeOperator) data.operator = activeOperator;
     if (editingDest) {
-      updateMutation.mutate({ id: editingDest.id, data: formData });
+      updateMutation.mutate({ id: editingDest.id, data });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate(data);
     }
   };
 
