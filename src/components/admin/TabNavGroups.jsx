@@ -128,14 +128,15 @@ function FamilyGroup({ family, open, onToggle, indent = false }) {
   );
 }
 
-export default function TabNavGroups({ isSuperAdmin }) {
+export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin }) {
+  const canSeeOperatorsFamily = isSuperAdmin || isOperatorAdmin;
   const [open, setOpen] = useState({ bookings: true, operators: false });
 
   const toggle = (id) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
 
   return (
     <div className="flex flex-col gap-2">
-      {families.filter(f => !f.adminOnly || isSuperAdmin).map(family => (
+      {families.filter(f => !f.adminOnly || canSeeOperatorsFamily).map(family => (
         <FamilyGroup
           key={family.id}
           family={family}
