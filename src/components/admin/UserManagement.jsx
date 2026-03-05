@@ -145,7 +145,12 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
     return roleMatch && opMatch;
   });
 
-  const countByRole = (role) => appUsers.filter(u => u.role === role).length;
+  const countByRole = (role) => baseUsers.filter(u => u.role === role).length;
+
+  // Roles that an OperatorAdmin can create
+  const creatableRoles = isSuperAdmin
+    ? ['superadmin', 'operatoradmin', 'boat_owner', 'crew']
+    : ['boat_owner', 'crew'];
 
   return (
     <div className="space-y-6">
