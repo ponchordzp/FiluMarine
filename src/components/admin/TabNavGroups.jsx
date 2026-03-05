@@ -76,11 +76,14 @@ const families = [
   },
 ];
 
-function FamilyGroup({ family, open, onToggle, indent = false }) {
+function FamilyGroup({ family, open, onToggle, indent = false, isSuperAdmin }) {
   const hasChildren = family.children && family.children.length > 0;
   const [childOpen, setChildOpen] = useState({});
 
   const toggleChild = (id) => setChildOpen(prev => ({ ...prev, [id]: !prev[id] }));
+
+  // Filter children based on permissions
+  const visibleChildren = (family.children || []).filter(c => !c.superAdminOnly || isSuperAdmin);
 
   return (
     <div className={`flex flex-col gap-1.5 ${indent ? 'ml-4 pl-3 border-l-2' : ''}`}
