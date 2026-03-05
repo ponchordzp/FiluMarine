@@ -156,7 +156,19 @@ function loadOperators() {
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, operatorFilter, onOperatorFilterChange }) {
   const [open, setOpen] = useState({ bookings: true, operators: false });
-  const operators = isSuperAdmin ? loadOperators() : [];
+  const [operators, setOperators] = useState(() => isSuperAdmin ? loadOperators() : []);
+
+  // Re-read operators from localStorage whenever OperatorsDashboard saves a change
+  React.useEffect(() => {
+    if (!isSuperAdmin) return;
+    const handleStorage = () => setOperators(loadOperators());
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('operators_updated', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('operators_updated', handleStorage);
+    };
+  }, [isSuperAdmin]);
 
   const toggle = (id) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
