@@ -36,6 +36,7 @@ function validatePassword(password) {
 
 const roleConfig = {
   superadmin: { label: 'Super Admin', color: 'bg-purple-100 text-purple-800', icon: Shield, description: 'Full access — can create users, manage all boats and settings' },
+  operator_admin: { label: 'Operator Admin', color: 'bg-orange-100 text-orange-800', icon: Building2, description: 'Full access scoped to their operator fleet — cannot edit the global checklist template' },
   admin: { label: 'Admin (Boat Owner)', color: 'bg-blue-100 text-blue-800', icon: Anchor, description: 'Can view Bookings, Dates, Dashboard & their assigned boat' },
   crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' }
 };
@@ -57,7 +58,10 @@ function getOperatorForUser(user, operators) {
   return operators.find(o => o.name.toLowerCase() === 'filu') || null;
 }
 
-export default function UserManagement() {
+export default function UserManagement({ currentUser }) {
+  const isOperatorAdmin = currentUser?.role === 'operator_admin';
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+  const currentUserOperator = currentUser?.operator || 'FILU';
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -100,7 +104,9 @@ export default function UserManagement() {
     const existing = appUsers.find(u => u.username.toLowerCase() === form.username.toLowerCase() && u.id !== editingUser?.id);
     if (existing) { setError('Username already exists'); return; }
     setSaving(true);
-    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: form.operator.trim(), is_active: form.is_active };
+    // Operator admins always assign their own operator to new users
+    const operatorValue = isOperatorAdmin ? currentUserOperator : form.operator.trim();
+    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: operatorValue, is_active: form.is_active };
     if (!editingUser || form.password) payload.password_hash = await hashPassword(form.password || '');
     if (editingUser) { await updateMutation.mutateAsync({ id: editingUser.id, data: payload }); }
     else { await createMutation.mutateAsync(payload); }
@@ -121,8 +127,16 @@ export default function UserManagement() {
 
   const pwErrors = form.password ? validatePassword(form.password) : [];
 
+  // Operator admins only see users from their own operator
+  const scopedUsers = isOperatorAdmin
+    ? appUsers.filter(u => {
+        const op = getOperatorForUser(u, operators);
+        return op?.name?.toLowerCase() === currentUserOperator.toLowerCase();
+      })
+    : appUsers;
+
   // Filtered users
-  const filteredUsers = appUsers.filter(u => {
+  const filteredUsers = scopedUsers.filter(u => {
     const roleMatch = roleTab === 'all' || u.role === roleTab;
     let opMatch = true;
     if (operatorFilter !== 'all') {
@@ -132,7 +146,7 @@ export default function UserManagement() {
     return roleMatch && opMatch;
   });
 
-  const countByRole = (role) => appUsers.filter(u => u.role === role).length;
+  const countByRole = (role) => scopedUsers.filter(u => u.role === role).length;
 
   return (
     <div className="space-y-6">
@@ -274,7 +288,8 @@ export default function UserManagement() {
               <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="superadmin">Super Admin</SelectItem>
+                  {isSuperAdmin && <SelectItem value="superadmin">Super Admin</SelectItem>}
+                  <SelectItem value="operator_admin">Operator Admin</SelectItem>
                   <SelectItem value="admin">Admin (Boat Owner)</SelectItem>
                   <SelectItem value="crew">Crew</SelectItem>
                 </SelectContent>
@@ -289,16 +304,18 @@ export default function UserManagement() {
                 </Select>
               </div>
             )}
-            <div>
-              <Label>Operator</Label>
-              <Select value={form.operator || '__filu__'} onValueChange={v => setForm({ ...form, operator: v === '__filu__' ? '' : v })}>
-                <SelectTrigger><SelectValue placeholder="Select operator..." /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__filu__">FILU (default)</SelectItem>
-                  {operators.filter(o => o.name.toLowerCase() !== 'filu').map(op => <SelectItem key={op.id} value={op.name}>{op.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            {isSuperAdmin && (
+              <div>
+                <Label>Operator</Label>
+                <Select value={form.operator || '__filu__'} onValueChange={v => setForm({ ...form, operator: v === '__filu__' ? '' : v })}>
+                  <SelectTrigger><SelectValue placeholder="Select operator..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__filu__">FILU (default)</SelectItem>
+                    {operators.filter(o => o.name.toLowerCase() !== 'filu').map(op => <SelectItem key={op.id} value={op.name}>{op.name}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div>
               <Label>{editingUser ? 'New Password (leave blank to keep current)' : 'Password *'}</Label>
               <div className="relative">
