@@ -148,8 +148,15 @@ function buildFamiliesForUser(isSuperAdmin, isOperatorAdmin) {
   });
 }
 
-export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin }) {
+const OPERATOR_STORAGE_KEY = 'filu_operators';
+function loadOperators() {
+  try { const raw = localStorage.getItem(OPERATOR_STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
+  return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
+}
+
+export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, operatorFilter, onOperatorFilterChange }) {
   const [open, setOpen] = useState({ bookings: true, operators: false });
+  const operators = isSuperAdmin ? loadOperators() : [];
 
   const toggle = (id) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
@@ -164,6 +171,33 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin }) {
           onToggle={() => toggle(family.id)}
         />
       ))}
+
+      {/* SuperAdmin global operator filter */}
+      {isSuperAdmin && operators.length > 0 && (
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs text-white/40 flex items-center gap-1">
+            <span>🚢</span> Filter by Operator:
+          </span>
+          <div className="flex gap-1 flex-wrap">
+            <button
+              onClick={() => onOperatorFilterChange('all')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === 'all' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
+            >
+              All
+            </button>
+            {operators.map(op => (
+              <button
+                key={op.id}
+                onClick={() => onOperatorFilterChange(op.name)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === op.name ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
+                style={operatorFilter === op.name ? { background: op.color + '55', border: `1px solid ${op.color}88` } : {}}
+              >
+                {op.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
