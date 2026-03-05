@@ -744,7 +744,7 @@ function AdminBookingsInner() {
                                     {(() => { const boat = allBoats.find(b => b.name === booking.boat_name); return boat?.operator ? <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(251,146,60,0.2)', border: '1px solid rgba(251,146,60,0.35)', color: '#fdba74' }}>{boat.operator}</span> : null; })()}
                                   </div>
                                   <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-white/50">
-                                    <div className="flex items-center gap-1.5"><CalendarIcon className="h-3 w-3 text-[#1e88e5]/60" /><span>{format(parseISO(booking.date), 'MMM d, yyyy')}</span></div>
+                                    <div className="flex items-center gap-1.5"><CalendarIcon className="h-3 w-3 text-[#1e88e5]/60" /><span>Booked: {format(parseISO(booking.created_date), 'MMM d, yyyy')}</span></div>
                                     <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 text-white/30" /><span>{booking.time_slot}</span></div>
                                     <div className="flex items-center gap-1.5"><Users className="h-3 w-3 text-white/30" /><span>{booking.guests} guests</span></div>
                                     <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-emerald-400/60" /><span className="text-emerald-300/80 font-medium">${booking.total_price?.toLocaleString()} MXN</span></div>
