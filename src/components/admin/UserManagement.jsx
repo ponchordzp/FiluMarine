@@ -61,7 +61,7 @@ function getOperatorForUser(user, operators) {
   return operators.find(o => o.name.toLowerCase() === 'filu') || null;
 }
 
-export default function UserManagement() {
+export default function UserManagement({ isSuperAdmin = true, currentUserOperator = null }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
