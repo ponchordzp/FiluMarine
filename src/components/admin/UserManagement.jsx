@@ -165,9 +165,9 @@ export default function UserManagement({ isSuperAdmin = true, currentUserOperato
       </div>
       {!isSuperAdmin && (
         <div className="p-3 rounded-lg text-xs text-orange-300" style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)' }}>
-          ⚠️ As Operator Admin you can create Boat Owners and Crew only. Only a Super Admin can create other Operator Admins.
+          ⚠️ As Operator Admin you can create Boat Owners and Crew only. Only a Super Admin can create Operator Admins.
         </div>
-      
+      )}
       </div>
 
       {/* Role legend */}
