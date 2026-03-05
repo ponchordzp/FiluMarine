@@ -159,13 +159,39 @@ const INBOARD_SECTIONS = [
     id: 'generator',
     label: '3. Generator',
     color: 'yellow',
-    items: [
-      { id: 'gen_hrs', label: 'Hours logged', interval: 'Continuous' },
-      { id: 'gen_oil', label: 'Oil & filter change', interval: '200h' },
-      { id: 'gen_imp', label: 'Impeller replaced', interval: '12 months' },
-      { id: 'gen_fuel', label: 'Fuel filter replaced', interval: '200h' },
-      { id: 'gen_load', label: 'Load test completed', interval: '12 months' },
-      { id: 'gen_sound', label: 'Sound shield inspected', interval: '12 months' },
+    subsections: [
+      {
+        label: 'Weekly',
+        items: [
+          { id: 'gen_w_cool', label: 'Check coolant', interval: 'Weekly' },
+          { id: 'gen_w_oil', label: 'Check generator oil', interval: 'Weekly' },
+          { id: 'gen_w_strain', label: 'Clean strainer', interval: 'Weekly' },
+        ],
+      },
+      {
+        label: 'Scheduled / When Needed',
+        items: [
+          { id: 'gen_sched', label: 'Follow maintenance schedule in manual', interval: 'Scheduled' },
+          { id: 'gen_150h', label: 'Service generator', interval: 'Every 150 hours' },
+        ],
+      },
+      {
+        label: 'Spare Parts',
+        items: [
+          { id: 'gen_sp_manual', label: 'Parts listed in generator manual', interval: 'Keep onboard' },
+        ],
+      },
+      {
+        label: 'Additional',
+        items: [
+          { id: 'gen_hrs', label: 'Hours logged', interval: 'Continuous' },
+          { id: 'gen_oil', label: 'Oil & filter change', interval: '200h' },
+          { id: 'gen_imp', label: 'Impeller replaced', interval: '12 months' },
+          { id: 'gen_fuel', label: 'Fuel filter replaced', interval: '200h' },
+          { id: 'gen_load', label: 'Load test completed', interval: '12 months' },
+          { id: 'gen_sound', label: 'Sound shield inspected', interval: '12 months' },
+        ],
+      },
     ],
   },
   {
