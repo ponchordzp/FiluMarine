@@ -116,18 +116,18 @@ export default function LocationsManagement({ operatorFilter = null, currentUser
         </Button>
       </div>
 
-      {locations.length === 0 &&
+      {filteredLocations.length === 0 &&
       <Card className="bg-blue-50 border-blue-200">
           <CardContent className="py-10 text-center text-blue-700">
             <MapPin className="h-10 w-10 mx-auto mb-2 text-blue-400" />
-            <p className="font-medium">No locations yet.</p>
+            <p className="font-medium">No locations yet{activeOperator ? ` for ${activeOperator}` : ''}.</p>
             <p className="text-sm mt-1">Add locations to display them on the home page.</p>
           </CardContent>
         </Card>
       }
 
       <div className="grid md:grid-cols-2 gap-5">
-        {locations.map((loc) =>
+        {filteredLocations.map((loc) =>
         <Card key={loc.id} className={`overflow-hidden transition-all ${!loc.visible ? 'opacity-60 border-dashed' : ''}`}>
             {loc.image &&
           <div className="relative h-40 overflow-hidden">
