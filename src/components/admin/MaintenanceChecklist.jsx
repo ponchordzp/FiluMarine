@@ -979,7 +979,7 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
       {/* Info banner */}
       <div className="flex items-start gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
         <Info className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-        <p className="text-xs text-green-800">Check off each item as it is completed. Log the date it was last done and any relevant notes. Add custom items (e.g. T-Top detailing) using the <strong>+ Add Item</strong> button below.</p>
+        <p className="text-xs text-green-800">Check off each item as it is completed. Log the date it was last done and any relevant notes. Use <strong>N/A</strong> for items that don't apply to this boat. Use <strong>+ Add item</strong> inside any section to add boat-specific items.</p>
       </div>
 
       {sections.map(section => (
