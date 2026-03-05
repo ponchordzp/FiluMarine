@@ -489,8 +489,10 @@ function EngineTypeEditor({ engineType, label, sections, operatorScope }) {
   );
 }
 
-export default function ChecklistTemplateEditor() {
+export default function ChecklistTemplateEditor({ operatorFilter = null, currentUserOperator = '' }) {
   const [activeEngine, setActiveEngine] = useState('inboard');
+
+  const operatorScope = operatorFilter && operatorFilter !== 'all' ? operatorFilter : (currentUserOperator || '');
 
   return (
     <div className="space-y-4">
@@ -512,22 +514,24 @@ export default function ChecklistTemplateEditor() {
           </button>
         </div>
         <div className="flex-1 p-2.5 rounded-lg text-xs text-amber-200/80" style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)' }}>
-          Changes here apply to <strong>all boats</strong> of this engine type. Each boat can still add its own custom items.
+          Changes apply to <strong>{operatorScope ? `${operatorScope} fleet` : 'all boats'}</strong> of this engine type. Each boat can still add its own custom items.
         </div>
       </div>
 
       {activeEngine === 'inboard' && (
         <EngineTypeEditor
           engineType="inboard"
-          label="Inboard Diesel Yacht — Global Template"
+          label={`Inboard Diesel Yacht — ${operatorScope ? operatorScope + ' Template' : 'Global Template'}`}
           sections={INBOARD_SECTIONS_META}
+          operatorScope={operatorScope}
         />
       )}
       {activeEngine === 'outboard' && (
         <EngineTypeEditor
           engineType="outboard"
-          label="Outboard Center Console — Global Template"
+          label={`Outboard Center Console — ${operatorScope ? operatorScope + ' Template' : 'Global Template'}`}
           sections={OUTBOARD_SECTIONS_META}
+          operatorScope={operatorScope}
         />
       )}
     </div>
