@@ -688,10 +688,16 @@ function ChecklistItem({ id, label, interval, info, checked, note, lastDate, onT
   );
 }
 
+function getSectionAllItems(section) {
+  if (section.items) return section.items;
+  return [
+    ...section.subsections.flatMap(s => s.items),
+    ...(section._extraItems || []),
+  ];
+}
+
 function SectionProgress({ section, checklist }) {
-  const allItems = section.items
-    ? section.items
-    : [...section.subsections.flatMap(s => s.items), ...(section._extraItems || [])];
+  const allItems = getSectionAllItems(section);
   const checked = allItems.filter(i => {
     const v = checklist[i.id];
     return v && typeof v === 'object' ? v.checked : !!v;
