@@ -47,6 +47,7 @@ const emptyForm = { username: '', full_name: '', email: '', role: 'crew', assign
 const ROLE_TABS = [
   { value: 'all', label: 'All' },
   { value: 'superadmin', label: 'Super Admins' },
+  { value: 'operator_admin', label: 'Operator Admins' },
   { value: 'admin', label: 'Admins' },
   { value: 'crew', label: 'Crew' },
 ];
