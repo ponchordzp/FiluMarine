@@ -142,13 +142,29 @@ function AdminBookingsInner() {
   });
 
   // Role-scoped visible data
-  const visibleBookings = isSuperAdmin ? bookings : bookings.filter(b => b.boat_name === assignedBoat);
+  // OperatorAdmin sees all boats of their operator
+  const operatorBoats = isOperatorAdmin
+    ? allBoats.filter(b => {
+        const bOp = (b.operator || '').toLowerCase();
+        const myOp = operatorName.toLowerCase();
+        return myOp === 'filu' ? (!b.operator || bOp === 'filu') : bOp === myOp;
+      }).map(b => b.name)
+    : [];
+
+  const visibleBookings = isSuperAdmin
+    ? bookings
+    : isOperatorAdmin
+    ? bookings.filter(b => operatorBoats.includes(b.boat_name))
+    : bookings.filter(b => b.boat_name === assignedBoat);
+
   const visibleBlocked = isSuperAdmin
     ? blockedDates
+    : isOperatorAdmin
+    ? blockedDates.filter(b => b.boat_name === 'both' || operatorBoats.includes(b.boat_name))
     : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
 
-  const filteredBookings = bookings.filter(booking => {
-    if (!isSuperAdmin && assignedBoat && booking.boat_name !== assignedBoat) return false;
+  const filteredBookings = visibleBookings.filter(booking => {
+    if (!isSuperAdmin && !isOperatorAdmin && assignedBoat && booking.boat_name !== assignedBoat) return false;
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
     if (locationFilter !== 'all' && booking.location !== locationFilter) return false;
