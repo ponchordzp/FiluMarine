@@ -234,35 +234,30 @@ function AdminBookingsInner() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-4">
-                {/* Nautical flags F-I-L-U in grayscale, transparent background */}
-                <div className="flex items-end gap-0.5">
-                  {/* F flag: quartered, alternating white/gray — like Denison style */}
-                  <svg width="24" height="32" viewBox="0 0 24 32" fill="none" className="drop-shadow flex-shrink-0">
-                    <rect x="0" y="0" width="12" height="16" fill="rgba(255,255,255,0.9)"/>
-                    <rect x="12" y="0" width="12" height="16" fill="rgba(255,255,255,0.25)"/>
-                    <rect x="0" y="16" width="12" height="16" fill="rgba(255,255,255,0.25)"/>
-                    <rect x="12" y="16" width="12" height="16" fill="rgba(255,255,255,0.9)"/>
-                    <rect x="0" y="0" width="24" height="32" stroke="rgba(255,255,255,0.4)" strokeWidth="0.75" fill="none"/>
-                  </svg>
-                  {/* I flag: white with gray circle (yellow circle on white) */}
-                  <svg width="24" height="32" viewBox="0 0 24 32" fill="none" className="drop-shadow flex-shrink-0">
-                    <rect x="0" y="0" width="24" height="32" fill="rgba(255,255,255,0.9)"/>
-                    <circle cx="12" cy="16" r="7" fill="rgba(255,255,255,0.2)"/>
-                    <rect x="0" y="0" width="24" height="32" stroke="rgba(255,255,255,0.4)" strokeWidth="0.75" fill="none"/>
-                  </svg>
-                  {/* L flag: diagonal split black/yellow — two triangles */}
-                  <svg width="24" height="32" viewBox="0 0 24 32" fill="none" className="drop-shadow flex-shrink-0">
-                    <polygon points="0,0 24,0 24,32 0,32" fill="rgba(255,255,255,0.25)"/>
-                    <polygon points="0,0 24,16 0,32" fill="rgba(255,255,255,0.9)"/>
-                    <rect x="0" y="0" width="24" height="32" stroke="rgba(255,255,255,0.4)" strokeWidth="0.75" fill="none"/>
-                  </svg>
-                  {/* U flag: white with cross (red cross on white) */}
-                  <svg width="24" height="32" viewBox="0 0 24 32" fill="none" className="drop-shadow flex-shrink-0">
-                    <rect x="0" y="0" width="24" height="32" fill="rgba(255,255,255,0.9)"/>
-                    <rect x="0" y="12" width="24" height="8" fill="rgba(255,255,255,0.2)"/>
-                    <rect x="8" y="0" width="8" height="32" fill="rgba(255,255,255,0.2)"/>
-                    <rect x="0" y="0" width="24" height="32" stroke="rgba(255,255,255,0.4)" strokeWidth="0.75" fill="none"/>
-                  </svg>
+                {/* Nautical flags F-I-L-U — matching main page colors */}
+                <div className="flex items-end gap-1">
+                  {/* F - Foxtrot: White diamond on red */}
+                  <div className="w-8 h-6 bg-red-600 relative flex items-center justify-center shadow-sm">
+                    <div className="w-4 h-4 bg-white transform rotate-45"></div>
+                  </div>
+                  {/* I - India: Yellow circle on black */}
+                  <div className="w-8 h-6 bg-black flex items-center justify-center shadow-sm">
+                    <div className="w-4 h-4 bg-yellow-400 rounded-full"></div>
+                  </div>
+                  {/* L - Lima: Yellow and black quarters */}
+                  <div className="w-8 h-6 grid grid-cols-2 grid-rows-2 shadow-sm">
+                    <div className="bg-yellow-400"></div>
+                    <div className="bg-black"></div>
+                    <div className="bg-black"></div>
+                    <div className="bg-yellow-400"></div>
+                  </div>
+                  {/* U - Uniform: Red and white quarters */}
+                  <div className="w-8 h-6 grid grid-cols-2 grid-rows-2 shadow-sm">
+                    <div className="bg-red-600"></div>
+                    <div className="bg-white"></div>
+                    <div className="bg-white"></div>
+                    <div className="bg-red-600"></div>
+                  </div>
                 </div>
                 <div>
                   <h1 className="text-3xl font-bold text-white mb-0.5 tracking-tight drop-shadow-lg">FILU <span className="text-blue-200/70 font-light">Admin</span></h1>
