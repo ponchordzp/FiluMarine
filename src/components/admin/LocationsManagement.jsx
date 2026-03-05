@@ -51,6 +51,11 @@ export default function LocationsManagement({ operatorFilter = null, currentUser
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['locations'] })
   });
 
+  const filteredLocations = locations.filter(loc => {
+    if (!activeOperator) return true;
+    return (loc.operator || '').toLowerCase() === activeOperator.toLowerCase();
+  });
+
   const toggleVisibility = (loc) => {
     updateMutation.mutate({ id: loc.id, data: { visible: !loc.visible } });
   };
