@@ -106,7 +106,7 @@ function AdminBookingsInner() {
       queryClient.invalidateQueries({ queryKey: ['blocked-dates'] });
       setBlockDate(null);
       setBlockReason('');
-      setBlockBoat('both');
+      setBlockBoat(isSuperAdmin ? 'both' : assignedBoat);
     },
   });
 
