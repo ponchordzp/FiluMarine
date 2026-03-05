@@ -275,9 +275,21 @@ export default function OperatorsDashboard() {
       {/* Operator cards */}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
         {operators.map(op => (
-          <OperatorCard key={op.id} operator={op} boats={boats} crew={crew} bookings={bookings} onEdit={openEdit} onDelete={handleDelete} />
+          <OperatorCard key={op.id} operator={op} boats={boats} crew={crew} bookings={bookings} onEdit={openEdit} onDelete={handleDelete} onAddBoat={(opName) => setAddBoatForOperator(opName)} />
         ))}
       </div>
+
+      {/* Add Boat Dialog (triggered from operator card) */}
+      {addBoatForOperator && (
+        <Dialog open={!!addBoatForOperator} onOpenChange={(open) => { if (!open) setAddBoatForOperator(null); }}>
+          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add Boat to {addBoatForOperator}</DialogTitle>
+            </DialogHeader>
+            <BoatManagement showAddBoatOnly defaultOperator={addBoatForOperator} isSuperAdmin />
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
