@@ -111,7 +111,7 @@ function FamilyGroup({ family, open, onToggle, indent = false, isSuperAdmin }) {
             className="admin-tabs-list p-1 h-auto flex-wrap w-fit"
             style={{ background: family.color, border: `1px solid ${family.border}`, backdropFilter: 'blur(16px)' }}
           >
-            {family.tabs.map(t => (
+            {family.tabs.filter(t => !t.superAdminOnly || isSuperAdmin).map(t => (
               <TabsTrigger key={t.value} value={t.value} className="font-medium text-xs">{t.label}</TabsTrigger>
             ))}
           </TabsList>
