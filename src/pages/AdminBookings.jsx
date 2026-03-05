@@ -549,22 +549,78 @@ function AdminBookingsInner() {
               <ChevronDown className={`h-4 w-4 text-blue-300/60 transition-transform ${expandedRows.bookings ? '' : '-rotate-90'}`} />
             </button>
             {expandedRows.bookings && (
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                {[
-                  { label: 'Total', value: stats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50', svg: '📊' },
-                  { label: 'Pending', value: stats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '⏳' },
-                  { label: 'Confirmed', value: stats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '✔️' },
-                  { label: 'Completed', value: stats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '🎯' },
-                  { label: 'Cancelled', value: stats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '❌' },
-                ].map(s => (
-                  <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.color, border: `1px solid ${s.border}` }}>
-                    <p className="text-xl mb-1">{s.svg}</p>
-                    <p className={`text-lg font-bold ${s.text}`}>{s.value}</p>
-                    <p className={`text-xs mt-0.5 ${s.sub}`}>{s.label}</p>
+              <>
+                <div className="grid md:grid-cols-3 gap-3 mb-4">
+                  <div>
+                    <Label className="text-white/50 text-xs">Time Range</Label>
+                    <Select value={bookingTimeFilter} onValueChange={(val) => { setBookingTimeFilter(val); if (val !== 'custom') setShowCustomDatePickerBooking(false); }}>
+                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Time</SelectItem>
+                        <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
+                        <SelectItem value="last-week">Last Week (Sun-Sun)</SelectItem>
+                        <SelectItem value="last-month">Last Month</SelectItem>
+                        <SelectItem value="last-3-months">Last 3 Months</SelectItem>
+                        <SelectItem value="this-year">This Year</SelectItem>
+                        <SelectItem value="custom">Custom Range</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
-                ))}
-              </div>
-            )}
+                  {bookingTimeFilter === 'custom' && (
+                    <Dialog open={showCustomDatePickerBooking} onOpenChange={setShowCustomDatePickerBooking}>
+                      <DialogTrigger asChild>
+                        <Button className="mt-6 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
+                          📅 {customDateRangeBooking.from && customDateRangeBooking.to ? `${format(customDateRangeBooking.from, 'MMM d')} - ${format(customDateRangeBooking.to, 'MMM d')}` : 'Select Dates'}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <Label className="text-xs text-white/50 mb-2 block">From</Label>
+                            <Calendar selected={customDateRangeBooking.from} onSelect={(date) => setCustomDateRangeBooking(prev => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-transparent text-white" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-white/50 mb-2 block">To</Label>
+                            <Calendar selected={customDateRangeBooking.to} onSelect={(date) => setCustomDateRangeBooking(prev => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-transparent text-white" />
+                          </div>
+                        </div>
+                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerBooking(false)} disabled={!customDateRangeBooking.from || !customDateRangeBooking.to}>
+                          Apply Range
+                        </Button>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                  <div>
+                    <Label className="text-white/50 text-xs">Boat</Label>
+                    <Select value={bookingBoatFilter} onValueChange={setBookingBoatFilter}>
+                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Boats</SelectItem>
+                        {bookingFilteredBoats.map(boat => (
+                          <SelectItem key={boat} value={boat}>{boat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  {[
+                    { label: 'Total', value: bookingStats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50', svg: '📊' },
+                    { label: 'Pending', value: bookingStats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '⏳' },
+                    { label: 'Confirmed', value: bookingStats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '✔️' },
+                    { label: 'Completed', value: bookingStats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '🎯' },
+                    { label: 'Cancelled', value: bookingStats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '❌' },
+                  ].map(s => (
+                    <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                      <p className="text-xl mb-1">{s.svg}</p>
+                      <p className={`text-lg font-bold ${s.text}`}>{s.value}</p>
+                      <p className={`text-xs mt-0.5 ${s.sub}`}>{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+              )}
           </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
