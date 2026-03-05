@@ -321,20 +321,20 @@ function AdminBookingsInner() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
         {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-          {[
-            { label: 'Total', value: stats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50' },
-            { label: 'Pending', value: stats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70' },
-            { label: 'Confirmed', value: stats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70' },
-            { label: 'Completed', value: stats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70' },
-            { label: 'Cancelled', value: stats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70' },
-          ].map(s => (
-            <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
-              <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
-              <p className={`text-xs mt-1 ${s.sub}`}>{s.label}</p>
-            </div>
-          ))}
-        </div>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            {[
+              { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70' },
+              { label: 'Booked (30d)', value: stats.nextDaysBooked, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70' },
+              { label: 'Confirmation', value: `${stats.confirmationRate}%`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70' },
+              { label: 'Avg Guests', value: stats.avgGuestSize, color: 'rgba(139,92,246,0.12)', border: 'rgba(139,92,246,0.3)', text: 'text-violet-300', sub: 'text-violet-400/70' },
+              { label: 'Total Bookings', value: stats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50' },
+            ].map(s => (
+              <div key={s.label} className="rounded-2xl p-4 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
+                <p className={`text-2xl font-bold ${s.text}`}>{s.value}</p>
+                <p className={`text-xs mt-1 ${s.sub}`}>{s.label}</p>
+              </div>
+            ))}
+          </div>
 
         <Tabs defaultValue="bookings" className="space-y-6">
           <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} operatorFilter={globalOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} />
