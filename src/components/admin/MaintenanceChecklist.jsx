@@ -642,22 +642,23 @@ const COLOR_MAP = {
   indigo: { header: 'bg-indigo-700', bg: 'bg-indigo-50', border: 'border-indigo-200', check: 'bg-indigo-600', sub: 'bg-indigo-100 text-indigo-800' },
 };
 
-function ChecklistItem({ id, label, interval, info, checked, note, lastDate, onToggle, onNoteChange, onDateChange, isSuperAdmin, onInfoChange }) {
+function ChecklistItem({ id, label, interval, info, checked, na, note, lastDate, onToggle, onToggleNA, onNoteChange, onDateChange, isSuperAdmin, onInfoChange }) {
   const defaultInfo = info || `Check and record when "${label}" was last completed. Recommended interval: ${interval}.`;
   return (
-    <div className="py-2 border-b border-slate-100 last:border-0">
-      <div className="flex items-start gap-3">
+    <div className={`py-2 border-b border-slate-100 last:border-0 ${na ? 'opacity-50' : ''}`}>
+      <div className="flex items-start gap-2">
         <button
           type="button"
-          onClick={() => onToggle(id)}
+          onClick={() => !na && onToggle(id)}
+          disabled={na}
           className={`mt-0.5 w-5 h-5 flex-shrink-0 rounded border-2 flex items-center justify-center transition-all ${
-            checked ? 'bg-green-600 border-green-600' : 'bg-white border-slate-300 hover:border-green-400'
+            checked && !na ? 'bg-green-600 border-green-600' : na ? 'bg-slate-200 border-slate-200 cursor-not-allowed' : 'bg-white border-slate-300 hover:border-green-400'
           }`}
         >
-          {checked && <Check className="h-3 w-3 text-white" />}
+          {checked && !na && <Check className="h-3 w-3 text-white" />}
         </button>
         <div className="flex-1 min-w-0">
-          <p className={`text-sm leading-snug flex items-center gap-0.5 ${checked ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+          <p className={`text-sm leading-snug flex items-center gap-0.5 ${checked && !na ? 'line-through text-slate-400' : na ? 'line-through text-slate-400' : 'text-slate-800'}`}>
             {label}
             <EditableInfo
               text={defaultInfo}
@@ -666,23 +667,37 @@ function ChecklistItem({ id, label, interval, info, checked, note, lastDate, onT
             />
           </p>
           <p className="text-xs text-slate-400 mt-0.5">Interval: {interval}</p>
-          <div className="flex gap-2 mt-1.5">
-            <input
-              type="date"
-              value={lastDate || ''}
-              onChange={(e) => onDateChange(id, e.target.value)}
-              className="text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400"
-              title="Last done date"
-            />
-            <input
-              type="text"
-              value={note || ''}
-              onChange={(e) => onNoteChange(id, e.target.value)}
-              placeholder="Notes..."
-              className="flex-1 text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400 placeholder:text-slate-300"
-            />
-          </div>
+          {!na && (
+            <div className="flex gap-2 mt-1.5">
+              <input
+                type="date"
+                value={lastDate || ''}
+                onChange={(e) => onDateChange(id, e.target.value)}
+                className="text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400"
+                title="Last done date"
+              />
+              <input
+                type="text"
+                value={note || ''}
+                onChange={(e) => onNoteChange(id, e.target.value)}
+                placeholder="Notes..."
+                className="flex-1 text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400 placeholder:text-slate-300"
+              />
+            </div>
+          )}
         </div>
+        <button
+          type="button"
+          onClick={() => onToggleNA(id)}
+          className={`mt-0.5 flex-shrink-0 px-1.5 py-0.5 text-xs rounded font-medium border transition-all ${
+            na
+              ? 'bg-slate-500 text-white border-slate-500'
+              : 'bg-white text-slate-400 border-slate-300 hover:bg-slate-100 hover:text-slate-600'
+          }`}
+          title={na ? 'Mark as applicable' : 'Mark as N/A (not applicable to this boat)'}
+        >
+          N/A
+        </button>
       </div>
     </div>
   );
