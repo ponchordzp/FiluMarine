@@ -74,6 +74,47 @@ const INBOARD_SECTIONS = [
     color: 'amber',
     subsections: [
       {
+        label: 'Daily',
+        items: [
+          { id: 'eng_d_cool', label: 'Check coolant', interval: 'Daily' },
+          { id: 'eng_d_belt', label: 'Check water pump belts and alternator', interval: 'Daily' },
+          { id: 'eng_d_fuel', label: 'Check fuel level', interval: 'Daily' },
+          { id: 'eng_d_oil', label: 'Check engine oil', interval: 'Daily' },
+          { id: 'eng_d_strain', label: 'Check and clean water strainer', interval: 'Daily' },
+        ],
+      },
+      {
+        label: 'Monthly',
+        items: [
+          { id: 'eng_m_gear', label: 'Check gearbox / transmission oil', interval: 'Monthly' },
+        ],
+      },
+      {
+        label: 'Quarterly',
+        items: [
+          { id: 'eng_q_fuel', label: 'Check fuel tank for dirt or water contamination', interval: 'Quarterly' },
+        ],
+      },
+      {
+        label: 'When Needed',
+        items: [
+          { id: 'eng_w_filt', label: 'Replace filters', interval: 'When needed' },
+        ],
+      },
+      {
+        label: 'Spare Parts to Keep Onboard',
+        items: [
+          { id: 'eng_sp_racor', label: 'Spare: Racor fuel filter', interval: 'Keep onboard' },
+          { id: 'eng_sp_oilf', label: 'Spare: Engine oil filter', interval: 'Keep onboard' },
+          { id: 'eng_sp_oil', label: 'Spare: Engine oil', interval: 'Keep onboard' },
+          { id: 'eng_sp_imp', label: 'Spare: Impeller', interval: 'Keep onboard' },
+          { id: 'eng_sp_belt', label: 'Spare: Belts', interval: 'Keep onboard' },
+          { id: 'eng_sp_cool', label: 'Spare: Coolant', interval: 'Keep onboard' },
+          { id: 'eng_sp_ffilt', label: 'Spare: Fuel filter', interval: 'Keep onboard' },
+          { id: 'eng_sp_seal', label: 'Spare: Washers / seals', interval: 'Keep onboard' },
+        ],
+      },
+      {
         label: 'Engine Hours & Monitoring',
         items: [
           { id: 'eng_hrs', label: 'Engine hours synced', interval: 'Continuous' },
