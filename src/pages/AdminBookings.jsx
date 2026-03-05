@@ -197,10 +197,6 @@ function AdminBookingsInner() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #060d14 0%, #0c1f30 50%, #060d14 100%)' }}>
-      {/* Ambient glow blob — blue only */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[60vw] h-[60vw] rounded-full opacity-8" style={{ background: 'radial-gradient(circle, #1565c0 0%, transparent 70%)' }} />
-      </div>
 
       {/* Header */}
       <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
