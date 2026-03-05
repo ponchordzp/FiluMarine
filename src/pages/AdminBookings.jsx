@@ -557,7 +557,6 @@ function AdminBookingsInner() {
                       <SelectContent>
                         <SelectItem value="all">All Time</SelectItem>
                         <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
-                        <SelectItem value="last-week">Last Week (Sun-Sun)</SelectItem>
                         <SelectItem value="last-month">Last Month</SelectItem>
                         <SelectItem value="last-3-months">Last 3 Months</SelectItem>
                         <SelectItem value="this-year">This Year</SelectItem>
