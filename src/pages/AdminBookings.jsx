@@ -88,6 +88,11 @@ function AdminBookingsInner() {
     queryFn: () => base44.entities.BlockedDate.list(),
   });
 
+  const { data: allBoats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.Booking.update(id, { status }),
     onSuccess: () => {
