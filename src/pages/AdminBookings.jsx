@@ -365,8 +365,7 @@ function AdminBookingsInner() {
                   { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '💰' },
                   { label: 'Expenses', value: `$${(stats.totalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '📉' },
                   { label: 'Net Profit', value: `$${(stats.netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '📊' },
-                  { label: 'ROI', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-400/70', svg: '📈' },
-                  { label: 'Cost/Guest', value: `$${stats.costPerGuest}`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '👤' },
+                  { label: 'Profit Margin', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-400/70', svg: '📈' },
                 ].map(s => (
                   <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.color, border: `1px solid ${s.border}` }}>
                     <p className="text-xl mb-1">{s.svg}</p>
