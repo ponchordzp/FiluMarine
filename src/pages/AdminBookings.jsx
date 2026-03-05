@@ -272,20 +272,34 @@ function AdminBookingsInner() {
     })(),
     avgGuestSize: visibleBookings.length > 0 ? Math.round(visibleBookings.reduce((sum, b) => sum + (b.guests || 0), 0) / visibleBookings.length) : 0,
     confirmationRate: visibleBookings.length > 0 ? Math.round((visibleBookings.filter(b => b.status !== 'pending').length / visibleBookings.length) * 100) : 0,
-    // Financial KPIs
-    revenue: visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0),
-    totalExpenses: visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0),
+    // Financial KPIs (filtered)
+    revenue: financialFilteredBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0),
+    totalExpenses: financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0),
     netProfit: (() => {
-      const rev = visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
-      const exp = visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
+      const rev = financialFilteredBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
+      const exp = financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
       return rev - exp;
     })(),
     roi: (() => {
-      const rev = visibleBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
-      const exp = visibleExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
+      const rev = financialFilteredBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
+      const exp = financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
       const profit = rev - exp;
       return rev > 0 ? Math.min(100, Math.round((profit / rev) * 100)) : 0;
     })(),
+  };
+
+  // Helper function to get expenses for a booking
+  const getBookingExpenses = (bookingId) => {
+    const exp = expenses.find(e => e.booking_id === bookingId);
+    if (!exp) return 0;
+    return (exp.fuel_cost || 0) + (exp.crew_cost || 0) + (exp.maintenance_cost || 0) + (exp.cleaning_cost || 0) + (exp.supplies_cost || 0) + (exp.other_cost || 0);
+  };
+
+  // Helper function to calculate booking profit margin
+  const getBookingProfitMargin = (booking) => {
+    const revenue = booking.total_price || 0;
+    const expenses = getBookingExpenses(booking.id);
+    return revenue > 0 ? Math.min(100, Math.round(((revenue - expenses) / revenue) * 100)) : 0;
   };
 
   if (isLoading) {
