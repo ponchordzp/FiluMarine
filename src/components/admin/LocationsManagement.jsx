@@ -95,6 +95,7 @@ export default function LocationsManagement({ operatorFilter = null, currentUser
     }
     setUploading(false);
     const data = { ...formData, image: finalImage };
+    if (activeOperator) data.operator = activeOperator;
     if (editingLoc) {
       updateMutation.mutate({ id: editingLoc.id, data });
     } else {
