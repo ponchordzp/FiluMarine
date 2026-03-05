@@ -59,9 +59,13 @@ const statusIcons = {
 function AdminBookingsInner() {
   const { currentUser, handleLogout } = useAuth();
   const isSuperAdmin = currentUser?.role === 'superadmin';
+  const isOperatorAdmin = currentUser?.role === 'operator_admin';
   const isAdmin = currentUser?.role === 'admin';
   const isCrew = currentUser?.role === 'crew';
   const assignedBoat = currentUser?.assigned_boat || '';
+  const currentUserOperator = currentUser?.operator || 'FILU';
+  // Operator admin has elevated access (like superadmin) but scoped to their operator
+  const hasElevatedAccess = isSuperAdmin || isOperatorAdmin;
 
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');

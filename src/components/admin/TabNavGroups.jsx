@@ -128,14 +128,35 @@ function FamilyGroup({ family, open, onToggle, indent = false }) {
   );
 }
 
-export default function TabNavGroups({ isSuperAdmin }) {
+// Returns the families visible to this user, stripping checklist-template for non-superadmins
+function buildFamiliesForUser(isSuperAdmin, isOperatorAdmin) {
+  if (!isSuperAdmin && !isOperatorAdmin) return families.filter(f => !f.adminOnly);
+
+  return families.map(family => {
+    if (!family.adminOnly) return family;
+    if (isSuperAdmin) return family; // Full access
+
+    // Operator admin: strip checklist-template tab and operators tab (they can't manage other operators)
+    return {
+      ...family,
+      tabs: family.tabs.filter(t => t.value !== 'operators'),
+      children: family.children.map(child => ({
+        ...child,
+        tabs: child.tabs.filter(t => t.value !== 'checklist-template'),
+      })),
+    };
+  });
+}
+
+export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin }) {
   const [open, setOpen] = useState({ bookings: true, operators: false });
 
   const toggle = (id) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
+  const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
 
   return (
     <div className="flex flex-col gap-2">
-      {families.filter(f => !f.adminOnly || isSuperAdmin).map(family => (
+      {visibleFamilies.filter(f => !f.adminOnly || isSuperAdmin || isOperatorAdmin).map(family => (
         <FamilyGroup
           key={family.id}
           family={family}
