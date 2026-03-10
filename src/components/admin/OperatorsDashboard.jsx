@@ -339,6 +339,14 @@ export default function OperatorsDashboard() {
               <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="operator@example.com" className="mt-1" />
             </div>
             <div>
+              <Label className="text-sm">PayPal Username</Label>
+              <div className="flex items-center mt-1">
+                <span className="px-3 py-2 text-sm rounded-l-md border border-r-0 text-white/40 border-input bg-white/5">paypal.me/</span>
+                <Input value={form.paypal_username} onChange={e => setForm(f => ({ ...f, paypal_username: e.target.value }))} placeholder="username" className="rounded-l-none" />
+              </div>
+              <p className="text-xs text-white/30 mt-1">Used to generate the PayPal payment link for booking cards</p>
+            </div>
+            <div>
               <Label className="text-sm">Brand Color</Label>
               <div className="flex items-center gap-2 mt-1">
                 {COLORS.map(c => (
