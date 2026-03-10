@@ -348,7 +348,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                     </div>
 
                     <a
-                      href="https://www.paypal.com/paypalme/ponchordzp"
+                      href="https://www.paypal.com/paypalme/filumarine"
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => setPaymentMethod('paypal')}
@@ -360,7 +360,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                       <CreditCard className={`h-5 w-5 ${paymentMethod === 'paypal' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
                       <div>
                         <p className={`font-medium ${paymentMethod === 'paypal' ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
-                          PayPal (@ponchordzp)
+                          PayPal (@filumarine)
                         </p>
                         <p className="text-sm text-slate-500">Click to pay via PayPal</p>
                       </div>
