@@ -15,9 +15,19 @@ const OPERATOR_STORAGE_KEY = 'filu_operators';
 function loadOperators() {
   try {
     const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const ops = JSON.parse(raw);
+      // Migrate: ensure FILU operator always has filumarine as paypal_username
+      const updated = ops.map(o =>
+        (o.name || '').toLowerCase() === 'filu' && (!o.paypal_username || o.paypal_username === 'ponchordzp')
+          ? { ...o, paypal_username: 'filumarine' }
+          : o
+      );
+      localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    }
   } catch {}
-  return [{ id: 'filu', name: 'FILU', contact_name: '', contact_email: '', contact_phone: '', description: 'Primary charter service operator', color: '#1e88e5' }];
+  return [{ id: 'filu', name: 'FILU', contact_name: '', contact_email: '', contact_phone: '', description: 'Primary charter service operator', paypal_username: 'filumarine', color: '#1e88e5' }];
 }
 
 function saveOperators(ops) {
