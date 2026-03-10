@@ -257,6 +257,8 @@ function AdminBookingsInner() {
       if (!op) {
         op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
       }
+      // Migrate legacy username
+      if (op?.paypal_username === 'ponchordzp') return 'filumarine';
 
       return op?.paypal_username?.trim() || null;
     } catch {
