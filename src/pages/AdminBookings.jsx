@@ -814,7 +814,15 @@ function AdminBookingsInner() {
                                     <div className="flex items-center gap-1.5"><Users className="h-3 w-3 text-white/30" /><span>{booking.guests} guests</span></div>
                                     <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-emerald-400/60" /><span className="text-emerald-300/80 font-medium">${booking.total_price?.toLocaleString()} MXN</span></div>
                                     <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-red-400/60" /><span className="text-red-300/80 font-medium">${getBookingExpenses(booking.id)?.toLocaleString()} Exp</span></div>
-                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-purple-400/60" /><span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, {maximumFractionDigits:0})} Earnings</span></div>
+                                    <div className="flex items-start gap-1.5">
+                                      <DollarSign className="h-3 w-3 text-purple-400/60 mt-0.5" />
+                                      <div>
+                                        <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, {maximumFractionDigits:0})} Earnings</span>
+                                        {getOperatorCommission(booking.boat_name) > 0 && (
+                                          <span className="block text-orange-300/60 text-xs mt-0.5">-${((booking.total_price || 0) * getOperatorCommission(booking.boat_name) / 100).toLocaleString(undefined, {maximumFractionDigits:0})} commission ({getOperatorCommission(booking.boat_name)}%)</span>
+                                        )}
+                                      </div>
+                                    </div>
                                   </div>
                                   {/* PayPal button + payment status — shown below the amounts */}
                                   {(() => {
