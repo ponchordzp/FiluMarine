@@ -239,7 +239,7 @@ export default function OperatorsDashboard() {
 
   const openEdit = (op) => {
     setEditingOp(op);
-    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', color: op.color || '#1e88e5' });
+    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', color: op.color || '#1e88e5' });
     setDialogOpen(true);
   };
 
