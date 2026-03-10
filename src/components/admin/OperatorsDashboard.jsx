@@ -233,7 +233,7 @@ export default function OperatorsDashboard() {
 
   const openAdd = () => {
     setEditingOp(null);
-    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', color: COLORS[operators.length % COLORS.length] });
+    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', color: COLORS[operators.length % COLORS.length] });
     setDialogOpen(true);
   };
 
