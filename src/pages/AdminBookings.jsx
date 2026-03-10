@@ -156,6 +156,11 @@ function AdminBookingsInner() {
     },
   });
 
+  const updatePaymentStatusMutation = useMutation({
+    mutationFn: ({ id, payment_status }) => base44.entities.Booking.update(id, { payment_status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] }),
+  });
+
   // Role-scoped visible data
   // Operator admin sees all boats in their operator's fleet
   const operatorBoatNames = isOperatorAdmin
