@@ -586,6 +586,20 @@ function AdminBookingsInner() {
                     </SelectContent>
                   </Select>
                 </div>
+                {isSuperAdmin && (
+                  <div>
+                    <Label className="text-white/50 text-xs">Operator</Label>
+                    <Select value={globalOperatorFilter} onValueChange={setGlobalOperatorFilter}>
+                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Operators</SelectItem>
+                        {[...new Set(allBoats.map(b => b.operator?.trim() || 'FILU'))].map(op => (
+                          <SelectItem key={op} value={op}>{op}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
@@ -668,6 +682,20 @@ function AdminBookingsInner() {
                       </SelectContent>
                     </Select>
                   </div>
+                  {isSuperAdmin && (
+                    <div>
+                      <Label className="text-white/50 text-xs">Operator</Label>
+                      <Select value={globalOperatorFilter} onValueChange={setGlobalOperatorFilter}>
+                        <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Operators</SelectItem>
+                          {[...new Set(allBoats.map(b => b.operator?.trim() || 'FILU'))].map(op => (
+                            <SelectItem key={op} value={op}>{op}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   {[
@@ -789,7 +817,7 @@ function AdminBookingsInner() {
                               <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                     <h3 className="font-semibold text-base text-white">{booking.guest_name}</h3>
-                                    {(() => { const boat = allBoats.find(b => b.name === booking.boat_name); return boat?.operator ? <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: 'rgba(251,146,60,0.2)', border: '1px solid rgba(251,146,60,0.35)', color: '#fdba74' }}>{boat.operator}</span> : null; })()}
+                                    {(() => { const boat = allBoats.find(b => b.name === booking.boat_name); const opName = boat?.operator?.trim() || (booking.boat_name ? 'FILU' : null); return opName ? <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: 'rgba(251,146,60,0.2)', border: '1px solid rgba(251,146,60,0.35)', color: '#fdba74' }}>{opName}</span> : null; })()}
                                     <Badge className={statusColors[booking.status]}>
                                       <StatusIcon className="h-3 w-3 mr-1" />
                                       {booking.status}
@@ -807,7 +835,7 @@ function AdminBookingsInner() {
                                         {booking.boat_name}
                                       </span>
                                     )}
-                                    {(() => { const boat = allBoats.find(b => b.name === booking.boat_name); return boat?.operator ? <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(251,146,60,0.2)', border: '1px solid rgba(251,146,60,0.35)', color: '#fdba74' }}>{boat.operator}</span> : null; })()}
+
                                   </div>
                                   <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-1.5 text-xs text-white/50">
                                     <div className="flex items-center gap-1.5"><CalendarIcon className="h-3 w-3 text-[#1e88e5]/60" /><span>Booked: {format(parseISO(booking.created_date), 'MMM d, yyyy h:mm a')}</span></div>
