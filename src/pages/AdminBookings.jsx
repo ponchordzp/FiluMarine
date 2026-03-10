@@ -230,26 +230,27 @@ function AdminBookingsInner() {
   };
 
   const getOperatorPaypal = (boatName) => {
-    // 1. Check DB boat record first (fastest, synced from operator save)
+    // 1. Check DB boat record first (synced from operator save)
     const boat = allBoats.find(b => b.name === boatName);
     if (boat?.paypal_username?.trim()) return boat.paypal_username.trim();
 
-    // 2. Read directly from localStorage operators
+    // 2. Read from localStorage
     try {
       const raw = localStorage.getItem('filu_operators');
       if (!raw) return null;
       const ops = JSON.parse(raw);
 
-      // Determine which operator owns this boat
-      // boat.operator may not be set in DB for existing boats → default to FILU
-      const boatOpName = (boat?.operator || '').toLowerCase();
+      // Try to match by boat's operator field
+      const boatOpName = (boat?.operator || '').toLowerCase().trim();
 
-      let op;
-      if (!boatOpName || boatOpName === 'filu') {
-        // No operator set on boat → belongs to FILU
-        op = ops.find(o => !o.name || (o.name || '').toLowerCase() === 'filu');
-      } else {
-        op = ops.find(o => (o.name || '').toLowerCase() === boatOpName);
+      let op = null;
+      if (boatOpName && boatOpName !== 'filu') {
+        op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+      }
+
+      // Default: find the FILU operator (covers most cases where boat.operator is not set)
+      if (!op) {
+        op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
       }
 
       return op?.paypal_username?.trim() || null;
