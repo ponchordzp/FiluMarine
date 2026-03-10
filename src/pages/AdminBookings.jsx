@@ -229,6 +229,22 @@ function AdminBookingsInner() {
     });
   };
 
+  // Load operators from localStorage to get PayPal usernames
+  const [operators] = useState(() => {
+    try { const raw = localStorage.getItem('filu_operators'); if (raw) return JSON.parse(raw); } catch {}
+    return [{ id: 'filu', name: 'FILU', paypal_username: '' }];
+  });
+
+  const getOperatorPaypal = (boatName) => {
+    const boat = allBoats.find(b => b.name === boatName);
+    const opName = (boat?.operator || 'filu').toLowerCase();
+    const op = operators.find(o => {
+      const oName = (o.name || '').toLowerCase();
+      return opName === 'filu' ? (!oName || oName === 'filu') : oName === opName;
+    });
+    return op?.paypal_username || null;
+  };
+
   const [expandedRows, setExpandedRows] = useState({ financial: true, bookings: true });
 
   const toggleRowExpansion = (category) => {
