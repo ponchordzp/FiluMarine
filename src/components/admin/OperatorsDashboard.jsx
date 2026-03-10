@@ -265,6 +265,8 @@ export default function OperatorsDashboard() {
     }
     saveOperators(updated);
     setOperators(updated);
+    // Sync paypal_username directly onto all boats of this operator in the DB
+    syncPaypalToBoats(form.name, form.paypal_username);
     setDialogOpen(false);
   };
 
