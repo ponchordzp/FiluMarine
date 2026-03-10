@@ -159,7 +159,7 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
               <span className="text-white/60 font-medium">{avgRevenue > 0 ? `$${(avgRevenue/1000).toFixed(1)}k` : '—'}</span>
             </div>
             <div className="flex justify-between text-xs col-span-2 pt-1 border-t border-white/8">
-              <span className="text-white/40">Commission ({commissionPct}% of revenue)</span>
+              <span className="text-white/40">FILU Fee ({commissionPct}% of revenue)</span>
               <span className="text-orange-300 font-medium">-${(commission/1000).toFixed(1)}k</span>
             </div>
             <div className="flex justify-between text-xs col-span-2">
@@ -381,7 +381,7 @@ export default function OperatorsDashboard() {
               <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="operator@example.com" className="mt-1" />
             </div>
             <div>
-              <Label className="text-sm">Commission %</Label>
+              <Label className="text-sm">FILU Fee %</Label>
               <div className="flex items-center mt-1">
                 <Input
                   type="number"
@@ -395,7 +395,7 @@ export default function OperatorsDashboard() {
                 />
                 <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-white/40 border-input bg-white/5">%</span>
               </div>
-              <p className="text-xs text-white/30 mt-1">Percentage charged from each booking's revenue</p>
+              <p className="text-xs text-white/30 mt-1">FILU Fee % charged from each booking's revenue</p>
             </div>
             <div>
               <Label className="text-sm">PayPal Username</Label>

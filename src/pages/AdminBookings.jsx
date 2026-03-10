@@ -787,8 +787,9 @@ function AdminBookingsInner() {
                           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                             <div className="flex-1 space-y-3">
                               <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1.5">
+                                  <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                     <h3 className="font-semibold text-base text-white">{booking.guest_name}</h3>
+                                    {(() => { const boat = allBoats.find(b => b.name === booking.boat_name); return boat?.operator ? <span className="text-xs px-2 py-0.5 rounded-full font-semibold" style={{ background: 'rgba(251,146,60,0.2)', border: '1px solid rgba(251,146,60,0.35)', color: '#fdba74' }}>{boat.operator}</span> : null; })()}
                                     <Badge className={statusColors[booking.status]}>
                                       <StatusIcon className="h-3 w-3 mr-1" />
                                       {booking.status}
@@ -812,17 +813,15 @@ function AdminBookingsInner() {
                                     <div className="flex items-center gap-1.5"><CalendarIcon className="h-3 w-3 text-[#1e88e5]/60" /><span>Booked: {format(parseISO(booking.created_date), 'MMM d, yyyy h:mm a')}</span></div>
                                     <div className="flex items-center gap-1.5"><Clock className="h-3 w-3 text-white/30" /><span>Scheduled: {format(parseISO(booking.date), 'MMM d, yyyy')} {booking.time_slot}</span></div>
                                     <div className="flex items-center gap-1.5"><Users className="h-3 w-3 text-white/30" /><span>{booking.guests} guests</span></div>
-                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-emerald-400/60" /><span className="text-emerald-300/80 font-medium">${booking.total_price?.toLocaleString()} MXN</span></div>
-                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-red-400/60" /><span className="text-red-300/80 font-medium">${getBookingExpenses(booking.id)?.toLocaleString()} Exp</span></div>
-                                    <div className="flex items-start gap-1.5">
-                                      <DollarSign className="h-3 w-3 text-purple-400/60 mt-0.5" />
-                                      <div>
-                                        <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, {maximumFractionDigits:0})} Earnings</span>
-                                        {getOperatorCommission(booking.boat_name) > 0 && (
-                                          <span className="block text-orange-300/60 text-xs mt-0.5">-${((booking.total_price || 0) * getOperatorCommission(booking.boat_name) / 100).toLocaleString(undefined, {maximumFractionDigits:0})} commission ({getOperatorCommission(booking.boat_name)}%)</span>
-                                        )}
+                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-emerald-400/60" /><span className="text-emerald-300/80 font-medium">${booking.total_price?.toLocaleString()} Revenue</span></div>
+                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-red-400/60" /><span className="text-red-300/80 font-medium">${getBookingExpenses(booking.id)?.toLocaleString()} Expenses</span></div>
+                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-purple-400/60" /><span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, {maximumFractionDigits:0})} Earnings</span></div>
+                                    {getOperatorCommission(booking.boat_name) > 0 && (
+                                      <div className="col-span-2 md:col-span-3 flex items-center gap-1.5 pt-0.5 border-t border-white/8">
+                                        <DollarSign className="h-3 w-3 text-orange-400/60" />
+                                        <span className="text-orange-300/70 font-medium">FILU Fee ({getOperatorCommission(booking.boat_name)}%): -${((booking.total_price || 0) * getOperatorCommission(booking.boat_name) / 100).toLocaleString(undefined, {maximumFractionDigits:0})}</span>
                                       </div>
-                                    </div>
+                                    )}
                                   </div>
                                   {/* PayPal button + payment status — shown below the amounts */}
                                   {(() => {
