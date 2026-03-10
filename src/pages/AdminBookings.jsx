@@ -784,25 +784,49 @@ function AdminBookingsInner() {
                                     <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-red-400/60" /><span className="text-red-300/80 font-medium">${getBookingExpenses(booking.id)?.toLocaleString()} Exp</span></div>
                                     <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-purple-400/60" /><span className="text-purple-300/80 font-medium">{getBookingProfitMargin(booking)}% ROI</span></div>
                                   </div>
+                                  {/* PayPal button + payment status — shown below the amounts */}
+                                  {(() => {
+                                    const paypalUser = getOperatorPaypal(booking.boat_name);
+                                    if (!paypalUser) return null;
+                                    const isPaid = booking.payment_status === 'payment_done';
+                                    return (
+                                      <div className="flex items-center gap-2 mt-2 flex-wrap">
+                                        <a
+                                          href={`https://www.paypal.com/paypalme/${paypalUser}`}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
+                                          style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
+                                        >
+                                          <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
+                                          Pay via PayPal
+                                        </a>
+                                        <Select
+                                          value={booking.payment_status || 'pending_payment'}
+                                          onValueChange={(val) => updatePaymentStatusMutation.mutate({ id: booking.id, payment_status: val })}
+                                        >
+                                          <SelectTrigger
+                                            className="h-7 text-xs w-auto px-2"
+                                            style={{
+                                              background: isPaid ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+                                              border: isPaid ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(245,158,11,0.4)',
+                                              color: isPaid ? '#6ee7b7' : '#fcd34d',
+                                            }}
+                                          >
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="pending_payment">⏳ Pending Payment</SelectItem>
+                                            <SelectItem value="payment_done">✅ Payment Done</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </div>
+                                    );
+                                  })()}
                                   </div>
                             </div>
 
                             <div className="flex flex-col gap-2">
-                              {(() => {
-                                const paypalUser = getOperatorPaypal(booking.boat_name);
-                                return paypalUser ? (
-                                  <a
-                                    href={`https://www.paypal.com/paypalme/${paypalUser}/${booking.total_price || ''}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
-                                    style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
-                                  >
-                                    <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
-                                    Pay with PayPal
-                                  </a>
-                                ) : null;
-                              })()}
                               <Button
                                 size="sm"
                                 className="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border-emerald-500/25"
