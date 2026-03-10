@@ -195,6 +195,23 @@ function OperatorCard({ operator, boats, crew, bookings, onEdit, onDelete, onAdd
             {operator.contact_phone && <p className="text-xs text-white/40 flex items-center gap-1.5"><Phone className="h-3 w-3" />{operator.contact_phone}</p>}
           </div>
         )}
+
+        {/* PayPal */}
+        {operator.paypal_username && (
+          <div className="pt-3 border-t border-white/8">
+            <a
+              href={`https://www.paypal.com/paypalme/${operator.paypal_username}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold transition-all hover:opacity-90"
+              style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#60a5fa' }}
+            >
+              <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-4 w-4 rounded-sm" />
+              Pay via PayPal · @{operator.paypal_username}
+              <ExternalLink className="h-3 w-3 ml-auto" />
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
