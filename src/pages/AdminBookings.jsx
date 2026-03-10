@@ -230,22 +230,32 @@ function AdminBookingsInner() {
   };
 
   const getOperatorPaypal = (boatName) => {
-    // Read directly from the boat record in the DB (synced when operator is saved)
+    // 1. Check DB boat record first (fastest, synced from operator save)
     const boat = allBoats.find(b => b.name === boatName);
-    const username = boat?.paypal_username?.trim();
-    if (username) return username;
-    // Fallback: check localStorage operators directly by operator name on the boat
+    if (boat?.paypal_username?.trim()) return boat.paypal_username.trim();
+
+    // 2. Read directly from localStorage operators
     try {
       const raw = localStorage.getItem('filu_operators');
       if (!raw) return null;
       const ops = JSON.parse(raw);
-      const opName = (boat?.operator || 'filu').toLowerCase();
-      const op = ops.find(o => {
-        const oName = (o.name || '').toLowerCase();
-        return opName === 'filu' ? (!oName || oName === 'filu') : oName === opName;
-      });
+
+      // Determine which operator owns this boat
+      // boat.operator may not be set in DB for existing boats → default to FILU
+      const boatOpName = (boat?.operator || '').toLowerCase();
+
+      let op;
+      if (!boatOpName || boatOpName === 'filu') {
+        // No operator set on boat → belongs to FILU
+        op = ops.find(o => !o.name || (o.name || '').toLowerCase() === 'filu');
+      } else {
+        op = ops.find(o => (o.name || '').toLowerCase() === boatOpName);
+      }
+
       return op?.paypal_username?.trim() || null;
-    } catch { return null; }
+    } catch {
+      return null;
+    }
   };
 
   const [expandedRows, setExpandedRows] = useState({ financial: true, bookings: true });
