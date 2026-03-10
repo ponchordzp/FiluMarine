@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2 } from 'lucide-react';
+import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink } from 'lucide-react';
 import BoatManagement from './BoatManagement';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
@@ -205,7 +205,7 @@ export default function OperatorsDashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', color: '#1e88e5' });
+  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', color: '#1e88e5' });
 
   const { data: boats = [] } = useQuery({ queryKey: ['all-boats'], queryFn: () => base44.entities.BoatInventory.list() });
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
