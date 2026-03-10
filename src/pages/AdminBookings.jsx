@@ -362,6 +362,24 @@ function AdminBookingsInner() {
     return booking !== undefined;
   });
 
+  const getOperatorCommission = (boatName) => {
+    try {
+      const raw = localStorage.getItem('filu_operators');
+      if (!raw) return 0;
+      const ops = JSON.parse(raw);
+      const boat = allBoats.find(b => b.name === boatName);
+      const boatOpName = (boat?.operator || '').toLowerCase().trim();
+      let op = null;
+      if (boatOpName && boatOpName !== 'filu') {
+        op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+      }
+      if (!op) op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
+      return parseFloat(op?.commission_pct || 0);
+    } catch {
+      return 0;
+    }
+  };
+
   const stats = {
     // Booking KPIs
     total: visibleBookings.length,
@@ -380,14 +398,18 @@ function AdminBookingsInner() {
     revenue: financialFilteredBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0),
     totalExpenses: financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0),
     netProfit: (() => {
-      const rev = financialFilteredBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
+      const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
+      const rev = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
       const exp = financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
-      return rev - exp;
+      const commission = activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+      return rev - exp - commission;
     })(),
     roi: (() => {
-      const rev = financialFilteredBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0);
+      const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
+      const rev = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
       const exp = financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
-      const profit = rev - exp;
+      const commission = activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+      const profit = rev - exp - commission;
       return rev > 0 ? Math.min(100, Math.round((profit / rev) * 100)) : 0;
     })(),
   };
@@ -404,6 +426,14 @@ function AdminBookingsInner() {
     const revenue = booking.total_price || 0;
     const expenses = getBookingExpenses(booking.id);
     return revenue > 0 ? Math.min(100, Math.round(((revenue - expenses) / revenue) * 100)) : 0;
+  };
+
+  // Earnings = Revenue - Expenses - Commission
+  const getBookingEarnings = (booking) => {
+    const revenue = booking.total_price || 0;
+    const exp = getBookingExpenses(booking.id);
+    const commissionPct = getOperatorCommission(booking.boat_name);
+    return revenue - exp - (revenue * commissionPct / 100);
   };
 
   if (isLoading) {
@@ -784,7 +814,7 @@ function AdminBookingsInner() {
                                     <div className="flex items-center gap-1.5"><Users className="h-3 w-3 text-white/30" /><span>{booking.guests} guests</span></div>
                                     <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-emerald-400/60" /><span className="text-emerald-300/80 font-medium">${booking.total_price?.toLocaleString()} MXN</span></div>
                                     <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-red-400/60" /><span className="text-red-300/80 font-medium">${getBookingExpenses(booking.id)?.toLocaleString()} Exp</span></div>
-                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-purple-400/60" /><span className="text-purple-300/80 font-medium">{getBookingProfitMargin(booking)}% ROI</span></div>
+                                    <div className="flex items-center gap-1.5"><DollarSign className="h-3 w-3 text-purple-400/60" /><span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, {maximumFractionDigits:0})} Earnings</span></div>
                                   </div>
                                   {/* PayPal button + payment status — shown below the amounts */}
                                   {(() => {

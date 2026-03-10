@@ -27,7 +27,7 @@ function loadOperators() {
       return updated;
     }
   } catch {}
-  return [{ id: 'filu', name: 'FILU', contact_name: '', contact_email: '', contact_phone: '', description: 'Primary charter service operator', paypal_username: 'filumarine', color: '#1e88e5' }];
+  return [{ id: 'filu', name: 'FILU', contact_name: '', contact_email: '', contact_phone: '', description: 'Primary charter service operator', paypal_username: 'filumarine', commission_pct: 0, color: '#1e88e5' }];
 }
 
 function saveOperators(ops) {
@@ -46,7 +46,7 @@ function StatBox({ icon: Icon, label, value, color }) {
   );
 }
 
-function OperatorCard({ operator, boats, crew, bookings, onEdit, onDelete, onAddBoat }) {
+function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDelete, onAddBoat }) {
   const opName = (operator.name || '').toLowerCase();
 
   const opBoats = boats.filter(b => {
@@ -68,6 +68,15 @@ function OperatorCard({ operator, boats, crew, bookings, onEdit, onDelete, onAdd
   const confirmedBookings = opBookings.filter(b => b.status === 'confirmed');
   const totalRevenue = completedBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
   const avgRevenue = completedBookings.length > 0 ? totalRevenue / completedBookings.length : 0;
+
+  const commissionPct = parseFloat(operator.commission_pct || 0);
+  const totalOpExpenses = opBookings.reduce((sum, b) => {
+    const exp = expenses.find(e => e.booking_id === b.id);
+    if (!exp) return sum;
+    return sum + (exp.fuel_cost || 0) + (exp.crew_cost || 0) + (exp.maintenance_cost || 0) + (exp.cleaning_cost || 0) + (exp.supplies_cost || 0) + (exp.other_cost || 0);
+  }, 0);
+  const commission = totalRevenue * commissionPct / 100;
+  const earnings = totalRevenue - totalOpExpenses - commission;
 
   const todayStr = new Date().toISOString().split('T')[0];
   const tripsToday = activeBookings.filter(b => b.date === todayStr).length;
@@ -148,6 +157,14 @@ function OperatorCard({ operator, boats, crew, bookings, onEdit, onDelete, onAdd
             <div className="flex justify-between text-xs">
               <span className="text-white/40">Avg ticket</span>
               <span className="text-white/60 font-medium">{avgRevenue > 0 ? `$${(avgRevenue/1000).toFixed(1)}k` : '—'}</span>
+            </div>
+            <div className="flex justify-between text-xs col-span-2 pt-1 border-t border-white/8">
+              <span className="text-white/40">Commission ({commissionPct}% of revenue)</span>
+              <span className="text-orange-300 font-medium">-${(commission/1000).toFixed(1)}k</span>
+            </div>
+            <div className="flex justify-between text-xs col-span-2">
+              <span className="text-white/60 font-semibold">Earnings (net)</span>
+              <span className={`font-bold ${earnings >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>${(earnings/1000).toFixed(1)}k</span>
             </div>
           </div>
         </div>
@@ -232,12 +249,13 @@ export default function OperatorsDashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', color: '#1e88e5' });
+  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: '#1e88e5' });
 
   const queryClient = useQueryClient();
   const { data: boats = [] } = useQuery({ queryKey: ['all-boats'], queryFn: () => base44.entities.BoatInventory.list() });
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
   const { data: bookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
+  const { data: expenses = [] } = useQuery({ queryKey: ['booking-expenses'], queryFn: () => base44.entities.BookingExpense.list() });
 
   // Sync paypal_username to all boats belonging to this operator
   const syncPaypalToBoats = async (opName, paypalUsername) => {
@@ -255,13 +273,13 @@ export default function OperatorsDashboard() {
 
   const openAdd = () => {
     setEditingOp(null);
-    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', color: COLORS[operators.length % COLORS.length] });
+    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: COLORS[operators.length % COLORS.length] });
     setDialogOpen(true);
   };
 
   const openEdit = (op) => {
     setEditingOp(op);
-    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', color: op.color || '#1e88e5' });
+    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', commission_pct: op.commission_pct || 0, color: op.color || '#1e88e5' });
     setDialogOpen(true);
   };
 
@@ -317,7 +335,7 @@ export default function OperatorsDashboard() {
       {/* Operator cards */}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
         {operators.map(op => (
-          <OperatorCard key={op.id} operator={op} boats={boats} crew={crew} bookings={bookings} onEdit={openEdit} onDelete={handleDelete} onAddBoat={(opName) => setAddBoatForOperator(opName)} />
+          <OperatorCard key={op.id} operator={op} boats={boats} crew={crew} bookings={bookings} expenses={expenses} onEdit={openEdit} onDelete={handleDelete} onAddBoat={(opName) => setAddBoatForOperator(opName)} />
         ))}
       </div>
 
@@ -361,6 +379,23 @@ export default function OperatorsDashboard() {
             <div>
               <Label className="text-sm">Contact Email</Label>
               <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="operator@example.com" className="mt-1" />
+            </div>
+            <div>
+              <Label className="text-sm">Commission %</Label>
+              <div className="flex items-center mt-1">
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.5"
+                  value={form.commission_pct}
+                  onChange={e => setForm(f => ({ ...f, commission_pct: parseFloat(e.target.value) || 0 }))}
+                  placeholder="0"
+                  className="rounded-r-none"
+                />
+                <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-white/40 border-input bg-white/5">%</span>
+              </div>
+              <p className="text-xs text-white/30 mt-1">Percentage charged from each booking's revenue</p>
             </div>
             <div>
               <Label className="text-sm">PayPal Username</Label>
