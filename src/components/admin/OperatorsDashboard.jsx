@@ -224,9 +224,21 @@ export default function OperatorsDashboard() {
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
   const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', color: '#1e88e5' });
 
+  const queryClient = useQueryClient();
   const { data: boats = [] } = useQuery({ queryKey: ['all-boats'], queryFn: () => base44.entities.BoatInventory.list() });
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
   const { data: bookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
+
+  // Sync paypal_username to all boats belonging to this operator
+  const syncPaypalToBoats = async (opName, paypalUsername) => {
+    const opNameLower = (opName || '').toLowerCase();
+    const opBoats = boats.filter(b => {
+      const boatOp = (b.operator || '').toLowerCase();
+      return opNameLower === 'filu' ? (!b.operator || boatOp === 'filu') : boatOp === opNameLower;
+    });
+    await Promise.all(opBoats.map(b => base44.entities.BoatInventory.update(b.id, { paypal_username: paypalUsername || '' })));
+    queryClient.invalidateQueries({ queryKey: ['all-boats'] });
+  };
 
   const totalRevenue = bookings.filter(b => b.status === 'completed').reduce((sum, b) => sum + (b.total_price || 0), 0);
   const totalActiveBookings = bookings.filter(b => b.status !== 'cancelled').length;
