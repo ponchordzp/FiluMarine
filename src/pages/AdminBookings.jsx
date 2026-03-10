@@ -230,17 +230,22 @@ function AdminBookingsInner() {
   };
 
   const getOperatorPaypal = (boatName) => {
-    // Always read fresh from localStorage so updates from Operators tab are picked up
-    let ops = [{ id: 'filu', name: 'FILU', paypal_username: '' }];
-    try { const raw = localStorage.getItem('filu_operators'); if (raw) ops = JSON.parse(raw); } catch {}
+    // Read directly from the boat record in the DB (synced when operator is saved)
     const boat = allBoats.find(b => b.name === boatName);
-    const opName = (boat?.operator || 'filu').toLowerCase();
-    const op = ops.find(o => {
-      const oName = (o.name || '').toLowerCase();
-      return opName === 'filu' ? (!oName || oName === 'filu') : oName === opName;
-    });
-    const username = op?.paypal_username?.trim();
-    return username || null;
+    const username = boat?.paypal_username?.trim();
+    if (username) return username;
+    // Fallback: check localStorage operators directly by operator name on the boat
+    try {
+      const raw = localStorage.getItem('filu_operators');
+      if (!raw) return null;
+      const ops = JSON.parse(raw);
+      const opName = (boat?.operator || 'filu').toLowerCase();
+      const op = ops.find(o => {
+        const oName = (o.name || '').toLowerCase();
+        return opName === 'filu' ? (!oName || oName === 'filu') : oName === opName;
+      });
+      return op?.paypal_username?.trim() || null;
+    } catch { return null; }
   };
 
   const [expandedRows, setExpandedRows] = useState({ financial: true, bookings: true });
