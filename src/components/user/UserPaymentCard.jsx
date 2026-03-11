@@ -50,7 +50,7 @@ export default function UserPaymentCard({ booking, allBoats }) {
       {/* Progress */}
       <div className="space-y-1.5">
         <div className="flex justify-between text-xs text-white/35">
-          <span>Paid: ${paid.toLocaleString()} MXN</span>
+          <span>Paid: ${(collectedOnSite ? total : paid).toLocaleString()} MXN</span>
           <span>Total: ${total.toLocaleString()} MXN</span>
         </div>
         <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.07)' }}>
