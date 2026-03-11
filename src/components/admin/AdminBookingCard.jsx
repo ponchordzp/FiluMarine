@@ -417,8 +417,8 @@ export default function AdminBookingCard({
             >
               <Trash2 className="h-3 w-3" />
             </Button>
-            </div>
-          </div>
+            </div>{/* end actions buttons */}
+          </div>{/* end actions row */}
         </div>
       </div>
 
