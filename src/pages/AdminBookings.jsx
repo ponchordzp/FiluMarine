@@ -819,6 +819,7 @@ function AdminBookingsInner() {
                     key={booking.id}
                     booking={booking}
                     allBoats={allBoats}
+                    expenses={expenses}
                     hasElevatedAccess={hasElevatedAccess}
                     getBookingExpenses={getBookingExpenses}
                     getBookingEarnings={getBookingEarnings}
