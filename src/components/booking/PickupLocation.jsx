@@ -1,49 +1,34 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, MapPin, Ship, Home, Check } from 'lucide-react';
+import { ArrowLeft, MapPin, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
 export default function PickupLocation({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const location = bookingData.location || 'ixtapa_zihuatanejo';
-  const boatId = bookingData.boat_id;
-  const experienceId = experience.id;
+  const boatName = bookingData.boat_name;
 
-  // Fetch boat data to get expedition pricing
-  const { data: boat } = useQuery({
-    queryKey: ['boat', boatId],
-    queryFn: async () => {
-      if (!boatId) return null;
-      const boats = await base44.entities.BoatInventory.list();
-      return boats.find(b => b.id === boatId);
-    },
-    enabled: !!boatId,
+  const { data: allPickupLocations = [] } = useQuery({
+    queryKey: ['pickup-locations'],
+    queryFn: () => base44.entities.PickupLocation.list('sort_order'),
   });
 
-  // Extract pickup locations from expedition pricing
-  const availablePickupLocations = React.useMemo(() => {
-    if (!boat?.expedition_pricing) return [];
-    
-    // Get all pickup locations for this experience type
-    const locations = boat.expedition_pricing
-      .filter(p => p.expedition_type === experienceId && p.pickup_location)
-      .map(p => p.pickup_location);
-    
-    // Return unique locations
-    return [...new Set(locations)];
-  }, [boat, experienceId]);
+  // Filter by destination and boat (empty applicable_boats = all boats)
+  const availablePickupLocations = allPickupLocations.filter(pl => {
+    if (!pl.visible) return false;
+    if (pl.location !== location) return false;
+    if (pl.applicable_boats?.length > 0 && boatName && !pl.applicable_boats.includes(boatName)) return false;
+    return true;
+  });
 
   const [selectedPickup, setSelectedPickup] = useState(
-    bookingData.pickup_location || (availablePickupLocations.length > 0 ? availablePickupLocations[0] : '')
+    bookingData.pickup_location || (availablePickupLocations.length > 0 ? availablePickupLocations[0]?.name : '')
   );
 
   const handleContinue = () => {
-    setBookingData({
-      ...bookingData,
-      pickup_location: selectedPickup,
-    });
+    setBookingData({ ...bookingData, pickup_location: selectedPickup });
     onContinue();
   };
 
@@ -55,10 +40,7 @@ export default function PickupLocation({ experience, onBack, onContinue, booking
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <button 
-            onClick={onBack}
-            className="flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors"
-          >
+          <button onClick={onBack} className="flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors">
             <ArrowLeft className="h-4 w-4" />
             <span>Back to date selection</span>
           </button>
@@ -70,7 +52,6 @@ export default function PickupLocation({ experience, onBack, onContinue, booking
             <p className="text-white/80 text-xl">Where should we pick you up?</p>
           </div>
 
-          {/* Pickup Location Selector */}
           <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 mb-8">
             <div className="flex items-center gap-3 mb-4">
               <MapPin className="h-6 w-6 text-cyan-400" />
@@ -78,16 +59,16 @@ export default function PickupLocation({ experience, onBack, onContinue, booking
                 Select Pickup Location
               </h3>
             </div>
-            
+
             {availablePickupLocations.length > 0 ? (
               <Select value={selectedPickup} onValueChange={setSelectedPickup}>
                 <SelectTrigger className="w-full bg-white/10 border-white/30 text-white h-14 text-lg">
                   <SelectValue placeholder="Choose a pickup location" />
                 </SelectTrigger>
                 <SelectContent>
-                  {availablePickupLocations.map((location) => (
-                    <SelectItem key={location} value={location} className="text-base">
-                      {location}
+                  {availablePickupLocations.map((pl) => (
+                    <SelectItem key={pl.id} value={pl.name} className="text-base">
+                      {pl.name}{pl.address ? ` — ${pl.address}` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -95,26 +76,27 @@ export default function PickupLocation({ experience, onBack, onContinue, booking
             ) : (
               <div className="p-4 bg-amber-500/20 border border-amber-400/30 rounded-xl">
                 <p className="text-amber-200 text-sm">
-                  No pickup locations configured for this boat. Please contact support.
+                  No pickup locations configured for this destination. Please contact support.
                 </p>
               </div>
             )}
-            
+
             {selectedPickup && (
               <div className="mt-4 p-4 bg-cyan-500/10 border border-cyan-400/30 rounded-xl">
                 <p className="text-cyan-200 text-sm flex items-center gap-2">
                   <Check className="h-4 w-4" />
                   Selected: <span className="font-semibold">{selectedPickup}</span>
                 </p>
+                {availablePickupLocations.find(pl => pl.name === selectedPickup)?.notes && (
+                  <p className="text-cyan-300/60 text-xs mt-1 ml-6">
+                    {availablePickupLocations.find(pl => pl.name === selectedPickup).notes}
+                  </p>
+                )}
               </div>
             )}
           </div>
 
-          {/* Continue Button */}
-          <motion.div 
-            className="flex justify-center mt-4"
-            whileHover={{ scale: 1.02 }}
-          >
+          <motion.div className="flex justify-center mt-4" whileHover={{ scale: 1.02 }}>
             <Button
               onClick={handleContinue}
               disabled={!selectedPickup}

@@ -1,60 +1,45 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Wine, Sparkles, Check } from 'lucide-react';
+import { ArrowLeft, Check, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const getAddOnOptions = (boatName) => {
-  const isTycoon = boatName === 'TYCOON';
-  
-  return [
-    {
-      id: 'drinks_catering',
-      title: 'Premium Drinks & Catering',
-      description: isTycoon 
-        ? 'Premium open bar (beer, wine, cocktails), gourmet cheese & charcuterie boards, fresh ceviche bar, tropical fruit platters, and artisan canapés'
-        : 'Local beers, wine selection, fresh ceviche, guacamole with chips, seasonal fruit platter, and assorted gourmet snacks',
-      price: isTycoon ? 4500 : 1500,
-      icon: Wine,
-    },
-    {
-      id: 'celebration_package',
-      title: 'Celebration Package',
-      description: isTycoon
-        ? 'Premium champagne & sparkling wine, custom cake or dessert bar, luxury floral arrangements, balloon decorations, celebration banner, photographer service (1 hour), and party favors'
-        : 'Champagne bottle, celebration cake, festive decorations, balloons, personalized banner, and special setup',
-      price: isTycoon ? 6000 : 2000,
-      icon: Sparkles,
-    },
-  ];
-};
+import { base44 } from '@/api/base44Client';
+import { useQuery } from '@tanstack/react-query';
 
 export default function AddOns({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const [selectedAddOns, setSelectedAddOns] = useState(bookingData.add_ons || []);
   const [specialRequests, setSpecialRequests] = useState(bookingData.special_requests || '');
-  
-  const addOnOptions = getAddOnOptions(bookingData.boat_name);
+
+  const boatName = bookingData.boat_name;
+  const experienceId = experience?.id;
+
+  const { data: allExtras = [] } = useQuery({
+    queryKey: ['extras'],
+    queryFn: () => base44.entities.Extra.list('sort_order'),
+  });
+
+  // Filter extras: visible + applicable to this boat + applicable to this trip type
+  const addOnOptions = allExtras.filter(extra => {
+    if (!extra.visible) return false;
+    if (extra.applicable_boats?.length > 0 && boatName && !extra.applicable_boats.includes(boatName)) return false;
+    if (extra.applicable_trips?.length > 0 && experienceId && !extra.applicable_trips.includes(experienceId)) return false;
+    return true;
+  });
 
   const toggleAddOn = (id) => {
-    setSelectedAddOns(prev => 
-      prev.includes(id) 
-        ? prev.filter(a => a !== id)
-        : [...prev, id]
+    setSelectedAddOns(prev =>
+      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
     );
   };
 
   const handleContinue = () => {
-    setBookingData({
-      ...bookingData,
-      add_ons: selectedAddOns,
-      special_requests: specialRequests,
-    });
+    setBookingData({ ...bookingData, add_ons: selectedAddOns, special_requests: specialRequests });
     onContinue();
   };
 
   const totalAddOns = selectedAddOns.reduce((sum, id) => {
-    const addOn = addOnOptions.find(a => a.id === id);
-    return sum + (addOn?.price || 0);
+    const extra = addOnOptions.find(e => e.id === id);
+    return sum + (extra?.price || 0);
   }, 0);
 
   return (
@@ -65,10 +50,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <button 
-            onClick={onBack}
-            className="flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors"
-          >
+          <button onClick={onBack} className="flex items-center gap-2 text-white/80 hover:text-white mb-8 transition-colors">
             <ArrowLeft className="h-4 w-4" />
             <span>Back to pickup location</span>
           </button>
@@ -81,45 +63,45 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           </div>
 
           {/* Add-ons */}
-          <div className="space-y-4 mb-10">
-            {addOnOptions.map((addOn) => {
-              const isSelected = selectedAddOns.includes(addOn.id);
-              return (
-                <motion.button
-                  key={addOn.id}
-                  onClick={() => toggleAddOn(addOn.id)}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left ${
-                    isSelected
-                      ? 'border-cyan-400 bg-cyan-400/20 shadow-lg shadow-cyan-500/30'
-                      : 'border-white/30 bg-white/10 hover:border-white/40 backdrop-blur-xl'
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    isSelected ? 'bg-cyan-400' : 'bg-white/20'
-                  }`}>
-                    <addOn.icon className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white'}`}>
-                      {addOn.title}
-                    </h3>
-                    <p className="text-sm text-white/70 leading-relaxed">{addOn.description}</p>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    <span className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
-                      ${addOn.price.toLocaleString()} MXN
-                    </span>
-                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                      isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'
-                    }`}>
-                      {isSelected && <Check className="h-4 w-4 text-slate-900" />}
+          {addOnOptions.length > 0 ? (
+            <div className="space-y-4 mb-10">
+              {addOnOptions.map((extra) => {
+                const isSelected = selectedAddOns.includes(extra.id);
+                return (
+                  <motion.button
+                    key={extra.id}
+                    onClick={() => toggleAddOn(extra.id)}
+                    whileTap={{ scale: 0.98 }}
+                    className={`w-full p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left ${
+                      isSelected
+                        ? 'border-cyan-400 bg-cyan-400/20 shadow-lg shadow-cyan-500/30'
+                        : 'border-white/30 bg-white/10 hover:border-white/40 backdrop-blur-xl'
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-cyan-400' : 'bg-white/20'}`}>
+                      <Sparkles className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
                     </div>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
+                    <div className="flex-1">
+                      <h3 className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white'}`}>{extra.name}</h3>
+                      {extra.description && <p className="text-sm text-white/70 leading-relaxed">{extra.description}</p>}
+                    </div>
+                    <div className="flex items-center gap-3 flex-shrink-0">
+                      <span className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
+                        ${(extra.price || 0).toLocaleString()} MXN
+                      </span>
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'}`}>
+                        {isSelected && <Check className="h-4 w-4 text-slate-900" />}
+                      </div>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mb-10 p-6 rounded-2xl border border-white/20 bg-white/5 text-center text-white/40">
+              No extras available for this trip.
+            </div>
+          )}
 
           {/* Special Requests */}
           <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 shadow-2xl mb-10">
