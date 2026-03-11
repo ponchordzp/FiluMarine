@@ -417,8 +417,8 @@ export default function AdminBookingCard({
             >
               <Trash2 className="h-3 w-3" />
             </Button>
-            </div>{/* end actions buttons */}
-          </div>{/* end actions row */}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -431,5 +431,6 @@ export default function AdminBookingCard({
         commissionPct={commission}
       />
     </motion.div>
+  );
   );
 }
