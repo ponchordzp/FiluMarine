@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import {
   Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign,
-  CheckCircle2, XCircle, Info, Trash2, PenSquare, ChevronDown, ChevronUp, FileText,
+  CheckCircle2, XCircle, Info, Trash2, PenSquare, FileText,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -115,8 +115,6 @@ export default function AdminBookingCard({
   setExpenseBooking,
   setExpenseDialogOpen,
 }) {
-  const [paymentExpanded, setPaymentExpanded] = useState(false);
-  const [actionsExpanded, setActionsExpanded] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
   const StatusIcon = statusIcons[booking.status] || Clock;
