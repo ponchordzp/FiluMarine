@@ -44,7 +44,18 @@ export default function Users() {
   const today = new Date(new Date().toDateString());
   const upcomingBookings = bookings.filter(b => b.status !== 'cancelled' && b.date && new Date(b.date) >= today);
   const pastBookings = bookings.filter(b => b.status !== 'cancelled' && b.date && new Date(b.date) < today);
-  const totalPaid = bookings.reduce((s, b) => s + (b.deposit_paid || 0), 0);
+  const activeBookings = bookings.filter(b => b.status !== 'cancelled');
+  const totalPaid = activeBookings.reduce((s, b) => {
+    const deposit = b.deposit_paid || 0;
+    const collectedBalance = b.remaining_payment_status === 'collected_on_site'
+      ? Math.max(0, (b.total_price || 0) - deposit)
+      : 0;
+    return s + deposit + collectedBalance;
+  }, 0);
+  const totalRemaining = activeBookings.reduce((s, b) => {
+    if (b.remaining_payment_status === 'collected_on_site') return s;
+    return s + Math.max(0, (b.total_price || 0) - (b.deposit_paid || 0));
+  }, 0);
   const formatMXN = n => n >= 1000 ? `$${(n / 1000).toFixed(1)}K` : `$${n}`;
 
   function handleLogout() {
@@ -96,11 +107,12 @@ export default function Users() {
       {/* Body */}
       <div className="max-w-lg mx-auto px-4 pt-5 space-y-4 relative z-10">
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5">
           {[
             { label: 'Upcoming', value: upcomingBookings.length, color: '#60b4ff' },
             { label: 'Completed', value: pastBookings.filter(b => b.status === 'completed').length, color: '#6ee7b7' },
             { label: 'Total Paid', value: formatMXN(totalPaid), color: '#fbbf24' },
+            { label: 'Amount Remaining', value: totalRemaining > 0 ? formatMXN(totalRemaining) : '$0', color: totalRemaining > 0 ? '#f87171' : '#6ee7b7' },
           ].map(s => (
             <div key={s.label} className="rounded-2xl p-3 text-center" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
               <p className="font-bold text-xl leading-tight" style={{ color: s.color }}>{s.value}</p>
