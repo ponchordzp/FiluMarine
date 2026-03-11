@@ -866,7 +866,12 @@ function AdminBookingsInner() {
                                        const isCollected = booking.remaining_payment_status === 'collected_on_site';
                                        return (
                                          <div>
-                                           <p className="text-xs text-white/30 font-medium mb-1 uppercase tracking-wider">💵 On-Site Balance ({remaining > 0 ? `$${remaining.toLocaleString(undefined, {maximumFractionDigits:0})} MXN` : 'Fully Paid'})</p>
+                                           <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-white/75">
+                                             💵 On-Site Balance{' '}
+                                             <span className={isCollected ? 'text-emerald-400' : 'text-amber-400'}>
+                                               ({remaining > 0 ? `$${remaining.toLocaleString(undefined, {maximumFractionDigits:0})} MXN` : 'Fully Paid'})
+                                             </span>
+                                           </p>
                                            <Select
                                              value={booking.remaining_payment_status || 'pending_collection'}
                                              onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
@@ -897,10 +902,10 @@ function AdminBookingsInner() {
                                        const isPaid = booking.payment_status === 'payment_done';
                                        return (
                                          <div>
-                                           <p className="text-xs text-white/30 font-medium mb-1 uppercase tracking-wider">
+                                           <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-white/75">
                                              🏦 Operator Payment
                                              {getOperatorCommission(booking.boat_name) > 0 && (
-                                               <span className="ml-2 text-orange-300/80 normal-case font-semibold not-italic">
+                                               <span className={`ml-2 normal-case font-semibold not-italic ${isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
                                                  → ${((booking.total_price || 0) - (booking.total_price || 0) * getOperatorCommission(booking.boat_name) / 100).toLocaleString(undefined, {maximumFractionDigits: 0})} MXN
                                                </span>
                                              )}

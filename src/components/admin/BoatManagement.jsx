@@ -119,6 +119,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const [newEquipment, setNewEquipment] = useState('');
   const [tripHistoryFilter, setTripHistoryFilter] = useState('all');
   const [tripHistoryExpanded, setTripHistoryExpanded] = useState({});
+  const [engineHoursExpanded, setEngineHoursExpanded] = useState({});
   const [collapsedSections, setCollapsedSections] = useState({});
   const dialogContentRef = React.useRef(null);
 
@@ -1204,21 +1205,32 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
               {boat.current_hours >= 0 &&
                 <div className="mt-3 pt-3 border-t">
-                  <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-2 mb-2"><Gauge className="h-3 w-3" />Engine Hours</h4>
-                  {maintenanceOverdue && <div className="p-2 bg-red-50 border border-red-300 rounded-lg mb-2"><p className="text-xs font-bold text-red-800">⚠️ OVERDUE</p></div>}
-                  {!maintenanceOverdue && maintenanceDue && <div className="p-2 bg-amber-50 border border-amber-300 rounded-lg mb-2"><p className="text-xs font-bold text-amber-800">🔔 DUE SOON</p></div>}
-                  <div className="space-y-1.5">
-                    <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
-                      <div className="bg-slate-50 p-1.5 rounded"><p className="text-slate-500" style={{ fontSize: '10px' }}>Base</p><p className="font-bold text-sm">{boat.current_hours}</p></div>
-                      {isRentalMode && <div className="bg-blue-50 p-1.5 rounded border border-blue-200"><p className="text-blue-600" style={{ fontSize: '10px' }}>+ Bookings</p><p className="font-bold text-sm text-blue-700">{stats.totalEngineHoursFromBookings.toFixed(1)}</p></div>}
-                      <div className={`p-1.5 rounded border ${isRentalMode ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}><p className={isRentalMode ? "text-green-600" : "text-blue-600"} style={{ fontSize: '10px' }}>+ Personal</p><p className={`font-bold text-sm ${isRentalMode ? 'text-green-700' : 'text-blue-700'}`}>{stats.personalTripsEngineHours.toFixed(1)}</p></div>
-                    </div>
-                    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-2 rounded-lg border-2 border-indigo-300 shadow-md"><p className="text-white text-center" style={{ fontSize: '10px' }}>Total Hours</p><p className="font-bold text-xl text-white text-center">{actualCurrentHours.toFixed(1)}</p></div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-1.5 mt-1.5 text-xs">
-                    <div className="bg-slate-50 p-1.5 rounded text-center"><p className="text-slate-500" style={{ fontSize: '10px' }}>Since Service</p><p className="font-bold text-sm">{hoursSinceLastMaintenance.toFixed(1)}</p></div>
-                    <div className={`p-1.5 rounded text-center ${maintenanceOverdue ? 'bg-red-100 border border-red-400' : maintenanceDue ? 'bg-amber-100 border border-amber-400' : 'bg-green-50'}`}><p className="text-slate-500" style={{ fontSize: '10px' }}>Until Service</p><p className={`font-bold text-sm ${maintenanceOverdue ? 'text-red-700' : maintenanceDue ? 'text-amber-700' : 'text-green-600'}`}>{hoursUntilMaintenance.toFixed(1)}</p></div>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEngineHoursExpanded(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))}
+                    className="w-full flex items-center justify-between gap-2 mb-2 group"
+                  >
+                    <h4 className="font-semibold text-xs text-slate-700 flex items-center gap-2"><Gauge className="h-3 w-3" />Engine Hours</h4>
+                    {engineHoursExpanded[boat.id] ? <ChevronUp className="h-3 w-3 text-slate-400" /> : <ChevronDown className="h-3 w-3 text-slate-400" />}
+                  </button>
+                  {engineHoursExpanded[boat.id] && (
+                    <>
+                      {maintenanceOverdue && <div className="p-2 bg-red-50 border border-red-300 rounded-lg mb-2"><p className="text-xs font-bold text-red-800">⚠️ OVERDUE</p></div>}
+                      {!maintenanceOverdue && maintenanceDue && <div className="p-2 bg-amber-50 border border-amber-300 rounded-lg mb-2"><p className="text-xs font-bold text-amber-800">🔔 DUE SOON</p></div>}
+                      <div className="space-y-1.5">
+                        <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
+                          <div className="bg-slate-50 p-1.5 rounded"><p className="text-slate-500" style={{ fontSize: '10px' }}>Base</p><p className="font-bold text-sm">{boat.current_hours}</p></div>
+                          {isRentalMode && <div className="bg-blue-50 p-1.5 rounded border border-blue-200"><p className="text-blue-600" style={{ fontSize: '10px' }}>+ Bookings</p><p className="font-bold text-sm text-blue-700">{stats.totalEngineHoursFromBookings.toFixed(1)}</p></div>}
+                          <div className={`p-1.5 rounded border ${isRentalMode ? 'bg-green-50 border-green-200' : 'bg-blue-50 border-blue-200'}`}><p className={isRentalMode ? "text-green-600" : "text-blue-600"} style={{ fontSize: '10px' }}>+ Personal</p><p className={`font-bold text-sm ${isRentalMode ? 'text-green-700' : 'text-blue-700'}`}>{stats.personalTripsEngineHours.toFixed(1)}</p></div>
+                        </div>
+                        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-2 rounded-lg border-2 border-indigo-300 shadow-md"><p className="text-white text-center" style={{ fontSize: '10px' }}>Total Hours</p><p className="font-bold text-xl text-white text-center">{actualCurrentHours.toFixed(1)}</p></div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 mt-1.5 text-xs">
+                        <div className="bg-slate-50 p-1.5 rounded text-center"><p className="text-slate-500" style={{ fontSize: '10px' }}>Since Service</p><p className="font-bold text-sm">{hoursSinceLastMaintenance.toFixed(1)}</p></div>
+                        <div className={`p-1.5 rounded text-center ${maintenanceOverdue ? 'bg-red-100 border border-red-400' : maintenanceDue ? 'bg-amber-100 border border-amber-400' : 'bg-green-50'}`}><p className="text-slate-500" style={{ fontSize: '10px' }}>Until Service</p><p className={`font-bold text-sm ${maintenanceOverdue ? 'text-red-700' : maintenanceDue ? 'text-amber-700' : 'text-green-600'}`}>{hoursUntilMaintenance.toFixed(1)}</p></div>
+                      </div>
+                    </>
+                  )}
                 </div>
                 }
 
@@ -1329,7 +1341,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 }
             </CardContent>
             <div className="flex gap-2 px-4 pb-3">
-              <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1 h-8 text-xs"><Edit className="h-3 w-3 mr-1" />{readOnlyMode ? 'View / Fill Maintenance' : 'Edit'}</Button>
+              <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1 h-8 text-xs"><Edit className="h-3 w-3 mr-1" />{readOnlyMode ? 'View / Fill Maintenance' : 'Manage Vessel'}</Button>
               {!readOnlyMode && <Button variant="destructive" size="sm" onClick={() => {if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) deleteMutation.mutate(boat.id);}} className="h-8"><Trash2 className="h-3 w-3" /></Button>}
             </div>
           </Card>);
