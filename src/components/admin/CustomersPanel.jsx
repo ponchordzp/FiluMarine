@@ -150,6 +150,15 @@ export default function CustomersPanel() {
                     <div className="flex items-center gap-2">
                       <Phone className="h-3.5 w-3.5 text-white/25 shrink-0" />
                       <span className="text-xs text-white/50">{customer.phone}</span>
+                      <a
+                        href={`https://wa.me/${customer.phone.replace(/\D/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="ml-1 text-xs font-semibold px-2 py-0.5 rounded-full transition-all hover:opacity-80"
+                        style={{ background: 'rgba(37,211,102,0.15)', border: '1px solid rgba(37,211,102,0.3)', color: '#4ade80' }}
+                      >
+                        💬 WhatsApp
+                      </a>
                     </div>
                   )}
                 </div>
