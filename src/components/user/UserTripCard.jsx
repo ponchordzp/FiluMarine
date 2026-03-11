@@ -104,12 +104,16 @@ export default function UserTripCard({ booking, allBoats = [] }) {
           {collectedOnSite ? (
             <div className="flex items-center justify-between">
               <span className="text-xs text-white/25">Balance</span>
-              <span className="text-xs text-emerald-400">✅ Collected On-Site</span>
+              <span className="text-xs text-emerald-400">
+                ✅ Collected{booking.remaining_payment_method ? ` · ${booking.remaining_payment_method.replace(/_/g, ' ')}` : ' On-Site'}
+              </span>
             </div>
           ) : remaining > 0 ? (
             <div className="flex items-center justify-between">
               <span className="text-xs text-white/25">Balance Due</span>
-              <span className="text-xs text-amber-400 font-semibold">${remaining.toLocaleString()} MXN</span>
+              <span className="text-xs text-amber-400 font-semibold">
+                ${remaining.toLocaleString()} MXN{booking.remaining_payment_method ? ` · ${booking.remaining_payment_method.replace(/_/g, ' ')}` : ''}
+              </span>
             </div>
           ) : null}
         </div>
