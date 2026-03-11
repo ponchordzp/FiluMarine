@@ -29,6 +29,8 @@ import OperatorsDashboard from '@/components/admin/OperatorsDashboard';
 import TabNavGroups from '@/components/admin/TabNavGroups';
 import CustomersPanel from '@/components/admin/CustomersPanel';
 import AdminBookingCard from '@/components/admin/AdminBookingCard';
+import PickupLocationsManagement from '@/components/admin/PickupLocationsManagement';
+import ExtrasManagement from '@/components/admin/ExtrasManagement';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
@@ -1180,6 +1182,22 @@ function AdminBookingsInner() {
             <TabsContent value="expeditions">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <ExpeditionManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
+              </div>
+            </TabsContent>
+          )}
+
+          {(isSuperAdmin || isOperatorAdmin) && (
+            <TabsContent value="pickup-locations">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <PickupLocationsManagement />
+              </div>
+            </TabsContent>
+          )}
+
+          {(isSuperAdmin || isOperatorAdmin) && (
+            <TabsContent value="extras">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <ExtrasManagement allBoats={allBoats} />
               </div>
             </TabsContent>
           )}
