@@ -28,6 +28,7 @@ import ChecklistTemplateEditor from '@/components/admin/ChecklistTemplateEditor'
 import OperatorsDashboard from '@/components/admin/OperatorsDashboard';
 import TabNavGroups from '@/components/admin/TabNavGroups';
 import CustomersPanel from '@/components/admin/CustomersPanel';
+import AdminBookingCard from '@/components/admin/AdminBookingCard';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
