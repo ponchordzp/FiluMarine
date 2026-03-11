@@ -77,8 +77,8 @@ export default function BookingSearch() {
 
       {/* Header */}
       <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-        <div className="absolute inset-0" style={{ backgroundImage: 'url(https://media.base44.com/images/public/6987f0afff96227dd3af0e68/79455c1bb_FILUMarine1.png)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.35 }} />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(5,13,26,0.82) 0%, rgba(9,26,48,0.75) 40%, rgba(13,36,68,0.82) 100%)' }} />
+        <div className="absolute inset-0" style={{ backgroundImage: 'url(https://media.base44.com/images/public/6987f0afff96227dd3af0e68/136c58332_FILUMarine2.png)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.4 }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(5,13,26,0.80) 0%, rgba(9,26,48,0.72) 40%, rgba(13,36,68,0.80) 100%)' }} />
         <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #1565c0 30%, #1e88e5 60%, transparent 100%)' }} />
         <div className="relative max-w-3xl mx-auto px-6 py-8">
           <Link to={createPageUrl('Home')} className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm mb-6">

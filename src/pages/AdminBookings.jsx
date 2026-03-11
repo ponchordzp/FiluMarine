@@ -472,9 +472,8 @@ function AdminBookingsInner() {
       {/* Header */}
       <div className="relative overflow-hidden" style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         {/* Dark navy gradient — no bright blues at the end */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, #050d1a 0%, #091a30 40%, #0d2444 100%)' }} />
-        {/* Subtle grid lines */}
-        <div className="absolute inset-0 opacity-[0.06]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.6) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.6) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        <div className="absolute inset-0" style={{ backgroundImage: 'url(https://media.base44.com/images/public/6987f0afff96227dd3af0e68/136c58332_FILUMarine2.png)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.35 }} />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(135deg, rgba(5,13,26,0.82) 0%, rgba(9,26,48,0.75) 40%, rgba(13,36,68,0.82) 100%)' }} />
         {/* Bottom accent line */}
         <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ background: 'linear-gradient(90deg, transparent 0%, #1565c0 30%, #1e88e5 60%, transparent 100%)' }} />
 

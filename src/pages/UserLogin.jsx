@@ -120,15 +120,7 @@ export default function UserLogin() {
     <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(150deg, #040d1a 0%, #0a1f3d 55%, #071429 100%)' }}>
       {/* Glow blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, #1e88e5, transparent)', transform: 'translate(40%, -40%)' }} />
-        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, #0d5fa8, transparent)', transform: 'translate(-40%, 40%)' }} />
-        {/* Subtle grid */}
-        <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
-        {/* Ocean wave bottom decoration */}
-        <svg className="absolute bottom-0 left-0 right-0 w-full opacity-[0.08]" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
-          <path d="M0,60 C240,100 480,20 720,60 C960,100 1200,20 1440,60 L1440,120 L0,120 Z" fill="#1e88e5"/>
-          <path d="M0,80 C240,40 480,100 720,80 C960,60 1200,100 1440,80 L1440,120 L0,120 Z" fill="#0d5fa8" opacity="0.6"/>
-        </svg>
+        <div className="absolute inset-0" style={{ backgroundImage: 'url(https://media.base44.com/images/public/6987f0afff96227dd3af0e68/136c58332_FILUMarine2.png)', backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.12 }} />
       </div>
 
       {/* Back link */}
