@@ -59,6 +59,8 @@ const families = [
         tabs: [
           { value: 'locations', label: '📍 Locations' },
           { value: 'expeditions', label: '🎣 Expeditions' },
+          { value: 'pickup-locations', label: '🚢 Pickup Locations' },
+          { value: 'extras', label: '✨ Extras' },
           { value: 'destinations', label: '🗺️ Destinations' },
         ],
       },
