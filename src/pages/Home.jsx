@@ -369,6 +369,15 @@ export default function Home() {
                   Find My Booking
                 </Link>
                 <Link 
+                  to={createPageUrl('UserLogin')}
+                  className="group inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500/20 to-indigo-500/20 hover:from-blue-500/30 hover:to-indigo-500/30 rounded-xl border border-blue-400/30 text-sm transition-all duration-300 hover:scale-105 font-medium text-white/90"
+                >
+                  <svg className="h-4 w-4 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  My Account
+                </Link>
+                <Link 
                   to={createPageUrl('AdminBookings')}
                   className="group inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/20 text-sm transition-all duration-300 hover:scale-105 text-white/90"
                 >

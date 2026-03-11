@@ -70,6 +70,7 @@ const families = [
         textColor: '#d8b4fe',
         tabs: [
           { value: 'users', label: '👥 Users' },
+          { value: 'customers', label: '🧑‍💼 Customers', superAdminOnly: true },
         ],
       },
     ],
@@ -136,13 +137,13 @@ function buildFamiliesForUser(isSuperAdmin, isOperatorAdmin) {
     if (!family.adminOnly) return family;
     if (isSuperAdmin) return family; // Full access
 
-    // Operator admin: strip checklist-template tab and operators tab (they can't manage other operators)
+    // Operator admin: strip checklist-template, operators, and customers tabs
     return {
       ...family,
       tabs: family.tabs.filter(t => t.value !== 'operators'),
       children: family.children.map(child => ({
         ...child,
-        tabs: child.tabs.filter(t => t.value !== 'checklist-template'),
+        tabs: child.tabs.filter(t => t.value !== 'checklist-template' && !t.superAdminOnly),
       })),
     };
   });

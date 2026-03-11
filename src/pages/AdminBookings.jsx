@@ -27,6 +27,7 @@ import MechanicPortal from '@/components/admin/MechanicPortal';
 import ChecklistTemplateEditor from '@/components/admin/ChecklistTemplateEditor';
 import OperatorsDashboard from '@/components/admin/OperatorsDashboard';
 import TabNavGroups from '@/components/admin/TabNavGroups';
+import CustomersPanel from '@/components/admin/CustomersPanel';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
@@ -1373,6 +1374,14 @@ function AdminBookingsInner() {
             <TabsContent value="operators">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
                 <OperatorsDashboard />
+              </div>
+            </TabsContent>
+          )}
+
+          {isSuperAdmin && (
+            <TabsContent value="customers">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+                <CustomersPanel />
               </div>
             </TabsContent>
           )}
