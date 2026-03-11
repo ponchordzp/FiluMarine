@@ -171,7 +171,7 @@ export default function Users() {
 
       {/* Bottom nav */}
       <div className="fixed bottom-0 inset-x-0 z-30" style={{ background: 'rgba(4,13,26,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-        <div className="max-w-lg mx-auto flex safe-area-bottom">
+        <div className="max-w-lg mx-auto flex">
           {TABS.map(({ id, label, Icon }) => (
             <button key={id} onClick={() => setTab(id)} className="flex-1 flex flex-col items-center justify-center py-3 gap-1 transition-colors">
               <Icon className={`h-5 w-5 transition-colors ${tab === id ? 'text-[#1e88e5]' : 'text-white/20'}`} />
