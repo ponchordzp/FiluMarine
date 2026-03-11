@@ -191,6 +191,9 @@ export default function AdminBookingCard({
                   <span><span className="text-white/30">Departure:</span> {booking.time_slot}</span>
                 )}
                 <span><span className="text-white/30">Guests:</span> {booking.guests}</span>
+                {booking.pickup_location && (
+                  <span><span className="text-white/30">Pickup:</span> {booking.pickup_location}</span>
+                )}
                 {booking.created_date && (
                   <span><span className="text-white/30">Created:</span> {format(parseISO(booking.created_date), 'MMM d, yyyy')}</span>
                 )}
@@ -226,14 +229,14 @@ export default function AdminBookingCard({
             <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2.5">
               {/* On-site balance */}
               {booking.total_price > 0 && (
-                <div>
-                  <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-white/75">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/75">
                     💵 On-Site Balance{' '}
                     <span className={isCollected ? 'text-emerald-400' : 'text-amber-400'}>
                       ({remaining > 0 ? `$${remaining.toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN` : 'Fully Paid'})
                     </span>
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap">
+                  </span>
+                  <div className="flex items-center gap-2 ml-auto">
                     <Select
                       value={booking.remaining_payment_status || 'pending_collection'}
                       onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
@@ -272,16 +275,16 @@ export default function AdminBookingCard({
 
               {/* Operator payment */}
               {paypalUser && (
-                <div>
-                  <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-white/75">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/75">
                     🏦 Operator Payment
                     {commission > 0 && (
                       <span className={`ml-2 normal-case font-semibold ${isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
                         → ${((booking.total_price || 0) - (booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN
                       </span>
                     )}
-                  </p>
-                  <div className="flex items-center gap-2 flex-wrap">
+                  </span>
+                  <div className="flex items-center gap-2 ml-auto">
                     <a
                       href={`https://www.paypal.com/paypalme/${paypalUser}`}
                       target="_blank" rel="noopener noreferrer"
@@ -314,8 +317,9 @@ export default function AdminBookingCard({
           )}
 
           {/* ── ACTIONS (always visible inline) ── */}
-          <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-white/60 uppercase tracking-wider mr-1">Actions</span>
+          <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-2">
+            <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">Actions</span>
+            <div className="flex flex-wrap items-center gap-2 ml-auto">
 
             <Button
               size="sm"
