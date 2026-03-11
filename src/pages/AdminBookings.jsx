@@ -167,6 +167,11 @@ function AdminBookingsInner() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] }),
   });
 
+  const updateRemainingMethodMutation = useMutation({
+    mutationFn: ({ id, remaining_payment_method }) => base44.entities.Booking.update(id, { remaining_payment_method }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] }),
+  });
+
   // Role-scoped visible data
   // Operator admin sees all boats in their operator's fleet
   const operatorBoatNames = isOperatorAdmin
@@ -872,25 +877,48 @@ function AdminBookingsInner() {
                                                ({remaining > 0 ? `$${remaining.toLocaleString(undefined, {maximumFractionDigits:0})} MXN` : 'Fully Paid'})
                                              </span>
                                            </p>
-                                           <Select
-                                             value={booking.remaining_payment_status || 'pending_collection'}
-                                             onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
-                                           >
-                                             <SelectTrigger
-                                               className="h-7 text-xs w-auto px-2"
-                                               style={{
-                                                 background: isCollected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.15)',
-                                                 border: isCollected ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(239,68,68,0.3)',
-                                                 color: isCollected ? '#6ee7b7' : '#fca5a5',
-                                               }}
+                                           <div className="flex items-center gap-2 flex-wrap">
+                                             <Select
+                                               value={booking.remaining_payment_status || 'pending_collection'}
+                                               onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
                                              >
-                                               <SelectValue />
-                                             </SelectTrigger>
-                                             <SelectContent>
-                                               <SelectItem value="pending_collection">⏳ Pending Collection</SelectItem>
-                                               <SelectItem value="collected_on_site">✅ Collected On-Site</SelectItem>
-                                             </SelectContent>
-                                           </Select>
+                                               <SelectTrigger
+                                                 className="h-7 text-xs w-auto px-2"
+                                                 style={{
+                                                   background: isCollected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.15)',
+                                                   border: isCollected ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(239,68,68,0.3)',
+                                                   color: isCollected ? '#6ee7b7' : '#fca5a5',
+                                                 }}
+                                               >
+                                                 <SelectValue />
+                                               </SelectTrigger>
+                                               <SelectContent>
+                                                 <SelectItem value="pending_collection">⏳ Pending Collection</SelectItem>
+                                                 <SelectItem value="collected_on_site">✅ Collected On-Site</SelectItem>
+                                               </SelectContent>
+                                             </Select>
+                                             <Select
+                                               value={booking.remaining_payment_method || ''}
+                                               onValueChange={(val) => updateRemainingMethodMutation.mutate({ id: booking.id, remaining_payment_method: val })}
+                                             >
+                                               <SelectTrigger
+                                                 className="h-7 text-xs w-auto px-2"
+                                                 style={{
+                                                   background: 'rgba(255,255,255,0.07)',
+                                                   border: '1px solid rgba(255,255,255,0.15)',
+                                                   color: '#cbd5e1',
+                                                 }}
+                                               >
+                                                 <SelectValue placeholder="Method…" />
+                                               </SelectTrigger>
+                                               <SelectContent>
+                                                 <SelectItem value="cash">💵 Cash</SelectItem>
+                                                 <SelectItem value="card">💳 Card</SelectItem>
+                                                 <SelectItem value="bank_transfer">🏦 Bank Transfer</SelectItem>
+                                                 <SelectItem value="paypal">🅿️ PayPal</SelectItem>
+                                               </SelectContent>
+                                             </Select>
+                                           </div>
                                          </div>
                                        );
                                      })()}

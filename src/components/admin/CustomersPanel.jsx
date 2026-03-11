@@ -73,9 +73,13 @@ export default function CustomersPanel() {
             const bookings = allBookings.filter(b => b.guest_email?.toLowerCase() === customer.email?.toLowerCase());
             const upcomingBookings = bookings.filter(b => b.status !== 'cancelled' && b.date && new Date(b.date) >= new Date(new Date().toDateString()));
             const completedBookings = bookings.filter(b => b.status === 'completed');
-            const totalSpent = bookings.filter(b => b.status !== 'cancelled').reduce((s, b) => s + (b.deposit_paid || 0), 0);
-            const totalRevenue = bookings.filter(b => b.status !== 'cancelled').reduce((s, b) => s + (b.total_price || 0), 0);
-            const pending = totalRevenue - totalSpent;
+            const activeBookings = bookings.filter(b => b.status !== 'cancelled');
+            const totalSpent = activeBookings.reduce((s, b) => s + (b.deposit_paid || 0), 0);
+            const totalRevenue = activeBookings.reduce((s, b) => s + (b.total_price || 0), 0);
+            const pending = activeBookings.reduce((s, b) => {
+              if (b.remaining_payment_status === 'collected_on_site') return s;
+              return s + Math.max(0, (b.total_price || 0) - (b.deposit_paid || 0));
+            }, 0);
             const requests = addonRequests.filter(r => r.customer_email?.toLowerCase() === customer.email?.toLowerCase());
             const pendingRequests = requests.filter(r => r.status === 'pending');
             const initials = (customer.full_name || customer.username || '?')[0].toUpperCase();

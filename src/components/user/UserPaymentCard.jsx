@@ -15,9 +15,11 @@ export default function UserPaymentCard({ booking, allBoats }) {
   const boat = allBoats.find(b => b.name === booking.boat_name);
   const total = booking.total_price || 0;
   const paid = booking.deposit_paid || 0;
-  const remaining = Math.max(0, total - paid);
-  const pct = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
-  const fullyPaid = remaining === 0 || booking.payment_status === 'payment_done';
+  const rawRemaining = Math.max(0, total - paid);
+  const collectedOnSite = booking.remaining_payment_status === 'collected_on_site';
+  const remaining = collectedOnSite ? 0 : rawRemaining;
+  const pct = total > 0 ? Math.min(100, Math.round(((collectedOnSite ? total : paid) / total) * 100)) : 0;
+  const fullyPaid = remaining === 0 || booking.payment_status === 'payment_done' || collectedOnSite;
   const paypalLink = boat?.paypal_username && remaining > 0
     ? `https://paypal.me/${boat.paypal_username}/${remaining}`
     : null;
