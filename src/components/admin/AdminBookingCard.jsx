@@ -432,5 +432,4 @@ export default function AdminBookingCard({
       />
     </motion.div>
   );
-  );
 }
