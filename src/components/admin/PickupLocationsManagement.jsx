@@ -8,14 +8,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Pencil, Trash2, MapPin } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, Pencil, Trash2, MapPin, Ship } from 'lucide-react';
 
 const LOCATIONS = [
   { value: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' },
   { value: 'acapulco', label: 'Acapulco' },
 ];
 
-const emptyForm = { name: '', address: '', location: 'ixtapa_zihuatanejo', notes: '', visible: true, sort_order: 0 };
+const emptyForm = { name: '', address: '', location: 'ixtapa_zihuatanejo', applicable_boats: [], notes: '', visible: true, sort_order: 0 };
 
 export default function PickupLocationsManagement() {
   const queryClient = useQueryClient();
@@ -28,6 +29,13 @@ export default function PickupLocationsManagement() {
     queryKey: ['pickup-locations'],
     queryFn: () => base44.entities.PickupLocation.list('sort_order'),
   });
+
+  const { data: boats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
+  const boatNames = boats.filter(b => b.status !== 'inactive').map(b => b.name);
 
   const saveMutation = useMutation({
     mutationFn: (data) => editing
@@ -48,7 +56,15 @@ export default function PickupLocationsManagement() {
 
   const openEdit = (pl) => {
     setEditing(pl);
-    setForm({ name: pl.name, address: pl.address || '', location: pl.location, notes: pl.notes || '', visible: pl.visible ?? true, sort_order: pl.sort_order ?? 0 });
+    setForm({
+      name: pl.name,
+      address: pl.address || '',
+      location: pl.location,
+      applicable_boats: pl.applicable_boats || [],
+      notes: pl.notes || '',
+      visible: pl.visible ?? true,
+      sort_order: pl.sort_order ?? 0,
+    });
     setOpen(true);
   };
 
@@ -58,6 +74,15 @@ export default function PickupLocationsManagement() {
     setOpen(true);
   };
 
+  const toggleBoat = (name) => {
+    setForm(f => ({
+      ...f,
+      applicable_boats: f.applicable_boats.includes(name)
+        ? f.applicable_boats.filter(b => b !== name)
+        : [...f.applicable_boats, name],
+    }));
+  };
+
   const filtered = locationFilter === 'all' ? pickupLocations : pickupLocations.filter(p => p.location === locationFilter);
 
   return (
@@ -65,7 +90,7 @@ export default function PickupLocationsManagement() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-xl font-bold text-white mb-1">Pickup Locations</h2>
-          <p className="text-sm text-white/50">Manage pickup points shown to guests during booking, grouped by destination.</p>
+          <p className="text-sm text-white/50">Manage pickup points shown to guests during booking. Assign boats to control which boats offer each location.</p>
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
@@ -73,7 +98,7 @@ export default function PickupLocationsManagement() {
               <Plus className="h-4 w-4 mr-2" />Add Pickup Location
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>{editing ? 'Edit Pickup Location' : 'New Pickup Location'}</DialogTitle></DialogHeader>
             <div className="space-y-4">
               <div>
@@ -92,6 +117,22 @@ export default function PickupLocationsManagement() {
               <div>
                 <Label>Address / Description</Label>
                 <Input className="mt-1" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="e.g. Pier 4, Marina Ixtapa" />
+              </div>
+              <div>
+                <Label className="mb-2 block">Applicable Boats <span className="text-white/40 font-normal text-xs">(empty = all boats)</span></Label>
+                <div className="grid grid-cols-2 gap-2 p-3 rounded-lg bg-white/5 border border-white/10">
+                  {boatNames.length === 0 ? (
+                    <p className="text-white/30 text-sm col-span-2">No active boats found</p>
+                  ) : boatNames.map(name => (
+                    <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-white/70 hover:text-white">
+                      <Checkbox
+                        checked={form.applicable_boats.includes(name)}
+                        onCheckedChange={() => toggleBoat(name)}
+                      />
+                      {name}
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
                 <Label>Notes for crew / guests</Label>
@@ -134,7 +175,7 @@ export default function PickupLocationsManagement() {
         ) : filtered.map(pl => (
           <div key={pl.id} className="flex items-start justify-between p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <MapPin className="h-4 w-4 text-teal-400" />
                 <span className="font-semibold text-white">{pl.name}</span>
                 {!pl.visible && <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/40">Hidden</span>}
@@ -144,6 +185,16 @@ export default function PickupLocationsManagement() {
               </div>
               {pl.address && <p className="text-sm text-white/50 ml-6">{pl.address}</p>}
               {pl.notes && <p className="text-xs text-white/30 ml-6 mt-1 italic">{pl.notes}</p>}
+              <div className="flex flex-wrap gap-1 mt-2 ml-6">
+                {pl.applicable_boats?.length > 0
+                  ? pl.applicable_boats.map(b => (
+                    <span key={b} className="flex items-center gap-1 text-xs px-1.5 py-0.5 rounded" style={{ background: 'rgba(30,136,229,0.15)', color: '#60b4ff', border: '1px solid rgba(30,136,229,0.25)' }}>
+                      <Ship className="h-2.5 w-2.5" />{b}
+                    </span>
+                  ))
+                  : <span className="text-xs text-white/25">All boats</span>
+                }
+              </div>
             </div>
             <div className="flex gap-2 ml-4">
               <Button size="sm" variant="ghost" className="text-white/40 hover:text-white" onClick={() => openEdit(pl)}>
