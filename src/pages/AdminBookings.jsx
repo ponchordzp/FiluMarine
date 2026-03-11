@@ -897,7 +897,14 @@ function AdminBookingsInner() {
                                        const isPaid = booking.payment_status === 'payment_done';
                                        return (
                                          <div>
-                                           <p className="text-xs text-white/30 font-medium mb-1 uppercase tracking-wider">🏦 Operator Payment</p>
+                                           <p className="text-xs text-white/30 font-medium mb-1 uppercase tracking-wider">
+                                             🏦 Operator Payment
+                                             {getOperatorCommission(booking.boat_name) > 0 && (
+                                               <span className="ml-2 text-orange-300/80 normal-case font-semibold not-italic">
+                                                 → ${((booking.total_price || 0) - (booking.total_price || 0) * getOperatorCommission(booking.boat_name) / 100).toLocaleString(undefined, {maximumFractionDigits: 0})} MXN
+                                               </span>
+                                             )}
+                                           </p>
                                            <div className="flex items-center gap-2 flex-wrap">
                                              <a
                                                href={`https://www.paypal.com/paypalme/${paypalUser}`}
