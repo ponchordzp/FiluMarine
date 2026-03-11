@@ -185,15 +185,15 @@ export default function AdminBookingCard({
               {/* Key info strip */}
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/50">
                 {booking.date && (
-                  <div className="flex items-center gap-1.5">
-                    <CalendarIcon className="h-3 w-3 text-[#1e88e5]/60" />
-                    <span>{format(parseISO(booking.date), 'MMM d, yyyy')} · {booking.time_slot}</span>
-                  </div>
+                  <span><span className="text-white/30">Date:</span> {format(parseISO(booking.date), 'MMM d, yyyy')}</span>
                 )}
-                <div className="flex items-center gap-1.5">
-                  <Users className="h-3 w-3 text-white/30" />
-                  <span>{booking.guests} guests</span>
-                </div>
+                {booking.time_slot && (
+                  <span><span className="text-white/30">Departure:</span> {booking.time_slot}</span>
+                )}
+                <span><span className="text-white/30">Guests:</span> {booking.guests}</span>
+                {booking.created_date && (
+                  <span><span className="text-white/30">Created:</span> {format(parseISO(booking.created_date), 'MMM d, yyyy')}</span>
+                )}
               </div>
             </div>
 
@@ -212,26 +212,12 @@ export default function AdminBookingCard({
           </div>
 
           {/* ── FINANCIAL SUMMARY (always visible) ── */}
-          <div className="mt-3 pt-3 border-t border-white/[0.06] grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-1.5 text-xs">
-            <div className="flex items-center gap-1.5">
-              <DollarSign className="h-3 w-3 text-emerald-400/60 shrink-0" />
-              <span className="text-emerald-300/80 font-semibold">${(booking.total_price || 0).toLocaleString()} MXN</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <DollarSign className="h-3 w-3 text-red-400/60 shrink-0" />
-              <span className="text-red-300/80 font-medium">${expenseTotal.toLocaleString()} Expenses</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <DollarSign className="h-3 w-3 text-purple-400/60 shrink-0" />
-              <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>
-                ${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} Net
-              </span>
-            </div>
+          <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/50">
+            <span><span className="text-white/30">Revenue:</span> <span className="text-emerald-300/80 font-semibold">${(booking.total_price || 0).toLocaleString()} MXN</span></span>
+            <span><span className="text-white/30">Expenses:</span> <span className="text-red-300/80 font-medium">${expenseTotal.toLocaleString()} MXN</span></span>
+            <span><span className="text-white/30">Net:</span> <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN</span></span>
             {commission > 0 && (
-              <div className="flex items-center gap-1.5">
-                <DollarSign className="h-3 w-3 text-orange-400/60 shrink-0" />
-                <span className="text-orange-300/70">Fee {commission}% (${((booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN)</span>
-              </div>
+              <span><span className="text-white/30">Fee:</span> <span className="text-orange-300/70">{commission}% (${((booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN)</span></span>
             )}
           </div>
 
