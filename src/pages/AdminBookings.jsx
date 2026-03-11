@@ -162,6 +162,11 @@ function AdminBookingsInner() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] }),
   });
 
+  const updateRemainingPaymentMutation = useMutation({
+    mutationFn: ({ id, remaining_payment_status }) => base44.entities.Booking.update(id, { remaining_payment_status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] }),
+  });
+
   // Role-scoped visible data
   // Operator admin sees all boats in their operator's fleet
   const operatorBoatNames = isOperatorAdmin
@@ -852,45 +857,83 @@ function AdminBookingsInner() {
                                       </div>
                                     )}
                                   </div>
-                                  {/* PayPal button + payment status — shown below the amounts */}
-                                  {(() => {
-                                    const paypalUser = getOperatorPaypal(booking.boat_name);
-                                    if (!paypalUser) return null;
-                                    const isPaid = booking.payment_status === 'payment_done';
-                                    return (
-                                      <div className="flex items-center gap-2 mt-2 flex-wrap">
-                                        <a
-                                          href={`https://www.paypal.com/paypalme/${paypalUser}`}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
-                                          style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
-                                        >
-                                          <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
-                                          Pay via PayPal
-                                        </a>
-                                        <Select
-                                          value={booking.payment_status || 'pending_payment'}
-                                          onValueChange={(val) => updatePaymentStatusMutation.mutate({ id: booking.id, payment_status: val })}
-                                        >
-                                          <SelectTrigger
-                                            className="h-7 text-xs w-auto px-2"
-                                            style={{
-                                              background: isPaid ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                                              border: isPaid ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(245,158,11,0.4)',
-                                              color: isPaid ? '#6ee7b7' : '#fcd34d',
-                                            }}
-                                          >
-                                            <SelectValue />
-                                          </SelectTrigger>
-                                          <SelectContent>
-                                            <SelectItem value="pending_payment">⏳ Pending Payment</SelectItem>
-                                            <SelectItem value="payment_done">✅ Payment Done</SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                    );
-                                  })()}
+                                  {/* Payment tracking — on-site balance + operator PayPal */}
+                                  {hasElevatedAccess && (
+                                   <div className="mt-3 space-y-2.5">
+                                     {/* On-site remaining balance */}
+                                     {booking.total_price > 0 && (() => {
+                                       const remaining = Math.max(0, (booking.total_price || 0) - (booking.deposit_paid || 0));
+                                       const isCollected = booking.remaining_payment_status === 'collected_on_site';
+                                       return (
+                                         <div>
+                                           <p className="text-xs text-white/30 font-medium mb-1 uppercase tracking-wider">💵 On-Site Balance ({remaining > 0 ? `$${remaining.toLocaleString(undefined, {maximumFractionDigits:0})} MXN` : 'Fully Paid'})</p>
+                                           <Select
+                                             value={booking.remaining_payment_status || 'pending_collection'}
+                                             onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
+                                           >
+                                             <SelectTrigger
+                                               className="h-7 text-xs w-auto px-2"
+                                               style={{
+                                                 background: isCollected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.15)',
+                                                 border: isCollected ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(239,68,68,0.3)',
+                                                 color: isCollected ? '#6ee7b7' : '#fca5a5',
+                                               }}
+                                             >
+                                               <SelectValue />
+                                             </SelectTrigger>
+                                             <SelectContent>
+                                               <SelectItem value="pending_collection">⏳ Pending Collection</SelectItem>
+                                               <SelectItem value="collected_on_site">✅ Collected On-Site</SelectItem>
+                                             </SelectContent>
+                                           </Select>
+                                         </div>
+                                       );
+                                     })()}
+
+                                     {/* Operator PayPal */}
+                                     {(() => {
+                                       const paypalUser = getOperatorPaypal(booking.boat_name);
+                                       if (!paypalUser) return null;
+                                       const isPaid = booking.payment_status === 'payment_done';
+                                       return (
+                                         <div>
+                                           <p className="text-xs text-white/30 font-medium mb-1 uppercase tracking-wider">🏦 Operator Payment</p>
+                                           <div className="flex items-center gap-2 flex-wrap">
+                                             <a
+                                               href={`https://www.paypal.com/paypalme/${paypalUser}`}
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
+                                               style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
+                                             >
+                                               <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
+                                               Pay via PayPal
+                                             </a>
+                                             <Select
+                                               value={booking.payment_status || 'pending_payment'}
+                                               onValueChange={(val) => updatePaymentStatusMutation.mutate({ id: booking.id, payment_status: val })}
+                                             >
+                                               <SelectTrigger
+                                                 className="h-7 text-xs w-auto px-2"
+                                                 style={{
+                                                   background: isPaid ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+                                                   border: isPaid ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(245,158,11,0.4)',
+                                                   color: isPaid ? '#6ee7b7' : '#fcd34d',
+                                                 }}
+                                               >
+                                                 <SelectValue />
+                                               </SelectTrigger>
+                                               <SelectContent>
+                                                 <SelectItem value="pending_payment">⏳ Pending Payment</SelectItem>
+                                                 <SelectItem value="payment_done">✅ Payment Done</SelectItem>
+                                               </SelectContent>
+                                             </Select>
+                                           </div>
+                                         </div>
+                                       );
+                                     })()}
+                                   </div>
+                                  )}
                                   </div>
                             </div>
 
