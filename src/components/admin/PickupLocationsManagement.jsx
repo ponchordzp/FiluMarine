@@ -120,11 +120,11 @@ export default function PickupLocationsManagement() {
               </div>
               <div>
                 <Label className="mb-2 block">Applicable Boats <span className="text-white/40 font-normal text-xs">(empty = all boats)</span></Label>
-                <div className="grid grid-cols-2 gap-2 p-3 rounded-lg bg-white/5 border border-white/10">
+                <div className="grid grid-cols-2 gap-2 p-3 rounded-lg bg-gray-50 border border-gray-200">
                   {boatNames.length === 0 ? (
-                    <p className="text-white/30 text-sm col-span-2">No active boats found</p>
+                    <p className="text-gray-400 text-sm col-span-2">No active boats found</p>
                   ) : boatNames.map(name => (
-                    <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-white/70 hover:text-white">
+                    <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-gray-700 hover:text-gray-900">
                       <Checkbox
                         checked={form.applicable_boats.includes(name)}
                         onCheckedChange={() => toggleBoat(name)}
