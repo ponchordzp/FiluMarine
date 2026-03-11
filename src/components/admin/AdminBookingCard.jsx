@@ -221,18 +221,18 @@ export default function AdminBookingCard({
             </div>
             <div className="flex items-center gap-1.5">
               <DollarSign className="h-3 w-3 text-red-400/60 shrink-0" />
-              <span className="text-red-300/80 font-medium">${expenseTotal.toLocaleString()} expenses</span>
+              <span className="text-red-300/80 font-medium">${expenseTotal.toLocaleString()} Expenses</span>
             </div>
             <div className="flex items-center gap-1.5">
               <DollarSign className="h-3 w-3 text-purple-400/60 shrink-0" />
               <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>
-                ${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} net
+                ${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} Net
               </span>
             </div>
             {commission > 0 && (
               <div className="flex items-center gap-1.5">
                 <DollarSign className="h-3 w-3 text-orange-400/60 shrink-0" />
-                <span className="text-orange-300/70">Fee {commission}%</span>
+                <span className="text-orange-300/70">Fee {commission}% (${((booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN)</span>
               </div>
             )}
           </div>
