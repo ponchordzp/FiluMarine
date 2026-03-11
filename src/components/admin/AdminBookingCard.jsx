@@ -237,241 +237,198 @@ export default function AdminBookingCard({
             )}
           </div>
 
-          {/* ── PAYMENT SECTION with collapsible controls ── */}
+          {/* ── PAYMENT SECTION (always visible) ── */}
           {hasElevatedAccess && (
-            <div className="mt-3 pt-3 border-t border-white/[0.06]">
-
-              {/* Collapsed summary row + toggle */}
-              <button
-                onClick={() => setPaymentExpanded(p => !p)}
-                className="w-full flex items-center justify-between gap-2 text-left"
-              >
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">Payment</span>
-                  {booking.total_price > 0 && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-white/35">Balance:</span>
-                      {balanceBadge}
-                    </div>
-                  )}
-                  {operatorBadge && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-white/35">Operator:</span>
-                      {operatorBadge}
-                    </div>
-                  )}
+            <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2.5">
+              {/* On-site balance */}
+              {booking.total_price > 0 && (
+                <div>
+                  <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-white/75">
+                    💵 On-Site Balance{' '}
+                    <span className={isCollected ? 'text-emerald-400' : 'text-amber-400'}>
+                      ({remaining > 0 ? `$${remaining.toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN` : 'Fully Paid'})
+                    </span>
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Select
+                      value={booking.remaining_payment_status || 'pending_collection'}
+                      onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
+                    >
+                      <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
+                        background: isCollected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.15)',
+                        border: isCollected ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(239,68,68,0.3)',
+                        color: isCollected ? '#6ee7b7' : '#fca5a5',
+                      }}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending_collection">⏳ Pending Collection</SelectItem>
+                        <SelectItem value="collected_on_site">✅ Collected On-Site</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={booking.remaining_payment_method || ''}
+                      onValueChange={(val) => updateRemainingMethodMutation.mutate({ id: booking.id, remaining_payment_method: val })}
+                    >
+                      <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
+                        background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#cbd5e1',
+                      }}>
+                        <SelectValue placeholder="Method…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cash">💵 Cash</SelectItem>
+                        <SelectItem value="card">💳 Card</SelectItem>
+                        <SelectItem value="bank_transfer">🏦 Bank Transfer</SelectItem>
+                        <SelectItem value="paypal">🅿️ PayPal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-                {paymentExpanded
-                  ? <ChevronUp className="h-3.5 w-3.5 text-white/30 shrink-0" />
-                  : <ChevronDown className="h-3.5 w-3.5 text-white/30 shrink-0" />}
-              </button>
+              )}
 
-              {/* Expanded payment controls */}
-              {paymentExpanded && (
-                <div className="mt-3 space-y-2.5">
-                  {/* On-site balance */}
-                  {booking.total_price > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-white/75">
-                        💵 On-Site Balance{' '}
-                        <span className={isCollected ? 'text-emerald-400' : 'text-amber-400'}>
-                          ({remaining > 0 ? `$${remaining.toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN` : 'Fully Paid'})
-                        </span>
-                      </p>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <Select
-                          value={booking.remaining_payment_status || 'pending_collection'}
-                          onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
-                        >
-                          <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
-                            background: isCollected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.15)',
-                            border: isCollected ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(239,68,68,0.3)',
-                            color: isCollected ? '#6ee7b7' : '#fca5a5',
-                          }}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending_collection">⏳ Pending Collection</SelectItem>
-                            <SelectItem value="collected_on_site">✅ Collected On-Site</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Select
-                          value={booking.remaining_payment_method || ''}
-                          onValueChange={(val) => updateRemainingMethodMutation.mutate({ id: booking.id, remaining_payment_method: val })}
-                        >
-                          <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
-                            background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#cbd5e1',
-                          }}>
-                            <SelectValue placeholder="Method…" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="cash">💵 Cash</SelectItem>
-                            <SelectItem value="card">💳 Card</SelectItem>
-                            <SelectItem value="bank_transfer">🏦 Bank Transfer</SelectItem>
-                            <SelectItem value="paypal">🅿️ PayPal</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Operator payment */}
-                  {paypalUser && (
-                    <div>
-                      <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-white/75">
-                        🏦 Operator Payment
-                        {commission > 0 && (
-                          <span className={`ml-2 normal-case font-semibold ${isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
-                            → ${((booking.total_price || 0) - (booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN
-                          </span>
-                        )}
-                      </p>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <a
-                          href={`https://www.paypal.com/paypalme/${paypalUser}`}
-                          target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
-                          style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
-                        >
-                          <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
-                          Pay via PayPal
-                        </a>
-                        <Select
-                          value={booking.payment_status || 'pending_payment'}
-                          onValueChange={(val) => updatePaymentStatusMutation.mutate({ id: booking.id, payment_status: val })}
-                        >
-                          <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
-                            background: isPaid ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                            border: isPaid ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(245,158,11,0.4)',
-                            color: isPaid ? '#6ee7b7' : '#fcd34d',
-                          }}>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending_payment">⏳ Pending Payment</SelectItem>
-                            <SelectItem value="payment_done">✅ Payment Done</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  )}
+              {/* Operator payment */}
+              {paypalUser && (
+                <div>
+                  <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-white/75">
+                    🏦 Operator Payment
+                    {commission > 0 && (
+                      <span className={`ml-2 normal-case font-semibold ${isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        → ${((booking.total_price || 0) - (booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN
+                      </span>
+                    )}
+                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <a
+                      href={`https://www.paypal.com/paypalme/${paypalUser}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
+                      style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
+                    >
+                      <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
+                      Pay via PayPal
+                    </a>
+                    <Select
+                      value={booking.payment_status || 'pending_payment'}
+                      onValueChange={(val) => updatePaymentStatusMutation.mutate({ id: booking.id, payment_status: val })}
+                    >
+                      <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
+                        background: isPaid ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+                        border: isPaid ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(245,158,11,0.4)',
+                        color: isPaid ? '#6ee7b7' : '#fcd34d',
+                      }}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending_payment">⏳ Pending Payment</SelectItem>
+                        <SelectItem value="payment_done">✅ Payment Done</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               )}
             </div>
           )}
 
-          {/* ── ACTIONS (collapsible) ── */}
-          <div className="mt-3 pt-3 border-t border-white/[0.06]">
-            <button
-              onClick={() => setActionsExpanded(p => !p)}
-              className="w-full flex items-center justify-between text-left"
+          {/* ── ACTIONS (always visible inline) ── */}
+          <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold text-white/60 uppercase tracking-wider mr-1">Actions</span>
+
+            <Button
+              size="sm"
+              className="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300"
+              style={{ border: '1px solid rgba(16,185,129,0.25)' }}
+              onClick={() => { setExpenseBooking(booking); setExpenseDialogOpen(true); }}
             >
-              <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">Actions</span>
-              {actionsExpanded
-                ? <ChevronUp className="h-3.5 w-3.5 text-white/30" />
-                : <ChevronDown className="h-3.5 w-3.5 text-white/30" />}
-            </button>
+              <PenSquare className="h-3 w-3 mr-1.5" />Data Entry
+            </Button>
 
-            {actionsExpanded && (
-              <div className="flex flex-wrap gap-2 items-center mt-3">
-                <Button
-                  size="sm"
-                  className="text-xs bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300"
-                  style={{ border: '1px solid rgba(16,185,129,0.25)' }}
-                  onClick={() => { setExpenseBooking(booking); setExpenseDialogOpen(true); }}
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all hover:bg-blue-500/25"
+                  style={{ background: 'rgba(30,136,229,0.18)', border: '1px solid rgba(30,136,229,0.35)', color: 'rgb(147,197,253)' }}
                 >
-                  <PenSquare className="h-3 w-3 mr-1.5" />Data Entry
-                </Button>
-
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <button
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all hover:bg-blue-500/25"
-                      style={{ background: 'rgba(30,136,229,0.18)', border: '1px solid rgba(30,136,229,0.35)', color: 'rgb(147,197,253)' }}
-                    >
-                      <Info className="h-3 w-3" />Details
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                    <DialogHeader><DialogTitle>Booking Details</DialogTitle></DialogHeader>
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div><Label className="text-slate-500">Guest Name</Label><p className="font-medium">{booking.guest_name}</p></div>
-                        <div><Label className="text-slate-500">Status</Label><div className="mt-1"><Badge className={statusColors[booking.status]}>{booking.status}</Badge></div></div>
-                        <div><Label className="text-slate-500">Email</Label><p className="font-medium flex items-center gap-2"><Mail className="h-4 w-4" />{booking.guest_email}</p></div>
-                        <div><Label className="text-slate-500">Phone</Label><p className="font-medium flex items-center gap-2"><Phone className="h-4 w-4" />{booking.guest_phone}</p></div>
-                        <div><Label className="text-slate-500">Location</Label><p className="font-medium">{booking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</p></div>
-                        <div><Label className="text-slate-500">Experience</Label><p className="font-medium capitalize">{booking.experience_type?.replace(/_/g, ' ')}</p></div>
-                        <div><Label className="text-slate-500">Boat</Label><p className="font-medium">{booking.boat_name || 'N/A'}</p></div>
-                        <div><Label className="text-slate-500">Pickup</Label><p className="font-medium">{booking.pickup_location || 'N/A'}</p></div>
-                        <div><Label className="text-slate-500">Date</Label><p className="font-medium">{format(parseISO(booking.date), 'EEEE, MMMM d, yyyy')}</p></div>
-                        <div><Label className="text-slate-500">Created</Label><p className="font-medium">{format(parseISO(booking.created_date), 'MMM d, yyyy h:mm a')}</p></div>
-                        <div><Label className="text-slate-500">Time</Label><p className="font-medium">{booking.time_slot}</p></div>
-                        <div><Label className="text-slate-500">Guests</Label><p className="font-medium">{booking.guests}</p></div>
-                        <div><Label className="text-slate-500">Total Price</Label><p className="font-medium">${booking.total_price?.toLocaleString()} MXN</p></div>
-                        <div><Label className="text-slate-500">Deposit Paid</Label><p className="font-medium">${booking.deposit_paid?.toLocaleString()} MXN</p></div>
-                        <div><Label className="text-slate-500">Payment Method</Label><p className="font-medium">{booking.payment_method}</p></div>
-                      </div>
-                      {booking.payment_screenshot && (
-                        <div>
-                          <Label className="text-slate-500">Payment Screenshot</Label>
-                          <div className="mt-2">
-                            <a href={booking.payment_screenshot} target="_blank" rel="noopener noreferrer">
-                              <img src={booking.payment_screenshot} alt="Payment proof" className="w-full max-w-md h-48 object-cover rounded-lg border hover:opacity-80 transition-opacity cursor-pointer" />
-                            </a>
-                          </div>
-                        </div>
-                      )}
-                      {booking.add_ons?.length > 0 && (
-                        <div>
-                          <Label className="text-slate-500">Add-ons</Label>
-                          <ul className="mt-1 list-disc list-inside">
-                            {booking.add_ons.map((addon, i) => <li key={i} className="text-sm">{addon.replace(/_/g, ' ')}</li>)}
-                          </ul>
-                        </div>
-                      )}
-                      {booking.special_requests && (
-                        <div>
-                          <Label className="text-slate-500">Special Requests</Label>
-                          <p className="mt-1 text-sm bg-slate-50 p-3 rounded-lg">{booking.special_requests}</p>
-                        </div>
-                      )}
-                      <div>
-                        <Label className="text-slate-500 mb-2 block">Change Status</Label>
-                        <div className="flex gap-2 flex-wrap">
-                          {['pending', 'confirmed', 'completed', 'cancelled'].map(s => (
-                            <Button key={s} size="sm" variant={booking.status === s ? 'default' : 'outline'}
-                              onClick={() => handleStatusChange(booking.id, s)} className="capitalize">{s}</Button>
-                          ))}
-                        </div>
+                  <Info className="h-3 w-3" />Details
+                </button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader><DialogTitle>Booking Details</DialogTitle></DialogHeader>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div><Label className="text-slate-500">Guest Name</Label><p className="font-medium">{booking.guest_name}</p></div>
+                    <div><Label className="text-slate-500">Status</Label><div className="mt-1"><Badge className={statusColors[booking.status]}>{booking.status}</Badge></div></div>
+                    <div><Label className="text-slate-500">Email</Label><p className="font-medium flex items-center gap-2"><Mail className="h-4 w-4" />{booking.guest_email}</p></div>
+                    <div><Label className="text-slate-500">Phone</Label><p className="font-medium flex items-center gap-2"><Phone className="h-4 w-4" />{booking.guest_phone}</p></div>
+                    <div><Label className="text-slate-500">Location</Label><p className="font-medium">{booking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</p></div>
+                    <div><Label className="text-slate-500">Experience</Label><p className="font-medium capitalize">{booking.experience_type?.replace(/_/g, ' ')}</p></div>
+                    <div><Label className="text-slate-500">Boat</Label><p className="font-medium">{booking.boat_name || 'N/A'}</p></div>
+                    <div><Label className="text-slate-500">Pickup</Label><p className="font-medium">{booking.pickup_location || 'N/A'}</p></div>
+                    <div><Label className="text-slate-500">Date</Label><p className="font-medium">{format(parseISO(booking.date), 'EEEE, MMMM d, yyyy')}</p></div>
+                    <div><Label className="text-slate-500">Created</Label><p className="font-medium">{format(parseISO(booking.created_date), 'MMM d, yyyy h:mm a')}</p></div>
+                    <div><Label className="text-slate-500">Time</Label><p className="font-medium">{booking.time_slot}</p></div>
+                    <div><Label className="text-slate-500">Guests</Label><p className="font-medium">{booking.guests}</p></div>
+                    <div><Label className="text-slate-500">Total Price</Label><p className="font-medium">${booking.total_price?.toLocaleString()} MXN</p></div>
+                    <div><Label className="text-slate-500">Deposit Paid</Label><p className="font-medium">${booking.deposit_paid?.toLocaleString()} MXN</p></div>
+                    <div><Label className="text-slate-500">Payment Method</Label><p className="font-medium">{booking.payment_method}</p></div>
+                  </div>
+                  {booking.payment_screenshot && (
+                    <div>
+                      <Label className="text-slate-500">Payment Screenshot</Label>
+                      <div className="mt-2">
+                        <a href={booking.payment_screenshot} target="_blank" rel="noopener noreferrer">
+                          <img src={booking.payment_screenshot} alt="Payment proof" className="w-full max-w-md h-48 object-cover rounded-lg border hover:opacity-80 transition-opacity cursor-pointer" />
+                        </a>
                       </div>
                     </div>
-                  </DialogContent>
-                </Dialog>
+                  )}
+                  {booking.add_ons?.length > 0 && (
+                    <div>
+                      <Label className="text-slate-500">Add-ons</Label>
+                      <ul className="mt-1 list-disc list-inside">
+                        {booking.add_ons.map((addon, i) => <li key={i} className="text-sm">{addon.replace(/_/g, ' ')}</li>)}
+                      </ul>
+                    </div>
+                  )}
+                  {booking.special_requests && (
+                    <div>
+                      <Label className="text-slate-500">Special Requests</Label>
+                      <p className="mt-1 text-sm bg-slate-50 p-3 rounded-lg">{booking.special_requests}</p>
+                    </div>
+                  )}
+                  <div>
+                    <Label className="text-slate-500 mb-2 block">Change Status</Label>
+                    <div className="flex gap-2 flex-wrap">
+                      {['pending', 'confirmed', 'completed', 'cancelled'].map(s => (
+                        <Button key={s} size="sm" variant={booking.status === s ? 'default' : 'outline'}
+                          onClick={() => handleStatusChange(booking.id, s)} className="capitalize">{s}</Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
-                <Select value={booking.status} onValueChange={(value) => handleStatusChange(booking.id, value)}>
-                  <SelectTrigger className="w-[130px] text-xs bg-white/5 border-white/10 text-white h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="confirmed">Confirmed</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
+            <Select value={booking.status} onValueChange={(value) => handleStatusChange(booking.id, value)}>
+              <SelectTrigger className="w-[130px] text-xs bg-white/5 border-white/10 text-white h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="confirmed">Confirmed</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
+              </SelectContent>
+            </Select>
 
-                <Button
-                  size="sm"
-                  className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400"
-                  style={{ border: '1px solid rgba(239,68,68,0.2)' }}
-                  onClick={() => { if (window.confirm(`Delete booking ${booking.confirmation_code}? This cannot be undone.`)) deleteBookingMutation.mutate(booking.id); }}
-                  disabled={deleteBookingMutation.isPending}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-            )}
+            <Button
+              size="sm"
+              className="text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400"
+              style={{ border: '1px solid rgba(239,68,68,0.2)' }}
+              onClick={() => { if (window.confirm(`Delete booking ${booking.confirmation_code}? This cannot be undone.`)) deleteBookingMutation.mutate(booking.id); }}
+              disabled={deleteBookingMutation.isPending}
+            >
+              <Trash2 className="h-3 w-3" />
+            </Button>
           </div>
         </div>
       </div>
