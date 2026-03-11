@@ -4,7 +4,29 @@ import { useQuery } from '@tanstack/react-query';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { format, parseISO } from 'date-fns';
-import { Mail, Phone, User, Calendar, Ship, Gift, CreditCard, CheckCircle, XCircle, Search, Users } from 'lucide-react';
+import { Mail, Phone, User, Calendar, Ship, Gift, CreditCard, CheckCircle, XCircle, Search, Users, ChevronDown, ChevronUp, DollarSign, Clock, Hash } from 'lucide-react';
+
+const EXP_LABELS_FULL = {
+  half_day_fishing: 'Half Day Fishing',
+  full_day_fishing: 'Full Day Fishing',
+  extended_fishing: 'Extended Fishing',
+  snorkeling: 'Snorkeling',
+  coastal_leisure: 'Coastal Leisure',
+};
+
+const PAYMENT_METHOD_LABELS = {
+  cash: '💵 Cash',
+  card: '💳 Card',
+  bank_transfer: '🏦 Bank Transfer',
+  paypal: '🅿️ PayPal',
+};
+
+const STATUS_STYLE = {
+  pending:   'bg-amber-500/20 text-amber-300 border-amber-500/30',
+  confirmed: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+  cancelled: 'bg-red-500/20 text-red-300 border-red-500/30',
+  completed: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+};
 
 const EXP_LABELS = {
   half_day_fishing: 'Half Day Fishing',
@@ -16,6 +38,7 @@ const EXP_LABELS = {
 
 export default function CustomersPanel() {
   const [search, setSearch] = useState('');
+  const [expandedCards, setExpandedCards] = useState({});
 
   const { data: customers = [] } = useQuery({
     queryKey: ['customer-users'],
@@ -80,6 +103,7 @@ export default function CustomersPanel() {
               if (b.remaining_payment_status === 'collected_on_site') return s;
               return s + Math.max(0, (b.total_price || 0) - (b.deposit_paid || 0));
             }, 0);
+            const isExpanded = !!expandedCards[customer.id];
             const requests = addonRequests.filter(r => r.customer_email?.toLowerCase() === customer.email?.toLowerCase());
             const pendingRequests = requests.filter(r => r.status === 'pending');
             const initials = (customer.full_name || customer.username || '?')[0].toUpperCase();
@@ -208,6 +232,83 @@ export default function CustomersPanel() {
                         </Badge>
                       )}
                     </div>
+                  </div>
+                )}
+
+                {/* Expand toggle */}
+                {bookings.length > 0 && (
+                  <button
+                    onClick={() => setExpandedCards(prev => ({ ...prev, [customer.id]: !prev[customer.id] }))}
+                    className="w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs text-white/35 hover:text-white/60 transition-colors"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    {isExpanded ? <><ChevronUp className="h-3.5 w-3.5" />Hide Trip Details</> : <><ChevronDown className="h-3.5 w-3.5" />View Trip Breakdown ({bookings.length})</>}
+                  </button>
+                )}
+
+                {/* Expanded trip breakdown */}
+                {isExpanded && (
+                  <div className="space-y-2 pt-1">
+                    <p className="text-xs text-white/30 uppercase tracking-wider font-semibold px-0.5">All Trips</p>
+                    {bookings.sort((a, b) => new Date(b.date) - new Date(a.date)).map(b => {
+                      const remaining = Math.max(0, (b.total_price || 0) - (b.deposit_paid || 0));
+                      const isCollected = b.remaining_payment_status === 'collected_on_site';
+                      const effectiveRemaining = isCollected ? 0 : remaining;
+                      return (
+                        <div key={b.id} className="rounded-xl p-3 space-y-2" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                          {/* Trip header */}
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-white/80 truncate">{EXP_LABELS_FULL[b.experience_type] || b.experience_type}</p>
+                              <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                {b.date && <span className="flex items-center gap-1 text-white/30 text-xs"><Calendar className="h-3 w-3" />{format(parseISO(b.date), 'MMM d, yyyy')}</span>}
+                                {b.boat_name && <span className="flex items-center gap-1 text-[#60b4ff]/60 text-xs"><Ship className="h-3 w-3" />{b.boat_name}</span>}
+                                {b.time_slot && <span className="flex items-center gap-1 text-white/25 text-xs"><Clock className="h-3 w-3" />{b.time_slot}</span>}
+                              </div>
+                            </div>
+                            <Badge className={`${STATUS_STYLE[b.status] || STATUS_STYLE.pending} border text-xs shrink-0`}>{b.status}</Badge>
+                          </div>
+                          {/* Payment breakdown */}
+                          {b.total_price > 0 && (
+                            <div className="rounded-lg p-2 space-y-1" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                              <div className="flex justify-between text-xs">
+                                <span className="text-white/30">Total</span>
+                                <span className="text-white/60 font-medium">${(b.total_price || 0).toLocaleString()} MXN</span>
+                              </div>
+                              <div className="flex justify-between text-xs">
+                                <span className="text-white/30">Deposit Paid</span>
+                                <span className="text-emerald-400/80">${(b.deposit_paid || 0).toLocaleString()} MXN</span>
+                              </div>
+                              {remaining > 0 && (
+                                <div className="flex justify-between text-xs">
+                                  <span className="text-white/30">Remaining (60%)</span>
+                                  {isCollected ? (
+                                    <span className="text-emerald-400 font-semibold flex items-center gap-1">
+                                      <CheckCircle className="h-3 w-3" />
+                                      Collected {b.remaining_payment_method ? `· ${PAYMENT_METHOD_LABELS[b.remaining_payment_method] || b.remaining_payment_method}` : 'On-Site'}
+                                    </span>
+                                  ) : (
+                                    <span className="text-amber-400 font-semibold">${remaining.toLocaleString()} MXN pending</span>
+                                  )}
+                                </div>
+                              )}
+                              {b.payment_method && (
+                                <div className="flex justify-between text-xs pt-0.5 border-t border-white/5">
+                                  <span className="text-white/20">Deposit method</span>
+                                  <span className="text-white/35 capitalize">{b.payment_method.replace(/_/g, ' ')}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          {/* Confirmation code */}
+                          {b.confirmation_code && (
+                            <div className="flex items-center gap-1 text-white/20 text-xs">
+                              <Hash className="h-3 w-3" /><span className="font-mono">{b.confirmation_code}</span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

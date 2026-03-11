@@ -115,13 +115,13 @@ export default function Users() {
             {upcomingBookings.length > 0 && (
               <>
                 <p className="text-xs text-white/25 uppercase tracking-wider font-semibold px-1">Upcoming</p>
-                {upcomingBookings.sort((a, b) => new Date(a.date) - new Date(b.date)).map(b => <UserTripCard key={b.id} booking={b} />)}
+                {upcomingBookings.sort((a, b) => new Date(a.date) - new Date(b.date)).map(b => <UserTripCard key={b.id} booking={b} allBoats={allBoats} />)}
               </>
             )}
             {pastBookings.length > 0 && (
               <>
                 <p className="text-xs text-white/25 uppercase tracking-wider font-semibold px-1 pt-2">Past Trips</p>
-                {pastBookings.sort((a, b) => new Date(b.date) - new Date(a.date)).map(b => <UserTripCard key={b.id} booking={b} />)}
+                {pastBookings.sort((a, b) => new Date(b.date) - new Date(a.date)).map(b => <UserTripCard key={b.id} booking={b} allBoats={allBoats} />)}
               </>
             )}
             {bookings.length === 0 && (

@@ -120,8 +120,15 @@ export default function UserLogin() {
     <div className="min-h-screen flex flex-col" style={{ background: 'linear-gradient(150deg, #040d1a 0%, #0a1f3d 55%, #071429 100%)' }}>
       {/* Glow blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full opacity-[0.06]" style={{ background: 'radial-gradient(circle, #1e88e5, transparent)', transform: 'translate(40%, -40%)' }} />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-[0.06]" style={{ background: 'radial-gradient(circle, #0d5fa8, transparent)', transform: 'translate(-40%, 40%)' }} />
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, #1e88e5, transparent)', transform: 'translate(40%, -40%)' }} />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] rounded-full opacity-[0.07]" style={{ background: 'radial-gradient(circle, #0d5fa8, transparent)', transform: 'translate(-40%, 40%)' }} />
+        {/* Subtle grid */}
+        <div className="absolute inset-0 opacity-[0.025]" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        {/* Ocean wave bottom decoration */}
+        <svg className="absolute bottom-0 left-0 right-0 w-full opacity-[0.08]" viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <path d="M0,60 C240,100 480,20 720,60 C960,100 1200,20 1440,60 L1440,120 L0,120 Z" fill="#1e88e5"/>
+          <path d="M0,80 C240,40 480,100 720,80 C960,60 1200,100 1440,80 L1440,120 L0,120 Z" fill="#0d5fa8" opacity="0.6"/>
+        </svg>
       </div>
 
       {/* Back link */}
@@ -134,13 +141,46 @@ export default function UserLogin() {
       {/* Center card */}
       <div className="flex-1 flex items-center justify-center px-4 py-6 relative z-10">
         <div className="w-full max-w-sm">
-          {/* Brand */}
+          {/* Brand with nautical flags */}
           <div className="text-center mb-7">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-3" style={{ background: 'rgba(30,136,229,0.15)', border: '1px solid rgba(30,136,229,0.3)' }}>
-              <Anchor className="h-8 w-8 text-[#1e88e5]" />
+            {/* Nautical flags F-I-L-U */}
+            <div className="flex items-end justify-center gap-1.5 mb-4">
+              {/* F - Foxtrot: White diamond on red */}
+              <div className="w-9 h-7 bg-red-600 relative flex items-center justify-center shadow-lg rounded-sm">
+                <div className="w-4 h-4 bg-white transform rotate-45" style={{ boxShadow: '0 0 4px rgba(255,255,255,0.3)' }}></div>
+              </div>
+              {/* I - India: Yellow circle on black */}
+              <div className="w-9 h-7 bg-black flex items-center justify-center shadow-lg rounded-sm" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div className="w-4 h-4 bg-yellow-400 rounded-full" style={{ boxShadow: '0 0 6px rgba(251,191,36,0.4)' }}></div>
+              </div>
+              {/* L - Lima: Yellow and black quarters */}
+              <div className="w-9 h-7 grid grid-cols-2 grid-rows-2 shadow-lg rounded-sm overflow-hidden">
+                <div className="bg-yellow-400"></div>
+                <div className="bg-black"></div>
+                <div className="bg-black"></div>
+                <div className="bg-yellow-400"></div>
+              </div>
+              {/* U - Uniform: Red and white quarters */}
+              <div className="w-9 h-7 grid grid-cols-2 grid-rows-2 shadow-lg rounded-sm overflow-hidden">
+                <div className="bg-red-600"></div>
+                <div className="bg-white"></div>
+                <div className="bg-white"></div>
+                <div className="bg-red-600"></div>
+              </div>
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight">FILU</h1>
+            {/* Bottom accent line under flags */}
+            <div className="w-20 h-px mx-auto mb-4 opacity-30" style={{ background: 'linear-gradient(90deg, transparent, #1e88e5, transparent)' }} />
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3" style={{ background: 'rgba(30,136,229,0.15)', border: '1px solid rgba(30,136,229,0.3)' }}>
+              <Anchor className="h-7 w-7 text-[#1e88e5]" />
+            </div>
+            <h1 className="text-3xl font-bold text-white tracking-tight">FILU <span className="text-blue-200/50 font-light text-2xl">Marine</span></h1>
             <p className="text-white/35 text-sm mt-1">Your ocean adventures, all in one place</p>
+            {/* Decorative dots */}
+            <div className="flex items-center justify-center gap-1.5 mt-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="w-1 h-1 rounded-full" style={{ background: `rgba(30,136,229,${0.15 + i * 0.08})` }} />
+              ))}
+            </div>
           </div>
 
           {/* Card */}

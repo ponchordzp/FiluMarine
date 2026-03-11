@@ -1,7 +1,8 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { format, parseISO } from 'date-fns';
-import { Calendar, Clock, Users, Ship, Hash } from 'lucide-react';
+import { Calendar, Clock, Users, Ship, Hash, ExternalLink } from 'lucide-react';
 
 const EXP_LABELS = {
   half_day_fishing: 'Half Day Fishing',
@@ -18,7 +19,15 @@ const STATUS = {
   completed: { label: 'Completed', cls: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
 };
 
-export default function UserTripCard({ booking }) {
+export default function UserTripCard({ booking, allBoats = [] }) {
+  const boat = allBoats.find(b => b.name === booking.boat_name);
+  const total = booking.total_price || 0;
+  const paid = booking.deposit_paid || 0;
+  const collectedOnSite = booking.remaining_payment_status === 'collected_on_site';
+  const remaining = collectedOnSite ? 0 : Math.max(0, total - paid);
+  const paypalLink = boat?.paypal_username && remaining > 0
+    ? `https://paypal.me/${boat.paypal_username}/${remaining}`
+    : null;
   const s = STATUS[booking.status] || STATUS.pending;
   const tripDate = booking.date ? parseISO(booking.date) : null;
   const upcoming = tripDate && new Date(booking.date) >= new Date(new Date().toDateString());
@@ -67,10 +76,40 @@ export default function UserTripCard({ booking }) {
       </div>
 
       {booking.total_price > 0 && (
-        <div className="flex items-center justify-between pt-2.5 border-t border-white/[0.06]">
-          <span className="text-xs text-white/30">Total Price</span>
-          <span className="text-sm font-bold text-white">${booking.total_price?.toLocaleString()} MXN</span>
+        <div className="pt-2.5 border-t border-white/[0.06] space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-white/30">Total Price</span>
+            <span className="text-sm font-bold text-white">${booking.total_price?.toLocaleString()} MXN</span>
+          </div>
+          {paid > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/25">Deposit Paid</span>
+              <span className="text-xs text-emerald-400">${paid.toLocaleString()} MXN</span>
+            </div>
+          )}
+          {remaining > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/25">Balance Due</span>
+              <span className="text-xs text-amber-400 font-semibold">${remaining.toLocaleString()} MXN</span>
+            </div>
+          )}
+          {collectedOnSite && paid > 0 && (
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-white/25">Balance</span>
+              <span className="text-xs text-emerald-400">✅ Collected On-Site</span>
+            </div>
+          )}
         </div>
+      )}
+      {paypalLink && (
+        <Button
+          onClick={() => window.open(paypalLink, '_blank')}
+          className="w-full h-9 rounded-xl font-semibold text-xs gap-2 mt-1"
+          style={{ background: 'linear-gradient(135deg, #003087, #009cde)', border: 'none' }}
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Pay ${remaining.toLocaleString()} MXN via PayPal
+        </Button>
       )}
     </div>
   );
