@@ -80,21 +80,14 @@ const families = [
   },
 ];
 
-function FamilyGroup({ family, open, onToggle, indent = false }) {
-  const hasChildren = family.children && family.children.length > 0;
-  const [childOpen, setChildOpen] = useState({});
-
-  const toggleChild = (id) => setChildOpen(prev => ({ ...prev, [id]: !prev[id] }));
-
+function FamilyGroup({ family, open, onToggle }) {
   return (
-    <div className={`flex flex-col gap-1.5 ${indent ? 'ml-4 pl-3 border-l-2' : ''}`}
-      style={indent ? { borderColor: family.border } : {}}>
-
+    <div className="flex items-center gap-2 flex-wrap">
       {/* Family header button */}
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all hover:brightness-110 select-none"
+        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all hover:brightness-110 select-none shrink-0"
         style={{ background: family.color, border: `1px solid ${family.border}`, color: family.textColor }}
       >
         {open
@@ -103,30 +96,16 @@ function FamilyGroup({ family, open, onToggle, indent = false }) {
         {family.label}
       </button>
 
-      {/* Tabs row + children when expanded */}
+      {/* Tabs inline to the right when expanded */}
       {open && (
-        <div className="flex flex-col gap-1.5">
-          {/* Parent-level tabs */}
-          <TabsList
-            className="admin-tabs-list p-1 h-auto flex-wrap w-fit"
-            style={{ background: family.color, border: `1px solid ${family.border}`, backdropFilter: 'blur(16px)' }}
-          >
-            {family.tabs.map(t => (
-              <TabsTrigger key={t.value} value={t.value} className="font-medium text-xs">{t.label}</TabsTrigger>
-            ))}
-          </TabsList>
-
-          {/* Child families */}
-          {hasChildren && family.children.map(child => (
-            <FamilyGroup
-              key={child.id}
-              family={child}
-              open={!!childOpen[child.id]}
-              onToggle={() => toggleChild(child.id)}
-              indent
-            />
+        <TabsList
+          className="admin-tabs-list p-1 h-auto flex-wrap w-fit"
+          style={{ background: family.color, border: `1px solid ${family.border}`, backdropFilter: 'blur(16px)' }}
+        >
+          {family.tabs.map(t => (
+            <TabsTrigger key={t.value} value={t.value} className="font-medium text-xs">{t.label}</TabsTrigger>
           ))}
-        </div>
+        </TabsList>
       )}
     </div>
   );
