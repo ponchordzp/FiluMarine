@@ -141,7 +141,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, operatorFi
 
   return (
     <div className="flex flex-col gap-2">
-      {visibleFamilies.filter(f => !f.adminOnly || isSuperAdmin || isOperatorAdmin).map(family => (
+      {visibleFamilies.map(family => (
         <FamilyGroup
           key={family.id}
           family={family}
