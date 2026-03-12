@@ -81,34 +81,28 @@ const families = [
 
 function FamilyGroup({ family, open, onToggle }) {
   return (
-    <div
-      className="inline-flex items-center flex-wrap rounded-lg overflow-hidden"
+    <div className="inline-flex items-center flex-wrap rounded-lg overflow-hidden"
       style={{ background: family.color, border: `1px solid ${family.border}` }}
     >
-      {/* Family header button — no own background, inherits from wrapper */}
+      {/* Family label button */}
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold transition-all hover:brightness-110 select-none shrink-0"
+        className="px-2.5 py-1.5 text-xs font-semibold transition-all hover:brightness-110 select-none shrink-0"
         style={{ color: family.textColor }}
       >
-        {open
-          ? <ChevronDown className="h-3 w-3 flex-shrink-0" />
-          : <ChevronRight className="h-3 w-3 flex-shrink-0" />}
         {family.label}
       </button>
 
-      {/* Tabs share the same background wrapper when expanded */}
-      {open && (
-        <TabsList
-          className="admin-tabs-list p-1 h-auto flex-wrap w-fit rounded-none border-0 shadow-none"
-          style={{ background: 'transparent', backdropFilter: 'blur(16px)' }}
-        >
-          {family.tabs.map(t => (
-            <TabsTrigger key={t.value} value={t.value} className="font-medium text-xs">{t.label}</TabsTrigger>
-          ))}
-        </TabsList>
-      )}
+      {/* Tabs always shown to the right */}
+      <TabsList
+        className="admin-tabs-list p-1 h-auto flex-wrap w-fit rounded-none border-0 shadow-none"
+        style={{ background: 'transparent', backdropFilter: 'blur(16px)' }}
+      >
+        {family.tabs.map(t => (
+          <TabsTrigger key={t.value} value={t.value} className="font-medium text-xs">{t.label}</TabsTrigger>
+        ))}
+      </TabsList>
     </div>
   );
 }
