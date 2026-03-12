@@ -8,12 +8,16 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { FileText, Plus, Trash2, ExternalLink, Download } from 'lucide-react';
+import { FileText, Plus, Trash2, ExternalLink, Download, Sparkles } from 'lucide-react';
 
 export default function EngineDatabases() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDoc, setEditingDoc] = useState(null);
+  const [aiDialogOpen, setAiDialogOpen] = useState(false);
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -53,6 +57,24 @@ export default function EngineDatabases() {
     mutationFn: (id) => base44.entities.EngineDocument.delete(id),
     onSuccess: () => queryClient.invalidateQueries(['engine-documents']),
   });
+
+  const handleAiResearch = async () => {
+    if (!aiQuery.trim()) return;
+    setAiLoading(true);
+    setAiResult(null);
+    
+    try {
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `Research the following marine engine and provide detailed information including specifications, maintenance requirements, common issues, and any available resources. Query: ${aiQuery}`,
+        add_context_from_internet: true,
+      });
+      setAiResult(result);
+    } catch (error) {
+      setAiResult({ error: error.message || 'Failed to research engine information' });
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -117,13 +139,81 @@ export default function EngineDatabases() {
           <h2 className="text-2xl font-bold text-white">Engine Databases</h2>
           <p className="text-white/60 text-sm mt-1">Service manuals, brochures, and engine documentation</p>
         </div>
-        <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
-          <DialogTrigger asChild>
-            <Button className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Document
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                <Sparkles className="w-4 h-4 mr-2" />
+                AI Research
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl bg-slate-900 text-white border-slate-700 max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-purple-400" />
+                  AI Engine Research
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label>What would you like to know?</Label>
+                  <Textarea
+                    value={aiQuery}
+                    onChange={(e) => setAiQuery(e.target.value)}
+                    placeholder="e.g., Yamaha F250 maintenance schedule, Mercury Verado 300 specifications, troubleshooting outboard starting issues..."
+                    className="mt-2 bg-slate-800 border-slate-700 text-white placeholder:text-slate-500"
+                    rows={3}
+                  />
+                </div>
+                <Button 
+                  onClick={handleAiResearch} 
+                  disabled={!aiQuery.trim() || aiLoading}
+                  className="w-full bg-purple-600 hover:bg-purple-700"
+                >
+                  {aiLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin mr-2" />
+                      Researching...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Research with AI
+                    </>
+                  )}
+                </Button>
+                
+                {aiResult && (
+                  <div className="mt-4">
+                    {aiResult.error ? (
+                      <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/30 text-red-300">
+                        <p className="font-semibold mb-1">Error</p>
+                        <p className="text-sm">{aiResult.error}</p>
+                      </div>
+                    ) : (
+                      <div className="p-4 rounded-lg bg-slate-800 border border-slate-700">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Sparkles className="w-4 h-4 text-purple-400" />
+                          <p className="font-semibold text-white">Research Results</p>
+                        </div>
+                        <div className="prose prose-invert prose-sm max-w-none">
+                          <p className="text-white/80 whitespace-pre-wrap">{aiResult}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={dialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setDialogOpen(open); }}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Document
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl bg-slate-900 text-white border-slate-700">
             <DialogHeader>
               <DialogTitle>{editingDoc ? 'Edit Document' : 'Add New Document'}</DialogTitle>
