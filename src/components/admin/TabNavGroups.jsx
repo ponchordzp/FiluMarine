@@ -111,24 +111,19 @@ function FamilyGroup({ family, open, onToggle }) {
   );
 }
 
-// Returns the families visible to this user, stripping checklist-template for non-superadmins
+// Returns the families visible to this user
 function buildFamiliesForUser(isSuperAdmin, isOperatorAdmin) {
-  if (!isSuperAdmin && !isOperatorAdmin) return families.filter(f => !f.adminOnly);
-
-  return families.map(family => {
-    if (!family.adminOnly) return family;
-    if (isSuperAdmin) return family; // Full access
-
-    // Operator admin: strip checklist-template, operators, and customers tabs
-    return {
-      ...family,
-      tabs: family.tabs.filter(t => t.value !== 'operators'),
-      children: family.children.map(child => ({
-        ...child,
-        tabs: child.tabs.filter(t => t.value !== 'checklist-template' && !t.superAdminOnly),
-      })),
-    };
-  });
+  return families
+    .filter(f => {
+      if (!f.adminOnly) return true;
+      if (f.superAdminOnly) return isSuperAdmin;
+      return isSuperAdmin || isOperatorAdmin;
+    })
+    .map(family => {
+      if (isSuperAdmin) return family;
+      // Operator admin: strip superAdminOnly tabs
+      return { ...family, tabs: family.tabs.filter(t => !t.superAdminOnly) };
+    });
 }
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
