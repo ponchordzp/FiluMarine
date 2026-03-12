@@ -150,11 +150,10 @@ export default function AdminBookingCard({
       >
         <div className="p-4">
 
-          {/* ── MAIN ROW: booking info (left) + financial/controls (right) ── */}
-          <div className="flex items-start gap-4">
-
-            {/* LEFT: booking info */}
+          {/* ── TOP ROW: name/badges + indicators ── */}
+          <div className="flex items-start gap-3">
             <div className="flex-1 min-w-0">
+              {/* Name + status badges */}
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <h3 className="font-semibold text-base text-white">{booking.guest_name}</h3>
                 {opName && (
@@ -167,6 +166,8 @@ export default function AdminBookingCard({
                   <StatusIcon className="h-3 w-3 mr-1" />{booking.status}
                 </Badge>
               </div>
+
+              {/* Code, location, boat */}
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <p className="text-xs text-white/40">Code: <span className="font-mono text-white/60">{booking.confirmation_code}</span></p>
                 <span className="text-xs px-2 py-0.5 rounded-full text-white/50"
@@ -180,124 +181,140 @@ export default function AdminBookingCard({
                   </span>
                 )}
               </div>
+
+              {/* Key info strip */}
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/50">
-                {booking.date && <span><span className="text-white/30">Date:</span> {format(parseISO(booking.date), 'MMM d, yyyy')}</span>}
-                {booking.time_slot && <span><span className="text-white/30">Departure:</span> {booking.time_slot}</span>}
+                {booking.date && (
+                  <span><span className="text-white/30">Date:</span> {format(parseISO(booking.date), 'MMM d, yyyy')}</span>
+                )}
+                {booking.time_slot && (
+                  <span><span className="text-white/30">Departure:</span> {booking.time_slot}</span>
+                )}
                 <span><span className="text-white/30">Guests:</span> {booking.guests}</span>
-                {booking.pickup_location && <span><span className="text-white/30">Pickup:</span> {booking.pickup_location}</span>}
-                {booking.created_date && <span><span className="text-white/30">Created:</span> {format(parseISO(booking.created_date), 'MMM d, yyyy')}</span>}
+                {booking.pickup_location && (
+                  <span><span className="text-white/30">Pickup:</span> {booking.pickup_location}</span>
+                )}
+                {booking.created_date && (
+                  <span><span className="text-white/30">Created:</span> {format(parseISO(booking.created_date), 'MMM d, yyyy')}</span>
+                )}
               </div>
             </div>
 
-            {/* RIGHT: completion ring + financial summary + payment controls */}
-            <div className="flex flex-col items-end gap-2 shrink-0">
+            {/* Right column: completion ring + PDF button */}
+            <div className="flex flex-col items-center gap-1.5 shrink-0">
+              <CompletionIndicator booking={booking} hasExpenses={hasExpenses} />
+              <button
+                onClick={() => setReportOpen(true)}
+                className="flex items-center gap-1 text-[10px] text-blue-400/60 hover:text-blue-300 transition-colors"
+                title="Generate Trip Report"
+              >
+                <FileText className="h-3.5 w-3.5" />
+                <span>Report</span>
+              </button>
+            </div>
+          </div>
 
-              {/* Completion ring + Report */}
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setReportOpen(true)}
-                  className="flex items-center gap-1 text-[10px] text-blue-400/60 hover:text-blue-300 transition-colors"
-                  title="Generate Trip Report"
-                >
-                  <FileText className="h-3.5 w-3.5" /><span>Report</span>
-                </button>
-                <CompletionIndicator booking={booking} hasExpenses={hasExpenses} />
-              </div>
+          {/* ── FINANCIAL SUMMARY (always visible) ── */}
+          <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/50">
+            <span><span className="text-white/30">Revenue:</span> <span className="text-emerald-300/80 font-semibold">${(booking.total_price || 0).toLocaleString()} MXN</span></span>
+            <span><span className="text-white/30">Expenses:</span> <span className="text-red-300/80 font-medium">${expenseTotal.toLocaleString()} MXN</span></span>
+            {commission > 0 && (
+              <span><span className="text-white/30">Fee:</span> <span className="text-orange-300/70">{commission}% (${((booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN)</span></span>
+            )}
+            <span><span className="text-white/30">Net:</span> <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN</span></span>
+          </div>
 
-              {/* Financial summary */}
-              <div className="text-xs text-right space-y-0.5 text-white/50">
-                <div><span className="text-white/30">Revenue:</span> <span className="text-emerald-300/80 font-semibold">${(booking.total_price || 0).toLocaleString()} MXN</span></div>
-                <div><span className="text-white/30">Expenses:</span> <span className="text-red-300/80 font-medium">${expenseTotal.toLocaleString()} MXN</span></div>
-                <div><span className="text-white/30">Net:</span> <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN</span></div>
-                {commission > 0 && (
-                  <div><span className="text-white/30">Fee:</span> <span className="text-orange-300/70">{commission}% (${((booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN)</span></div>
-                )}
-              </div>
+          {/* ── PAYMENT SECTION (always visible) ── */}
+          {hasElevatedAccess && (
+            <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2.5">
+              {/* On-site balance */}
+              {booking.total_price > 0 && (
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/75">
+                    💵 On-Site Balance{' '}
+                    <span className={isCollected ? 'text-emerald-400' : 'text-amber-400'}>
+                      ({remaining > 0 ? `$${remaining.toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN` : 'Fully Paid'})
+                    </span>
+                  </span>
+                  <div className="flex items-center gap-2 ml-auto">
+                    <Select
+                      value={booking.remaining_payment_status || 'pending_collection'}
+                      onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
+                    >
+                      <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
+                        background: isCollected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.15)',
+                        border: isCollected ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(239,68,68,0.3)',
+                        color: isCollected ? '#6ee7b7' : '#fca5a5',
+                      }}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending_collection">⏳ Pending Collection</SelectItem>
+                        <SelectItem value="collected_on_site">✅ Collected On-Site</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={booking.remaining_payment_method || ''}
+                      onValueChange={(val) => updateRemainingMethodMutation.mutate({ id: booking.id, remaining_payment_method: val })}
+                    >
+                      <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
+                        background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#cbd5e1',
+                      }}>
+                        <SelectValue placeholder="Method…" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="cash">💵 Cash</SelectItem>
+                        <SelectItem value="card">💳 Card</SelectItem>
+                        <SelectItem value="bank_transfer">🏦 Bank Transfer</SelectItem>
+                        <SelectItem value="paypal">🅿️ PayPal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
 
-              {/* Payment controls */}
-              {hasElevatedAccess && (
-                <div className="flex flex-col gap-1.5 items-end">
-
-                  {/* On-site balance */}
-                  {booking.total_price > 0 && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-white/40">
-                        💵 {isCollected
-                          ? <span className="text-emerald-400">Collected</span>
-                          : <span className="text-amber-400">${remaining.toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN</span>}
+              {/* Operator payment */}
+              {paypalUser && (
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/75">
+                    🏦 Operator Payment
+                    {commission > 0 && (
+                      <span className={`ml-2 normal-case font-semibold ${isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        → ${((booking.total_price || 0) - (booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN
                       </span>
-                      <Select
-                        value={booking.remaining_payment_status || 'pending_collection'}
-                        onValueChange={(val) => updateRemainingPaymentMutation.mutate({ id: booking.id, remaining_payment_status: val })}
-                      >
-                        <SelectTrigger className="h-6 text-[10px] w-auto px-1.5" style={{
-                          background: isCollected ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.15)',
-                          border: isCollected ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(239,68,68,0.3)',
-                          color: isCollected ? '#6ee7b7' : '#fca5a5',
-                        }}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending_collection">⏳ Pending Collection</SelectItem>
-                          <SelectItem value="collected_on_site">✅ Collected On-Site</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Select
-                        value={booking.remaining_payment_method || ''}
-                        onValueChange={(val) => updateRemainingMethodMutation.mutate({ id: booking.id, remaining_payment_method: val })}
-                      >
-                        <SelectTrigger className="h-6 text-[10px] w-auto px-1.5" style={{
-                          background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#cbd5e1',
-                        }}>
-                          <SelectValue placeholder="Method…" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="cash">💵 Cash</SelectItem>
-                          <SelectItem value="card">💳 Card</SelectItem>
-                          <SelectItem value="bank_transfer">🏦 Bank Transfer</SelectItem>
-                          <SelectItem value="paypal">🅿️ PayPal</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-
-                  {/* Operator payment */}
-                  {paypalUser && (
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] text-white/40">
-                        🏦 {commission > 0 && <span className={isPaid ? 'text-emerald-400' : 'text-amber-400'}>${((booking.total_price || 0) - (booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN</span>}
-                      </span>
-                      <a
-                        href={`https://www.paypal.com/paypalme/${paypalUser}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-semibold transition-all hover:opacity-90"
-                        style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
-                      >
-                        <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3 w-3 rounded-sm" />
-                        PayPal
-                      </a>
-                      <Select
-                        value={booking.payment_status || 'pending_payment'}
-                        onValueChange={(val) => updatePaymentStatusMutation.mutate({ id: booking.id, payment_status: val })}
-                      >
-                        <SelectTrigger className="h-6 text-[10px] w-auto px-1.5" style={{
-                          background: isPaid ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                          border: isPaid ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(245,158,11,0.4)',
-                          color: isPaid ? '#6ee7b7' : '#fcd34d',
-                        }}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending_payment">⏳ Pending Payment</SelectItem>
-                          <SelectItem value="payment_done">✅ Payment Done</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                    )}
+                  </span>
+                  <div className="flex items-center gap-2 ml-auto">
+                    <a
+                      href={`https://www.paypal.com/paypalme/${paypalUser}`}
+                      target="_blank" rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
+                      style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
+                    >
+                      <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
+                      Pay via PayPal
+                    </a>
+                    <Select
+                      value={booking.payment_status || 'pending_payment'}
+                      onValueChange={(val) => updatePaymentStatusMutation.mutate({ id: booking.id, payment_status: val })}
+                    >
+                      <SelectTrigger className="h-7 text-xs w-auto px-2" style={{
+                        background: isPaid ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+                        border: isPaid ? '1px solid rgba(16,185,129,0.4)' : '1px solid rgba(245,158,11,0.4)',
+                        color: isPaid ? '#6ee7b7' : '#fcd34d',
+                      }}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending_payment">⏳ Pending Payment</SelectItem>
+                        <SelectItem value="payment_done">✅ Payment Done</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               )}
             </div>
-          </div>
+          )}
 
           {/* ── ACTIONS ── */}
           <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap items-center justify-between gap-2">
