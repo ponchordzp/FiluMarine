@@ -14,11 +14,15 @@ const ALL_TABS = [
   { value: 'boats', label: '⚓ Boat Inventory', group: 'Fleet' },
   { value: 'mechanic', label: '🔧 Mechanic Portal', group: 'Fleet' },
   { value: 'checklist-template', label: '✅ Checklist Template', group: 'Fleet' },
+  { value: 'engine-databases', label: '📚 Engine Databases', group: 'Fleet' },
   { value: 'locations', label: '📍 Locations', group: 'Locations' },
   { value: 'expeditions', label: '🎣 Expeditions', group: 'Locations' },
+  { value: 'pickup-locations', label: '🚢 Pickup Locations', group: 'Locations' },
+  { value: 'extras', label: '✨ Extras', group: 'Locations' },
   { value: 'destinations', label: '🗺️ Destinations', group: 'Locations' },
   { value: 'operators', label: '🚢 Operators', group: 'Management' },
   { value: 'users', label: '👥 Users', group: 'Management' },
+  { value: 'customers', label: '🧑‍💼 Customers', group: 'Management' },
 ];
 
 const TAB_GROUPS = ['Reservations', 'Fleet', 'Locations', 'Management'];
@@ -26,9 +30,9 @@ const TAB_GROUPS = ['Reservations', 'Fleet', 'Locations', 'Management'];
 // Default permissions per role
 const DEFAULT_PERMISSIONS = {
   superadmin: ALL_TABS.map(t => t.value),
-  operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'mechanic', 'locations', 'expeditions', 'destinations', 'users'],
-  admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats'],
-  crew: ['bookings', 'booked-dates', 'dashboard', 'boats'],
+  operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
+  admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'engine-databases'],
+  crew: ['bookings', 'booked-dates', 'dashboard', 'boats', 'engine-databases'],
 };
 
 const BUILT_IN_ROLES = [

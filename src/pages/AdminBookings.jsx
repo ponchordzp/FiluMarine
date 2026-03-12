@@ -31,6 +31,7 @@ import CustomersPanel from '@/components/admin/CustomersPanel';
 import AdminBookingCard from '@/components/admin/AdminBookingCard';
 import PickupLocationsManagement from '@/components/admin/PickupLocationsManagement';
 import ExtrasManagement from '@/components/admin/ExtrasManagement';
+import EngineDatabases from '@/components/admin/EngineDatabases';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
@@ -1257,6 +1258,12 @@ function AdminBookingsInner() {
               </div>
             </TabsContent>
           )}
+
+          <TabsContent value="engine-databases">
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <EngineDatabases />
+            </div>
+          </TabsContent>
         </Tabs>
       </div>
 

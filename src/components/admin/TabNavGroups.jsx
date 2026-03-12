@@ -36,6 +36,7 @@ const families = [
       { value: 'boats', label: '⚓ Boat Inventory' },
       { value: 'mechanic', label: '🔧 Mechanic Portal' },
       { value: 'checklist-template', label: '✅ Checklist Template', superAdminOnly: true },
+      { value: 'engine-databases', label: '📚 Engine Databases' },
     ],
   },
   {
