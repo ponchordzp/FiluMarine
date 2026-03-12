@@ -3,10 +3,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FolderOpen, FileText, Sparkles, ChevronDown, ChevronRight, ExternalLink, Info } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { FolderOpen, FileText, Sparkles, ChevronDown, ChevronRight, ExternalLink, Plus, Trash2 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function EngineDatabases() {
   const queryClient = useQueryClient();
@@ -16,6 +18,16 @@ export default function EngineDatabases() {
   const [aiQuery, setAiQuery] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [aiResult, setAiResult] = useState(null);
+  const [addDocDialogOpen, setAddDocDialogOpen] = useState(false);
+  const [currentFolder, setCurrentFolder] = useState(null);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    category: 'service_manual',
+    file_url: '',
+    reference_url: '',
+    selection_logic: ''
+  });
 
   const { data: documents = [] } = useQuery({
     queryKey: ['engine-documents'],
@@ -24,6 +36,51 @@ export default function EngineDatabases() {
       return docs;
     },
   });
+
+  const createMutation = useMutation({
+    mutationFn: (data) => base44.entities.EngineDocument.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['engine-documents']);
+      setAddDocDialogOpen(false);
+      resetForm();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.EngineDocument.delete(id),
+    onSuccess: () => queryClient.invalidateQueries(['engine-documents']),
+  });
+
+  const resetForm = () => {
+    setFormData({
+      title: '',
+      description: '',
+      category: 'service_manual',
+      file_url: '',
+      reference_url: '',
+      selection_logic: ''
+    });
+    setCurrentFolder(null);
+  };
+
+  const handleAddDocument = (folderName, folderData) => {
+    setCurrentFolder({ name: folderName, data: folderData });
+    setAddDocDialogOpen(true);
+  };
+
+  const handleSubmitDocument = () => {
+    if (!formData.title || !formData.file_url || !currentFolder) return;
+    
+    createMutation.mutate({
+      folder_name: currentFolder.name,
+      boat_name: currentFolder.data.boat_name,
+      engine_config: currentFolder.data.engine_config,
+      manufacturer: currentFolder.data.manufacturer,
+      model: currentFolder.data.model,
+      year: currentFolder.data.year || '',
+      ...formData
+    });
+  };
 
   const handleAiResearch = async () => {
     if (!aiQuery.trim()) return;
@@ -151,6 +208,85 @@ export default function EngineDatabases() {
         </Dialog>
       </div>
 
+      <Dialog open={addDocDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setAddDocDialogOpen(open); }}>
+        <DialogContent className="max-w-2xl bg-slate-900 text-white border-slate-700">
+          <DialogHeader>
+            <DialogTitle>Add Document to {currentFolder?.name}</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label>Title *</Label>
+              <Input
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g., Yamaha 250 Service Manual"
+                className="bg-slate-800 border-slate-700"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Category *</Label>
+              <Select value={formData.category} onValueChange={(val) => setFormData({ ...formData, category: val })}>
+                <SelectTrigger className="bg-slate-800 border-slate-700">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="service_manual">Service Manual</SelectItem>
+                  <SelectItem value="brochure">Brochure</SelectItem>
+                  <SelectItem value="parts_catalog">Parts Catalog</SelectItem>
+                  <SelectItem value="troubleshooting">Troubleshooting</SelectItem>
+                  <SelectItem value="spec_sheet">Spec Sheet</SelectItem>
+                  <SelectItem value="boat_manual">Boat Manual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label>File URL *</Label>
+              <Input
+                value={formData.file_url}
+                onChange={(e) => setFormData({ ...formData, file_url: e.target.value })}
+                placeholder="https://..."
+                className="bg-slate-800 border-slate-700"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Reference URL</Label>
+              <Input
+                value={formData.reference_url}
+                onChange={(e) => setFormData({ ...formData, reference_url: e.target.value })}
+                placeholder="Source URL where document was found"
+                className="bg-slate-800 border-slate-700"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Selection Logic</Label>
+              <Textarea
+                value={formData.selection_logic}
+                onChange={(e) => setFormData({ ...formData, selection_logic: e.target.value })}
+                placeholder="Why this document was selected..."
+                className="bg-slate-800 border-slate-700"
+                rows={2}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Description</Label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Document description..."
+                className="bg-slate-800 border-slate-700"
+                rows={2}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAddDocDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmitDocument} disabled={!formData.title || !formData.file_url}>
+              Add Document
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {Object.keys(folderGroups).length === 0 ? (
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="py-12 text-center">
@@ -164,12 +300,9 @@ export default function EngineDatabases() {
             const isExpanded = expandedFolders[folderName];
             return (
               <Card key={folderName} className="bg-slate-800/50 border-slate-700">
-                <CardHeader 
-                  className="cursor-pointer hover:bg-slate-800/70 transition-colors"
-                  onClick={() => toggleFolder(folderName)}
-                >
+                <CardHeader className="cursor-pointer hover:bg-slate-800/70 transition-colors">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3" onClick={() => toggleFolder(folderName)}>
                       {isExpanded ? <ChevronDown className="w-5 h-5 text-blue-400" /> : <ChevronRight className="w-5 h-5 text-blue-400" />}
                       <FolderOpen className="w-6 h-6 text-yellow-500" />
                       <div>
@@ -179,8 +312,21 @@ export default function EngineDatabases() {
                         </p>
                       </div>
                     </div>
-                    <div className="text-sm text-white/40">
-                      {folderData.manufacturer} {folderData.model}
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm text-white/40">
+                        {folderData.manufacturer} {folderData.model}
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddDocument(folderName, folderData);
+                        }}
+                        className="bg-green-600/20 hover:bg-green-600/30 border-green-600/50"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -225,15 +371,29 @@ export default function EngineDatabases() {
                                   </p>
                                 )}
                               </div>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="shrink-0"
-                                onClick={() => window.open(doc.file_url, '_blank')}
-                              >
-                                <ExternalLink className="w-3 h-3 mr-1" />
-                                View
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="shrink-0"
+                                  onClick={() => window.open(doc.file_url, '_blank')}
+                                >
+                                  <ExternalLink className="w-3 h-3 mr-1" />
+                                  View
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="shrink-0 text-red-400 hover:text-red-300"
+                                  onClick={() => {
+                                    if (confirm('Delete this document?')) {
+                                      deleteMutation.mutate(doc.id);
+                                    }
+                                  }}
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         ))}
