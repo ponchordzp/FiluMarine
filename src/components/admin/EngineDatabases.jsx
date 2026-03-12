@@ -28,6 +28,36 @@ export default function EngineDatabases() {
     reference_url: '',
     selection_logic: ''
   });
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadFormData, setUploadFormData] = useState({
+    boat_name: '',
+    folder_name: '',
+    engine_config: 'outboard',
+    manufacturer: '',
+    model: '',
+    year: '',
+    title: '',
+    description: '',
+    category: 'service_manual',
+    file_url: '',
+    reference_url: '',
+    selection_logic: ''
+  });
+  const [methodology, setMethodology] = useState(
+    `AI Research Methodology:
+
+1. Identify exact engine specifications (manufacturer, model, year, HP rating)
+2. Search for official manufacturer documentation first (service manuals, parts catalogs, specifications)
+3. Verify document authenticity and relevance to the specific engine model
+4. Cross-reference multiple sources to ensure accuracy
+5. Prioritize recent and updated documentation over older versions
+6. Document the selection logic explaining why each resource was chosen
+7. Include source URLs for traceability and verification
+8. Organize by category: service manuals, brochures, parts catalogs, troubleshooting guides, spec sheets, boat manuals
+
+This methodology ensures accurate, verifiable, and comprehensive engine documentation for maintenance and operational reference.`
+  );
+  const [editingMethodology, setEditingMethodology] = useState(false);
 
   const { data: documents = [] } = useQuery({
     queryKey: ['engine-documents'],
@@ -61,6 +91,31 @@ export default function EngineDatabases() {
       selection_logic: ''
     });
     setCurrentFolder(null);
+  };
+
+  const resetUploadForm = () => {
+    setUploadFormData({
+      boat_name: '',
+      folder_name: '',
+      engine_config: 'outboard',
+      manufacturer: '',
+      model: '',
+      year: '',
+      title: '',
+      description: '',
+      category: 'service_manual',
+      file_url: '',
+      reference_url: '',
+      selection_logic: ''
+    });
+  };
+
+  const handleSubmitUpload = () => {
+    if (!uploadFormData.boat_name || !uploadFormData.folder_name || !uploadFormData.title || !uploadFormData.file_url) return;
+    
+    createMutation.mutate(uploadFormData);
+    setUploadDialogOpen(false);
+    resetUploadForm();
   };
 
   const handleAddDocument = (folderName, folderData) => {
@@ -140,13 +195,162 @@ export default function EngineDatabases() {
           <h2 className="text-2xl font-bold text-white">Engine Databases</h2>
           <p className="text-white/60 text-sm mt-1">AI-researched documentation organized by engine</p>
         </div>
-        <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-purple-600 hover:bg-purple-700">
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI Research
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Dialog open={uploadDialogOpen} onOpenChange={(open) => { if (!open) resetUploadForm(); setUploadDialogOpen(open); }}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Upload Document
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl bg-slate-900 text-white border-slate-700 max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Upload New Engine Document</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid gap-2">
+                  <Label>Boat Name *</Label>
+                  <Input
+                    value={uploadFormData.boat_name}
+                    onChange={(e) => setUploadFormData({ ...uploadFormData, boat_name: e.target.value })}
+                    placeholder="e.g., Pirula, La Güera"
+                    className="bg-slate-800 border-slate-700"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Folder Name *</Label>
+                  <Input
+                    value={uploadFormData.folder_name}
+                    onChange={(e) => setUploadFormData({ ...uploadFormData, folder_name: e.target.value })}
+                    placeholder="e.g., Twin Yamaha 150 (2017)"
+                    className="bg-slate-800 border-slate-700"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label>Engine Config *</Label>
+                    <Select value={uploadFormData.engine_config} onValueChange={(val) => setUploadFormData({ ...uploadFormData, engine_config: val })}>
+                      <SelectTrigger className="bg-slate-800 border-slate-700">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="inboard">Inboard</SelectItem>
+                        <SelectItem value="outboard">Outboard</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Year</Label>
+                    <Input
+                      value={uploadFormData.year}
+                      onChange={(e) => setUploadFormData({ ...uploadFormData, year: e.target.value })}
+                      placeholder="e.g., 2019"
+                      className="bg-slate-800 border-slate-700"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label>Manufacturer</Label>
+                    <Input
+                      value={uploadFormData.manufacturer}
+                      onChange={(e) => setUploadFormData({ ...uploadFormData, manufacturer: e.target.value })}
+                      placeholder="e.g., Yamaha"
+                      className="bg-slate-800 border-slate-700"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>Model</Label>
+                    <Input
+                      value={uploadFormData.model}
+                      onChange={(e) => setUploadFormData({ ...uploadFormData, model: e.target.value })}
+                      placeholder="e.g., F250"
+                      className="bg-slate-800 border-slate-700"
+                    />
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Document Title *</Label>
+                  <Input
+                    value={uploadFormData.title}
+                    onChange={(e) => setUploadFormData({ ...uploadFormData, title: e.target.value })}
+                    placeholder="e.g., Yamaha F250 Service Manual"
+                    className="bg-slate-800 border-slate-700"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Category *</Label>
+                  <Select value={uploadFormData.category} onValueChange={(val) => setUploadFormData({ ...uploadFormData, category: val })}>
+                    <SelectTrigger className="bg-slate-800 border-slate-700">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="service_manual">Service Manual</SelectItem>
+                      <SelectItem value="brochure">Brochure</SelectItem>
+                      <SelectItem value="parts_catalog">Parts Catalog</SelectItem>
+                      <SelectItem value="troubleshooting">Troubleshooting</SelectItem>
+                      <SelectItem value="spec_sheet">Spec Sheet</SelectItem>
+                      <SelectItem value="boat_manual">Boat Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label>File URL *</Label>
+                  <Input
+                    value={uploadFormData.file_url}
+                    onChange={(e) => setUploadFormData({ ...uploadFormData, file_url: e.target.value })}
+                    placeholder="https://..."
+                    className="bg-slate-800 border-slate-700"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Reference URL</Label>
+                  <Input
+                    value={uploadFormData.reference_url}
+                    onChange={(e) => setUploadFormData({ ...uploadFormData, reference_url: e.target.value })}
+                    placeholder="Source URL where document was found"
+                    className="bg-slate-800 border-slate-700"
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Selection Logic</Label>
+                  <Textarea
+                    value={uploadFormData.selection_logic}
+                    onChange={(e) => setUploadFormData({ ...uploadFormData, selection_logic: e.target.value })}
+                    placeholder="Why this document was selected..."
+                    className="bg-slate-800 border-slate-700"
+                    rows={2}
+                  />
+                </div>
+                <div className="grid gap-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={uploadFormData.description}
+                    onChange={(e) => setUploadFormData({ ...uploadFormData, description: e.target.value })}
+                    placeholder="Document description..."
+                    className="bg-slate-800 border-slate-700"
+                    rows={2}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setUploadDialogOpen(false)}>Cancel</Button>
+                <Button 
+                  onClick={handleSubmitUpload} 
+                  disabled={!uploadFormData.boat_name || !uploadFormData.folder_name || !uploadFormData.title || !uploadFormData.file_url}
+                >
+                  Upload Document
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                <Sparkles className="w-4 h-4 mr-2" />
+                AI Research
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-3xl bg-slate-900 text-white border-slate-700 max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
@@ -406,6 +610,35 @@ export default function EngineDatabases() {
           })}
         </div>
       )}
+
+      <Card className="bg-slate-800/50 border-slate-700 mt-8">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-white">AI Research Methodology</CardTitle>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setEditingMethodology(!editingMethodology)}
+              className="text-white"
+            >
+              {editingMethodology ? 'Save' : 'Edit'}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {editingMethodology ? (
+            <Textarea
+              value={methodology}
+              onChange={(e) => setMethodology(e.target.value)}
+              className="bg-slate-900 border-slate-700 text-white font-mono text-sm min-h-[300px]"
+            />
+          ) : (
+            <div className="text-white/80 whitespace-pre-wrap font-mono text-sm bg-slate-900/50 p-4 rounded">
+              {methodology}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
