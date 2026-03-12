@@ -351,7 +351,7 @@ This methodology ensures accurate, verifiable, and comprehensive engine document
                 AI Research
               </Button>
             </DialogTrigger>
-          <DialogContent className="max-w-3xl bg-slate-900 text-white border-slate-700 max-h-[80vh] overflow-y-auto">
+            <DialogContent className="max-w-3xl bg-slate-900 text-white border-slate-700 max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-purple-400" />
@@ -410,6 +410,7 @@ This methodology ensures accurate, verifiable, and comprehensive engine document
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <Dialog open={addDocDialogOpen} onOpenChange={(open) => { if (!open) resetForm(); setAddDocDialogOpen(open); }}>
