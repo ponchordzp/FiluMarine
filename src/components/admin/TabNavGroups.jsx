@@ -143,7 +143,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, operatorFi
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 items-end">
       {visibleFamilies.map(family => (
         <FamilyGroup
           key={family.id}
