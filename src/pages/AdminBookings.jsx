@@ -635,17 +635,17 @@ function AdminBookingsInner() {
         </div>
 
           {/* Booking KPIs - Collapsible Row 2 */}
-          <div className="mb-8 rounded-2xl p-4" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', backdropFilter: 'blur(16px)' }}>
-            <button onClick={() => toggleRowExpansion('bookings')} className="w-full flex items-center justify-between mb-3 hover:opacity-80 transition-opacity">
-              <div className="flex items-center gap-2">
-                <span className="text-lg">📅</span>
-                <span className="text-sm font-semibold text-blue-300 uppercase tracking-wider">Bookings</span>
+          <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', backdropFilter: 'blur(16px)' }}>
+            <button onClick={() => toggleRowExpansion('bookings')} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity" style={{ marginBottom: expandedRows.bookings ? '8px' : '0' }}>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm">📅</span>
+                <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">Bookings</span>
               </div>
-              <ChevronDown className={`h-4 w-4 text-blue-300/60 transition-transform ${expandedRows.bookings ? '' : '-rotate-90'}`} />
+              <ChevronDown className={`h-3.5 w-3.5 text-blue-300/60 transition-transform ${expandedRows.bookings ? '' : '-rotate-90'}`} />
             </button>
             {expandedRows.bookings && (
               <>
-                <div className="grid md:grid-cols-3 gap-3 mb-4">
+                <div className="grid md:grid-cols-3 gap-2 mb-3">
                   <div>
                     <Label className="text-white/50 text-xs">Time Range</Label>
                     <Select value={bookingTimeFilter} onValueChange={(val) => { setBookingTimeFilter(val); if (val !== 'custom') setShowCustomDatePickerBooking(false); }}>
