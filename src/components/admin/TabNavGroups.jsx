@@ -79,7 +79,7 @@ const families = [
   },
 ];
 
-function FamilyGroup({ family, open, onToggle }) {
+function FamilyGroup({ family }) {
   return (
     <div className="inline-flex items-center flex-wrap rounded-lg overflow-hidden"
       style={{ background: family.color, border: `1px solid ${family.border}` }}
