@@ -85,14 +85,12 @@ function FamilyGroup({ family }) {
       style={{ background: family.color, border: `1px solid ${family.border}` }}
     >
       {/* Family label button */}
-      <button
-        type="button"
-        onClick={onToggle}
-        className="px-2.5 py-1.5 text-xs font-semibold transition-all hover:brightness-110 select-none shrink-0"
+      <span
+        className="px-2.5 py-1.5 text-xs font-semibold select-none shrink-0"
         style={{ color: family.textColor }}
       >
         {family.label}
-      </button>
+      </span>
 
       {/* Tabs always shown to the right */}
       <TabsList
