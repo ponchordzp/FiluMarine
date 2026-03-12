@@ -315,6 +315,7 @@ export default function EngineDatabases() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       {documents.length === 0 ? (
