@@ -614,23 +614,25 @@ function AdminBookingsInner() {
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-4 gap-2">
                 {[
                   { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '💰' },
                   { label: 'Expenses', value: `$${(stats.totalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '📉' },
                   { label: 'Net Profit', value: `$${(stats.netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '📊' },
                   { label: 'Margin', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-400/70', svg: '📈' },
                 ].map(s => (
-                  <div key={s.label} className="rounded-xl p-3 text-center" style={{ background: s.color, border: `1px solid ${s.border}` }}>
-                    <p className="text-lg mb-1">{s.svg}</p>
-                    <p className={`text-base font-bold ${s.text}`}>{s.value}</p>
-                    <p className={`text-xs mt-0.5 ${s.sub}`}>{s.label}</p>
+                  <div key={s.label} className="rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                    <span className="text-sm shrink-0">{s.svg}</span>
+                    <div>
+                      <p className={`text-sm font-bold leading-none ${s.text}`}>{s.value}</p>
+                      <p className={`text-[10px] mt-0.5 ${s.sub}`}>{s.label}</p>
+                    </div>
                   </div>
                 ))}
-                </div>
-                </>
-                )}
-                </div>
+              </div>
+            </>
+          )}
+        </div>
 
           {/* Booking KPIs - Collapsible Row 2 */}
           <div className="mb-8 rounded-2xl p-4" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', backdropFilter: 'blur(16px)' }}>
