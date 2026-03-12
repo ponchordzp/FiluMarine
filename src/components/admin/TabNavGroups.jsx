@@ -81,7 +81,7 @@ const families = [
 
 function FamilyGroup({ family }) {
   return (
-    <div className="inline-flex items-center flex-wrap rounded-lg overflow-hidden"
+    <div className="flex items-center justify-between w-full rounded-lg overflow-hidden"
       style={{ background: family.color, border: `1px solid ${family.border}` }}
     >
       {/* Family label button */}
