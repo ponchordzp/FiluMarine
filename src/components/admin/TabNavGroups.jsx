@@ -129,20 +129,15 @@ function loadOperators() {
 }
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, operatorFilter, onOperatorFilterChange }) {
-  const [open, setOpen] = useState({ bookings: true, operators: false });
   const operators = isSuperAdmin ? loadOperators() : [];
-
-  const toggle = (id) => setOpen(prev => ({ ...prev, [id]: !prev[id] }));
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
 
   return (
-    <div className="flex flex-col gap-2 items-end">
+    <div className="flex flex-col gap-2 items-start">
       {visibleFamilies.map(family => (
         <FamilyGroup
           key={family.id}
           family={family}
-          open={!!open[family.id]}
-          onToggle={() => toggle(family.id)}
         />
       ))}
 
