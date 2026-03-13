@@ -1204,14 +1204,14 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <MaintenanceLogView boat={boat} />
 
               {boat.current_hours >= 0 &&
-                <div className="mt-3 pt-3 border-t">
+                <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(245,158,11,0.3)' }}>
                   <button
                     type="button"
                     onClick={() => setEngineHoursExpanded(prev => ({ ...prev, [boat.id]: !prev[boat.id] }))}
                     className="w-full flex items-center justify-between gap-2 mb-2 group"
                   >
                     <h4 className="font-semibold text-xs text-amber-200 flex items-center gap-2"><Gauge className="h-3 w-3" />Engine Hours</h4>
-                    {engineHoursExpanded[boat.id] ? <ChevronUp className="h-3 w-3 text-slate-400" /> : <ChevronDown className="h-3 w-3 text-slate-400" />}
+                    {engineHoursExpanded[boat.id] ? <ChevronUp className="h-3 w-3 text-amber-300" /> : <ChevronDown className="h-3 w-3 text-amber-300" />}
                   </button>
                   {engineHoursExpanded[boat.id] && (
                     <>
@@ -1242,7 +1242,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     className="w-full flex items-center justify-between gap-2 mb-2 group">
 
                   <h4 className="font-semibold text-xs text-amber-200 flex items-center gap-1.5"><MapPin className="h-3 w-3" />Trip History</h4>
-                  {tripHistoryExpanded[boat.id] ? <ChevronUp className="h-3 w-3 text-slate-400" /> : <ChevronDown className="h-3 w-3 text-slate-400" />}
+                  {tripHistoryExpanded[boat.id] ? <ChevronUp className="h-3 w-3 text-amber-300" /> : <ChevronDown className="h-3 w-3 text-amber-300" />}
                 </button>
 
                 {tripHistoryExpanded[boat.id] &&
