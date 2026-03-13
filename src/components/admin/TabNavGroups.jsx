@@ -99,7 +99,18 @@ function FamilyGroup({ family }) {
         style={{ background: 'transparent', backdropFilter: 'blur(16px)' }}
       >
         {family.tabs.map(t => (
-          <TabsTrigger key={t.value} value={t.value} className="font-medium text-xs">{t.label}</TabsTrigger>
+          <TabsTrigger 
+            key={t.value} 
+            value={t.value} 
+            className="font-medium text-xs"
+            style={{
+              textShadow: (t.value === 'bookings' || t.value === 'boats' || t.value === 'mechanic' || t.value === 'users' || t.value === 'operators') 
+                ? '0 0 10px rgba(147, 197, 253, 0.5)' 
+                : 'none'
+            }}
+          >
+            {t.label}
+          </TabsTrigger>
         ))}
       </TabsList>
     </div>

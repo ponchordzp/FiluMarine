@@ -625,7 +625,7 @@ function AdminBookingsInner() {
                   <div key={s.label} className="rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: s.color, border: `1px solid ${s.border}` }}>
                     <span className="text-sm shrink-0">{s.svg}</span>
                     <div>
-                      <p className={`text-sm font-bold leading-none ${s.text}`}>{s.value}</p>
+                      <p className={`text-sm font-bold leading-none ${s.text} relative inline-block`} style={{ textShadow: s.label === 'Revenue' || s.label === 'Net Profit' ? `0 0 8px ${s.label === 'Revenue' ? 'rgba(16,185,129,0.6)' : 'rgba(59,130,246,0.6)'}` : 'none' }}>{s.value}</p>
                       <p className={`text-[10px] mt-0.5 ${s.sub}`}>{s.label}</p>
                     </div>
                   </div>
@@ -724,7 +724,7 @@ function AdminBookingsInner() {
                     <div key={s.label} className="rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: s.color, border: `1px solid ${s.border}` }}>
                       <span className="text-sm shrink-0">{s.svg}</span>
                       <div>
-                        <p className={`text-sm font-bold leading-none ${s.text}`}>{s.value}</p>
+                        <p className={`text-sm font-bold leading-none ${s.text} relative inline-block`} style={{ textShadow: s.label === 'Pending' || s.label === 'Confirmed' ? `0 0 8px ${s.label === 'Pending' ? 'rgba(245,158,11,0.6)' : 'rgba(16,185,129,0.6)'}` : 'none' }}>{s.value}</p>
                         <p className={`text-[10px] mt-0.5 ${s.sub}`}>{s.label}</p>
                       </div>
                     </div>
