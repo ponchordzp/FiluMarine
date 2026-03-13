@@ -104,9 +104,9 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-slate-50 text-2xl font-semibold">Locations</h2>
-          <p className="text-sm text-slate-500 mt-1">Manage the locations shown to users on the home page. Changes sync in real time.</p>
-          {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
+          <h2 className="text-teal-100 text-2xl font-semibold">Locations</h2>
+          <p className="text-sm text-teal-200/70 mt-1">Manage the locations shown to users on the home page. Changes sync in real time.</p>
+          {operatorFilter !== 'all' && <p className="text-xs text-teal-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
         </div>
         <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}} className="bg-purple-600 text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
           <Plus className="h-4 w-4 mr-2" />
@@ -126,7 +126,7 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
 
       <div className="grid md:grid-cols-2 gap-5">
         {locations.map((loc) =>
-        <Card key={loc.id} className={`overflow-hidden transition-all ${!loc.visible ? 'opacity-60 border-dashed' : ''}`}>
+        <Card key={loc.id} className={`overflow-hidden transition-all ${!loc.visible ? 'opacity-60 border-dashed' : ''}`} style={{ background: 'rgba(20,184,166,0.1)', border: '1px solid rgba(20,184,166,0.25)' }}>
             {loc.image &&
           <div className="relative h-40 overflow-hidden">
                 <img src={loc.image} alt={loc.name} className="w-full h-full object-cover" />
@@ -146,8 +146,8 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
               {!loc.image &&
             <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="font-semibold text-slate-800">{loc.name}</h4>
-                    {loc.state && <p className="text-xs text-slate-500">{loc.state}</p>}
+                    <h4 className="font-semibold text-teal-100">{loc.name}</h4>
+                    {loc.state && <p className="text-xs text-teal-200/70">{loc.state}</p>}
                   </div>
                   {!loc.visible &&
               <span className="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded-full flex items-center gap-1">
@@ -156,9 +156,9 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
               }
                 </div>
             }
-              {loc.description && <p className="text-sm text-slate-600 line-clamp-2">{loc.description}</p>}
+              {loc.description && <p className="text-sm text-teal-200/60 line-clamp-2">{loc.description}</p>}
               {loc.coordinates &&
-            <p className="text-xs text-slate-400 font-mono flex items-center gap-1">
+            <p className="text-xs text-teal-300/60 font-mono flex items-center gap-1">
                   <MapPin className="h-3 w-3" /> {loc.coordinates}
                 </p>
             }
