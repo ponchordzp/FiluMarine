@@ -550,9 +550,9 @@ function AdminBookingsInner() {
             <>
               <div className="grid md:grid-cols-3 gap-2 mb-3">
                 <div>
-                  <Label className="text-white/50 text-xs">Time Range</Label>
+                  <Label className="text-emerald-200 text-xs font-semibold">Time Range</Label>
                   <Select value={financialTimeFilter} onValueChange={(val) => { setFinancialTimeFilter(val); if (val !== 'custom') setShowCustomDatePickerFinancial(false); }}>
-                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Time</SelectItem>
                       <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
@@ -589,9 +589,9 @@ function AdminBookingsInner() {
                   </Dialog>
                 )}
                 <div>
-                  <Label className="text-white/50 text-xs">Boat</Label>
+                  <Label className="text-emerald-200 text-xs font-semibold">Boat</Label>
                   <Select value={financialBoatFilter} onValueChange={setFinancialBoatFilter}>
-                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Boats</SelectItem>
                       {financialFilteredBoats.map(boat => (
@@ -602,9 +602,9 @@ function AdminBookingsInner() {
                 </div>
                 {isSuperAdmin && (
                   <div>
-                    <Label className="text-white/50 text-xs">Operator</Label>
+                    <Label className="text-emerald-200 text-xs font-semibold">Operator</Label>
                     <Select value={globalOperatorFilter} onValueChange={setGlobalOperatorFilter}>
-                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Operators</SelectItem>
                         {[...new Set(allBoats.map(b => b.operator?.trim() || 'FILU'))].map(op => (
@@ -617,22 +617,22 @@ function AdminBookingsInner() {
               </div>
               <div className="grid grid-cols-4 gap-2">
                 {[
-                  { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '💰' },
-                  { label: 'Expenses', value: `$${(stats.totalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '📉' },
-                  { label: 'Net Profit', value: `$${(stats.netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '📊' },
-                  { label: 'Margin', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-400/70', svg: '📈' },
+                  { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-200', svg: '💰' },
+                  { label: 'Expenses', value: `$${(stats.totalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-200', svg: '📉' },
+                  { label: 'Net Profit', value: `$${(stats.netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', svg: '📊' },
+                  { label: 'Margin', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-200', svg: '📈' },
                 ].map(s => (
-                  <div key={s.label} className="rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: s.color, border: `1px solid ${s.border}` }}>
-                    <span className="text-sm shrink-0">{s.svg}</span>
-                    <div>
-                      <p className={`text-sm font-bold leading-none ${s.text} relative inline-block`} style={{ 
-                        textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
-                                   s.label === 'Expenses' ? '0 0 10px rgba(239,68,68,0.7)' :
-                                   s.label === 'Net Profit' ? '0 0 10px rgba(59,130,246,0.7)' :
-                                   '0 0 10px rgba(168,85,247,0.7)'
-                      }}>{s.value}</p>
-                      <p className={`text-[10px] mt-0.5 ${s.sub}`}>{s.label}</p>
+                  <div key={s.label} className="rounded-lg px-3 py-2 flex items-center justify-between gap-3" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm shrink-0">{s.svg}</span>
+                      <p className={`text-[10px] ${s.sub} font-medium`}>{s.label}</p>
                     </div>
+                    <p className={`text-xl font-bold leading-none ${s.text} relative`} style={{ 
+                      textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
+                                 s.label === 'Expenses' ? '0 0 10px rgba(239,68,68,0.7)' :
+                                 s.label === 'Net Profit' ? '0 0 10px rgba(59,130,246,0.7)' :
+                                 '0 0 10px rgba(168,85,247,0.7)'
+                    }}>{s.value}</p>
                   </div>
                 ))}
               </div>
@@ -653,9 +653,9 @@ function AdminBookingsInner() {
               <>
                 <div className="grid md:grid-cols-3 gap-2 mb-3">
                   <div>
-                    <Label className="text-white/50 text-xs">Time Range</Label>
+                    <Label className="text-blue-200 text-xs font-semibold">Time Range</Label>
                     <Select value={bookingTimeFilter} onValueChange={(val) => { setBookingTimeFilter(val); if (val !== 'custom') setShowCustomDatePickerBooking(false); }}>
-                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Time</SelectItem>
                         <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
@@ -692,9 +692,9 @@ function AdminBookingsInner() {
                     </Dialog>
                   )}
                   <div>
-                    <Label className="text-white/50 text-xs">Boat</Label>
+                    <Label className="text-blue-200 text-xs font-semibold">Boat</Label>
                     <Select value={bookingBoatFilter} onValueChange={setBookingBoatFilter}>
-                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Boats</SelectItem>
                         {bookingFilteredBoats.map(boat => (
@@ -705,9 +705,9 @@ function AdminBookingsInner() {
                   </div>
                   {isSuperAdmin && (
                     <div>
-                      <Label className="text-white/50 text-xs">Operator</Label>
+                      <Label className="text-blue-200 text-xs font-semibold">Operator</Label>
                       <Select value={globalOperatorFilter} onValueChange={setGlobalOperatorFilter}>
-                        <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All Operators</SelectItem>
                           {[...new Set(allBoats.map(b => b.operator?.trim() || 'FILU'))].map(op => (
@@ -720,24 +720,24 @@ function AdminBookingsInner() {
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {[
-                    { label: 'Total', value: bookingStats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/50', svg: '📊' },
-                    { label: 'Pending', value: bookingStats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-400/70', svg: '⏳' },
-                    { label: 'Confirmed', value: bookingStats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-400/70', svg: '✔️' },
-                    { label: 'Completed', value: bookingStats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-400/70', svg: '🎯' },
-                    { label: 'Cancelled', value: bookingStats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-400/70', svg: '❌' },
+                    { label: 'Total', value: bookingStats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/80', svg: '📊' },
+                    { label: 'Pending', value: bookingStats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-200', svg: '⏳' },
+                    { label: 'Confirmed', value: bookingStats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-200', svg: '✔️' },
+                    { label: 'Completed', value: bookingStats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', svg: '🎯' },
+                    { label: 'Cancelled', value: bookingStats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-200', svg: '❌' },
                   ].map(s => (
-                    <div key={s.label} className="rounded-lg px-3 py-2 flex items-center gap-2" style={{ background: s.color, border: `1px solid ${s.border}` }}>
-                      <span className="text-sm shrink-0">{s.svg}</span>
-                      <div>
-                        <p className={`text-sm font-bold leading-none ${s.text} relative inline-block`} style={{ 
-                          textShadow: s.label === 'Total' ? '0 0 10px rgba(255,255,255,0.5)' :
-                                     s.label === 'Pending' ? '0 0 10px rgba(245,158,11,0.7)' :
-                                     s.label === 'Confirmed' ? '0 0 10px rgba(16,185,129,0.7)' :
-                                     s.label === 'Completed' ? '0 0 10px rgba(59,130,246,0.7)' :
-                                     '0 0 10px rgba(239,68,68,0.7)'
-                        }}>{s.value}</p>
-                        <p className={`text-[10px] mt-0.5 ${s.sub}`}>{s.label}</p>
+                    <div key={s.label} className="rounded-lg px-3 py-2 flex items-center justify-between gap-3" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm shrink-0">{s.svg}</span>
+                        <p className={`text-[10px] ${s.sub} font-medium`}>{s.label}</p>
                       </div>
+                      <p className={`text-xl font-bold leading-none ${s.text} relative`} style={{ 
+                        textShadow: s.label === 'Total' ? '0 0 10px rgba(255,255,255,0.5)' :
+                                   s.label === 'Pending' ? '0 0 10px rgba(245,158,11,0.7)' :
+                                   s.label === 'Confirmed' ? '0 0 10px rgba(16,185,129,0.7)' :
+                                   s.label === 'Completed' ? '0 0 10px rgba(59,130,246,0.7)' :
+                                   '0 0 10px rgba(239,68,68,0.7)'
+                      }}>{s.value}</p>
                     </div>
                   ))}
                 </div>
