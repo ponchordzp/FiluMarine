@@ -160,8 +160,8 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-purple-100 text-2xl font-semibold">User Management</h2>
-          <p className="text-sm text-purple-200/70 mt-1">Create and manage users, roles, and boat assignments</p>
+          <h2 className="text-slate-50 text-2xl font-semibold">User Management</h2>
+          <p className="text-sm text-slate-500 mt-1">Create and manage users, roles, and boat assignments</p>
         </div>
         <div className="flex gap-2">
           {isSuperAdmin && (
@@ -188,15 +188,15 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
         {Object.entries(roleConfig).map(([key, cfg]) => {
           const Icon = cfg.icon;
           return (
-            <Card key={key} className="border-2" style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)' }}>
+            <Card key={key} className="border-2 border-slate-100">
               <CardContent className="pt-4 pb-4">
                 <div className="flex items-start gap-3">
                   <div className={`p-2 rounded-lg ${key === 'superadmin' ? 'bg-purple-100' : key === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
                     <Icon className={`h-4 w-4 ${key === 'superadmin' ? 'text-purple-600' : key === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`} />
                   </div>
                   <div>
-                    <p className="font-semibold text-sm text-purple-100">{cfg.label}</p>
-                    <p className="text-xs text-purple-200/70 mt-0.5">{cfg.description}</p>
+                    <p className="font-semibold text-sm text-slate-800">{cfg.label}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{cfg.description}</p>
                   </div>
                 </div>
               </CardContent>
@@ -241,10 +241,10 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
       {/* Users list */}
       <div className="space-y-3">
         {filteredUsers.length === 0 ? (
-          <Card style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)' }}>
+          <Card>
             <CardContent className="py-12 text-center">
-              <Users className="h-12 w-12 text-purple-300 mx-auto mb-3" />
-              <p className="text-purple-200">No users found.</p>
+              <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-500">No users found.</p>
             </CardContent>
           </Card>
         ) : (
@@ -253,7 +253,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
             const Icon = cfg.icon;
             const opForUser = getOperatorForUser(user, operators);
             return (
-              <Card key={user.id} className={`border-2 ${user.is_active === false ? 'opacity-60' : ''}`} style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.25)' }}>
+              <Card key={user.id} className={`border-2 ${user.is_active === false ? 'border-slate-200 opacity-60' : 'border-slate-100'}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${user.role === 'superadmin' ? 'bg-purple-100' : user.role === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
@@ -261,7 +261,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="font-semibold text-purple-100">{user.full_name || user.username}</p>
+                        <p className="font-semibold text-slate-800">{user.full_name || user.username}</p>
                         <Badge className={cfg.color}>{cfg.label}</Badge>
                         {user.is_active === false && <Badge className="bg-slate-100 text-slate-600">Inactive</Badge>}
                         {/* Operator badge */}
@@ -271,11 +271,11 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                           </span>
                         )}
                       </div>
-                      <p className="text-sm text-purple-200/70">@{user.username}</p>
+                      <p className="text-sm text-slate-500">@{user.username}</p>
                       <div className="flex gap-3 mt-1 flex-wrap">
-                        {user.email && <p className="text-xs text-purple-200/60">✉ {user.email}</p>}
-                        {user.assigned_boat && <p className="text-xs text-blue-300 font-medium">⚓ {user.assigned_boat}</p>}
-                        {user.last_login && <p className="text-xs text-purple-200/50">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
+                        {user.email && <p className="text-xs text-slate-500">✉ {user.email}</p>}
+                        {user.assigned_boat && <p className="text-xs text-blue-600 font-medium">⚓ {user.assigned_boat}</p>}
+                        {user.last_login && <p className="text-xs text-slate-400">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">

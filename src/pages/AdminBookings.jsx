@@ -886,12 +886,12 @@ function AdminBookingsInner() {
                 </div>
                 <div className="space-y-3 max-h-[500px] overflow-y-auto">
                     {!selectedCalendarDate ? (
-                      <p className="text-purple-200/50 text-center py-8 text-sm">Select a date to view bookings</p>
+                      <p className="text-white/30 text-center py-8 text-sm">Select a date to view bookings</p>
                     ) : (() => {
                       const dateStr = format(selectedCalendarDate, 'yyyy-MM-dd');
                       const dateBookings = visibleBookings.filter(b => b.date === dateStr && b.status !== 'cancelled');
                       return dateBookings.length === 0 ? (
-                        <p className="text-purple-200/50 text-center py-8 text-sm">No bookings for this date</p>
+                        <p className="text-white/30 text-center py-8 text-sm">No bookings for this date</p>
                       ) : dateBookings.map((booking) => {
                         const StatusIcon = statusIcons[booking.status];
                         return (
@@ -1146,21 +1146,21 @@ function AdminBookingsInner() {
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
                   {visibleBlocked.length === 0 ? (
                     <div className="text-center py-12">
-                      <Ban className="h-12 w-12 text-purple-300/30 mx-auto mb-3" />
-                      <p className="text-purple-200/50 text-sm">No blocked dates</p>
+                      <Ban className="h-12 w-12 text-white/10 mx-auto mb-3" />
+                      <p className="text-white/30 text-sm">No blocked dates</p>
                     </div>
                   ) : (
                     visibleBlocked.sort((a, b) => new Date(a.date) - new Date(b.date)).map((blocked) => (
                       <div key={blocked.id} className="flex items-start justify-between p-3 rounded-xl" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.18)' }}>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <CalendarIcon className="h-3.5 w-3.5 text-purple-300 flex-shrink-0" />
-                            <p className="font-semibold text-purple-100 text-sm truncate">{format(parseISO(blocked.date), 'EEE, MMM d, yyyy')}</p>
+                            <CalendarIcon className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
+                            <p className="font-semibold text-white text-sm truncate">{format(parseISO(blocked.date), 'EEE, MMM d, yyyy')}</p>
                           </div>
                           <Badge className={blocked.boat_name === 'both' ? 'bg-white/10 text-white/60 border border-white/15' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'}>
                             {blocked.boat_name === 'both' ? 'All Boats' : blocked.boat_name}
                           </Badge>
-                          {blocked.reason && <p className="text-xs text-purple-200/60 mt-1.5 line-clamp-2">{blocked.reason}</p>}
+                          {blocked.reason && <p className="text-xs text-white/30 mt-1.5 line-clamp-2">{blocked.reason}</p>}
                         </div>
                         {hasElevatedAccess && (
                           <Button

@@ -100,7 +100,7 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
   const maintenanceBoats = opBoats.filter(b => b.status === 'maintenance').length;
 
   return (
-    <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', backdropFilter: 'blur(16px)' }}>
+    <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.10)', backdropFilter: 'blur(16px)' }}>
       <div className="h-2" style={{ background: operator.color || '#1e88e5' }} />
 
       <div className="p-5 space-y-4">
@@ -309,8 +309,8 @@ export default function OperatorsDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold text-indigo-100">Charter Operators</h2>
-          <p className="text-sm text-indigo-200/70 mt-0.5">Fleet, crew, and booking overview per operator</p>
+          <h2 className="text-xl font-bold text-white">Charter Operators</h2>
+          <p className="text-sm text-white/40 mt-0.5">Fleet, crew, and booking overview per operator</p>
         </div>
         <Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
           <Plus className="h-4 w-4" />Add Operator
