@@ -412,6 +412,10 @@ function AdminBookingsInner() {
     // Financial KPIs (filtered)
     revenue: financialFilteredBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0),
     totalExpenses: financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0),
+    fees: (() => {
+      const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
+      return activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+    })(),
     netProfit: (() => {
       const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
       const rev = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
@@ -615,10 +619,11 @@ function AdminBookingsInner() {
                   </div>
                 )}
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-5 gap-2">
                 {[
                   { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-200', svg: '💰' },
                   { label: 'Expenses', value: `$${(stats.totalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-200', svg: '📉' },
+                  { label: 'Fees', value: `$${(stats.fees / 1000).toFixed(1)}k`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-200', svg: '💳' },
                   { label: 'Net Profit', value: `$${(stats.netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', svg: '📊' },
                   { label: 'Margin', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-200', svg: '📈' },
                 ].map(s => (
@@ -627,9 +632,10 @@ function AdminBookingsInner() {
                       <span className="text-sm shrink-0">{s.svg}</span>
                       <p className={`text-[10px] ${s.sub} font-medium`}>{s.label}</p>
                     </div>
-                    <p className={`text-xl font-bold leading-none ${s.text} relative`} style={{ 
+                    <p className={`text-2xl font-bold leading-none ${s.text} relative`} style={{ 
                       textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
                                  s.label === 'Expenses' ? '0 0 10px rgba(239,68,68,0.7)' :
+                                 s.label === 'Fees' ? '0 0 10px rgba(245,158,11,0.7)' :
                                  s.label === 'Net Profit' ? '0 0 10px rgba(59,130,246,0.7)' :
                                  '0 0 10px rgba(168,85,247,0.7)'
                     }}>{s.value}</p>
@@ -731,7 +737,7 @@ function AdminBookingsInner() {
                         <span className="text-sm shrink-0">{s.svg}</span>
                         <p className={`text-[10px] ${s.sub} font-medium`}>{s.label}</p>
                       </div>
-                      <p className={`text-xl font-bold leading-none ${s.text} relative`} style={{ 
+                      <p className={`text-2xl font-bold leading-none ${s.text} relative`} style={{ 
                         textShadow: s.label === 'Total' ? '0 0 10px rgba(255,255,255,0.5)' :
                                    s.label === 'Pending' ? '0 0 10px rgba(245,158,11,0.7)' :
                                    s.label === 'Confirmed' ? '0 0 10px rgba(16,185,129,0.7)' :
