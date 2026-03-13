@@ -627,12 +627,12 @@ function AdminBookingsInner() {
                   { label: 'Net Profit', value: `$${(stats.netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', svg: '📊' },
                   { label: 'Margin', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-200', svg: '📈' },
                 ].map(s => (
-                  <div key={s.label} className="rounded-lg px-3 py-2 flex items-center justify-between gap-3" style={{ background: s.color, border: `1px solid ${s.border}` }}>
-                    <div className="flex items-center gap-2">
+                  <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                    <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
                       <span className="text-sm shrink-0">{s.svg}</span>
-                      <p className={`text-[10px] ${s.sub} font-medium`}>{s.label}</p>
+                      <p className={`text-[10px] ${s.sub} font-medium whitespace-nowrap`}>{s.label}</p>
                     </div>
-                    <p className={`text-2xl font-bold leading-none ${s.text} relative`} style={{ 
+                    <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
                       textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
                                  s.label === 'Expenses' ? '0 0 10px rgba(239,68,68,0.7)' :
                                  s.label === 'Fees' ? '0 0 10px rgba(245,158,11,0.7)' :
@@ -732,12 +732,12 @@ function AdminBookingsInner() {
                     { label: 'Completed', value: bookingStats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', svg: '🎯' },
                     { label: 'Cancelled', value: bookingStats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-200', svg: '❌' },
                   ].map(s => (
-                    <div key={s.label} className="rounded-lg px-3 py-2 flex items-center justify-between gap-3" style={{ background: s.color, border: `1px solid ${s.border}` }}>
-                      <div className="flex items-center gap-2">
+                    <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                      <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
                         <span className="text-sm shrink-0">{s.svg}</span>
-                        <p className={`text-[10px] ${s.sub} font-medium`}>{s.label}</p>
+                        <p className={`text-[10px] ${s.sub} font-medium whitespace-nowrap`}>{s.label}</p>
                       </div>
-                      <p className={`text-2xl font-bold leading-none ${s.text} relative`} style={{ 
+                      <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
                         textShadow: s.label === 'Total' ? '0 0 10px rgba(255,255,255,0.5)' :
                                    s.label === 'Pending' ? '0 0 10px rgba(245,158,11,0.7)' :
                                    s.label === 'Confirmed' ? '0 0 10px rgba(16,185,129,0.7)' :
