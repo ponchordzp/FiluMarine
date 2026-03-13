@@ -1187,10 +1187,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <Badge className={boat.status === 'active' ? 'bg-emerald-100 text-emerald-800' : boat.status === 'maintenance' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'}>{boat.status}</Badge>
                 </div>
                 <div className="mt-2 p-2 rounded-lg border" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}>
-                  <p className="text-xs text-amber-200 mb-1.5 font-medium">Boat Mode</p>
+                  <p className="text-xs text-amber-100 mb-1.5 font-semibold">Boat Mode</p>
                   <div className="flex gap-2">
-                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'rental_and_maintenance' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${isRentalMode ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Rental + Maintenance</button>
-                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'maintenance_only' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${!isRentalMode ? 'bg-slate-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Maintenance Only</button>
+                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'rental_and_maintenance' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${isRentalMode ? 'bg-blue-600 text-white shadow-md' : 'bg-amber-900/20 border border-amber-400/40 text-amber-100 hover:bg-amber-900/30'}`}>Rental + Maintenance</button>
+                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'maintenance_only' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${!isRentalMode ? 'bg-slate-600 text-white shadow-md' : 'bg-amber-900/20 border border-amber-400/40 text-amber-100 hover:bg-amber-900/30'}`}>Maintenance Only</button>
                   </div>
                 </div>
                 {boat.description && <p className="text-xs text-amber-200/60 line-clamp-2 mt-2">{boat.description}</p>}
@@ -1235,7 +1235,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 }
 
               {/* Trip History - collapsible */}
-              <div className="mt-3 pt-3 border-t">
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(245,158,11,0.3)' }}>
                 <button
                     type="button"
                     onClick={() => setTripHistoryExpanded((prev) => ({ ...prev, [boat.id]: !prev[boat.id] }))}
@@ -1270,7 +1270,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         })].
                         sort((a, b) => new Date(b.date) - new Date(a.date));
                         const filteredTrips = allTrips.filter((trip) => tripHistoryFilter === 'all' || trip.type === tripHistoryFilter);
-                        if (filteredTrips.length === 0) return <div className="text-center py-4 text-slate-500 text-xs">No trips yet</div>;
+                        if (filteredTrips.length === 0) return <div className="text-center py-4 text-amber-200/50 text-xs">No trips yet</div>;
                         return filteredTrips.map((trip, idx) => <TripHistoryCard key={idx} trip={trip} />);
                       })()}
                     </div>
@@ -1300,7 +1300,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 }
 
               {isExpanded && boat.maintenance_records && boat.maintenance_records.length > 0 &&
-                <div className="pt-4 border-t space-y-2">
+                <div className="pt-4 space-y-2" style={{ borderTop: '1px solid rgba(245,158,11,0.3)' }}>
                   <h4 className="font-semibold text-sm text-amber-200 mb-3 flex items-center gap-2"><Wrench className="h-4 w-4" />Maintenance History ({boat.maintenance_records.length} records)</h4>
                   <div className="space-y-2 max-h-[300px] overflow-y-auto">
                     {boat.maintenance_records.sort((a, b) => new Date(b.date) - new Date(a.date)).map((record, idx) =>
@@ -1320,7 +1320,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 }
 
               {isExpanded && isRentalMode &&
-                <div className="pt-4 border-t space-y-3">
+                <div className="pt-4 space-y-3" style={{ borderTop: '1px solid rgba(245,158,11,0.3)' }}>
                   <h4 className="font-semibold text-sm text-amber-200 mb-3">Booking Statistics</h4>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-lg border border-emerald-400"><p className="text-white text-xs font-medium mb-1">Revenue</p><p className="font-bold text-xl text-white">${(stats.revenue / 1000).toFixed(1)}k</p></div>
@@ -1329,13 +1329,13 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   </div>
                   <div className="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r-lg"><p className="text-xs text-amber-800"><span className="font-semibold">Note:</span> FILU charges 15% of the total booking price set by the owner.</p></div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div><p className="text-slate-500 text-xs">Total Bookings</p><p className="font-semibold text-lg">{stats.total}</p></div>
-                    <div><p className="text-slate-500 text-xs">Future / Past</p><p className="font-semibold text-lg">{stats.future} / {stats.past}</p></div>
+                    <div><p className="text-amber-200/60 text-xs">Total Bookings</p><p className="font-semibold text-lg text-amber-100">{stats.total}</p></div>
+                    <div><p className="text-amber-200/60 text-xs">Future / Past</p><p className="font-semibold text-lg text-amber-100">{stats.future} / {stats.past}</p></div>
                   </div>
-                  <div className="pt-2"><p className="text-slate-500 text-xs">Most Frequent Trip</p><p className="font-medium text-sm capitalize">{stats.frequentTrip} ({stats.frequentTripCount}x)</p></div>
-                  {stats.lastTrip && <div className="pt-3 border-t"><p className="text-slate-500 text-xs mb-2">Last Completed Trip</p><div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm"><p className="font-medium capitalize">{stats.lastTrip.experience_type?.replace(/_/g, ' ')}</p><p className="text-xs text-slate-600">{format(parseISO(stats.lastTrip.date), 'MMM d, yyyy')} • {stats.lastTrip.guests} guests</p></div></div>}
-                  {boat.last_service_date && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Last Service</p><div className="bg-blue-50 p-2 rounded text-xs"><p className="font-medium">{format(parseISO(boat.last_service_date), 'MMM d, yyyy')}</p>{boat.last_service_mechanic_phone && <p className="text-slate-600 mt-1">Mechanic: {boat.last_service_mechanic_phone}</p>}</div></div>}
-                  {boat.mechanic_name && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Mechanic</p><div className="bg-slate-50 p-2 rounded text-xs space-y-1"><p className="font-medium">{boat.mechanic_name}</p>{boat.mechanic_phone && <p className="text-slate-600">📞 {boat.mechanic_phone}</p>}{boat.mechanic_email && <p className="text-slate-600">✉️ {boat.mechanic_email}</p>}</div></div>}
+                  <div className="pt-2"><p className="text-amber-200/60 text-xs">Most Frequent Trip</p><p className="font-medium text-sm capitalize text-amber-100">{stats.frequentTrip} ({stats.frequentTripCount}x)</p></div>
+                  {stats.lastTrip && <div className="pt-3" style={{ borderTop: '1px solid rgba(245,158,11,0.3)' }}><p className="text-amber-200/60 text-xs mb-2">Last Completed Trip</p><div className="p-3 rounded-lg space-y-1 text-sm" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}><p className="font-medium capitalize text-amber-100">{stats.lastTrip.experience_type?.replace(/_/g, ' ')}</p><p className="text-xs text-amber-200/60">{format(parseISO(stats.lastTrip.date), 'MMM d, yyyy')} • {stats.lastTrip.guests} guests</p></div></div>}
+                  {boat.last_service_date && <div className="pt-2"><p className="text-amber-200/60 text-xs mb-1">Last Service</p><div className="p-2 rounded text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><p className="font-medium text-blue-100">{format(parseISO(boat.last_service_date), 'MMM d, yyyy')}</p>{boat.last_service_mechanic_phone && <p className="text-blue-200/60 mt-1">Mechanic: {boat.last_service_mechanic_phone}</p>}</div></div>}
+                  {boat.mechanic_name && <div className="pt-2"><p className="text-amber-200/60 text-xs mb-1">Mechanic</p><div className="p-2 rounded text-xs space-y-1" style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)' }}><p className="font-medium text-amber-100">{boat.mechanic_name}</p>{boat.mechanic_phone && <p className="text-amber-200/60">📞 {boat.mechanic_phone}</p>}{boat.mechanic_email && <p className="text-amber-200/60">✉️ {boat.mechanic_email}</p>}</div></div>}
                   {needsMaintenance && <div className="pt-2"><Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Action Needed: Schedule Maintenance</Badge></div>}
                 </div>
                 }

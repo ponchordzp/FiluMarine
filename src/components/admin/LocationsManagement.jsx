@@ -115,11 +115,11 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
       </div>
 
       {locations.length === 0 &&
-      <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="py-10 text-center text-blue-700">
-            <MapPin className="h-10 w-10 mx-auto mb-2 text-blue-400" />
-            <p className="font-medium">No locations yet.</p>
-            <p className="text-sm mt-1">Add locations to display them on the home page.</p>
+      <Card style={{ background: 'rgba(20,184,166,0.1)', border: '1px solid rgba(20,184,166,0.25)' }}>
+          <CardContent className="py-10 text-center">
+            <MapPin className="h-10 w-10 mx-auto mb-2 text-teal-300" />
+            <p className="font-medium text-teal-100">No locations yet.</p>
+            <p className="text-sm mt-1 text-teal-200/70">Add locations to display them on the home page.</p>
           </CardContent>
         </Card>
       }
