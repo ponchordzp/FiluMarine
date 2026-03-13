@@ -750,25 +750,26 @@ function AdminBookingsInner() {
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">
-            <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+            <div className="rounded-2xl p-5" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', backdropFilter: 'blur(16px)' }}>
               <div className="flex items-center gap-2 mb-4">
-                <Filter className="h-4 w-4 text-white/40" />
-                <span className="text-sm font-medium text-white/60 uppercase tracking-wider">Filters</span>
+                <Filter className="h-4 w-4 text-blue-300" />
+                <span className="text-sm font-medium text-blue-200 uppercase tracking-wider">Filters</span>
               </div>
               <div className="grid md:grid-cols-6 gap-3">
                 <div>
-                  <Label className="text-white/50 text-xs">Search</Label>
+                  <Label className="text-blue-200 text-xs font-semibold">Search</Label>
                   <Input
                     placeholder="Name, email, code..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="mt-1 bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-[#1e88e5]/50"
+                    className="mt-1 text-white placeholder:text-white/40 focus:border-blue-400/50"
+                    style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}
                   />
                 </div>
                 <div>
-                  <Label className="text-white/50 text-xs">Location</Label>
+                  <Label className="text-blue-200 text-xs font-semibold">Location</Label>
                   <Select value={locationFilter} onValueChange={setLocationFilter}>
-                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 text-white" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Locations</SelectItem>
                       <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
@@ -777,9 +778,9 @@ function AdminBookingsInner() {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-white/50 text-xs">Status</Label>
+                  <Label className="text-blue-200 text-xs font-semibold">Status</Label>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 text-white" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Statuses</SelectItem>
                       <SelectItem value="pending">Pending</SelectItem>
@@ -790,9 +791,9 @@ function AdminBookingsInner() {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-white/50 text-xs">Boat</Label>
+                  <Label className="text-blue-200 text-xs font-semibold">Boat</Label>
                   <Select value={boatFilter} onValueChange={setBoatFilter}>
-                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 text-white" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Boats</SelectItem>
                       <SelectItem value="FILU">FILU</SelectItem>
@@ -803,9 +804,9 @@ function AdminBookingsInner() {
                   </Select>
                 </div>
                 <div>
-                  <Label className="text-white/50 text-xs">Time Range</Label>
+                  <Label className="text-blue-200 text-xs font-semibold">Time Range</Label>
                   <Select value={dateRangeFilter} onValueChange={setDateRangeFilter}>
-                    <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="mt-1 text-white" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Time</SelectItem>
                       <SelectItem value="week">Last 7 Days</SelectItem>
@@ -860,10 +861,10 @@ function AdminBookingsInner() {
                             <TabsContent value="booked-dates" className="space-y-6">
                             {/* visibleBookings computed inline via variable */}
                             <div className="grid md:grid-cols-2 gap-6">
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(30,136,229,0.08)', border: '1px solid rgba(30,136,229,0.2)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <CalendarIcon className="h-4 w-4 text-[#1e88e5]" />
-                  <span className="text-sm font-medium text-white/70">Booked Dates Calendar{!isSuperAdmin && assignedBoat ? ` — ${assignedBoat}` : ''}</span>
+                  <CalendarIcon className="h-4 w-4 text-blue-300" />
+                  <span className="text-sm font-medium text-blue-200">Booked Dates Calendar{!isSuperAdmin && assignedBoat ? ` — ${assignedBoat}` : ''}</span>
                 </div>
                 <Calendar
                   mode="single"
@@ -878,10 +879,10 @@ function AdminBookingsInner() {
                 </div>
               </div>
 
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <CalendarIcon className="h-4 w-4 text-white/40" />
-                  <span className="text-sm font-medium text-white/70">{selectedCalendarDate ? `Bookings for ${format(selectedCalendarDate, 'MMM d, yyyy')}` : 'Select a Date'}</span>
+                  <CalendarIcon className="h-4 w-4 text-purple-300" />
+                  <span className="text-sm font-medium text-purple-200">{selectedCalendarDate ? `Bookings for ${format(selectedCalendarDate, 'MMM d, yyyy')}` : 'Select a Date'}</span>
                 </div>
                 <div className="space-y-3 max-h-[500px] overflow-y-auto">
                     {!selectedCalendarDate ? (
@@ -994,10 +995,10 @@ function AdminBookingsInner() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2">
-                  <CalendarIcon className="h-4 w-4 text-[#1e88e5]" />
-                  <span className="text-sm font-medium text-white/70">Calendar Overview</span>
+                  <CalendarIcon className="h-4 w-4 text-emerald-300" />
+                  <span className="text-sm font-medium text-emerald-200">Calendar Overview</span>
                 </div>
                 <Calendar
                   mode="single"
@@ -1029,7 +1030,7 @@ function AdminBookingsInner() {
                   ))}
                 </div>
                 <div className="space-y-2 pt-2">
-                  <p className="text-xs text-white/40 uppercase tracking-wider flex items-center gap-1"><Info className="h-3 w-3" /> Smart Suggestions</p>
+                  <p className="text-xs text-emerald-200 uppercase tracking-wider flex items-center gap-1 font-semibold"><Info className="h-3 w-3" /> Smart Suggestions</p>
                   {(() => {
                     const suggestions = [];
                     const weekendBookings = bookings.filter(b => { const d = new Date(b.date); return (d.getDay() === 0 || d.getDay() === 6) && b.status !== 'cancelled'; }).length;
@@ -1040,10 +1041,10 @@ function AdminBookingsInner() {
                     if (avail7 > 5) suggestions.push({ type: 'warning', text: `${avail7} days available next week. Consider promotions.` });
                     if (blockedDates.length > 10) suggestions.push({ type: 'info', text: 'Many dates blocked. Review if all are still needed.' });
                     return suggestions.length > 0 ? suggestions.map((s, i) => (
-                      <div key={i} className={`p-2.5 rounded-lg text-xs ${s.type === 'success' ? 'text-emerald-300' : s.type === 'warning' ? 'text-amber-300' : 'text-blue-300'}`} style={{ background: s.type === 'success' ? 'rgba(16,185,129,0.1)' : s.type === 'warning' ? 'rgba(245,158,11,0.1)' : 'rgba(59,130,246,0.1)', border: `1px solid ${s.type === 'success' ? 'rgba(16,185,129,0.2)' : s.type === 'warning' ? 'rgba(245,158,11,0.2)' : 'rgba(59,130,246,0.2)'}` }}>
+                      <div key={i} className={`p-2.5 rounded-lg text-xs font-medium ${s.type === 'success' ? 'text-emerald-200' : s.type === 'warning' ? 'text-amber-200' : 'text-blue-200'}`} style={{ background: s.type === 'success' ? 'rgba(16,185,129,0.15)' : s.type === 'warning' ? 'rgba(245,158,11,0.15)' : 'rgba(59,130,246,0.15)', border: `1px solid ${s.type === 'success' ? 'rgba(16,185,129,0.3)' : s.type === 'warning' ? 'rgba(245,158,11,0.3)' : 'rgba(59,130,246,0.3)'}` }}>
                         {s.text}
                       </div>
-                    )) : <p className="text-xs text-white/25 italic">No suggestions at this time</p>;
+                    )) : <p className="text-xs text-emerald-200/40 italic">No suggestions at this time</p>;
                   })()}
                 </div>
               </div>
@@ -1093,10 +1094,10 @@ function AdminBookingsInner() {
           {/* ── BLOCKED DATES TAB ── */}
           <TabsContent value="blocked-dates" className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.18)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-5 space-y-4" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2">
-                  <Ban className="h-4 w-4 text-red-400" />
-                  <span className="text-sm font-medium text-red-300/80">Block New Date</span>
+                  <Ban className="h-4 w-4 text-red-300" />
+                  <span className="text-sm font-medium text-red-200">Block New Date</span>
                 </div>
                 <Calendar
                   mode="single"
@@ -1110,7 +1111,7 @@ function AdminBookingsInner() {
                   🔴 Red dates are already blocked
                 </div>
                 <div>
-                  <Label className="text-white/50 text-xs">Select Boat</Label>
+                  <Label className="text-red-200 text-xs font-semibold">Select Boat</Label>
                   {hasElevatedAccess ? (
                     <Select value={blockBoat} onValueChange={setBlockBoat}>
                       <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
@@ -1128,8 +1129,8 @@ function AdminBookingsInner() {
                   )}
                 </div>
                 <div>
-                  <Label className="text-white/50 text-xs">Reason (Optional)</Label>
-                  <Textarea placeholder="e.g., Weather, maintenance, private event..." value={blockReason} onChange={(e) => setBlockReason(e.target.value)} rows={3} className="mt-1 bg-white/5 border-white/10 text-white placeholder:text-white/30" />
+                  <Label className="text-red-200 text-xs font-semibold">Reason (Optional)</Label>
+                  <Textarea placeholder="e.g., Weather, maintenance, private event..." value={blockReason} onChange={(e) => setBlockReason(e.target.value)} rows={3} className="mt-1 text-white placeholder:text-white/40" style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }} />
                 </div>
                 <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending || (!hasElevatedAccess && !assignedBoat)} className="w-full bg-red-600/80 hover:bg-red-600 border-red-500/50 text-white" style={{ border: '1px solid rgba(239,68,68,0.4)' }}>
                   <Ban className="h-4 w-4 mr-2" />
@@ -1137,10 +1138,10 @@ function AdminBookingsInner() {
                 </Button>
               </div>
 
-              <div className="rounded-2xl p-5" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-5" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', backdropFilter: 'blur(16px)' }}>
                 <div className="flex items-center gap-2 mb-4">
-                  <CalendarIcon className="h-4 w-4 text-red-400" />
-                  <span className="text-sm font-medium text-white/70">Blocked Dates ({visibleBlocked.length}){!isSuperAdmin && assignedBoat ? ` — ${assignedBoat}` : ''}</span>
+                  <CalendarIcon className="h-4 w-4 text-purple-300" />
+                  <span className="text-sm font-medium text-purple-200">Blocked Dates ({visibleBlocked.length}){!isSuperAdmin && assignedBoat ? ` — ${assignedBoat}` : ''}</span>
                 </div>
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
                   {visibleBlocked.length === 0 ? (
@@ -1181,14 +1182,14 @@ function AdminBookingsInner() {
 
           {/* ── BOATS TAB ── */}
           <TabsContent value="boats">
-            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', backdropFilter: 'blur(16px)' }}>
               <BoatManagement restrictToBoat={!hasElevatedAccess ? assignedBoat : null} readOnlyMode={isCrew} isSuperAdmin={isSuperAdmin} operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
             </div>
           </TabsContent>
 
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="destinations">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
                 <DestinationManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
@@ -1196,7 +1197,7 @@ function AdminBookingsInner() {
 
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="expeditions">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
                 <ExpeditionManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
@@ -1204,7 +1205,7 @@ function AdminBookingsInner() {
 
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="pickup-locations">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
                 <PickupLocationsManagement />
               </div>
             </TabsContent>
@@ -1212,7 +1213,7 @@ function AdminBookingsInner() {
 
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="extras">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
                 <ExtrasManagement allBoats={allBoats} />
               </div>
             </TabsContent>
@@ -1220,7 +1221,7 @@ function AdminBookingsInner() {
 
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="locations">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
                 <LocationsManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
@@ -1228,7 +1229,7 @@ function AdminBookingsInner() {
 
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="mechanic">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)', backdropFilter: 'blur(16px)' }}>
                 <MechanicPortal currentUser={currentUser} operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
@@ -1236,7 +1237,7 @@ function AdminBookingsInner() {
 
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="users">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', backdropFilter: 'blur(16px)' }}>
                 <UserManagement currentUser={currentUser} operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
@@ -1244,7 +1245,7 @@ function AdminBookingsInner() {
 
           {isSuperAdmin && (
             <TabsContent value="operators">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', backdropFilter: 'blur(16px)' }}>
                 <OperatorsDashboard />
               </div>
             </TabsContent>
@@ -1252,7 +1253,7 @@ function AdminBookingsInner() {
 
           {isSuperAdmin && (
             <TabsContent value="customers">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', backdropFilter: 'blur(16px)' }}>
                 <CustomersPanel />
               </div>
             </TabsContent>
@@ -1260,10 +1261,10 @@ function AdminBookingsInner() {
 
           {isSuperAdmin && (
             <TabsContent value="checklist-template">
-              <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', backdropFilter: 'blur(16px)' }}>
                 <div className="mb-4">
-                  <h2 className="text-xl font-bold text-white mb-1">Maintenance Checklist Template</h2>
-                  <p className="text-sm text-white/50">Edit items, intervals, and add/remove fields globally for all boats by engine type.</p>
+                  <h2 className="text-xl font-bold text-emerald-200 mb-1">Maintenance Checklist Template</h2>
+                  <p className="text-sm text-emerald-200/70">Edit items, intervals, and add/remove fields globally for all boats by engine type.</p>
                 </div>
                 <ChecklistTemplateEditor operatorFilter={globalOperatorFilter} />
               </div>
@@ -1271,7 +1272,7 @@ function AdminBookingsInner() {
           )}
 
           <TabsContent value="engine-databases">
-            <div className="rounded-2xl p-6" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(16px)' }}>
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', backdropFilter: 'blur(16px)' }}>
               <EngineDatabases />
             </div>
           </TabsContent>
