@@ -37,12 +37,23 @@ export default function LocationSelector({ onSelectLocation }) {
     : FALLBACK_LOCATIONS;
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-br from-[#0a1f3d] via-[#0c2847] to-[#001529] py-20 px-4 sm:px-6 overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-teal-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+    <div className="relative min-h-screen py-20 px-4 sm:px-6 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
+      {/* Background pattern */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/a0f069719_FILUMarine2.png')`,
+          backgroundRepeat: 'repeat',
+          backgroundSize: '320px 320px',
+          opacity: 0.18,
+        }}
+      />
+      {/* Dark overlay to keep text readable */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a1f3d]/80 via-[#0c2847]/70 to-[#001529]/80" />
+      {/* Animated glow orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/15 rounded-full filter blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/15 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
       
       <div className="relative max-w-6xl mx-auto">
