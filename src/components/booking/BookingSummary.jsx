@@ -72,7 +72,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
     else if (!/\S+@\S+\.\S+/.test(guestInfo.email)) newErrors.email = 'Invalid email';
     if (!guestInfo.phone.trim()) newErrors.phone = 'Phone/WhatsApp is required';
     
-    if ((paymentMethod === 'bank_transfer' || paymentMethod === 'paypal') && !paymentScreenshot) {
+    if (!paymentScreenshot) {
       newErrors.screenshot = 'Payment screenshot is required';
     }
     
@@ -337,7 +337,6 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                 <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining.toLocaleString()} MXN</span></p>
                 <p className="text-sm text-slate-600 mb-3">Payment options available on the day of your trip:</p>
                 <div className="flex flex-wrap gap-2">
-                  <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">Direct Deposit</span>
                   <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">PayPal</span>
                   <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">Credit Card</span>
                   <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">Cash</span>
