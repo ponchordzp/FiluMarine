@@ -127,12 +127,8 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     }).filter(Boolean);
 
     return (
-      <section className="relative py-20 md:py-28 bg-gradient-to-b from-[#0c2847] via-[#0a1f3d] to-[#001529] border-t border-white/10 overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-500/30 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-          <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-blue-600/30 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
-        </div>
+      <section className="relative py-8 md:py-12 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#081830' }}>
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #081830cc, #050f1ecc)' }} />
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -221,12 +217,8 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   const showExtended = true;
 
   return (
-    <section className="relative py-20 md:py-28 bg-gradient-to-b from-[#0c2847] via-[#0a1f3d] to-[#001529] border-t border-white/10 overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-cyan-500/30 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-blue-600/30 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '3s' }} />
-      </div>
+    <section className="relative py-8 md:py-12 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#081830' }}>
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #081830cc, #050f1ecc)' }} />
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
