@@ -32,12 +32,9 @@ const benefits = [
 
 export default function BoatBenefits() {
   return (
-    <section className="relative py-20 md:py-28 bg-gradient-to-b from-[#001529] via-[#0a1f3d] to-[#0c2847] border-t border-white/10 overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 opacity-30">
-        <div className="absolute top-20 left-1/4 w-64 h-64 bg-cyan-500/20 rounded-full filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-1/4 w-64 h-64 bg-blue-600/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
-      </div>
+    <section className="relative py-10 md:py-14 border-t border-white/10 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
+      <div className="absolute inset-0" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '280px 280px', opacity: 0.12 }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#001529]/80 via-[#0a1f3d]/80 to-[#0c2847]/80" />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

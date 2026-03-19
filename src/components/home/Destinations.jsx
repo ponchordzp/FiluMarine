@@ -128,7 +128,9 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
     : (destinationsByLocation[location] || destinationsByLocation.ixtapa_zihuatanejo);
 
   return (
-    <section className="py-16 md:py-20 bg-gradient-to-b from-[#0c2847] to-[#0a1f3d] border-t border-white/10">
+    <section className="relative py-10 md:py-14 border-t border-white/10 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
+      <div className="absolute inset-0" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '280px 280px', opacity: 0.12 }} />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0c2847]/80 to-[#0a1f3d]/80" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-light text-white mb-4">

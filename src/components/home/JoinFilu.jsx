@@ -105,7 +105,7 @@ ${formData.message}
   }
 
   return (
-    <section className="relative py-20 md:py-28 bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529] border-t border-white/10 overflow-hidden">
+    <section className="relative py-10 md:py-14 border-t border-white/10 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
       <LuxuryPattern opacity={0.08} />
       <div className="absolute inset-0">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full filter blur-3xl animate-pulse"></div>
