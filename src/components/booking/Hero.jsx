@@ -14,7 +14,7 @@ export default function Hero({ onScrollToExperiences, location, locationName, on
       {/* Animated Background */}
       <div className="absolute inset-0">
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-fixed"
+          className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url('${heroBg}')`,
           }}
