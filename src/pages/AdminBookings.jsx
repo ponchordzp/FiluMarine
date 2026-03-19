@@ -645,18 +645,11 @@ function AdminBookingsInner() {
                 ))}
               </div>
 
-              {/* Trend Chart */}
-              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(16,185,129,0.15)' }}>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xs">📈</span>
-                  <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Revenue vs Expenses Trend</span>
-                </div>
-                <FinancialTrendChart
-                  financialFilteredBookings={financialFilteredBookings}
-                  financialExpenses={financialExpenses}
-                  getOperatorCommission={getOperatorCommission}
-                />
-              </div>
+              <FinancialTrendChart
+                financialFilteredBookings={financialFilteredBookings}
+                financialExpenses={financialExpenses}
+                getOperatorCommission={getOperatorCommission}
+              />
             </>
           )}
         </div>
@@ -762,6 +755,7 @@ function AdminBookingsInner() {
                     </div>
                   ))}
                 </div>
+                <BookingTrendChart bookingFilteredBookings={bookingFilteredBookings} />
               </>
             )}
           </div>
