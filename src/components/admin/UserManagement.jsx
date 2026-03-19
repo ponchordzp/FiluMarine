@@ -44,13 +44,26 @@ const roleConfig = {
 
 const emptyForm = { username: '', full_name: '', email: '', role: 'crew', assigned_boat: '', operator: '', is_active: true, password: '', confirm_password: '', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' };
 
-const ROLE_TABS = [
+const BUILT_IN_ROLE_TABS = [
   { value: 'all', label: 'All' },
   { value: 'superadmin', label: 'Super Admins' },
   { value: 'operator_admin', label: 'Operator Admins' },
   { value: 'admin', label: 'Admins' },
   { value: 'crew', label: 'Crew' },
 ];
+
+function loadCustomRoles() {
+  try { const raw = localStorage.getItem('filu_custom_roles'); if (raw) return JSON.parse(raw); } catch {}
+  return [];
+}
+
+// Hierarchy: which roles a given role can create
+const ROLE_HIERARCHY = {
+  superadmin: ['superadmin', 'operator_admin', 'admin', 'crew'],
+  operator_admin: ['admin', 'crew'],
+  admin: ['crew'],
+  crew: [],
+};
 
 function getOperatorForUser(user, operators) {
   if (!user) return null;
