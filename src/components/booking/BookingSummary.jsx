@@ -23,8 +23,7 @@ const addOnTitles = {
 };
 
 export default function BookingSummary({ experience, onBack, onConfirm, bookingData, setBookingData, isSubmitting }) {
-  const [paymentMethod, setPaymentMethod] = useState(bookingData.payment_method || 'card');
-  const [showBankDetails, setShowBankDetails] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('paypal');
   const [guestInfo, setGuestInfo] = useState({
     name: bookingData.guest_name || '',
     email: bookingData.guest_email || '',
