@@ -45,7 +45,12 @@ const BUILT_IN_ROLES = [
 function loadPermissions() {
   try {
     const raw = localStorage.getItem(PERMISSIONS_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      // Always force superadmin to have all tabs regardless of stored value
+      parsed.superadmin = ALL_TABS.map(t => t.value);
+      return parsed;
+    }
   } catch {}
   return { ...DEFAULT_PERMISSIONS };
 }
