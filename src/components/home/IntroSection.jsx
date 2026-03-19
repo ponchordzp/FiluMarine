@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 export default function IntroSection() {
   return (
     <section className="relative py-6 md:py-10 overflow-hidden" style={{ background: '#0a1f3d' }}>
-      <div className="absolute inset-0" style={{ backgroundImage: 'url(https://media.base44.com/images/public/6987f0afff96227dd3af0e68/c6733c10b_FILUMarine2.png)', backgroundRepeat: 'repeat', backgroundSize: '220px', opacity: 0.25 }} />
+      <div className="absolute inset-0" style={{ backgroundImage: 'url(https://media.base44.com/images/public/6987f0afff96227dd3af0e68/c6ed2e8cf_FILUMarine2.png)', backgroundRepeat: 'repeat', backgroundSize: '220px', opacity: 0.25 }} />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
