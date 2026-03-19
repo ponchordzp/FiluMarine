@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, ChevronDown, ChevronUp } from 'lucide-react';
+import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, ChevronDown, ChevronUp, Waves, Sunset, Clock, Sun } from 'lucide-react';
 import { motion } from 'framer-motion';
 import BoatDetailModal from '@/components/booking/BoatDetailModal';
 
