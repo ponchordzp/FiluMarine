@@ -32,6 +32,7 @@ import AdminBookingCard from '@/components/admin/AdminBookingCard';
 import PickupLocationsManagement from '@/components/admin/PickupLocationsManagement';
 import ExtrasManagement from '@/components/admin/ExtrasManagement';
 import EngineDatabases from '@/components/admin/EngineDatabases';
+import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
@@ -641,6 +642,19 @@ function AdminBookingsInner() {
                     }}>{s.value}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* Trend Chart */}
+              <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(16,185,129,0.15)' }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs">📈</span>
+                  <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Revenue vs Expenses Trend</span>
+                </div>
+                <FinancialTrendChart
+                  financialFilteredBookings={financialFilteredBookings}
+                  financialExpenses={financialExpenses}
+                  getOperatorCommission={getOperatorCommission}
+                />
               </div>
             </>
           )}
