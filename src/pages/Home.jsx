@@ -84,20 +84,7 @@ export default function Home() {
   const [confirmedBooking, setConfirmedBooking] = useState(null);
   const experiencesRef = useRef(null);
 
-  React.useEffect(() => {
-    // Load Google Translate script
-    const script = document.createElement('script');
-    script.src = '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    script.async = true;
-    document.body.appendChild(script);
 
-    window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        { pageLanguage: 'en', includedLanguages: 'en,es,fr' },
-        'google_translate_element'
-      );
-    };
-  }, []);
 
   const { data: dbLocations = [] } = useQuery({
     queryKey: ['locations'],
