@@ -211,27 +211,29 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
         </div>
       )}
 
-      {/* Role legend */}
-      <div className="grid md:grid-cols-3 gap-4">
-        {Object.entries(roleConfig).map(([key, cfg]) => {
-          const Icon = cfg.icon;
-          return (
-            <Card key={key} className="border-2 border-slate-100">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex items-start gap-3">
-                  <div className={`p-2 rounded-lg ${key === 'superadmin' ? 'bg-purple-100' : key === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
-                    <Icon className={`h-4 w-4 ${key === 'superadmin' ? 'text-purple-600' : key === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`} />
+      {/* Role legend — SuperAdmin only */}
+      {isSuperAdmin && (
+        <div className="grid md:grid-cols-4 gap-4">
+          {Object.entries(roleConfig).map(([key, cfg]) => {
+            const Icon = cfg.icon;
+            return (
+              <Card key={key} className="border-2 border-slate-100">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-start gap-3">
+                    <div className={`p-2 rounded-lg ${key === 'superadmin' ? 'bg-purple-100' : key === 'operator_admin' ? 'bg-orange-100' : key === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
+                      <Icon className={`h-4 w-4 ${key === 'superadmin' ? 'text-purple-600' : key === 'operator_admin' ? 'text-orange-600' : key === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`} />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-sm text-slate-800">{cfg.label}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{cfg.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold text-sm text-slate-800">{cfg.label}</p>
-                    <p className="text-xs text-slate-500 mt-0.5">{cfg.description}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       {/* Role tabs + operator filter */}
       <div className="flex flex-wrap items-center gap-3">
