@@ -45,7 +45,7 @@ export default function LocationSelector({ onSelectLocation }) {
           backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/a0f069719_FILUMarine2.png')`,
           backgroundRepeat: 'repeat',
           backgroundSize: '320px 320px',
-          opacity: 0.18,
+          opacity: 0.35,
         }}
       />
       {/* Dark overlay to keep text readable */}
