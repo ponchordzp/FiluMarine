@@ -150,7 +150,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   // Dynamic role tabs — include custom roles for superadmin
   const [customRoles, setCustomRoles] = useState(() => loadCustomRoles());
   // Re-read custom roles from localStorage when dialog opens (so new roles appear)
-  React.useEffect(() => {
+  useEffect(() => {
     if (dialogOpen) setCustomRoles(loadCustomRoles());
   }, [dialogOpen]);
 
