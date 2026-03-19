@@ -172,6 +172,12 @@ export default function RolePermissionsManager() {
   const [newRoleName, setNewRoleName] = useState('');
   const [addingRole, setAddingRole] = useState(false);
 
+  // Re-sync from localStorage on mount so latest data is always shown
+  useEffect(() => {
+    setPermissions(loadPermissions());
+    setCustomRoles(loadCustomRoles());
+  }, []);
+
   const handleChange = (roleKey, tabs) => {
     const updated = { ...permissions, [roleKey]: tabs };
     savePermissions(updated);
