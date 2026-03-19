@@ -308,11 +308,12 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md flex flex-col max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>{editingUser ? `Edit User: ${editingUser.username}` : 'Create New User'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="overflow-y-auto flex-1 pr-1 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Username *</Label><Input value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required placeholder="e.g., juan_perez" /></div>
               <div><Label>Full Name</Label><Input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
@@ -394,10 +395,11 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
               <Label htmlFor="is_active" className="cursor-pointer">Active (can log in)</Label>
             </div>
             {error && <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>}
-            <div className="flex gap-2 pt-2">
-              <Button type="submit" disabled={saving} className="flex-1 bg-purple-600 hover:bg-purple-700">{saving ? 'Saving...' : editingUser ? 'Update User' : 'Create User'}</Button>
-              <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            </div>
+          </div>
+          <div className="flex gap-2 pt-4 border-t mt-2">
+            <Button type="submit" disabled={saving} className="flex-1 bg-purple-600 hover:bg-purple-700">{saving ? 'Saving...' : editingUser ? 'Update User' : 'Create User'}</Button>
+            <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
+          </div>
           </form>
         </DialogContent>
       </Dialog>
