@@ -113,8 +113,9 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
 
   const handleSubmit = async (e) => {
     e.preventDefault(); setError('');
-    // Only superadmin can create superadmin users
-    if (!editingUser && form.role === 'superadmin' && !isSuperAdmin) { setError('Only SuperAdmin can create SuperAdmin users'); return; }
+    // Enforce role hierarchy — can only create/assign roles below your own
+    const allowed = ROLE_HIERARCHY[currentUser?.role] || [];
+    if (!editingUser && !allowed.includes(form.role)) { setError(`You cannot create a user with role "${form.role}"`); return; }
     if (!editingUser) {
       if (!form.password) { setError('Password is required'); return; }
       const pwErrors = validatePassword(form.password);
