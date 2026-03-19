@@ -216,10 +216,14 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
               </div>
 
               <div className="p-4 sm:p-6 flex flex-col flex-grow">
-                <p className="text-white/80 text-sm mb-3">{boat.description}</p>
-                
+                {/* Fixed-height description area so capacity row stays aligned */}
+                <div className="h-16 overflow-hidden mb-3">
+                  <p className="text-white/80 text-sm line-clamp-3">{boat.description}</p>
+                </div>
+
+                {/* Capacity — always on the same row */}
                 <p className="text-white/80 mb-4 flex items-center gap-2">
-                  <Users className="h-4 w-4" />
+                  <Users className="h-4 w-4 flex-shrink-0" />
                   {boat.capacity}
                 </p>
 
@@ -253,36 +257,24 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                       <div className="space-y-2">
                         {boat.available_expeditions.map((exp) => {
                           const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
-                          const getExpIcon = (expType) => {
-                            if (expType === 'extended_fishing') {
-                              return <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5c-2.49 0-4.5-2.01-4.5-4.5S7.51 7.5 10 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm8-6c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/><path d="M19 3l-3 3v4l3 3V3zm-7 1c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" opacity="0.7"/></svg>;
-                            } else if (expType.includes('fishing')) {
-                              return <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 4c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm0 2c-2.21 0-4 1.79-4 4v8h2v-8c0-1.1.9-2 2-2s2 .9 2 2v8h2v-8c0-2.21-1.79-4-4-4z"/><ellipse cx="12" cy="18" rx="3" ry="1.5"/><path d="M12 13c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm0 4c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1z"/></svg>;
-                            } else if (expType === 'snorkeling') {
-                              return <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2"/><circle cx="11" cy="4" r="1.5"/><circle cx="16" cy="6" r="2"/><circle cx="6" cy="12" r="2.5"/><circle cx="16" cy="12" r="2.5"/><circle cx="11" cy="15" r="2"/></svg>;
-                            } else if (expType === 'coastal_leisure') {
-                              return <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17 16.99c-1.35 0-2.2.42-2.95.8-.65.33-1.18.6-2.05.6-.9 0-1.4-.25-2.05-.6-.75-.38-1.6-.8-2.95-.8s-2.2.42-2.95.8c-.65.33-1.17.6-2.05.6v1.95c1.35 0 2.2-.42 2.95-.8.65-.33 1.17-.6 2.05-.6s1.4.25 2.05.6c.75.38 1.6.8 2.95.8s2.2-.42 2.95-.8c.65-.33 1.18-.6 2.05-.6.9 0 1.4.25 2.05.6.75.38 1.6.8 2.95.8v-1.95c-.9 0-1.4-.25-2.05-.6-.75-.38-1.6-.8-2.95-.8zm0-4.45c-1.35 0-2.2.43-2.95.8-.65.32-1.18.6-2.05.6-.9 0-1.4-.25-2.05-.6-.75-.38-1.6-.8-2.95-.8s-2.2.43-2.95.8c-.65.32-1.17.6-2.05.6v1.95c1.35 0 2.2-.43 2.95-.8.65-.35 1.15-.6 2.05-.6s1.4.25 2.05.6c.75.38 1.6.8 2.95.8s2.2-.43 2.95-.8c.65-.35 1.15-.6 2.05-.6s1.4.25 2.05.6c.75.38 1.6.8 2.95.8v-1.95c-.9 0-1.4-.25-2.05-.6-.75-.38-1.6-.8-2.95-.8zm2.95-8.08c-.75-.38-1.6-.8-2.95-.8s-2.2.42-2.95.8c-.65.32-1.18.6-2.05.6-.9 0-1.4-.25-2.05-.6-.75-.37-1.6-.8-2.95-.8s-2.2.42-2.95.8c-.65.33-1.17.6-2.05.6v1.93c1.35 0 2.2-.43 2.95-.8.65-.33 1.17-.6 2.05-.6s1.4.25 2.05.6c.75.38 1.6.8 2.95.8s2.2-.43 2.95-.8c.65-.32 1.18-.6 2.05-.6.9 0 1.4.25 2.05.6.75.38 1.6.8 2.95.8V5.04c-.9 0-1.4-.25-2.05-.58z"/></svg>;
-                            } else if (expType === 'sunset_tour') {
-                              return <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20 15.31L23.31 12 20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"/></svg>;
-                            }
-                            return null;
+                          const defaultDurations = {
+                            half_day_fishing: { hours: 5, time: '6:00 AM' },
+                            full_day_fishing: { hours: 8, time: '6:00 AM' },
+                            extended_fishing: { hours: 10, time: '6:00 AM' },
+                            snorkeling: { hours: 5, time: '7:00 AM' },
+                            coastal_leisure: { hours: 5, time: '7:00 AM' },
+                            sunset_tour: { hours: 3, time: '4:00 PM' },
                           };
+                          const defaults = defaultDurations[exp] || { hours: 5, time: '7:00 AM' };
+                          const durationHours = pricing?.duration_hours ?? defaults.hours;
+                          const departureTime = pricing?.departure_time ?? defaults.time;
                           const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
                           return (
-                            <div key={exp} className="bg-white/5 border border-white/10 rounded-lg p-2">
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-medium text-cyan-300 capitalize truncate">
-                                    {displayName}
-                                  </p>
-                                  {pricing && (
-                                    <div className="flex flex-wrap gap-1.5 mt-1 text-xs text-white/50">
-                                      {pricing.duration_hours && <span>⏱️ {pricing.duration_hours}h</span>}
-                                      {pricing.departure_time && <span>🕐 {pricing.departure_time}</span>}
-                                    </div>
-                                  )}
-                                </div>
-                                {getExpIcon(exp)}
+                            <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                              <p className="text-xs font-semibold text-cyan-300 capitalize mb-1">{displayName}</p>
+                              <div className="flex gap-3 text-xs text-white/55">
+                                <span>⏱ {durationHours}h</span>
+                                <span>🕐 {departureTime}</span>
                               </div>
                             </div>
                           );
