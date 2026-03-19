@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, Calendar, Clock, Users, CreditCard, Building, Check, Shield, Car, ChevronDown, MessageCircle, Upload, X } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Users, CreditCard, Check, Shield, Car, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { base44 } from '@/api/base44Client';
