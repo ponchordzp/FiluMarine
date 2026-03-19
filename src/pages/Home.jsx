@@ -15,6 +15,7 @@ import Fleet from '@/components/home/Fleet';
 import Destinations from '@/components/home/Destinations';
 import JoinFilu from '@/components/home/JoinFilu';
 import BookingCalendar from '@/components/booking/BookingCalendar';
+import SelectedBoatInfo from '@/components/booking/SelectedBoatInfo';
 import PickupLocation from '@/components/booking/PickupLocation';
 import AddOns from '@/components/booking/AddOns';
 import BookingSummary from '@/components/booking/BookingSummary';
