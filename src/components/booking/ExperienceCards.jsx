@@ -130,30 +130,30 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       <section className="relative py-8 md:py-12">
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <div className="rounded-3xl overflow-hidden border border-white/20 bg-white/5 backdrop-blur-md p-8 md:p-10">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
-              Choose Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">Experience</span>
-            </h2>
-            <p className="text-white/80 text-xl md:text-2xl max-w-2xl mx-auto font-light">
-              Select the perfect adventure for your group
-            </p>
-          </motion.div>
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="text-center mb-10"
+            >
+              <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
+                Choose Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">Experience</span>
+              </h2>
+              <p className="text-white/80 text-xl md:text-2xl max-w-2xl mx-auto font-light">
+                Select the perfect adventure for your group
+              </p>
+            </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-6">
-            {boatExperiences.map((exp, i) => (
-              <motion.div
-                key={exp.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
-              >
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
+              {boatExperiences.map((exp, i) => (
+                <motion.div
+                  key={exp.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
+                >
                 <div className="aspect-[16/9] relative overflow-hidden">
                   <img 
                     src={exp.image} 
