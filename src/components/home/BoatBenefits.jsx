@@ -32,7 +32,8 @@ const benefits = [
 
 export default function BoatBenefits() {
   return (
-    <section className="relative py-6 md:py-10 overflow-hidden" style={{ background: 'linear-gradient(to bottom, #0a1f3d, #0d2a50)' }}>
+    <section className="relative py-6 md:py-10 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0a1f3d' }}>
+      <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #0a1f3ddd, #0d2a50dd)' }} />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
