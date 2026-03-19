@@ -147,6 +147,21 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
 
   const pwErrors = form.password ? validatePassword(form.password) : [];
 
+  // Dynamic role tabs — include custom roles for superadmin
+  const [customRoles, setCustomRoles] = useState(() => loadCustomRoles());
+  // Re-read custom roles from localStorage when dialog opens (so new roles appear)
+  React.useEffect(() => {
+    if (dialogOpen) setCustomRoles(loadCustomRoles());
+  }, [dialogOpen]);
+
+  const ROLE_TABS = [
+    ...BUILT_IN_ROLE_TABS,
+    ...customRoles.map(r => ({ value: r.key, label: r.label + 's' })),
+  ];
+
+  // Roles the current user is allowed to assign when creating/editing
+  const allowedRolesToCreate = ROLE_HIERARCHY[currentUser?.role] || [];
+
   // Operator admins only see users from their own operator
   const scopedUsers = isOperatorAdmin
     ? appUsers.filter(u => {
