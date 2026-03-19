@@ -268,11 +268,23 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                           const defaults = defaultDurations[exp] || { hours: 5, time: '7:00 AM' };
                           const durationHours = pricing?.duration_hours ?? defaults.hours;
                           const departureTime = pricing?.departure_time ?? defaults.time;
+                          const expIcons = {
+                            half_day_fishing: Fish,
+                            full_day_fishing: Fish,
+                            extended_fishing: Anchor,
+                            snorkeling: Waves,
+                            coastal_leisure: Navigation,
+                            sunset_tour: Sun,
+                          };
+                          const ExpIcon = expIcons[exp] || Anchor;
                           const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
                           return (
                             <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                              <p className="text-xs font-semibold text-cyan-300 capitalize mb-1">{displayName}</p>
-                              <div className="flex gap-3 text-xs text-white/55">
+                              <div className="flex items-center gap-2 mb-1">
+                                <ExpIcon className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
+                                <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
+                              </div>
+                              <div className="flex gap-3 text-xs text-white/55 pl-5">
                                 <span>⏱ {durationHours}h</span>
                                 <span>🕐 {departureTime}</span>
                               </div>
