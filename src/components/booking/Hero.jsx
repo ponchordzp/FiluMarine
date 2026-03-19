@@ -19,10 +19,7 @@ export default function Hero({ onScrollToExperiences, location, locationName, on
             backgroundImage: `url('${heroBg}')`,
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-[#001529] via-[#0c2340]/95 to-[#1e3a5f]/90" />
-        {/* Animated gradients */}
-        <div className="absolute top-0 -left-1/4 w-96 h-96 bg-cyan-500/20 rounded-full filter blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 -right-1/4 w-96 h-96 bg-blue-600/20 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
       </div>
 
       {/* Content */}
