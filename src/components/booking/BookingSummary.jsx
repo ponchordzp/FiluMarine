@@ -277,144 +277,58 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               <div className="bg-white rounded-lg md:rounded-2xl p-4 md:p-6 shadow-sm">
                 <h3 className="font-semibold text-slate-800 mb-2">Deposit Payment (40%)</h3>
                 <p className="text-sm text-slate-500 mb-4">Non-refundable reservation fee: <span className="font-semibold text-slate-700">${deposit.toLocaleString()} MXN</span></p>
-                
-                <RadioGroup value={paymentMethod} onValueChange={(val) => { setPaymentMethod(val); setShowBankDetails(val === 'bank_transfer'); }}>
-                  <div className="space-y-3">
+
+                {/* PayPal only */}
+                <a
+                  href={`https://www.paypal.com/paypalme/filumarine/${deposit}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setPaymentMethod('paypal')}
+                  className="flex items-center gap-4 p-4 rounded-xl border-2 border-[#1e88e5] bg-[#1e88e5]/5 cursor-pointer transition-all hover:bg-[#1e88e5]/10"
+                >
+                  <CreditCard className="h-5 w-5 text-[#1e88e5]" />
+                  <div className="flex-1">
+                    <p className="font-medium text-[#1e88e5]">Pay via PayPal</p>
+                    <p className="text-sm text-slate-500">Click to open PayPal · @filumarine</p>
+                  </div>
+                  <span className="text-sm font-semibold text-[#1e88e5]">${deposit.toLocaleString()} MXN</span>
+                </a>
+
+                {/* Screenshot upload */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 p-4 border-2 border-dashed border-slate-200 rounded-xl"
+                >
+                  <Label className="text-slate-700 mb-2 block">Payment Screenshot *</Label>
+                  <p className="text-sm text-slate-500 mb-3">Upload proof of PayPal payment (required to confirm booking)</p>
+                  {!paymentScreenshot ? (
                     <div>
-                      <label 
-                        className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                          paymentMethod === 'bank_transfer' ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-slate-100 hover:border-slate-200'
-                        }`}
-                      >
-                        <RadioGroupItem value="bank_transfer" id="bank_transfer" />
-                        <Building className={`h-5 w-5 ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
-                        <div className="flex-1">
-                          <p className={`font-medium ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
-                            Direct Deposit
-                          </p>
-                          <p className="text-sm text-slate-500">Bank transfer</p>
+                      <label htmlFor="screenshot-upload" className="cursor-pointer">
+                        <div className="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
+                          <Upload className="h-8 w-8 text-slate-400 mb-2" />
+                          <p className="text-sm font-medium text-slate-600">Click to upload screenshot</p>
+                          <p className="text-xs text-slate-500 mt-1">PNG, JPG up to 10MB</p>
                         </div>
-                        <ChevronDown className={`h-5 w-5 transition-transform ${showBankDetails ? 'rotate-180' : ''} ${paymentMethod === 'bank_transfer' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
                       </label>
-                      
-                      {showBankDetails && paymentMethod === 'bank_transfer' && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="mt-3 p-4 bg-slate-50 rounded-xl border border-slate-200"
-                        >
-                          <h4 className="font-semibold text-slate-800 mb-3">Bank Details</h4>
-                          <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                              <span className="text-slate-600">Bank:</span>
-                              <span className="font-medium text-slate-800">BBVA</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-slate-600">Cuenta CLABE:</span>
-                              <span className="font-mono font-medium text-slate-800">012180 004713413911</span>
-                            </div>
-                          </div>
-                          
-                          <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                            <p className="text-xs text-amber-800 mb-2">
-                              <strong>Important:</strong> After making the deposit, please contact us via WhatsApp to confirm:
-                            </p>
-                            <ul className="text-xs text-amber-700 list-disc list-inside space-y-1 mb-3">
-                              <li>Send screenshot of the transfer</li>
-                              <li>Include the transfer amount</li>
-                              <li>Include your confirmation code</li>
-                            </ul>
-                            <a 
-                              href={whatsappLink} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 text-emerald-700 hover:text-emerald-800 font-medium text-sm"
-                            >
-                              <MessageCircle className="h-4 w-4" />
-                              WhatsApp: +52 55 1378 2169
-                            </a>
-                            <img 
-                              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/fc470a313_image.png" 
-                              alt="WhatsApp QR Code" 
-                              className="w-24 h-24 mx-auto mt-3"
-                            />
-                          </div>
-                        </motion.div>
+                      <input id="screenshot-upload" type="file" accept="image/*" onChange={handleFileUpload} className="hidden" disabled={isUploading} />
+                      {isUploading && (
+                        <div className="flex items-center justify-center gap-2 mt-2 text-sm text-slate-600">
+                          <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
+                          Uploading...
+                        </div>
                       )}
                     </div>
-
-                    <a
-                      href="https://www.paypal.com/paypalme/filumarine"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => setPaymentMethod('paypal')}
-                      className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                        paymentMethod === 'paypal' ? 'border-[#1e88e5] bg-[#1e88e5]/5' : 'border-slate-100 hover:border-slate-200'
-                      }`}
-                    >
-                      <RadioGroupItem value="paypal" id="paypal" />
-                      <CreditCard className={`h-5 w-5 ${paymentMethod === 'paypal' ? 'text-[#1e88e5]' : 'text-slate-400'}`} />
-                      <div>
-                        <p className={`font-medium ${paymentMethod === 'paypal' ? 'text-[#1e88e5]' : 'text-slate-700'}`}>
-                          PayPal (@filumarine)
-                        </p>
-                        <p className="text-sm text-slate-500">Click to pay via PayPal</p>
-                      </div>
-                    </a>
-                  </div>
-                </RadioGroup>
-
-                {/* Payment Screenshot Upload */}
-                {(paymentMethod === 'bank_transfer' || paymentMethod === 'paypal') && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mt-4 p-4 border-2 border-dashed border-slate-200 rounded-xl"
-                  >
-                    <Label className="text-slate-700 mb-2 block">Payment Screenshot *</Label>
-                    <p className="text-sm text-slate-500 mb-3">Upload proof of payment (required)</p>
-                    
-                    {!paymentScreenshot ? (
-                      <div>
-                        <label htmlFor="screenshot-upload" className="cursor-pointer">
-                          <div className="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors">
-                            <Upload className="h-8 w-8 text-slate-400 mb-2" />
-                            <p className="text-sm font-medium text-slate-600">Click to upload screenshot</p>
-                            <p className="text-xs text-slate-500 mt-1">PNG, JPG up to 10MB</p>
-                          </div>
-                        </label>
-                        <input
-                          id="screenshot-upload"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileUpload}
-                          className="hidden"
-                          disabled={isUploading}
-                        />
-                        {isUploading && (
-                          <div className="flex items-center justify-center gap-2 mt-2 text-sm text-slate-600">
-                            <div className="w-4 h-4 border-2 border-slate-300 border-t-slate-600 rounded-full animate-spin" />
-                            Uploading...
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="relative">
-                        <img src={paymentScreenshot} alt="Payment proof" className="w-full h-48 object-cover rounded-lg" />
-                        <button
-                          onClick={() => setPaymentScreenshot(null)}
-                          className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                      </div>
-                    )}
-                    {errors.screenshot && (
-                      <p className="text-xs text-red-500 mt-2">{errors.screenshot}</p>
-                    )}
-                  </motion.div>
-                )}
+                  ) : (
+                    <div className="relative">
+                      <img src={paymentScreenshot} alt="Payment proof" className="w-full h-48 object-cover rounded-lg" />
+                      <button onClick={() => setPaymentScreenshot(null)} className="absolute top-2 right-2 p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors">
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  {errors.screenshot && <p className="text-xs text-red-500 mt-2">{errors.screenshot}</p>}
+                </motion.div>
               </div>
 
               {/* Remaining Balance Info */}
