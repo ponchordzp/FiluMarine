@@ -305,6 +305,7 @@ export default function Home() {
           location={selectedLocation}
           locationName={locationName}
           onChangeLocation={handleChangeLocation}
+          backgroundImage={getLocationImage(selectedLocation)}
         />
         <BoatBenefits />
         <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
