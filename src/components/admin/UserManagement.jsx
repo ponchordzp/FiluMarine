@@ -363,6 +363,20 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                 {form.confirm_password && form.password !== form.confirm_password && <p className="text-xs text-red-600 mt-1">✗ Passwords do not match</p>}
               </div>
             )}
+            {/* Bank Details */}
+            <div className="border-t pt-3 mt-1">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Bank Details (Direct Deposit)</p>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label>Bank Name</Label><Input value={form.bank_name} onChange={e => setForm({ ...form, bank_name: e.target.value })} placeholder="e.g., BBVA" /></div>
+                  <div><Label>Account Holder</Label><Input value={form.bank_account_holder} onChange={e => setForm({ ...form, bank_account_holder: e.target.value })} placeholder="Name on account" /></div>
+                </div>
+                <div><Label>CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={e => setForm({ ...form, bank_account_clabe: e.target.value })} placeholder="e.g., 012180004713413911" maxLength={18} /></div>
+                <div><Label>Account Number (optional)</Label><Input value={form.bank_account_number} onChange={e => setForm({ ...form, bank_account_number: e.target.value })} placeholder="Account number" /></div>
+                <div><Label>Notes</Label><Input value={form.bank_notes} onChange={e => setForm({ ...form, bank_notes: e.target.value })} placeholder="e.g., Dollars accepted, reference required" /></div>
+              </div>
+            </div>
+
             <div className="flex items-center gap-2">
               <input type="checkbox" id="is_active" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} className="rounded" />
               <Label htmlFor="is_active" className="cursor-pointer">Active (can log in)</Label>
