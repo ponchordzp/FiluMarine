@@ -400,8 +400,8 @@ export default function Home() {
   // Boat selector -> Experience selection step
   if (step === 'boat_selector') {
     return (
-      <div className="min-h-screen" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/c6733c10b_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#081830' }}>
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(to bottom, #081830cc, #050f1ecc)' }} />
+      <div className="relative min-h-screen" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/c6ed2e8cf_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0d1e3d' }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'rgba(5,15,35,0.72)' }} />
         <div className="relative min-h-screen py-16">
           <div className="max-w-6xl mx-auto px-4 sm:px-6">
             <motion.div
