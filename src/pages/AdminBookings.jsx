@@ -33,6 +33,7 @@ import PickupLocationsManagement from '@/components/admin/PickupLocationsManagem
 import ExtrasManagement from '@/components/admin/ExtrasManagement';
 import EngineDatabases from '@/components/admin/EngineDatabases';
 import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
+import BookingTrendChart from '@/components/admin/BookingTrendChart';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
