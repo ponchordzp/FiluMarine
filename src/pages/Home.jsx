@@ -99,6 +99,16 @@ export default function Home() {
     };
   }, []);
 
+  const { data: dbLocations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list('sort_order'),
+  });
+
+  const getLocationImage = (locationId) => {
+    const loc = dbLocations.find(l => l.location_id === locationId);
+    return loc?.image || null;
+  };
+
   const createBookingMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
     onSuccess: (data) => {
