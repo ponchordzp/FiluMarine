@@ -75,6 +75,7 @@ function App() {
           <AuthenticatedApp />
         </Router>
         <Toaster />
+        <LanguageSwitcher />
       </QueryClientProvider>
     </AuthProvider>
   )
