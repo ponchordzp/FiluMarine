@@ -273,10 +273,22 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                       </div>
                       <p className="text-sm text-slate-500">@{user.username}</p>
                       <div className="flex gap-3 mt-1 flex-wrap">
-                        {user.email && <p className="text-xs text-slate-500">✉ {user.email}</p>}
-                        {user.assigned_boat && <p className="text-xs text-blue-600 font-medium">⚓ {user.assigned_boat}</p>}
-                        {user.last_login && <p className="text-xs text-slate-400">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
-                      </div>
+                         {user.email && <p className="text-xs text-slate-500">✉ {user.email}</p>}
+                         {user.assigned_boat && <p className="text-xs text-blue-600 font-medium">⚓ {user.assigned_boat}</p>}
+                         {user.last_login && <p className="text-xs text-slate-400">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
+                       </div>
+                       {(user.bank_name || user.bank_account_clabe) && (
+                         <div className="mt-2 px-3 py-2 rounded-lg text-xs" style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.18)' }}>
+                           <p className="font-semibold text-blue-700 mb-1 flex items-center gap-1"><CreditCard className="h-3 w-3" /> Bank Details</p>
+                           <div className="space-y-0.5 text-slate-600">
+                             {user.bank_account_holder && <p><span className="text-slate-400">Holder:</span> {user.bank_account_holder}</p>}
+                             {user.bank_name && <p><span className="text-slate-400">Bank:</span> {user.bank_name}</p>}
+                             {user.bank_account_clabe && <p><span className="text-slate-400">CLABE:</span> <span className="font-mono">{user.bank_account_clabe}</span></p>}
+                             {user.bank_account_number && <p><span className="text-slate-400">Account:</span> <span className="font-mono">{user.bank_account_number}</span></p>}
+                             {user.bank_notes && <p className="text-slate-400 italic">{user.bank_notes}</p>}
+                           </div>
+                         </div>
+                       )}
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => toggleActive(user)} title={user.is_active === false ? 'Activate' : 'Deactivate'} className={user.is_active === false ? 'text-slate-400 hover:text-emerald-600' : 'text-emerald-600 hover:text-slate-400'}>
