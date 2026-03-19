@@ -14,7 +14,7 @@ import { format, parseISO } from 'date-fns';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
 function loadOperators() {
-  try { const raw = localStorage.getItem(OPERATOR_STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
+  try {const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);if (raw) return JSON.parse(raw);} catch {}
   return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
 }
 
@@ -22,7 +22,7 @@ async function hashPassword(password) {
   const encoder = new TextEncoder();
   const data = encoder.encode(password);
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function validatePassword(password) {
@@ -45,15 +45,15 @@ const roleConfig = {
 const emptyForm = { username: '', full_name: '', email: '', role: 'crew', assigned_boat: '', operator: '', is_active: true, password: '', confirm_password: '', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' };
 
 const BUILT_IN_ROLE_TABS = [
-  { value: 'all', label: 'All' },
-  { value: 'superadmin', label: 'Super Admins' },
-  { value: 'operator_admin', label: 'Operator Admins' },
-  { value: 'admin', label: 'Admins' },
-  { value: 'crew', label: 'Crew' },
-];
+{ value: 'all', label: 'All' },
+{ value: 'superadmin', label: 'Super Admins' },
+{ value: 'operator_admin', label: 'Operator Admins' },
+{ value: 'admin', label: 'Admins' },
+{ value: 'crew', label: 'Crew' }];
+
 
 function loadCustomRoles() {
-  try { const raw = localStorage.getItem('filu_custom_roles'); if (raw) return JSON.parse(raw); } catch {}
+  try {const raw = localStorage.getItem('filu_custom_roles');if (raw) return JSON.parse(raw);} catch {}
   return [];
 }
 
@@ -62,15 +62,15 @@ const ROLE_HIERARCHY = {
   superadmin: ['superadmin', 'operator_admin', 'admin', 'crew'],
   operator_admin: ['admin', 'crew'],
   admin: ['crew'],
-  crew: [],
+  crew: []
 };
 
 function getOperatorForUser(user, operators) {
   if (!user) return null;
   const userOp = (user.operator || '').toLowerCase();
-  if (userOp) return operators.find(o => o.name.toLowerCase() === userOp) || null;
+  if (userOp) return operators.find((o) => o.name.toLowerCase() === userOp) || null;
   // Default: FILU
-  return operators.find(o => o.name.toLowerCase() === 'filu') || null;
+  return operators.find((o) => o.name.toLowerCase() === 'filu') || null;
 }
 
 export default function UserManagement({ currentUser, operatorFilter: externalOperatorFilter = 'all' }) {
@@ -115,43 +115,43 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   const openEdit = (user) => {
     setEditingUser(user);
     setForm({ username: user.username, full_name: user.full_name || '', email: user.email || '', role: user.role, assigned_boat: user.assigned_boat || '', operator: user.operator || '', is_active: user.is_active !== false, password: '', confirm_password: '', bank_name: user.bank_name || '', bank_account_clabe: user.bank_account_clabe || '', bank_account_number: user.bank_account_number || '', bank_account_holder: user.bank_account_holder || '', bank_notes: user.bank_notes || '' });
-    setError(''); setDialogOpen(true);
+    setError('');setDialogOpen(true);
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); setError('');
+    e.preventDefault();setError('');
     // Enforce role hierarchy — can only create/assign roles below your own
     const allowed = ROLE_HIERARCHY[currentUser?.role] || [];
-    if (!editingUser && !allowed.includes(form.role)) { setError(`You cannot create a user with role "${form.role}"`); return; }
+    if (!editingUser && !allowed.includes(form.role)) {setError(`You cannot create a user with role "${form.role}"`);return;}
     if (!editingUser) {
-      if (!form.password) { setError('Password is required'); return; }
+      if (!form.password) {setError('Password is required');return;}
       const pwErrors = validatePassword(form.password);
-      if (pwErrors.length > 0) { setError('Password requirements: ' + pwErrors.join(', ')); return; }
-      if (form.password !== form.confirm_password) { setError('Passwords do not match'); return; }
+      if (pwErrors.length > 0) {setError('Password requirements: ' + pwErrors.join(', '));return;}
+      if (form.password !== form.confirm_password) {setError('Passwords do not match');return;}
     }
-    const existing = appUsers.find(u => u.username.toLowerCase() === form.username.toLowerCase() && u.id !== editingUser?.id);
-    if (existing) { setError('Username already exists'); return; }
+    const existing = appUsers.find((u) => u.username.toLowerCase() === form.username.toLowerCase() && u.id !== editingUser?.id);
+    if (existing) {setError('Username already exists');return;}
     setSaving(true);
     // Operator admins always assign their own operator to new users
     const operatorValue = isOperatorAdmin ? currentUserOperator : form.operator.trim();
     const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: operatorValue, is_active: form.is_active, bank_name: form.bank_name.trim(), bank_account_clabe: form.bank_account_clabe.trim(), bank_account_number: form.bank_account_number.trim(), bank_account_holder: form.bank_account_holder.trim(), bank_notes: form.bank_notes.trim() };
     if (!editingUser || form.password) payload.password_hash = await hashPassword(form.password || '');
-    if (editingUser) { await updateMutation.mutateAsync({ id: editingUser.id, data: payload }); }
-    else { await createMutation.mutateAsync(payload); }
-    setSaving(false); setDialogOpen(false);
+    if (editingUser) {await updateMutation.mutateAsync({ id: editingUser.id, data: payload });} else
+    {await createMutation.mutateAsync(payload);}
+    setSaving(false);setDialogOpen(false);
   };
 
   const handleResetPassword = async () => {
     if (!newPassword) return;
     const pwErrors = validatePassword(newPassword);
-    if (pwErrors.length > 0) { alert('Password requirements not met: ' + pwErrors.join(', ')); return; }
+    if (pwErrors.length > 0) {alert('Password requirements not met: ' + pwErrors.join(', '));return;}
     setResetSaving(true);
     const hash = await hashPassword(newPassword);
     await updateMutation.mutateAsync({ id: resetPasswordUser.id, data: { password_hash: hash } });
-    setResetSaving(false); setResetPasswordUser(null); setNewPassword('');
+    setResetSaving(false);setResetPasswordUser(null);setNewPassword('');
   };
 
-  const toggleActive = async (user) => { await updateMutation.mutateAsync({ id: user.id, data: { is_active: !user.is_active } }); };
+  const toggleActive = async (user) => {await updateMutation.mutateAsync({ id: user.id, data: { is_active: !user.is_active } });};
 
   const pwErrors = form.password ? validatePassword(form.password) : [];
 
@@ -163,23 +163,23 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   }, [dialogOpen]);
 
   const ROLE_TABS = [
-    ...BUILT_IN_ROLE_TABS,
-    ...customRoles.map(r => ({ value: r.key, label: r.label + 's' })),
-  ];
+  ...BUILT_IN_ROLE_TABS,
+  ...customRoles.map((r) => ({ value: r.key, label: r.label + 's' }))];
+
 
   // Roles the current user is allowed to assign when creating/editing
   const allowedRolesToCreate = ROLE_HIERARCHY[currentUser?.role] || [];
 
   // Operator admins only see users from their own operator
-  const scopedUsers = isOperatorAdmin
-    ? appUsers.filter(u => {
-        const op = getOperatorForUser(u, operators);
-        return op?.name?.toLowerCase() === currentUserOperator.toLowerCase();
-      })
-    : appUsers;
+  const scopedUsers = isOperatorAdmin ?
+  appUsers.filter((u) => {
+    const op = getOperatorForUser(u, operators);
+    return op?.name?.toLowerCase() === currentUserOperator.toLowerCase();
+  }) :
+  appUsers;
 
   // Filtered users
-  const filteredUsers = scopedUsers.filter(u => {
+  const filteredUsers = scopedUsers.filter((u) => {
     const roleMatch = roleTab === 'all' || u.role === roleTab;
     let opMatch = true;
     if (operatorFilter !== 'all') {
@@ -189,7 +189,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     return roleMatch && opMatch;
   });
 
-  const countByRole = (role) => scopedUsers.filter(u => u.role === role).length;
+  const countByRole = (role) => scopedUsers.filter((u) => u.role === role).length;
   const [permissionsOpen, setPermissionsOpen] = useState(false);
 
   // Refresh custom roles when permissions panel is toggled closed (after edits)
@@ -201,16 +201,16 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-slate-50 text-2xl font-semibold">User Management</h2>
-          <p className="text-sm text-slate-500 mt-1">Create and manage users, roles, and boat assignments</p>
+          <h2 className="text-slate-200 text-2xl font-semibold">User Management</h2>
+          <p className="text-slate-400 mt-1 text-sm">Create and manage users, roles, and boat assignments</p>
         </div>
         <div className="flex gap-2">
-          {isSuperAdmin && (
-            <Button variant="outline" size="sm" onClick={() => setPermissionsOpen(o => !o)} className="gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+          {isSuperAdmin &&
+          <Button variant="outline" size="sm" onClick={() => setPermissionsOpen((o) => !o)} className="gap-1.5 border-indigo-200 text-indigo-700 hover:bg-indigo-50">
               <Settings className="h-4 w-4" />
               {permissionsOpen ? 'Hide' : 'Role Permissions'}
             </Button>
-          )}
+          }
           <Button onClick={openCreate} className="bg-purple-600 hover:bg-purple-700">
             <Plus className="h-4 w-4 mr-2" />Create User
           </Button>
@@ -218,19 +218,19 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
       </div>
 
       {/* Role Permissions Manager — SuperAdmin only */}
-      {isSuperAdmin && permissionsOpen && (
-        <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+      {isSuperAdmin && permissionsOpen &&
+      <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
           <RolePermissionsManager />
         </div>
-      )}
+      }
 
       {/* Role legend — SuperAdmin only */}
-      {isSuperAdmin && (
-        <div className="grid md:grid-cols-4 gap-4">
+      {isSuperAdmin &&
+      <div className="grid md:grid-cols-4 gap-4">
           {Object.entries(roleConfig).map(([key, cfg]) => {
-            const Icon = cfg.icon;
-            return (
-              <Card key={key} className="border-2 border-slate-100">
+          const Icon = cfg.icon;
+          return (
+            <Card key={key} className="border-2 border-slate-100">
                 <CardContent className="pt-4 pb-4">
                   <div className="flex items-start gap-3">
                     <div className={`p-2 rounded-lg ${key === 'superadmin' ? 'bg-purple-100' : key === 'operator_admin' ? 'bg-orange-100' : key === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
@@ -242,26 +242,26 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            );
-          })}
+              </Card>);
+
+        })}
         </div>
-      )}
+      }
 
       {/* Role tabs + operator filter */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex gap-1 p-1 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}>
-          {ROLE_TABS.map(tab => (
-            <button
-              key={tab.value}
-              onClick={() => setRoleTab(tab.value)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${roleTab === tab.value ? 'bg-purple-600 text-white' : 'text-white/50 hover:text-white/80 hover:bg-white/8'}`}
-            >
+          {ROLE_TABS.map((tab) =>
+          <button
+            key={tab.value}
+            onClick={() => setRoleTab(tab.value)}
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${roleTab === tab.value ? 'bg-purple-600 text-white' : 'text-white/50 hover:text-white/80 hover:bg-white/8'}`}>
+            
               {tab.label}
               {tab.value !== 'all' && <span className="ml-1.5 opacity-60">({countByRole(tab.value)})</span>}
               {tab.value === 'all' && <span className="ml-1.5 opacity-60">({appUsers.length})</span>}
             </button>
-          ))}
+          )}
         </div>
 
         {/* Operator filter */}
@@ -269,34 +269,34 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
           <Building2 className="h-3.5 w-3.5 text-white/40" />
           <select
             value={localOperatorFilter}
-            onChange={e => setLocalOperatorFilter(e.target.value)}
+            onChange={(e) => setLocalOperatorFilter(e.target.value)}
             className="text-xs rounded-lg px-2.5 py-1.5 text-white/70 border"
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}
-          >
+            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}>
+            
             <option value="all">All Operators</option>
-            {operators.map(op => (
-              <option key={op.id} value={op.name}>{op.name}</option>
-            ))}
+            {operators.map((op) =>
+            <option key={op.id} value={op.name}>{op.name}</option>
+            )}
           </select>
         </div>
       </div>
 
       {/* Users list */}
       <div className="space-y-3">
-        {filteredUsers.length === 0 ? (
-          <Card>
+        {filteredUsers.length === 0 ?
+        <Card>
             <CardContent className="py-12 text-center">
               <Users className="h-12 w-12 text-slate-300 mx-auto mb-3" />
               <p className="text-slate-500">No users found.</p>
             </CardContent>
-          </Card>
-        ) : (
-          filteredUsers.map(user => {
-            const cfg = roleConfig[user.role] || roleConfig.crew;
-            const Icon = cfg.icon;
-            const opForUser = getOperatorForUser(user, operators);
-            return (
-              <Card key={user.id} className={`border-2 ${user.is_active === false ? 'border-slate-200 opacity-60' : 'border-slate-100'}`}>
+          </Card> :
+
+        filteredUsers.map((user) => {
+          const cfg = roleConfig[user.role] || roleConfig.crew;
+          const Icon = cfg.icon;
+          const opForUser = getOperatorForUser(user, operators);
+          return (
+            <Card key={user.id} className={`border-2 ${user.is_active === false ? 'border-slate-200 opacity-60' : 'border-slate-100'}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${user.role === 'superadmin' ? 'bg-purple-100' : user.role === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
@@ -308,11 +308,11 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                         <Badge className={cfg.color}>{cfg.label}</Badge>
                         {user.is_active === false && <Badge className="bg-slate-100 text-slate-600">Inactive</Badge>}
                         {/* Operator badge */}
-                        {opForUser && (
-                          <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${opForUser.color}22`, border: `1px solid ${opForUser.color}55`, color: opForUser.color }}>
+                        {opForUser &&
+                      <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${opForUser.color}22`, border: `1px solid ${opForUser.color}55`, color: opForUser.color }}>
                             {opForUser.name}
                           </span>
-                        )}
+                      }
                       </div>
                       <p className="text-sm text-slate-500">@{user.username}</p>
                       <div className="flex gap-3 mt-1 flex-wrap">
@@ -320,8 +320,8 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                          {user.assigned_boat && <p className="text-xs text-blue-600 font-medium">⚓ {user.assigned_boat}</p>}
                          {user.last_login && <p className="text-xs text-slate-400">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
                        </div>
-                       {(user.bank_name || user.bank_account_clabe) && (
-                         <div className="mt-2 px-3 py-2 rounded-lg text-xs" style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.18)' }}>
+                       {(user.bank_name || user.bank_account_clabe) &&
+                    <div className="mt-2 px-3 py-2 rounded-lg text-xs" style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.18)' }}>
                            <p className="font-semibold text-blue-700 mb-1 flex items-center gap-1"><CreditCard className="h-3 w-3" /> Bank Details</p>
                            <div className="space-y-0.5 text-slate-600">
                              {user.bank_account_holder && <p><span className="text-slate-400">Holder:</span> {user.bank_account_holder}</p>}
@@ -331,22 +331,22 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                              {user.bank_notes && <p className="text-slate-400 italic">{user.bank_notes}</p>}
                            </div>
                          </div>
-                       )}
+                    }
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => toggleActive(user)} title={user.is_active === false ? 'Activate' : 'Deactivate'} className={user.is_active === false ? 'text-slate-400 hover:text-emerald-600' : 'text-emerald-600 hover:text-slate-400'}>
                         {user.is_active === false ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
                       </Button>
-                      <Button variant="ghost" size="sm" onClick={() => { setResetPasswordUser(user); setNewPassword(''); }} className="text-amber-600 hover:text-amber-700"><Key className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => {setResetPasswordUser(user);setNewPassword('');}} className="text-amber-600 hover:text-amber-700"><Key className="h-4 w-4" /></Button>
                       <Button variant="ghost" size="sm" onClick={() => openEdit(user)} className="text-slate-600 hover:text-slate-800"><Edit className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => { if (window.confirm(`Delete user "${user.username}"?`)) deleteMutation.mutate(user.id); }} className="text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="sm" onClick={() => {if (window.confirm(`Delete user "${user.username}"?`)) deleteMutation.mutate(user.id);}} className="text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            );
-          })
-        )}
+              </Card>);
+
+        })
+        }
       </div>
 
       {/* Create/Edit Dialog */}
@@ -358,93 +358,93 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
           <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
           <div className="overflow-y-auto flex-1 pr-1 space-y-4">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Username *</Label><Input value={form.username} onChange={e => setForm({ ...form, username: e.target.value })} required placeholder="e.g., juan_perez" /></div>
-              <div><Label>Full Name</Label><Input value={form.full_name} onChange={e => setForm({ ...form, full_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
+              <div><Label>Username *</Label><Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required placeholder="e.g., juan_perez" /></div>
+              <div><Label>Full Name</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
             </div>
-            <div><Label>Email</Label><Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="e.g., juan@example.com" /></div>
+            <div><Label>Email</Label><Input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="e.g., juan@example.com" /></div>
             <div>
               <Label>Role *</Label>
               {/* If editing a user with a higher role than current user, show read-only */}
-              {editingUser && !allowedRolesToCreate.includes(form.role) ? (
+              {editingUser && !allowedRolesToCreate.includes(form.role) ?
                 <div className="mt-1 px-3 py-2 rounded-md text-sm border bg-slate-50 text-slate-600">
                   {roleConfig[form.role]?.label || form.role} <span className="text-xs text-slate-400">(cannot change)</span>
-                </div>
-              ) : (
-                <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
+                </div> :
+
+                <Select value={form.role} onValueChange={(v) => setForm({ ...form, role: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {allowedRolesToCreate.map(r => {
+                    {allowedRolesToCreate.map((r) => {
                       const cfg = roleConfig[r];
                       return cfg ? <SelectItem key={r} value={r}>{cfg.label}</SelectItem> : null;
                     })}
                     {/* Custom roles — superadmin only */}
-                    {isSuperAdmin && customRoles.map(r => (
-                      <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
-                    ))}
+                    {isSuperAdmin && customRoles.map((r) =>
+                    <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
-              )}
+                }
             </div>
-            {(form.role === 'admin' || form.role === 'crew') && (
+            {(form.role === 'admin' || form.role === 'crew') &&
               <div>
                 <Label>Assigned Boat</Label>
-                <Select value={form.assigned_boat} onValueChange={v => setForm({ ...form, assigned_boat: v })}>
+                <Select value={form.assigned_boat} onValueChange={(v) => setForm({ ...form, assigned_boat: v })}>
                   <SelectTrigger><SelectValue placeholder="Select a boat..." /></SelectTrigger>
-                  <SelectContent>{boats.map(b => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}</SelectContent>
+                  <SelectContent>{boats.map((b) => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-            )}
-            {isSuperAdmin && (
+              }
+            {isSuperAdmin &&
               <div>
                 <Label>Operator</Label>
-                <Select value={form.operator || '__filu__'} onValueChange={v => setForm({ ...form, operator: v === '__filu__' ? '' : v })}>
+                <Select value={form.operator || '__filu__'} onValueChange={(v) => setForm({ ...form, operator: v === '__filu__' ? '' : v })}>
                   <SelectTrigger><SelectValue placeholder="Select operator..." /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__filu__">FILU (default)</SelectItem>
-                    {operators.filter(o => o.name.toLowerCase() !== 'filu').map(op => <SelectItem key={op.id} value={op.name}>{op.name}</SelectItem>)}
+                    {operators.filter((o) => o.name.toLowerCase() !== 'filu').map((op) => <SelectItem key={op.id} value={op.name}>{op.name}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-            )}
+              }
             <div>
               <Label>{editingUser ? 'New Password (leave blank to keep current)' : 'Password *'}</Label>
               <div className="relative">
-                <Input type={showPassword ? 'text' : 'password'} value={form.password} onChange={e => setForm({ ...form, password: e.target.value })} required={!editingUser} placeholder="Min 8 chars, upper, lower, number, special" />
-                <button type="button" onClick={() => setShowPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <Input type={showPassword ? 'text' : 'password'} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required={!editingUser} placeholder="Min 8 chars, upper, lower, number, special" />
+                <button type="button" onClick={() => setShowPassword((p) => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {form.password && pwErrors.length > 0 && <ul className="mt-1 space-y-0.5">{pwErrors.map(e => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul>}
+              {form.password && pwErrors.length > 0 && <ul className="mt-1 space-y-0.5">{pwErrors.map((e) => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul>}
               {form.password && pwErrors.length === 0 && <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>}
             </div>
-            {(form.password || !editingUser) && (
+            {(form.password || !editingUser) &&
               <div>
                 <Label>Confirm Password</Label>
                 <div className="relative">
-                  <Input type={showConfirm ? 'text' : 'password'} value={form.confirm_password} onChange={e => setForm({ ...form, confirm_password: e.target.value })} placeholder="Repeat password" />
-                  <button type="button" onClick={() => setShowConfirm(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                  <Input type={showConfirm ? 'text' : 'password'} value={form.confirm_password} onChange={(e) => setForm({ ...form, confirm_password: e.target.value })} placeholder="Repeat password" />
+                  <button type="button" onClick={() => setShowConfirm((p) => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                     {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 {form.confirm_password && form.password !== form.confirm_password && <p className="text-xs text-red-600 mt-1">✗ Passwords do not match</p>}
               </div>
-            )}
+              }
             {/* Bank Details */}
             <div className="border-t pt-3 mt-1">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Bank Details (Direct Deposit)</p>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <div><Label>Bank Name</Label><Input value={form.bank_name} onChange={e => setForm({ ...form, bank_name: e.target.value })} placeholder="e.g., BBVA" /></div>
-                  <div><Label>Account Holder</Label><Input value={form.bank_account_holder} onChange={e => setForm({ ...form, bank_account_holder: e.target.value })} placeholder="Name on account" /></div>
+                  <div><Label>Bank Name</Label><Input value={form.bank_name} onChange={(e) => setForm({ ...form, bank_name: e.target.value })} placeholder="e.g., BBVA" /></div>
+                  <div><Label>Account Holder</Label><Input value={form.bank_account_holder} onChange={(e) => setForm({ ...form, bank_account_holder: e.target.value })} placeholder="Name on account" /></div>
                 </div>
-                <div><Label>CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={e => setForm({ ...form, bank_account_clabe: e.target.value })} placeholder="e.g., 012180004713413911" maxLength={18} /></div>
-                <div><Label>Account Number (optional)</Label><Input value={form.bank_account_number} onChange={e => setForm({ ...form, bank_account_number: e.target.value })} placeholder="Account number" /></div>
-                <div><Label>Notes</Label><Input value={form.bank_notes} onChange={e => setForm({ ...form, bank_notes: e.target.value })} placeholder="e.g., Dollars accepted, reference required" /></div>
+                <div><Label>CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={(e) => setForm({ ...form, bank_account_clabe: e.target.value })} placeholder="e.g., 012180004713413911" maxLength={18} /></div>
+                <div><Label>Account Number (optional)</Label><Input value={form.bank_account_number} onChange={(e) => setForm({ ...form, bank_account_number: e.target.value })} placeholder="Account number" /></div>
+                <div><Label>Notes</Label><Input value={form.bank_notes} onChange={(e) => setForm({ ...form, bank_notes: e.target.value })} placeholder="e.g., Dollars accepted, reference required" /></div>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <input type="checkbox" id="is_active" checked={form.is_active} onChange={e => setForm({ ...form, is_active: e.target.checked })} className="rounded" />
+              <input type="checkbox" id="is_active" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="rounded" />
               <Label htmlFor="is_active" className="cursor-pointer">Active (can log in)</Label>
             </div>
             {error && <p className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</p>}
@@ -458,19 +458,19 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
       </Dialog>
 
       {/* Reset Password Dialog */}
-      <Dialog open={!!resetPasswordUser} onOpenChange={open => { if (!open) setResetPasswordUser(null); }}>
+      <Dialog open={!!resetPasswordUser} onOpenChange={(open) => {if (!open) setResetPasswordUser(null);}}>
         <DialogContent className="max-w-sm">
           <DialogHeader><DialogTitle className="flex items-center gap-2"><Key className="h-5 w-5 text-amber-600" />Reset Password — {resetPasswordUser?.username}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div>
               <Label>New Password</Label>
               <div className="relative">
-                <Input type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter new password" />
-                <button type="button" onClick={() => setShowNewPassword(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <Input type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" />
+                <button type="button" onClick={() => setShowNewPassword((p) => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {newPassword && (() => { const errs = validatePassword(newPassword); return errs.length > 0 ? <ul className="mt-1">{errs.map(e => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul> : <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>; })()}
+              {newPassword && (() => {const errs = validatePassword(newPassword);return errs.length > 0 ? <ul className="mt-1">{errs.map((e) => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul> : <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>;})()}
             </div>
             <div className="flex gap-2">
               <Button onClick={handleResetPassword} disabled={resetSaving || !newPassword} className="flex-1 bg-amber-600 hover:bg-amber-700">{resetSaving ? 'Saving...' : 'Reset Password'}</Button>
@@ -479,6 +479,6 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 }
