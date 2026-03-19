@@ -33,8 +33,6 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const [paymentScreenshot, setPaymentScreenshot] = useState(bookingData.payment_screenshot || null);
   const [isUploading, setIsUploading] = useState(false);
   
-  const whatsappLink = `https://wa.me/525513782169?text=Hello!%20I%20have%20made%20a%20direct%20deposit%20for%20booking%20with%20confirmation%20code:%20${bookingData.confirmation_code || 'PENDING'}`;
-
   const addOnsTotal = (bookingData.add_ons || []).reduce((sum, id) => {
     return sum + getAddOnPrice(id, bookingData.boat_name);
   }, 0);
