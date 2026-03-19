@@ -206,6 +206,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
               </motion.div>
             ))}
           </div>
+          </div>
         </div>
       </section>
     );
