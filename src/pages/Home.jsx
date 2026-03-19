@@ -305,9 +305,8 @@ export default function Home() {
         <JoinFilu />
         
         {/* Footer */}
-        <footer className="relative text-white py-10 overflow-hidden border-t border-white/10" style={{ backgroundColor: '#0a1f3d' }}>
-          <div className="absolute inset-0" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '280px 280px', opacity: 0.12 }} />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f3d]/80 via-[#0c2847]/70 to-[#001529]/80" />
+        <footer className="relative text-white py-8 overflow-hidden border-t border-white/10" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0c2259' }}>
+          <div className="absolute inset-0 bg-[#0c2259]/70" />
           <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
