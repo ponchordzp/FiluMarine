@@ -76,9 +76,8 @@ ${formData.message}
 
   if (submitted) {
     return (
-      <section className="relative py-10 md:py-14 border-t border-white/10 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
-        <div className="absolute inset-0" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '280px 280px', opacity: 0.12 }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f3d]/80 via-[#0c2847]/80 to-[#001529]/80" />
+      <section className="relative py-6 md:py-10 border-t border-white/10 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0c2259' }}>
+        <div className="absolute inset-0 bg-[#0c2259]/70" />
         <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -106,9 +105,8 @@ ${formData.message}
   }
 
   return (
-    <section className="relative py-10 md:py-14 border-t border-white/10 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
-      <div className="absolute inset-0" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '280px 280px', opacity: 0.12 }} />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1f3d]/80 via-[#0c2847]/80 to-[#001529]/80" />
+    <section className="relative py-6 md:py-10 border-t border-white/10 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0c2259' }}>
+      <div className="absolute inset-0 bg-[#0c2259]/70" />
       <div className="absolute inset-0">
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>

@@ -128,11 +128,10 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
     : (destinationsByLocation[location] || destinationsByLocation.ixtapa_zihuatanejo);
 
   return (
-    <section className="relative py-10 md:py-14 border-t border-white/10 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
-      <div className="absolute inset-0" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '280px 280px', opacity: 0.12 }} />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0c2847]/80 to-[#0a1f3d]/80" />
+    <section className="relative py-6 md:py-10 border-t border-white/10 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0c2259' }}>
+      <div className="absolute inset-0 bg-[#0c2259]/70" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="text-center mb-16">
+        <div className="text-center mb-8">
           <h2 className="text-4xl md:text-5xl font-light text-white mb-4">
             Explore <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Destinations</span>
           </h2>

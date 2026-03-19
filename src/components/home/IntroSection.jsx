@@ -4,9 +4,8 @@ import { motion } from 'framer-motion';
 
 export default function IntroSection() {
   return (
-    <section className="relative py-8 md:py-12 border-t border-white/10 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
-      <div className="absolute inset-0" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '280px 280px', opacity: 0.12 }} />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0a1929]/85 to-[#050d1a]/85" />
+    <section className="relative py-6 md:py-10 border-t border-white/10 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0c2259' }}>
+      <div className="absolute inset-0 bg-[#0c2259]/70" />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

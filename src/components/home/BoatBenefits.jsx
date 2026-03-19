@@ -32,15 +32,14 @@ const benefits = [
 
 export default function BoatBenefits() {
   return (
-    <section className="relative py-10 md:py-14 border-t border-white/10 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
-      <div className="absolute inset-0" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '280px 280px', opacity: 0.12 }} />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#001529]/80 via-[#0a1f3d]/80 to-[#0c2847]/80" />
+    <section className="relative py-6 md:py-10 border-t border-white/10 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0c2259' }}>
+      <div className="absolute inset-0 bg-[#0c2259]/70" />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-10"
         >
           <h2 className="text-4xl md:text-6xl font-light text-white mb-6">
             Why <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">Choose Us?</span>
