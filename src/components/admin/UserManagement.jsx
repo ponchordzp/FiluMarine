@@ -192,6 +192,11 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   const countByRole = (role) => scopedUsers.filter(u => u.role === role).length;
   const [permissionsOpen, setPermissionsOpen] = useState(false);
 
+  // Refresh custom roles when permissions panel is toggled closed (after edits)
+  useEffect(() => {
+    if (!permissionsOpen) setCustomRoles(loadCustomRoles());
+  }, [permissionsOpen]);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
