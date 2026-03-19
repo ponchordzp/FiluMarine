@@ -423,6 +423,7 @@ export default function Home() {
                 </div>
               </div>
             </motion.div>
+            <SelectedBoatInfo boat={selectedBoat} />
             <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={selectedBoat} location={selectedLocation} />
             <motion.div 
               initial={{ opacity: 0 }}
