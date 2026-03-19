@@ -127,7 +127,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     }).filter(Boolean);
 
     return (
-      <section className="relative py-8 md:py-12 overflow-hidden">
+      <section className="relative py-8 md:py-12 overflow-hidden" style={{ backgroundColor: '#050f1e' }}>
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
