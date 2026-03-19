@@ -127,8 +127,9 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     }).filter(Boolean);
 
     return (
-      <section className="relative py-8 md:py-12 overflow-hidden" style={{ backgroundColor: '#050f1e' }}>
+      <section className="relative py-8 md:py-12">
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="rounded-3xl overflow-hidden border border-white/20 bg-white/5 backdrop-blur-md p-8 md:p-10">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
