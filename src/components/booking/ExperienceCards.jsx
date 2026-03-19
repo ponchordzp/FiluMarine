@@ -154,58 +154,58 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                   transition={{ delay: i * 0.1 }}
                   className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
                 >
-                <div className="aspect-[16/9] relative overflow-hidden">
-                  <img 
-                    src={exp.image} 
-                    alt={exp.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                  <div className="absolute bottom-4 left-4 right-4">
-                    <p className="text-white/80 text-sm flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {exp.duration}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-6 flex flex-col flex-grow">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
-                    <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
-                  </div>
-
-                  <p className="text-white/80 text-sm mb-3">{exp.description}</p>
-
-                  <div className="mb-3">
-                    <p className="text-xs font-medium text-cyan-400 uppercase tracking-wide mb-1.5">Includes</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {exp.includes.map((item, idx) => (
-                        <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">
-                          {item}
-                        </span>
-                      ))}
+                  <div className="aspect-[16/9] relative overflow-hidden">
+                    <img 
+                      src={exp.image} 
+                      alt={exp.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <p className="text-white/80 text-sm flex items-center gap-1">
+                        <Clock className="h-4 w-4" />
+                        {exp.duration}
+                      </p>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
-                    <div className="flex items-center gap-2 text-sm text-white/70">
-                      <Users className="h-4 w-4" />
-                      <span>{exp.idealFor}</span>
+                  <div className="p-6 flex flex-col flex-grow">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
+                      <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
                     </div>
-                  </div>
 
-                  <Button 
-                    onClick={() => onSelectExperience(exp)}
-                    className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
-                  >
-                    <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                    <span className="relative">Select This Experience</span>
-                  </Button>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                    <p className="text-white/80 text-sm mb-3">{exp.description}</p>
+
+                    <div className="mb-3">
+                      <p className="text-xs font-medium text-cyan-400 uppercase tracking-wide mb-1.5">Includes</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {exp.includes.map((item, idx) => (
+                          <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">
+                            {item}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
+                      <div className="flex items-center gap-2 text-sm text-white/70">
+                        <Users className="h-4 w-4" />
+                        <span>{exp.idealFor}</span>
+                      </div>
+                    </div>
+
+                    <Button 
+                      onClick={() => onSelectExperience(exp)}
+                      className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
+                    >
+                      <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                      <span className="relative">Select This Experience</span>
+                    </Button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
