@@ -305,7 +305,7 @@ export default function Home() {
         <JoinFilu />
         
         {/* Footer */}
-        <footer className="relative bg-gradient-to-b from-[#0a1f3d] via-[#0c2847] to-[#001529] text-white py-16 overflow-hidden">
+        <footer className="relative text-white py-10 overflow-hidden border-t border-white/10" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/9691fa11e_FILUMarine2.png'), linear-gradient(to bottom, #0a1f3d, #001529)`, backgroundRepeat: 'repeat, no-repeat', backgroundSize: '280px 280px, cover', backgroundColor: '#0a1f3d' }}>
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500 rounded-full filter blur-3xl"></div>
             <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500 rounded-full filter blur-3xl"></div>
