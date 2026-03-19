@@ -42,7 +42,7 @@ const roleConfig = {
   crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' }
 };
 
-const emptyForm = { username: '', full_name: '', email: '', role: 'crew', assigned_boat: '', operator: '', is_active: true, password: '', confirm_password: '' };
+const emptyForm = { username: '', full_name: '', email: '', role: 'crew', assigned_boat: '', operator: '', is_active: true, password: '', confirm_password: '', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' };
 
 const ROLE_TABS = [
   { value: 'all', label: 'All' },
@@ -94,7 +94,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   const openCreate = () => { setEditingUser(null); setForm(emptyForm); setError(''); setDialogOpen(true); };
   const openEdit = (user) => {
     setEditingUser(user);
-    setForm({ username: user.username, full_name: user.full_name || '', email: user.email || '', role: user.role, assigned_boat: user.assigned_boat || '', operator: user.operator || '', is_active: user.is_active !== false, password: '', confirm_password: '' });
+    setForm({ username: user.username, full_name: user.full_name || '', email: user.email || '', role: user.role, assigned_boat: user.assigned_boat || '', operator: user.operator || '', is_active: user.is_active !== false, password: '', confirm_password: '', bank_name: user.bank_name || '', bank_account_clabe: user.bank_account_clabe || '', bank_account_number: user.bank_account_number || '', bank_account_holder: user.bank_account_holder || '', bank_notes: user.bank_notes || '' });
     setError(''); setDialogOpen(true);
   };
 
@@ -113,7 +113,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     setSaving(true);
     // Operator admins always assign their own operator to new users
     const operatorValue = isOperatorAdmin ? currentUserOperator : form.operator.trim();
-    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: operatorValue, is_active: form.is_active };
+    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: operatorValue, is_active: form.is_active, bank_name: form.bank_name.trim(), bank_account_clabe: form.bank_account_clabe.trim(), bank_account_number: form.bank_account_number.trim(), bank_account_holder: form.bank_account_holder.trim(), bank_notes: form.bank_notes.trim() };
     if (!editingUser || form.password) payload.password_hash = await hashPassword(form.password || '');
     if (editingUser) { await updateMutation.mutateAsync({ id: editingUser.id, data: payload }); }
     else { await createMutation.mutateAsync(payload); }
