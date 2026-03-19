@@ -351,16 +351,26 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
             <div><Label>Email</Label><Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="e.g., juan@example.com" /></div>
             <div>
               <Label>Role *</Label>
-              <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })} disabled={form.role === 'superadmin' && !isSuperAdmin}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {isSuperAdmin && <SelectItem value="superadmin">Super Admin</SelectItem>}
-                  {form.role === 'superadmin' && !isSuperAdmin && <SelectItem value="superadmin">Super Admin (Cannot change)</SelectItem>}
-                  <SelectItem value="operator_admin">Operator Admin</SelectItem>
-                  <SelectItem value="admin">Admin (Boat Owner)</SelectItem>
-                  <SelectItem value="crew">Crew</SelectItem>
-                </SelectContent>
-              </Select>
+              {/* If editing a user with a higher role than current user, show read-only */}
+              {editingUser && !allowedRolesToCreate.includes(form.role) ? (
+                <div className="mt-1 px-3 py-2 rounded-md text-sm border bg-slate-50 text-slate-600">
+                  {roleConfig[form.role]?.label || form.role} <span className="text-xs text-slate-400">(cannot change)</span>
+                </div>
+              ) : (
+                <Select value={form.role} onValueChange={v => setForm({ ...form, role: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {allowedRolesToCreate.map(r => {
+                      const cfg = roleConfig[r];
+                      return cfg ? <SelectItem key={r} value={r}>{cfg.label}</SelectItem> : null;
+                    })}
+                    {/* Custom roles — superadmin only */}
+                    {isSuperAdmin && customRoles.map(r => (
+                      <SelectItem key={r.key} value={r.key}>{r.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             {(form.role === 'admin' || form.role === 'crew') && (
               <div>
