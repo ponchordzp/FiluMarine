@@ -104,7 +104,14 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   const updateMutation = useMutation({ mutationFn: ({ id, data }) => base44.entities.AppUser.update(id, data), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] }) });
   const deleteMutation = useMutation({ mutationFn: (id) => base44.entities.AppUser.delete(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['app-users'] }) });
 
-  const openCreate = () => { setEditingUser(null); setForm(emptyForm); setError(''); setDialogOpen(true); };
+  const openCreate = () => {
+    const allowed = ROLE_HIERARCHY[currentUser?.role] || ['crew'];
+    const defaultRole = allowed[allowed.length - 1] || 'crew'; // lowest in hierarchy
+    setEditingUser(null);
+    setForm({ ...emptyForm, role: defaultRole });
+    setError('');
+    setDialogOpen(true);
+  };
   const openEdit = (user) => {
     setEditingUser(user);
     setForm({ username: user.username, full_name: user.full_name || '', email: user.email || '', role: user.role, assigned_boat: user.assigned_boat || '', operator: user.operator || '', is_active: user.is_active !== false, password: '', confirm_password: '', bank_name: user.bank_name || '', bank_account_clabe: user.bank_account_clabe || '', bank_account_number: user.bank_account_number || '', bank_account_holder: user.bank_account_holder || '', bank_notes: user.bank_notes || '' });
