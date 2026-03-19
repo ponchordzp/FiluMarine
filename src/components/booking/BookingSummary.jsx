@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 import { ArrowLeft, Calendar, Clock, Users, CreditCard, Check, Shield, Car, Upload, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, EyeOff, Shield, Anchor, Users, CheckCircle, XCircle, Key, Building2, Settings } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, Shield, Anchor, Users, CheckCircle, XCircle, Key, Building2, Settings, CreditCard } from 'lucide-react';
 import RolePermissionsManager from './RolePermissionsManager';
 import { format, parseISO } from 'date-fns';
 
