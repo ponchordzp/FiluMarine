@@ -119,6 +119,160 @@ function KpiCell({ label, value, color, info }) {
   );
 }
 
+// ─── Next Service Budget Panel ────────────────────────────────────────────────
+function NextServiceBudgetPanel({ breakdown, total, overdueCount, boats, bookings, personalTrips }) {
+  const [open, setOpen] = useState(false);
+  const today = new Date();
+
+  const enriched = breakdown.map(item => {
+    const boat = boats.find(b => b.name === item.name);
+    if (!boat) return { ...item, boat: null, totalHours: 0, hoursUntilService: 0, serviceOverdue: false, lastServiceDate: null, mechanic: null };
+    const bHrs = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled').reduce((s, b) => s + (b.engine_hours_used || 0), 0);
+    const pHrs = personalTrips.filter(t => t.boat_id === boat.id).reduce((s, t) => s + (t.engine_hours_used || 0), 0);
+    const totalHours = (boat.current_hours || 0) + bHrs + pHrs;
+    const hoursUntilService = Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - totalHours);
+    const serviceOverdue = totalHours > (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100);
+    return {
+      ...item,
+      boat,
+      totalHours,
+      hoursUntilService,
+      serviceOverdue,
+      lastServiceDate: boat.last_service_date || null,
+      mechanic: boat.mechanic_name || null,
+      mechanicPhone: boat.mechanic_phone || null,
+      interval: boat.maintenance_interval_hours || 100,
+      lastMaintenanceHours: boat.last_maintenance_hours || 0,
+    };
+  });
+
+  const hasOverdue = enriched.some(e => e.serviceOverdue);
+
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${hasOverdue ? 'rgba(239,68,68,0.35)' : 'rgba(249,115,22,0.3)'}` }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-white/5 transition-colors"
+        style={{ background: hasOverdue ? 'rgba(239,68,68,0.08)' : 'rgba(249,115,22,0.08)' }}
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-base">⚙️</span>
+          <span className="text-sm font-semibold text-white">Next Service Budget</span>
+          <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: hasOverdue ? 'rgba(239,68,68,0.2)' : 'rgba(249,115,22,0.2)', color: hasOverdue ? '#fca5a5' : '#fdba74' }}>
+            {fmt(total)}
+          </span>
+          {overdueCount > 0 && (
+            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-red-500/20 text-red-400 border border-red-500/30">
+              ⚠ {overdueCount} overdue
+            </span>
+          )}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-white/40" /> : <ChevronDown className="h-4 w-4 text-white/40" />}
+      </button>
+
+      {open && (
+        <div className="p-4 space-y-3" style={{ background: 'rgba(255,255,255,0.02)' }}>
+          <p className="text-xs text-white/30">
+            Cost estimates for the next scheduled service per boat. Each figure = <span className="text-white/50 font-medium">cost per engine × number of engines</span>. Source fields: <code className="text-orange-300/70">minor_maintenance_cost</code> / <code className="text-orange-300/70">major_maintenance_cost</code> from Boat Inventory.
+          </p>
+
+          <div className="space-y-3">
+            {enriched.map((item, i) => {
+              const urgBg = item.serviceOverdue ? 'rgba(239,68,68,0.1)' : item.hoursUntilService < 20 ? 'rgba(245,158,11,0.1)' : 'rgba(249,115,22,0.07)';
+              const urgBorder = item.serviceOverdue ? 'rgba(239,68,68,0.3)' : item.hoursUntilService < 20 ? 'rgba(245,158,11,0.3)' : 'rgba(249,115,22,0.2)';
+              return (
+                <div key={i} className="rounded-xl overflow-hidden" style={{ background: urgBg, border: `1px solid ${urgBorder}` }}>
+                  {/* Boat header */}
+                  <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: `1px solid ${urgBorder}` }}>
+                    <div className="flex items-center gap-3">
+                      {item.boat?.image && <img src={item.boat.image} alt="" className="w-8 h-8 rounded-lg object-cover" />}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-white">{item.name}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${item.type === 'major' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'}`}>
+                            {item.type} service
+                          </span>
+                          {item.serviceOverdue && (
+                            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">⚠ OVERDUE</span>
+                          )}
+                        </div>
+                        {item.boat && <p className="text-xs text-white/30 mt-0.5">{item.boat.type} · {item.boat.size} · {item.boat.engine_name || 'No engine info'}</p>}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-lg font-bold text-orange-300">{fmt(item.total)}</p>
+                      <p className="text-xs text-white/30">{fmt(item.costPerEngine)} × {item.qty} engine{item.qty !== 1 ? 's' : ''}</p>
+                    </div>
+                  </div>
+
+                  {/* Detail grid */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-px" style={{ background: urgBorder }}>
+                    {[
+                      {
+                        label: 'Cost Source Field',
+                        value: <code className="text-orange-300 text-[10px]">{item.costField}</code>,
+                        sub: `$${item.costPerEngine.toLocaleString('es-MX')} MXN per engine`,
+                      },
+                      {
+                        label: 'Engine Hours Now',
+                        value: <span className={item.serviceOverdue ? 'text-red-400 font-bold' : 'text-white'}>{item.totalHours.toFixed(1)} hrs</span>,
+                        sub: `interval: every ${item.interval} hrs`,
+                      },
+                      {
+                        label: item.serviceOverdue ? 'Hours Overdue' : 'Hours Until Service',
+                        value: item.serviceOverdue
+                          ? <span className="text-red-400 font-bold">{(item.totalHours - item.lastMaintenanceHours - item.interval).toFixed(1)} hrs over</span>
+                          : <span className="text-emerald-400">{item.hoursUntilService.toFixed(1)} hrs left</span>,
+                        sub: `last service at ${item.lastMaintenanceHours} hrs`,
+                      },
+                      {
+                        label: 'Last Service Date',
+                        value: item.lastServiceDate
+                          ? format(parseISO(item.lastServiceDate), 'MMM d, yyyy')
+                          : <span className="text-white/20">Not recorded</span>,
+                        sub: item.mechanic ? `Mechanic: ${item.mechanic}` : 'No mechanic on file',
+                      },
+                    ].map((cell, ci) => (
+                      <div key={ci} className="px-3 py-2.5" style={{ background: urgBg }}>
+                        <p className="text-[10px] text-white/35 uppercase tracking-wider mb-1">{cell.label}</p>
+                        <p className="text-sm font-semibold text-white">{cell.value}</p>
+                        <p className="text-[10px] text-white/25 mt-0.5">{cell.sub}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Mechanic contact if available */}
+                  {(item.mechanic || item.mechanicPhone) && (
+                    <div className="px-4 py-2 flex items-center gap-3 text-xs text-white/40" style={{ borderTop: `1px solid ${urgBorder}` }}>
+                      <span>🔧 Mechanic on file:</span>
+                      {item.mechanic && <span className="text-white/60 font-medium">{item.mechanic}</span>}
+                      {item.mechanicPhone && (
+                        <a href={`https://wa.me/${item.mechanicPhone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
+                          className="text-emerald-400 hover:text-emerald-300 transition-colors">
+                          📱 {item.mechanicPhone}
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Total footer */}
+          <div className="flex items-center justify-between rounded-xl px-4 py-3" style={{ background: 'rgba(249,115,22,0.12)', border: '1px solid rgba(249,115,22,0.3)' }}>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-white/70">Fleet Total — Next Service Budget</span>
+              <InfoTip text="Sum of all per-boat next service estimates. Use this to plan your upcoming maintenance cash flow." />
+            </div>
+            <span className="text-xl font-bold text-orange-300">{fmt(total)}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Smart Suggestions collapsible ───────────────────────────────────────────
 function SmartSuggestions({ suggestions }) {
   const [open, setOpen] = useState(false);
