@@ -40,7 +40,7 @@ const regularExperiences = [
     idealFor: 'Relaxation & celebrations',
     description: 'Scenic coastal cruise with optional restaurant visits via panga delivery from select locations.',
     icon: Sun,
-    availableBoats: 'FILU, TYCOON, Pirula',
+    availableBoats: 'FILU, TYCOON, La Güera',
   },
   {
     id: 'sunset_tour',
