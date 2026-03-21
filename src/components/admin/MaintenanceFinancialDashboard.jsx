@@ -877,7 +877,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Expenses"
                 value={fmtK(totals.expAmt)}
                 sub="ex-fees"
-                color="rgba(239,68,68,0.12)" border="rgba(239,68,68,0.3)" textColor="#fca5a5" icon="📉"
+                color="rgba(239,68,68,0.12)" border="rgba(239,68,68,0.3)" textColor="#fca5a5" icon={<TrendingDown className="h-4 w-4" />}
                 info={`fuel + crew + maintenance + cleaning + supplies + other. Fees (${fmtK(totals.feesAmt)}) shown separately.`}
               />
               <KpiCard
