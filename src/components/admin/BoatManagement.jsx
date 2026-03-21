@@ -849,7 +849,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         <Input type="date" disabled={locks['maintenance']} value={formData.antifouling_last_applied_date || ''} onChange={(e) => setFormData({ ...formData, antifouling_last_applied_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date life jackets, flares, fire extinguishers, and other safety gear were last inspected." example="2025-01-01">Safety Equipment Last Inspected</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, safety_equipment_inspection_date: d })} /></div>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date life jackets, flares, fire extinguishers, and other safety gear were last inspected." example="2025-01-01">Safety Equipment Last Inspected</InfoLabel><TimestampButton disabled={locks['maintenance']} meta={formData.field_meta?.safety_equipment_inspection_date} onStamp={(d, m) => setFormData(prev => ({ ...prev, safety_equipment_inspection_date: d, field_meta: { ...prev.field_meta, safety_equipment_inspection_date: m } }))} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.safety_equipment_inspection_date || ''} onChange={(e) => setFormData({ ...formData, safety_equipment_inspection_date: e.target.value })} className="text-sm mt-1" />
                         <p className="text-xs text-orange-700 mt-1">Life jackets, flares, fire extinguishers</p>
                       </div>
