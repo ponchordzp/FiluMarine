@@ -334,28 +334,26 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
           <div className="space-y-3">
             <p className="text-xs font-semibold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5"><DollarSign className="h-3.5 w-3.5" />Financial Breakdown</p>
 
+            {/* P&L Waterfall */}
             <div className="space-y-1 text-xs">
-              {/* Revenue */}
-              {[
-                { label: 'Total Revenue', value: fmt(totalRevenue), color: 'text-emerald-400', info: 'Sum of total_price on all bookings with status = completed for this boat.', indent: false },
-              ].map(({ label, value, color, info, indent }) => (
-                <div key={label} className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(255,255,255,0.05)' }}>
-                  <div className="flex items-center gap-1">
-                    <span className="text-white/50 font-medium">{label}</span>
-                    {info && <InfoTip text={info} />}
-                  </div>
-                  <span className={`font-bold ${color}`}>{value}</span>
-                </div>
-              ))}
 
-              {/* Trip Expenses breakdown */}
+              {/* Revenue */}
+              <div className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)' }}>
+                <div className="flex items-center gap-1">
+                  <span className="text-emerald-300 font-semibold">Revenue</span>
+                  <InfoTip text="Sum of total_price on all completed bookings for this boat." />
+                </div>
+                <span className="font-bold text-emerald-400">{fmt(totalRevenue)}</span>
+              </div>
+
+              {/* Trip Expenses (ex-fees) */}
               <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(239,68,68,0.15)' }}>
                 <div className="flex justify-between items-center px-2 py-1.5" style={{ background: 'rgba(239,68,68,0.1)' }}>
                   <div className="flex items-center gap-1">
-                    <span className="text-red-300 font-medium">Trip Expenses (total)</span>
-                    <InfoTip text="All variable per-trip costs: fuel, crew, maintenance, cleaning, supplies, fees, and other." />
+                    <span className="text-red-300 font-medium">Trip Expenses (ex-fees)</span>
+                    <InfoTip text="Direct operating costs: fuel, crew, maintenance, cleaning, supplies, other. Fees are treated separately below." />
                   </div>
-                  <span className="font-bold text-red-400">−{fmt(totalExpenseAmt)}</span>
+                  <span className="font-bold text-red-400">−{fmt(tripExpenses)}</span>
                 </div>
                 {[
                   { label: '↳ Fuel', value: totalFuelCost },
@@ -363,57 +361,69 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
                   { label: '↳ Maintenance', value: totalMaintenanceCost },
                   { label: '↳ Cleaning', value: totalCleaningCost },
                   { label: '↳ Supplies', value: totalSuppliesCost },
-                  { label: '↳ Fees', value: totalFeesAmt, highlight: true },
                   { label: '↳ Other', value: totalOtherCost },
-                ].filter(r => r.value > 0).map(({ label, value, highlight }) => (
+                ].filter(r => r.value > 0).map(({ label, value }) => (
                   <div key={label} className="flex justify-between items-center px-3 py-1" style={{ background: 'rgba(239,68,68,0.04)', borderTop: '1px solid rgba(239,68,68,0.08)' }}>
-                    <span className={highlight ? 'text-pink-400 font-medium' : 'text-white/30'}>{label}</span>
-                    <span className={highlight ? 'text-pink-400 font-medium' : 'text-white/40'}>{fmt(value)}</span>
+                    <span className="text-white/30">{label}</span>
+                    <span className="text-white/40">{fmt(value)}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Gross Profit separator */}
-              <div className="flex justify-between items-center rounded px-2 py-2 mt-1" style={{ background: grossProfit >= 0 ? 'rgba(59,130,246,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${grossProfit >= 0 ? 'rgba(59,130,246,0.25)' : 'rgba(239,68,68,0.25)'}` }}>
+              {/* GROSS PROFIT = Revenue − Trip Expenses (ex-fees) */}
+              <div className="flex justify-between items-center rounded px-2 py-2" style={{ background: grossProfit >= 0 ? 'rgba(59,130,246,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${grossProfit >= 0 ? 'rgba(59,130,246,0.25)' : 'rgba(239,68,68,0.25)'}` }}>
                 <div className="flex items-center gap-1">
                   <span className="font-bold text-white/80">Gross Profit</span>
-                  <InfoTip text="Revenue − Trip Expenses. Variable costs deducted, fixed overhead NOT yet deducted." />
+                  <InfoTip text="Revenue − Trip Expenses (ex-fees). Fees and recurring fixed costs not yet deducted." />
                 </div>
                 <div className="text-right">
-                  <span className={`font-bold text-base ${grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fmt(grossProfit)}</span>
-                  <span className="ml-2 text-xs text-white/40">Margin: {grossMargin === '—' ? '—' : `${grossMargin}%`} · ROI: {roi === '—' ? '—' : `${roi}%`}</span>
+                  <span className={`font-bold text-sm ${grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fmt(grossProfit)}</span>
+                  <span className="ml-2 text-[10px] text-white/40">Margin: {grossMargin === '—' ? '—' : `${grossMargin}%`}</span>
                 </div>
               </div>
+
+              {/* Fees deduction */}
+              {totalFeesAmt > 0 && (
+                <div className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.15)' }}>
+                  <div className="flex items-center gap-1">
+                    <span className="text-pink-400/90">Fees</span>
+                    <InfoTip text="Platform or operator fees logged per trip. Deducted after Gross Profit." />
+                  </div>
+                  <span className="text-pink-400 font-semibold">−{fmt(totalFeesAmt)}</span>
+                </div>
+              )}
 
               {/* Recurring costs deduction */}
               <div className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(245,158,11,0.08)' }}>
                 <div className="flex items-center gap-1">
                   <span className="text-amber-400/80">Annual Recurring Costs</span>
-                  <InfoTip text="Fixed annual overhead: sum of each recurring cost × 12 / frequency_months. Covers docking, insurance, crew, permits, etc." />
+                  <InfoTip text="Fixed annual overhead: docking, insurance, crew, permits, etc. (annualized from recurring cost entries)." />
                 </div>
                 <span className="text-amber-400 font-semibold">−{fmt(Math.round(annualRecurring))} / yr</span>
               </div>
 
-              {/* Net Profit */}
+              {/* NET PROFIT = Gross Profit − Fees − Recurring */}
               <div className="flex justify-between items-center rounded px-2 py-2" style={{ background: netProfit >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${netProfit >= 0 ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}` }}>
                 <div className="flex items-center gap-1">
                   <span className="font-bold text-white/80">Net Profit</span>
-                  <InfoTip text="Gross Profit − Annual Recurring Costs. True bottom-line profit after variable trip costs AND fixed overhead are deducted." />
+                  <InfoTip text="Gross Profit − Fees − Annual Recurring Costs. True bottom line after all costs." />
                 </div>
                 <div className="text-right">
-                  <span className={`font-bold text-base ${netProfit >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{fmt(netProfit)}</span>
-                  <span className="ml-2 text-xs text-white/40">Net Margin: {netMargin === '—' ? '—' : `${netMargin}%`}</span>
+                  <span className={`font-bold text-sm ${netProfit >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{fmt(netProfit)}</span>
+                  <span className="ml-2 text-[10px] text-white/40">Margin: {netMargin === '—' ? '—' : `${netMargin}%`} · ROI: {roi === '—' ? '—' : `${roi}%`}</span>
                 </div>
               </div>
 
               {/* Supplies */}
-              <div className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                <div className="flex items-center gap-1">
-                  <span className="text-white/40">Supplies Inventory Value</span>
-                  <InfoTip text="Total value of supplies in inventory: quantity × price_per_unit." />
+              {suppliesCost > 0 && (
+                <div className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(255,255,255,0.04)' }}>
+                  <div className="flex items-center gap-1">
+                    <span className="text-white/40">Supplies Inventory Value</span>
+                    <InfoTip text="Total value of supplies in inventory: quantity × price_per_unit." />
+                  </div>
+                  <span className="text-cyan-400 font-semibold">{fmt(suppliesCost)}</span>
                 </div>
-                <span className="text-cyan-400 font-semibold">{fmt(suppliesCost)}</span>
-              </div>
+              )}
             </div>
 
             {recurringCosts.length > 0 && (
