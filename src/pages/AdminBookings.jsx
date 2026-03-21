@@ -745,7 +745,7 @@ function AdminBookingsInner() {
                   ].map(s => (
                     <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
                       <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
-                        <span className="text-sm shrink-0">{s.svg}</span>
+                        <s.Icon className={`h-3.5 w-3.5 shrink-0 ${s.text}`} />
                         <p className={`text-[10px] ${s.sub} font-medium whitespace-nowrap`}>{s.label}</p>
                       </div>
                       <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
