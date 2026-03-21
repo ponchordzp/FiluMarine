@@ -47,11 +47,27 @@ function InfoTip({ text }) {
       </button>
       {show && (
         <div
-          className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-lg px-3 py-2 text-xs text-white/80 leading-relaxed shadow-xl"
-          style={{ background: 'rgba(15,23,42,0.97)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)' }}
+          className="fixed z-[9999] rounded-lg px-3 py-2 text-xs text-white/80 leading-relaxed shadow-xl pointer-events-none"
+          style={{
+            background: 'rgba(15,23,42,0.98)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            backdropFilter: 'blur(12px)',
+            maxWidth: '220px',
+            width: 'max-content',
+            transform: 'translate(-50%, calc(-100% - 8px))',
+            left: 'var(--tip-x)',
+            top: 'var(--tip-y)',
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
+          }}
+          ref={el => {
+            if (el) {
+              const btn = el.previousSibling;
+              // no-op, positioning handled via onMouseEnter on parent
+            }
+          }}
         >
           {text}
-          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent" style={{ borderTopColor: 'rgba(255,255,255,0.15)' }} />
         </div>
       )}
     </div>
