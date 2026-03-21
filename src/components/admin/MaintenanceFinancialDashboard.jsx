@@ -712,9 +712,9 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
               <tbody className="divide-y divide-white/5">
                 {filteredBoats.map((boat) => {
                   const s = fleetStats[filteredBoats.indexOf(boat)];
-                  const gm = s.revenue > 0 ? Math.min(100, (s.grossProfit / s.revenue) * 100).toFixed(1) : '—';
+                  const gm = s.revenue > 0 ? ((s.grossProfit / s.revenue) * 100).toFixed(1) : '—';
                   const nm = s.revenue > 0 ? ((s.netProfit / s.revenue) * 100).toFixed(1) : '—';
-                  const roiPct = s.totalCosts > 0 ? Math.min(100, Math.max(0, (s.netProfit / s.totalCosts) * 100)).toFixed(1) : '—';
+                  const roiPct = nm; // ROI = Net Margin (matches global KPI)
                   return (
                     <tr key={boat.id} className="hover:bg-white/3 transition-colors">
                       <td className="py-3 pr-4">
