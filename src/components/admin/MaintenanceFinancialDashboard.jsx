@@ -140,9 +140,8 @@ function SectionRow({ label, children, defaultOpen = false }) {
 function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
   const [expanded, setExpanded] = useState(false);
 
-  // Engine hours
+  // Engine hours — use all non-cancelled bookings
   const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
-  const completedBookings = boatBookings.filter(b => b.status === 'completed');
   const bookingEngineHours = boatBookings.reduce((s, b) => s + (b.engine_hours_used || 0), 0);
   const personalTripHours = personalTrips.filter(t => t.boat_id === boat.id).reduce((s, t) => s + (t.engine_hours_used || 0), 0);
   const totalHours = (boat.current_hours || 0) + bookingEngineHours + personalTripHours;
@@ -160,40 +159,33 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
   const monthlyRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0);
   const annualRecurring = monthlyRecurring * 12;
 
-  // Revenue: all non-cancelled bookings (matches global KPI logic)
-  const activeBookings = boatBookings.filter(b => b.status !== 'cancelled');
-  const activeIds = activeBookings.map(b => b.id);
-  const boatExpenses = expenses.filter(e => activeIds.includes(e.booking_id));
+  // ── Revenue & Expenses ────────────────────────────────────────────────────
+  const boatIds = boatBookings.map(b => b.id);
+  const boatExpenses = expenses.filter(e => boatIds.includes(e.booking_id));
 
-  const totalRevenue = activeBookings.reduce((s, b) => s + (b.total_price || 0), 0);
+  // Revenue = sum of all non-cancelled booking prices
+  const totalRevenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
 
-  // Trip expenses (ex-fees) — matches global KPI
-  const totalFuelCost = boatExpenses.reduce((s, e) => s + (e.fuel_cost || 0), 0);
-  const totalCrewCost = boatExpenses.reduce((s, e) => s + (e.crew_cost || 0), 0);
+  // Expenses (ex-fees)
+  const totalFuelCost      = boatExpenses.reduce((s, e) => s + (e.fuel_cost || 0), 0);
+  const totalCrewCost      = boatExpenses.reduce((s, e) => s + (e.crew_cost || 0), 0);
   const totalMaintenanceCost = boatExpenses.reduce((s, e) => s + (e.maintenance_cost || 0), 0);
-  const totalCleaningCost = boatExpenses.reduce((s, e) => s + (e.cleaning_cost || 0), 0);
-  const totalSuppliesCost = boatExpenses.reduce((s, e) => s + (e.supplies_cost || 0), 0);
-  const totalOtherCost = boatExpenses.reduce((s, e) => s + (e.other_cost || 0), 0);
-  const tripExpenses = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
+  const totalCleaningCost  = boatExpenses.reduce((s, e) => s + (e.cleaning_cost || 0), 0);
+  const totalSuppliesCost  = boatExpenses.reduce((s, e) => s + (e.supplies_cost || 0), 0);
+  const totalOtherCost     = boatExpenses.reduce((s, e) => s + (e.other_cost || 0), 0);
+  const totalExpenses      = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
 
-  // fees_cost from expense records (logged platform/operator fees)
+  // Fees (logged platform/operator fees per booking)
   const totalFeesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
 
-  // ── P&L (mirrors global KPI exactly) ──────────────────────────────────────
-  // Net Profit = Revenue − Trip Expenses − Fees  (no annualRecurring here — matches global KPI)
-  const netProfit = totalRevenue - tripExpenses - totalFeesAmt;
-  // Net Margin % = Net Profit / Revenue
-  const netMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '—';
-
-  // Gross Profit = Revenue − Trip Expenses (ex-fees)
-  const grossProfit = totalRevenue - tripExpenses;
+  // ── P&L ──────────────────────────────────────────────────────────────────
+  // Gross Profit = Revenue − Expenses
+  const grossProfit = totalRevenue - totalExpenses;
   const grossMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : '—';
 
-  // ROI = Net Profit / Revenue (margin %) — matches global KPI "roi" which is profit/revenue
-  const roi = totalRevenue > 0 ? Math.min(100, Math.max(0, (netProfit / totalRevenue) * 100)).toFixed(1) : '—';
-
-  // Annual recurring shown separately as context (not deducted from net profit KPI)
-  const totalCosts = tripExpenses + totalFeesAmt;
+  // Net Profit = Revenue − Expenses − Fees
+  const netProfit = grossProfit - totalFeesAmt;
+  const netMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '—';
 
   // Supplies inventory cost
   const suppliesCost = (boat.supplies_inventory || []).reduce((s, item) =>
