@@ -694,6 +694,7 @@ function ChecklistItem({ id, label, interval, info, checked, na, note, lastDate,
                 className="flex-1 text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400 placeholder:text-slate-300"
               />
             </div>
+
           )}
         </div>
         <button
