@@ -532,17 +532,25 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
     const completedIds = boatBookings.map(b => b.id);
     const boatExpenses = expenses.filter(e => completedIds.includes(e.booking_id));
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
+    const feesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
     const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.fees_cost||0)+(e.other_cost||0), 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
-    return { revenue, expAmt, maintenanceSpent, profit: revenue - expAmt };
+    const recurringCosts = boat.recurring_costs || [];
+    const annualRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0) * 12;
+    const grossProfit = revenue - expAmt;
+    const netProfit = grossProfit - annualRecurring;
+    return { revenue, feesAmt, expAmt, maintenanceSpent, grossProfit, netProfit, annualRecurring };
   });
 
   const totals = fleetStats.reduce((acc, s) => ({
     revenue: acc.revenue + s.revenue,
+    feesAmt: acc.feesAmt + s.feesAmt,
     expAmt: acc.expAmt + s.expAmt,
     maintenanceSpent: acc.maintenanceSpent + s.maintenanceSpent,
-    profit: acc.profit + s.profit,
-  }), { revenue: 0, expAmt: 0, maintenanceSpent: 0, profit: 0 });
+    grossProfit: acc.grossProfit + s.grossProfit,
+    netProfit: acc.netProfit + s.netProfit,
+    annualRecurring: acc.annualRecurring + s.annualRecurring,
+  }), { revenue: 0, feesAmt: 0, expAmt: 0, maintenanceSpent: 0, grossProfit: 0, netProfit: 0, annualRecurring: 0 });
 
   // Boats needing attention
   const today = new Date();
