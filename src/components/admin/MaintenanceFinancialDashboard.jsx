@@ -261,13 +261,13 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
           label="Net Profit"
           value={fmtK(netProfit)}
           color={netProfit >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.15)'}
-          info={`Gross Profit − Fees (${fmtK(totalFeesAmt)}) − Annual Recurring (${fmtK(Math.round(annualRecurring))}). True bottom line after all costs.`}
+          info={`Revenue − Trip Expenses − Fees. Same formula as global KPI. Net Margin: ${netMargin}%.`}
         />
         <KpiCell
-          label={`G.Margin ${grossMargin === '—' ? '' : grossMargin + '%'} / ROI ${roi === '—' ? '—' : roi + '%'}`}
-          value={netMargin === '—' ? '—' : `Net ${netMargin}%`}
+          label={`Margin ${netMargin === '—' ? '—' : netMargin + '%'}`}
+          value={grossMargin === '—' ? '—' : `Gross ${grossMargin}%`}
           color="rgba(168,85,247,0.1)"
-          info={`Gross Margin = Gross Profit ÷ Revenue. Net Margin = Net Profit ÷ Revenue. ROI = Net Profit ÷ Total Costs (trip + fees + recurring), always 0–100%.`}
+          info={`Net Margin = Net Profit ÷ Revenue (${netMargin}%). Gross Margin = Gross Profit ÷ Revenue (${grossMargin}%).`}
         />
         <KpiCell
           label="Engine Hours"
