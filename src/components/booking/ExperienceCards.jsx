@@ -52,7 +52,7 @@ const regularExperiences = [
     idealFor: 'Romantic & celebrations',
     description: 'Evening cruise with stunning Pacific sunset views. Restaurant visits available via panga delivery.',
     icon: Sun,
-    availableBoats: 'FILU, TYCOON, Pirula',
+    availableBoats: 'FILU, TYCOON',
   },
 ];
 
