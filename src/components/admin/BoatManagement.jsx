@@ -827,7 +827,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         <Input type="date" disabled={locks['maintenance']} value={formData.fuel_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, fuel_filter_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date the oil filter was last replaced. Usually every 100 engine hours or 1 year." example="2024-11-10">Oil Filter Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, oil_filter_last_replaced_date: d })} /></div>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date the oil filter was last replaced. Usually every 100 engine hours or 1 year." example="2024-11-10">Oil Filter Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} meta={formData.field_meta?.oil_filter_last_replaced_date} onStamp={(d, m) => setFormData(prev => ({ ...prev, oil_filter_last_replaced_date: d, field_meta: { ...prev.field_meta, oil_filter_last_replaced_date: m } }))} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.oil_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, oil_filter_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       {formData.engine_config === 'outboard' &&
