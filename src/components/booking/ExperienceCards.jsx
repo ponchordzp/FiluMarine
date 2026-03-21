@@ -28,7 +28,7 @@ const regularExperiences = [
     idealFor: 'Couples & families',
     description: 'Explore Playa Las Gatas and hidden coves with vibrant marine life.',
     icon: Waves,
-    availableBoats: 'FILU, TYCOON, La Güera, Pirula',
+    availableBoats: 'FILU, La Güera, Pirula',
   },
   {
     id: 'coastal_leisure',
