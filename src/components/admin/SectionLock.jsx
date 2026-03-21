@@ -42,27 +42,60 @@ export function InfoLabel({ children, info, example, className = '' }) {
   );
 }
 
-// Timestamp button — sets a date field to today on click
-export function TimestampButton({ onStamp, disabled = false, className = '' }) {
+// Timestamp button — hover to see audit info (who filled & when), click to stamp today's date
+export function TimestampButton({ onStamp, meta = null, disabled = false, className = '' }) {
   const [flashed, setFlashed] = React.useState(false);
-  const handleClick = () => {
-    onStamp(new Date().toISOString().split('T')[0]);
+  const [show, setShow] = React.useState(false);
+
+  const handleClick = async () => {
+    if (disabled) return;
+    const today = new Date().toISOString().split('T')[0];
+    let userName = 'Unknown';
+    try {
+      const user = await base44.auth.me();
+      userName = user?.full_name || user?.email || 'Unknown';
+    } catch {}
+    const newMeta = { by: userName, at: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) };
+    onStamp(today, newMeta);
     setFlashed(true);
     setTimeout(() => setFlashed(false), 800);
   };
+
+  const hasMeta = meta && (meta.by || meta.at);
+
   return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={handleClick}
-      title="Set to today's date"
-      className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ml-1 ${
-        disabled ? 'opacity-30 cursor-not-allowed bg-slate-100 text-slate-400' :
-        flashed ? 'bg-green-500 text-white' : 'bg-amber-100 text-amber-600 hover:bg-amber-200'
-      } ${className}`}
-    >
-      <Clock className="h-2.5 w-2.5" />
-    </button>
+    <span className="relative inline-flex items-center ml-1">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={handleClick}
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onFocus={() => setShow(true)}
+        onBlur={() => setShow(false)}
+        title={hasMeta ? `Last set by ${meta.by} on ${meta.at}` : 'Set to today\'s date'}
+        className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
+          disabled ? 'opacity-30 cursor-not-allowed bg-slate-100 text-slate-400' :
+          flashed ? 'bg-green-500 text-white' :
+          hasMeta ? 'bg-green-100 text-green-600 hover:bg-green-200' :
+          'bg-amber-100 text-amber-600 hover:bg-amber-200'
+        } ${className}`}
+      >
+        <Clock className="h-2.5 w-2.5" />
+      </button>
+      {show && hasMeta && (
+        <div className="absolute z-50 left-5 top-0 w-52 bg-slate-800 text-white text-xs rounded-lg p-2.5 shadow-xl pointer-events-none">
+          <p className="font-semibold text-slate-300 mb-1">Last updated by</p>
+          <p className="text-white">{meta.by}</p>
+          <p className="text-slate-400 mt-1">{meta.at}</p>
+        </div>
+      )}
+      {show && !hasMeta && !disabled && (
+        <div className="absolute z-50 left-5 top-0 w-44 bg-slate-800 text-white text-xs rounded-lg p-2.5 shadow-xl pointer-events-none">
+          <p className="text-slate-300">Click to set today's date and record who filled this field.</p>
+        </div>
+      )}
+    </span>
   );
 }
 
