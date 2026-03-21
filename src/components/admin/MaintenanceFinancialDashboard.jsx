@@ -541,31 +541,36 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
 
   if (loadingBoats) return <div className="text-white/40 text-center py-20">Loading financial data...</div>;
 
-  // Fleet-wide totals
+  // Fleet-wide totals — same P&L model as per-boat cards
   const fleetStats = filteredBoats.map(boat => {
     const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status === 'completed');
     const completedIds = boatBookings.map(b => b.id);
     const boatExpenses = expenses.filter(e => completedIds.includes(e.booking_id));
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
     const feesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
-    const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.fees_cost||0)+(e.other_cost||0), 0);
+    // Trip expenses ex-fees
+    const tripExp = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.other_cost||0), 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     const recurringCosts = boat.recurring_costs || [];
     const annualRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0) * 12;
-    const grossProfit = revenue - expAmt;
-    const netProfit = grossProfit - annualRecurring;
-    return { revenue, feesAmt, expAmt, maintenanceSpent, grossProfit, netProfit, annualRecurring };
+    // Gross = Revenue − Trip (ex-fees)
+    const grossProfit = revenue - tripExp;
+    // Net = Gross − Fees − Recurring
+    const netProfit = grossProfit - feesAmt - annualRecurring;
+    const totalCosts = tripExp + feesAmt + annualRecurring;
+    return { revenue, feesAmt, tripExp, maintenanceSpent, grossProfit, netProfit, annualRecurring, totalCosts };
   });
 
   const totals = fleetStats.reduce((acc, s) => ({
     revenue: acc.revenue + s.revenue,
     feesAmt: acc.feesAmt + s.feesAmt,
-    expAmt: acc.expAmt + s.expAmt,
+    tripExp: acc.tripExp + s.tripExp,
     maintenanceSpent: acc.maintenanceSpent + s.maintenanceSpent,
     grossProfit: acc.grossProfit + s.grossProfit,
     netProfit: acc.netProfit + s.netProfit,
     annualRecurring: acc.annualRecurring + s.annualRecurring,
-  }), { revenue: 0, feesAmt: 0, expAmt: 0, maintenanceSpent: 0, grossProfit: 0, netProfit: 0, annualRecurring: 0 });
+    totalCosts: acc.totalCosts + s.totalCosts,
+  }), { revenue: 0, feesAmt: 0, tripExp: 0, maintenanceSpent: 0, grossProfit: 0, netProfit: 0, annualRecurring: 0, totalCosts: 0 });
 
   // Boats needing attention
   const today = new Date();
