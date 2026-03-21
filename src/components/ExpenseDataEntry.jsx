@@ -66,6 +66,7 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
         maintenance_cost: existingExpense.maintenance_cost || 0,
         cleaning_cost: existingExpense.cleaning_cost || 0,
         supplies_cost: existingExpense.supplies_cost || 0,
+        fees_cost: existingExpense.fees_cost || 0,
         other_cost: existingExpense.other_cost || 0,
         notes: existingExpense.notes || ''
       });
