@@ -739,9 +739,9 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
               </tbody>
               <tfoot>
                 {(() => {
-                  const fgm = totals.revenue > 0 ? Math.min(100, (totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—';
+                  const fgm = totals.revenue > 0 ? ((totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—';
                   const fnm = totals.revenue > 0 ? ((totals.netProfit / totals.revenue) * 100).toFixed(1) : '—';
-                  const froi = totals.totalCosts > 0 ? Math.min(100, Math.max(0, (totals.netProfit / totals.totalCosts) * 100)).toFixed(1) : '—';
+                  const froi = fnm; // ROI = Net Margin (matches global KPI)
                   return (
                     <tr style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}>
                       <td className="pt-3 pr-4 text-white/50 font-bold text-xs uppercase">Fleet Total</td>
