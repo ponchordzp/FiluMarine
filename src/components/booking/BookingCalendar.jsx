@@ -414,10 +414,13 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                   className="bg-gradient-to-br from-amber-500/20 to-orange-500/20 backdrop-blur-xl rounded-2xl p-4 border border-amber-400/30"
                 >
                   <p className="text-sm text-amber-200 flex items-start gap-1.5">
-                    <Clock className="h-4 w-4 shrink-0 mt-0.5 text-amber-300" /><span><span className="font-semibold">Extra hours:</span> Additional time beyond scheduled duration is{' '}
-                    <span className="font-semibold">
-                      ${((activeBoats.find(b => b.id === selectedBoat)?.price_per_additional_hour) || 2500).toLocaleString()} MXN per hour
-                    </span></span>
+                    <Clock className="h-4 w-4 shrink-0 mt-0.5 text-amber-300" />
+                    <span>
+                      <span className="font-semibold">Extra hours:</span> Additional time beyond scheduled duration is{' '}
+                      <span className="font-semibold">
+                        ${((activeBoats.find(b => b.id === selectedBoat)?.price_per_additional_hour) || 2500).toLocaleString()} MXN per hour
+                      </span>
+                    </span>
                   </p>
                 </motion.div>
               )}
