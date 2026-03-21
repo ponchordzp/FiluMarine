@@ -837,7 +837,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         </div>
                       }
                       <div>
-                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date batteries were last tested or replaced. Annual inspection recommended." example="2024-08-05">Battery Last Inspected</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, battery_inspection_date: d })} /></div>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date batteries were last tested or replaced. Annual inspection recommended." example="2024-08-05">Battery Last Inspected</InfoLabel><TimestampButton disabled={locks['maintenance']} meta={formData.field_meta?.battery_inspection_date} onStamp={(d, m) => setFormData(prev => ({ ...prev, battery_inspection_date: d, field_meta: { ...prev.field_meta, battery_inspection_date: m } }))} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.battery_inspection_date || ''} onChange={(e) => setFormData({ ...formData, battery_inspection_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
