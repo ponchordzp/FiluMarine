@@ -557,7 +557,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
 
   if (loadingBoats) return <div className="text-white/40 text-center py-20">Loading financial data...</div>;
 
-  // Fleet-wide totals
+  // Fleet-wide totals — fees computed as commission % of revenue, matching global KPIs exactly
   const fleetStats = filteredBoats.map(boat => {
     const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
     const boatIds = boatBookings.map(b => b.id);
@@ -565,8 +565,8 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
     // Expenses (ex-fees)
     const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.other_cost||0), 0);
-    // Fees
-    const feesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
+    // Fees = commission % of each booking's revenue (same as global KPI)
+    const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats) / 100, 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     const recurringCosts = boat.recurring_costs || [];
     const annualRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0) * 12;
