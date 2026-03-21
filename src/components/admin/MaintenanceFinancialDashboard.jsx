@@ -244,27 +244,27 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
         />
         <KpiCell
           label="Trip Expenses"
-          value={fmtK(totalExpenseAmt)}
+          value={fmtK(tripExpenses)}
           color="rgba(239,68,68,0.1)"
-          info={`Variable costs per trip: fuel, crew, maintenance, cleaning, supplies, fees, and other. Includes ${fmtK(totalFeesAmt)} in fees.`}
+          info="Direct operating costs per trip: fuel, crew, maintenance, cleaning, supplies, other. Fees are shown separately."
         />
         <KpiCell
           label="Gross Profit"
           value={fmtK(grossProfit)}
           color={grossProfit >= 0 ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.15)'}
-          info="Revenue − Trip Expenses (all variable costs). Does NOT deduct recurring fixed costs (docking, insurance, etc.)."
+          info={`Revenue − Trip Expenses (ex-fees). Gross Margin: ${grossMargin}%. Fees and recurring costs not yet deducted.`}
         />
         <KpiCell
           label="Net Profit"
           value={fmtK(netProfit)}
           color={netProfit >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.15)'}
-          info={`Gross Profit − Annual Recurring Costs (${fmtK(Math.round(annualRecurring))}/yr). This is the true bottom-line profit after all known fixed overhead.`}
+          info={`Gross Profit − Fees (${fmtK(totalFeesAmt)}) − Annual Recurring (${fmtK(Math.round(annualRecurring))}). True bottom line after all costs.`}
         />
         <KpiCell
-          label="Gross Margin / ROI"
-          value={grossMargin === '—' ? '—' : `${grossMargin}% / ${roi}%`}
+          label={`G.Margin ${grossMargin === '—' ? '' : grossMargin + '%'} / ROI ${roi === '—' ? '—' : roi + '%'}`}
+          value={netMargin === '—' ? '—' : `Net ${netMargin}%`}
           color="rgba(168,85,247,0.1)"
-          info={`Gross Margin = Gross Profit ÷ Revenue (${grossMargin}%) — what % of each peso earned is kept after trip costs. ROI = Gross Profit ÷ Trip Expenses (${roi}%) — return on money spent per trip.`}
+          info={`Gross Margin = Gross Profit ÷ Revenue. Net Margin = Net Profit ÷ Revenue. ROI = Net Profit ÷ Total Costs (trip + fees + recurring), always 0–100%.`}
         />
         <KpiCell
           label="Engine Hours"
