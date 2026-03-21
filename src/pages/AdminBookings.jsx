@@ -1279,7 +1279,7 @@ function AdminBookingsInner() {
           {isSuperAdmin && (
             <TabsContent value="join-applications">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', backdropFilter: 'blur(16px)' }}>
-                <JoinFiluApplications />
+                <JoinFiluApplications onNavigate={(tab) => setActiveTab(tab)} />
               </div>
             </TabsContent>
           )}
