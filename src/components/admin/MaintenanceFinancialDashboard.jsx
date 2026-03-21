@@ -925,7 +925,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Fuel Share"
                 value={fuelRatio === '—' ? '—' : `${fuelRatio}%`}
                 sub={`of expenses · ${fmtK(totalFuelFleet)}`}
-                color="rgba(234,179,8,0.12)" border="rgba(234,179,8,0.3)" textColor="#fde047" icon="⛽"
+                color="rgba(234,179,8,0.12)" border="rgba(234,179,8,0.3)" textColor="#fde047" icon={<Fuel className="h-4 w-4" />}
                 info={`Fuel cost as % of total expenses. Above 40% may signal inefficiency. Fleet fuel total: ${fmtK(totalFuelFleet)}.`}
               />
               <KpiCard
