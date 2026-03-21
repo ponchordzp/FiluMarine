@@ -162,8 +162,8 @@ function NextServiceBudgetPanel({ breakdown, total, overdueCount, boats, booking
             {fmt(total)}
           </span>
           {overdueCount > 0 && (
-            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-red-500/20 text-red-400 border border-red-500/30">
-              ⚠ {overdueCount} overdue
+            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1">
+              <AlertTriangle className="h-3 w-3" />{overdueCount} overdue
             </span>
           )}
         </div>
