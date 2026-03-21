@@ -939,7 +939,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Recurring / yr"
                 value={fmtK(Math.round(totals.annualRecurring))}
                 sub="fixed overhead"
-                color="rgba(168,85,247,0.12)" border="rgba(168,85,247,0.3)" textColor="#d8b4fe" icon="🔁"
+                color="rgba(168,85,247,0.12)" border="rgba(168,85,247,0.3)" textColor="#d8b4fe" icon={<RefreshCw className="h-4 w-4" />}
                 info="Annual fixed overhead across all boats: docking, insurance, permits, etc. Not deducted from Net Profit — shown for context."
               />
             </div>
