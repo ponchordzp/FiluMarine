@@ -68,7 +68,7 @@ const fullDayExperiences = [
     description: 'Offshore adventure for Sailfish, Marlin, Tuna. Reach the best fishing grounds.',
     targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado'],
     icon: Fish,
-    availableBoats: 'FILU, WAHOO, La Güera',
+    availableBoats: 'FILU, WAHOO, Pirula',
   },
 ];
 
