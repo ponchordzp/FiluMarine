@@ -34,6 +34,7 @@ const families = [
     adminOnly: true,
     tabs: [
       { value: 'boats', label: '⚓ Boat Inventory' },
+      { value: 'maintenance-finance', label: '💰 Maint. Finance' },
       { value: 'mechanic', label: '🔧 Mechanic Portal' },
       { value: 'checklist-template', label: '✅ Checklist Template', superAdminOnly: true },
       { value: 'engine-databases', label: '📚 Engine Databases' },
