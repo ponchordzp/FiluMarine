@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lock, LockOpen, Info } from 'lucide-react';
+import { Lock, LockOpen, Info, Clock } from 'lucide-react';
 
 // Tooltip for field info
 export function FieldInfo({ text, example }) {
