@@ -113,7 +113,7 @@ export default function LocationSelector({ onSelectLocation }) {
                     From professional sport fishing expeditions to serene coastal cruises, we're dedicated to creating memories that last a lifetime. With our expanding fleet and expert crew, we bring the best of Mexico's Pacific coast to life, one voyage at a time.
                   </p>
                   <p className="text-cyan-400 font-medium text-center pt-2">
-                    Your adventure begins here. Choose your destination and let's set sail. ⚓
+                    Your adventure begins here. Choose your destination and let's set sail.
                   </p>
                 </div>
               </div>
