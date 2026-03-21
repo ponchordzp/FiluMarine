@@ -58,7 +58,7 @@ function InfoTip({ text }) {
       >
         <Info className="h-3 w-3" />
       </button>
-      {show && typeof window !== 'undefined' && React.createPortal(
+      {show && typeof window !== 'undefined' && createPortal(
         <div
           className="pointer-events-none"
           style={{
