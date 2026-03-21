@@ -155,7 +155,7 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
   const totalMajorCost = (boat.major_maintenance_cost || 0) * engineQty;
   const nextServiceCost = boat.next_service_type === 'major' ? totalMajorCost : totalMinorCost;
 
-  // Recurring costs (must come before net profit calc)
+  // Recurring costs
   const recurringCosts = boat.recurring_costs || [];
   const monthlyRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0);
   const annualRecurring = monthlyRecurring * 12;
@@ -170,22 +170,27 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
   const totalSuppliesCost = boatExpenses.reduce((s, e) => s + (e.supplies_cost || 0), 0);
   const totalFeesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
   const totalOtherCost = boatExpenses.reduce((s, e) => s + (e.other_cost || 0), 0);
-  // Trip expenses = variable per-trip costs (fees included)
-  const tripExpensesNoFees = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
-  const totalExpenseAmt = tripExpensesNoFees + totalFeesAmt;
   const totalRevenue = completedBookings.reduce((s, b) => s + (b.total_price || 0), 0);
 
-  // GROSS PROFIT = Revenue − Trip Expenses (variable costs only, before fixed/recurring)
-  const grossProfit = totalRevenue - totalExpenseAmt;
-  // Gross Margin % = Gross Profit / Revenue
-  const grossMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : '—';
-  // ROI = Gross Profit / Total Trip Expenses (return on money spent per trip)
-  const roi = totalExpenseAmt > 0 ? ((grossProfit / totalExpenseAmt) * 100).toFixed(1) : '—';
+  // Trip expenses WITHOUT fees (direct operating costs)
+  const tripExpenses = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
+  // Total variable costs (trip + fees)
+  const totalExpenseAmt = tripExpenses + totalFeesAmt;
 
-  // NET PROFIT = Gross Profit − Annual Recurring Costs (fixed overhead)
-  const netProfit = grossProfit - annualRecurring;
-  // Net Margin % = Net Profit / Revenue
+  // ── P&L waterfall ──────────────────────────────────────────────────────────
+  // GROSS PROFIT = Revenue − Trip Expenses (ex-fees): operating margin before fees & fixed costs
+  const grossProfit = totalRevenue - tripExpenses;
+  // Gross Margin % = Gross Profit / Revenue  (always 0–100% when profitable)
+  const grossMargin = totalRevenue > 0 ? Math.min(100, Math.max(0, (grossProfit / totalRevenue) * 100)).toFixed(1) : '—';
+
+  // NET PROFIT = Gross Profit − Fees − Annual Recurring (all costs deducted)
+  const netProfit = grossProfit - totalFeesAmt - annualRecurring;
+  // Net Margin % = Net Profit / Revenue  (0–100%)
   const netMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '—';
+
+  // ROI = Net Profit / Total Costs × 100  (return on every peso spent, 0–100% when profitable)
+  const totalCosts = tripExpenses + totalFeesAmt + annualRecurring;
+  const roi = totalCosts > 0 ? Math.min(100, Math.max(0, (netProfit / totalCosts) * 100)).toFixed(1) : '—';
 
   // Supplies inventory cost
   const suppliesCost = (boat.supplies_inventory || []).reduce((s, item) =>
