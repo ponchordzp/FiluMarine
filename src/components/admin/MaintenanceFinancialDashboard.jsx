@@ -795,7 +795,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 color={overdueCount > 0 ? "rgba(239,68,68,0.12)" : "rgba(249,115,22,0.12)"}
                 border={overdueCount > 0 ? "rgba(239,68,68,0.3)" : "rgba(249,115,22,0.3)"}
                 textColor={overdueCount > 0 ? "#fca5a5" : "#fdba74"} icon="⚙️"
-                info="Sum of next scheduled service cost estimates across all boats (minor or major × engine count). Plan cash flow accordingly."
+                info={`Sum of next scheduled service cost estimates across all boats (minor or major × engine count).\n\n${nextServiceInfo}`}
               />
             </div>
 
