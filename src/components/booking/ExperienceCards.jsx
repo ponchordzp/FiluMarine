@@ -16,7 +16,7 @@ const regularExperiences = [
     description: 'Morning trip targeting Mahi-Mahi, Roosterfish, and Jack Crevalle.',
     targetSpecies: ['Dorado', 'Roosterfish', 'Snapper'],
     icon: Fish,
-    availableBoats: 'FILU, WAHOO, La Güera',
+    availableBoats: 'FILU, WAHOO, La Güera, Pirula',
   },
   {
     id: 'snorkeling',
