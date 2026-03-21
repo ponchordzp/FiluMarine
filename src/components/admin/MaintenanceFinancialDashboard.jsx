@@ -244,12 +244,13 @@ function NextServiceBudgetPanel({ breakdown, total, overdueCount, boats, booking
                   {/* Mechanic contact if available */}
                   {(item.mechanic || item.mechanicPhone) && (
                     <div className="px-4 py-2 flex items-center gap-3 text-xs text-white/40" style={{ borderTop: `1px solid ${urgBorder}` }}>
-                      <span>🔧 Mechanic on file:</span>
+                      <Wrench className="h-3.5 w-3.5 shrink-0" />
+                      <span>Mechanic on file:</span>
                       {item.mechanic && <span className="text-white/60 font-medium">{item.mechanic}</span>}
                       {item.mechanicPhone && (
                         <a href={`https://wa.me/${item.mechanicPhone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer"
-                          className="text-emerald-400 hover:text-emerald-300 transition-colors">
-                          📱 {item.mechanicPhone}
+                          className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1">
+                          <Phone className="h-3 w-3" />{item.mechanicPhone}
                         </a>
                       )}
                     </div>
