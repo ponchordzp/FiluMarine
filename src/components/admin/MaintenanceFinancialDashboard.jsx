@@ -669,13 +669,20 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
         }, 0);
         const fuelRatio = totals.expAmt > 0 ? ((totalFuelFleet / totals.expAmt) * 100).toFixed(1) : '—';
 
-        const totalNextServiceBudget = filteredBoats.reduce((s, boat) => {
+        const nextServiceBreakdown = filteredBoats.map(boat => {
           const qty = boat.engine_quantity || 1;
-          const cost = boat.next_service_type === 'major'
-            ? (boat.major_maintenance_cost || 0) * qty
-            : (boat.minor_maintenance_cost || 0) * qty;
-          return s + cost;
-        }, 0);
+          const type = boat.next_service_type === 'major' ? 'major' : 'minor';
+          const costField = type === 'major' ? 'major_maintenance_cost' : 'minor_maintenance_cost';
+          const costPerEngine = boat[costField] || 0;
+          const total = costPerEngine * qty;
+          return { name: boat.name, type, costPerEngine, qty, total, costField };
+        });
+        const totalNextServiceBudget = nextServiceBreakdown.reduce((s, b) => s + b.total, 0);
+        const nextServiceInfo = nextServiceBreakdown.length === 0
+          ? 'No boats in view.'
+          : nextServiceBreakdown.map(b =>
+              `• ${b.name}: ${b.type} service · ${b.costField} ($${b.costPerEngine.toLocaleString('es-MX')}) × ${b.qty} engine(s) = $${b.total.toLocaleString('es-MX')} MXN`
+            ).join('\n') + `\n\nTotal: $${totalNextServiceBudget.toLocaleString('es-MX')} MXN`;
 
         const expenseRatio = totals.revenue > 0 ? ((totals.expAmt / totals.revenue) * 100).toFixed(1) : '—';
 
