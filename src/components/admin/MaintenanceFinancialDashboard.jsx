@@ -446,7 +446,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
     const completedIds = boatBookings.map(b => b.id);
     const boatExpenses = expenses.filter(e => completedIds.includes(e.booking_id));
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
-    const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.other_cost||0), 0);
+    const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.fees_cost||0)+(e.other_cost||0), 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     return { revenue, expAmt, maintenanceSpent, profit: revenue - expAmt };
   });
