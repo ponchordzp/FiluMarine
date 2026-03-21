@@ -745,7 +745,7 @@ function AdminBookingsInner() {
                   ].map(s => (
                     <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
                       <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
-                        <span className="text-sm shrink-0">{s.svg}</span>
+                        <s.Icon className={`h-3.5 w-3.5 shrink-0 ${s.text}`} />
                         <p className={`text-[10px] ${s.sub} font-medium whitespace-nowrap`}>{s.label}</p>
                       </div>
                       <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
@@ -893,7 +893,7 @@ function AdminBookingsInner() {
                   modifiersStyles={{ booked: { backgroundColor: 'rgba(30,136,229,0.35)', color: '#93c5fd', fontWeight: 'bold', borderRadius: '6px' } }}
                 />
                 <div className="mt-3 p-3 rounded-xl text-xs text-blue-300/70" style={{ background: 'rgba(30,136,229,0.1)', border: '1px solid rgba(30,136,229,0.2)' }}>
-                  <span className="inline-flex items-center gap-1.5"><Circle className="h-3 w-3 fill-blue-400 text-blue-400" /> Highlighted dates have active bookings</span>
+                  <span className="flex items-center gap-1.5"><Circle className="h-3 w-3 fill-blue-400 text-blue-400" />Highlighted dates have active bookings</span>
                 </div>
               </div>
 
@@ -1126,7 +1126,7 @@ function AdminBookingsInner() {
                   modifiersStyles={{ blocked: { backgroundColor: 'rgba(239,68,68,0.3)', color: '#fca5a5', fontWeight: 'bold', borderRadius: '6px' } }}
                 />
                 <div className="p-2.5 rounded-lg text-xs text-red-300/70" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
-                  <span className="inline-flex items-center gap-1.5"><Circle className="h-3 w-3 fill-red-500 text-red-500" /> Red dates are already blocked</span>
+                  <span className="flex items-center gap-1.5"><Circle className="h-3 w-3 fill-red-400 text-red-400" />Red dates are already blocked</span>
                 </div>
                 <div>
                   <Label className="text-red-200 text-xs font-semibold">Select Boat</Label>
