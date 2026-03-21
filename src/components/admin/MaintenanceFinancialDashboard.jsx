@@ -95,7 +95,7 @@ function KpiCard({ label, value, sub, color, border, textColor, icon, info }) {
     <div className="rounded-xl px-4 py-3 flex flex-col gap-1" style={{ background: color, border: `1px solid ${border}` }}>
       <div className="flex items-center justify-between gap-1">
         <div className="flex items-center gap-1.5">
-          <span className="text-lg">{icon}</span>
+          <span className="shrink-0" style={{ color: textColor }}>{icon}</span>
           <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: textColor }}>{label}</p>
         </div>
         {info && <InfoTip text={info} />}
