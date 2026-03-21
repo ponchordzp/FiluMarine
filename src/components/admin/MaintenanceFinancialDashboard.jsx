@@ -691,6 +691,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
               bookings={bookings}
               expenses={expenses}
               personalTrips={personalTrips}
+              allBoats={boats}
             />
           ))}
         </div>
