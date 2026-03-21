@@ -975,8 +975,10 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
     onChange(setVal(checklist, id, 'note', value));
   };
 
-  const handleDate = (id, value) => {
-    onChange(setVal(checklist, id, 'lastDate', value));
+  const handleDate = (id, value, meta) => {
+    let updated = setVal(checklist, id, 'lastDate', value);
+    if (meta) updated = setVal(updated, id, 'lastDateMeta', meta);
+    onChange(updated);
   };
 
   const handleInfo = (id, value) => {
