@@ -819,7 +819,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <p className="text-xs font-bold text-orange-900 uppercase tracking-wide">Component Replacement Dates</p>
                     <div className="grid md:grid-cols-2 gap-3">
                       <div>
-                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date the water pump impeller was last replaced. Usually every 1-2 years." example="2024-06-01">Impeller Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, impeller_last_replaced_date: d })} /></div>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date the water pump impeller was last replaced. Usually every 1-2 years." example="2024-06-01">Impeller Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} meta={formData.field_meta?.impeller_last_replaced_date} onStamp={(d, m) => setFormData(prev => ({ ...prev, impeller_last_replaced_date: d, field_meta: { ...prev.field_meta, impeller_last_replaced_date: m } }))} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.impeller_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, impeller_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
