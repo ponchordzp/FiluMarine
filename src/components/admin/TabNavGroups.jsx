@@ -76,6 +76,7 @@ const families = [
     superAdminOnly: true,
     tabs: [
       { value: 'operators', label: '🚢 Operators' },
+      { value: 'join-applications', label: '📬 Join Applications', superAdminOnly: true },
     ],
   },
 ];
