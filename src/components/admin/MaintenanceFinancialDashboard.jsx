@@ -601,9 +601,9 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
 
       {/* Fleet KPIs */}
       {(() => {
-        const fleetGrossMargin = totals.revenue > 0 ? Math.min(100, (totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—';
+        const fleetGrossMargin = totals.revenue > 0 ? ((totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—';
         const fleetNetMargin = totals.revenue > 0 ? ((totals.netProfit / totals.revenue) * 100).toFixed(1) : '—';
-        const fleetROI = totals.totalCosts > 0 ? Math.min(100, Math.max(0, (totals.netProfit / totals.totalCosts) * 100)).toFixed(1) : '—';
+        const fleetROI = fleetNetMargin; // ROI = Net Margin (matches global KPI)
         return (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <KpiCard
