@@ -832,7 +832,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                       </div>
                       {formData.engine_config === 'outboard' &&
                       <div>
-                          <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date spark plugs were last replaced on outboard engine. Usually every 100 hrs or 1 year." example="2024-09-20">Spark Plugs Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, spark_plugs_last_replaced_date: d })} /></div>
+                          <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date spark plugs were last replaced on outboard engine. Usually every 100 hrs or 1 year." example="2024-09-20">Spark Plugs Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} meta={formData.field_meta?.spark_plugs_last_replaced_date} onStamp={(d, m) => setFormData(prev => ({ ...prev, spark_plugs_last_replaced_date: d, field_meta: { ...prev.field_meta, spark_plugs_last_replaced_date: m } }))} /></div>
                           <Input type="date" disabled={locks['maintenance']} value={formData.spark_plugs_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, spark_plugs_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                         </div>
                       }
