@@ -708,7 +708,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                   const s = fleetStats[filteredBoats.indexOf(boat)];
                   const gm = s.revenue > 0 ? ((s.grossProfit / s.revenue) * 100).toFixed(1) : '—';
                   const nm = s.revenue > 0 ? ((s.netProfit / s.revenue) * 100).toFixed(1) : '—';
-                  const roiPct = nm; // ROI = Net Margin (matches global KPI)
+                  const roiPct = nm;
                   return (
                     <tr key={boat.id} className="hover:bg-white/3 transition-colors">
                       <td className="py-3 pr-4">
@@ -718,7 +718,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                         </div>
                       </td>
                       <td className="py-3 pr-4 text-emerald-400 font-semibold">{fmtK(s.revenue)}</td>
-                      <td className="py-3 pr-4 text-red-400">{fmtK(s.tripExp)}</td>
+                      <td className="py-3 pr-4 text-red-400">{fmtK(s.expAmt)}</td>
                       <td className="py-3 pr-4 text-pink-400">{s.feesAmt > 0 ? fmtK(s.feesAmt) : <span className="text-white/20">—</span>}</td>
                       <td className={`py-3 pr-4 font-bold ${s.grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fmtK(s.grossProfit)}</td>
                       <td className={`py-3 pr-4 font-semibold ${s.grossProfit >= 0 ? 'text-blue-300/70' : 'text-red-400'}`}>{gm === '—' ? '—' : `${gm}%`}</td>
