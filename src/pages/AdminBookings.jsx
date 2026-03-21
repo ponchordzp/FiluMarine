@@ -762,7 +762,7 @@ function AdminBookingsInner() {
             )}
           </div>
 
-        <Tabs defaultValue="bookings" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} operatorFilter={globalOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} />
 
           {/* ── BOOKINGS TAB ── */}
