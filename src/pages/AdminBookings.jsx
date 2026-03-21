@@ -575,8 +575,8 @@ function AdminBookingsInner() {
                 {financialTimeFilter === 'custom' && (
                   <Dialog open={showCustomDatePickerFinancial} onOpenChange={setShowCustomDatePickerFinancial}>
                     <DialogTrigger asChild>
-                      <Button className="mt-6 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
-                        📅 {customDateRangeFinancial.from && customDateRangeFinancial.to ? `${format(customDateRangeFinancial.from, 'MMM d')} - ${format(customDateRangeFinancial.to, 'MMM d')}` : 'Select Dates'}
+                      <Button className="mt-6 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 flex items-center gap-1.5" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
+                      <CalendarIcon className="h-3.5 w-3.5" />{customDateRangeFinancial.from && customDateRangeFinancial.to ? `${format(customDateRangeFinancial.from, 'MMM d')} - ${format(customDateRangeFinancial.to, 'MMM d')}` : 'Select Dates'}
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
