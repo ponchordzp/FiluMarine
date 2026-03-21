@@ -31,10 +31,12 @@ export default function JoinFilu() {
     setIsSubmitting(true);
 
     try {
-      await base44.integrations.Core.SendEmail({
-        to: 'arodriguezpenam@gmail.com',
-        subject: `New Boat Owner Application - ${formData.name}`,
-        body: `
+      await Promise.all([
+        base44.entities.JoinFiluApplication.create({ ...formData, review_status: 'pending' }),
+        base44.integrations.Core.SendEmail({
+          to: 'arodriguezpenam@gmail.com',
+          subject: `New Boat Owner Application - ${formData.name}`,
+          body: `
 New boat owner wants to join FILU Marine!
 
 Name: ${formData.name}
@@ -50,8 +52,9 @@ Location: ${formData.location}
 
 Message:
 ${formData.message}
-        `.trim(),
-      });
+          `.trim(),
+        }),
+      ]);
 
       setSubmitted(true);
       setFormData({
