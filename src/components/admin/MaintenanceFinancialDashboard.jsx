@@ -341,14 +341,14 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
                 <span className="font-bold text-emerald-400">{fmt(totalRevenue)}</span>
               </div>
 
-              {/* Trip Expenses (ex-fees) */}
+              {/* Expenses */}
               <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(239,68,68,0.15)' }}>
                 <div className="flex justify-between items-center px-2 py-1.5" style={{ background: 'rgba(239,68,68,0.1)' }}>
                   <div className="flex items-center gap-1">
-                    <span className="text-red-300 font-medium">Trip Expenses (ex-fees)</span>
-                    <InfoTip text="Direct operating costs: fuel, crew, maintenance, cleaning, supplies, other. Fees are treated separately below." />
+                    <span className="text-red-300 font-medium">Expenses</span>
+                    <InfoTip text="fuel + crew + maintenance + cleaning + supplies + other. Fees shown separately below." />
                   </div>
-                  <span className="font-bold text-red-400">−{fmt(tripExpenses)}</span>
+                  <span className="font-bold text-red-400">−{fmt(totalExpenses)}</span>
                 </div>
                 {[
                   { label: '↳ Fuel', value: totalFuelCost },
@@ -365,15 +365,15 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
                 ))}
               </div>
 
-              {/* GROSS PROFIT = Revenue − Trip Expenses (ex-fees) */}
+              {/* GROSS PROFIT = Revenue − Expenses */}
               <div className="flex justify-between items-center rounded px-2 py-2" style={{ background: grossProfit >= 0 ? 'rgba(59,130,246,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${grossProfit >= 0 ? 'rgba(59,130,246,0.25)' : 'rgba(239,68,68,0.25)'}` }}>
                 <div className="flex items-center gap-1">
                   <span className="font-bold text-white/80">Gross Profit</span>
-                  <InfoTip text="Revenue − Trip Expenses (ex-fees). Fees and recurring fixed costs not yet deducted." />
+                  <InfoTip text="Revenue − Expenses. Fees not yet deducted." />
                 </div>
                 <div className="text-right">
                   <span className={`font-bold text-sm ${grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fmt(grossProfit)}</span>
-                  <span className="ml-2 text-[10px] text-white/40">Margin: {grossMargin === '—' ? '—' : `${grossMargin}%`}</span>
+                  <span className="ml-2 text-[10px] text-white/40">{grossMargin}%</span>
                 </div>
               </div>
 
