@@ -544,11 +544,12 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
 
   if (loadingBoats) return <div className="text-white/40 text-center py-20">Loading financial data...</div>;
 
-  // Fleet-wide totals — same P&L model as per-boat cards
+  // Fleet-wide totals — mirrors global KPI logic exactly
   const fleetStats = filteredBoats.map(boat => {
-    const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status === 'completed');
-    const completedIds = boatBookings.map(b => b.id);
-    const boatExpenses = expenses.filter(e => completedIds.includes(e.booking_id));
+    // All non-cancelled bookings (matches global KPI)
+    const boatBookings = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled');
+    const activeIds = boatBookings.map(b => b.id);
+    const boatExpenses = expenses.filter(e => activeIds.includes(e.booking_id));
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
     const feesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
     // Trip expenses ex-fees
@@ -556,12 +557,10 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     const recurringCosts = boat.recurring_costs || [];
     const annualRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0) * 12;
-    // Gross = Revenue − Trip (ex-fees)
+    // Net Profit = Revenue − Trip Expenses − Fees (no recurring deduction, matches global KPI)
+    const netProfit = revenue - tripExp - feesAmt;
     const grossProfit = revenue - tripExp;
-    // Net = Gross − Fees − Recurring
-    const netProfit = grossProfit - feesAmt - annualRecurring;
-    const totalCosts = tripExp + feesAmt + annualRecurring;
-    return { revenue, feesAmt, tripExp, maintenanceSpent, grossProfit, netProfit, annualRecurring, totalCosts };
+    return { revenue, feesAmt, tripExp, maintenanceSpent, grossProfit, netProfit, annualRecurring };
   });
 
   const totals = fleetStats.reduce((acc, s) => ({
@@ -572,8 +571,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
     grossProfit: acc.grossProfit + s.grossProfit,
     netProfit: acc.netProfit + s.netProfit,
     annualRecurring: acc.annualRecurring + s.annualRecurring,
-    totalCosts: acc.totalCosts + s.totalCosts,
-  }), { revenue: 0, feesAmt: 0, tripExp: 0, maintenanceSpent: 0, grossProfit: 0, netProfit: 0, annualRecurring: 0, totalCosts: 0 });
+  }), { revenue: 0, feesAmt: 0, tripExp: 0, maintenanceSpent: 0, grossProfit: 0, netProfit: 0, annualRecurring: 0 });
 
   // Boats needing attention
   const today = new Date();
