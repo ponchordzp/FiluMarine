@@ -229,37 +229,43 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
         </div>
       </div>
 
-      {/* KPI Strip — boat-focused, no fleet-level aggregations */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-px" style={{ background: 'rgba(255,255,255,0.05)' }}>
+      {/* KPI Strip */}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-px" style={{ background: 'rgba(255,255,255,0.05)' }}>
         <KpiCell
           label="Revenue"
           value={fmtK(totalRevenue)}
           color="rgba(16,185,129,0.1)"
-          info="Sum of total_price from all completed bookings for this boat. Only 'completed' status bookings are counted — pending, confirmed, or cancelled are excluded."
+          info="Sum of total_price from all completed bookings for this boat."
         />
         <KpiCell
           label="Trip Expenses"
           value={fmtK(totalExpenseAmt)}
           color="rgba(239,68,68,0.1)"
-          info="Total of all expense entries (fuel, crew, maintenance, cleaning, supplies, other) linked to this boat's completed bookings via the BookingExpense records."
+          info={`Variable costs per trip: fuel, crew, maintenance, cleaning, supplies, fees, and other. Includes ${fmtK(totalFeesAmt)} in fees.`}
         />
         <KpiCell
           label="Gross Profit"
           value={fmtK(grossProfit)}
           color={grossProfit >= 0 ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.15)'}
-          info="Revenue minus Trip Expenses. This does not deduct recurring fixed costs (docking, insurance, etc.) — those appear separately in the expanded detail."
+          info="Revenue − Trip Expenses (all variable costs). Does NOT deduct recurring fixed costs (docking, insurance, etc.)."
         />
         <KpiCell
-          label="ROI"
-          value={roi === '—' ? '—' : `${roi}%`}
+          label="Net Profit"
+          value={fmtK(netProfit)}
+          color={netProfit >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.15)'}
+          info={`Gross Profit − Annual Recurring Costs (${fmtK(Math.round(annualRecurring))}/yr). This is the true bottom-line profit after all known fixed overhead.`}
+        />
+        <KpiCell
+          label="Gross Margin / ROI"
+          value={grossMargin === '—' ? '—' : `${grossMargin}% / ${roi}%`}
           color="rgba(168,85,247,0.1)"
-          info="Return on investment: (Gross Profit ÷ Revenue) × 100. Tells you what percentage of each peso earned is kept as profit after trip expenses. '—' means no completed revenue yet."
+          info={`Gross Margin = Gross Profit ÷ Revenue (${grossMargin}%) — what % of each peso earned is kept after trip costs. ROI = Gross Profit ÷ Trip Expenses (${roi}%) — return on money spent per trip.`}
         />
         <KpiCell
           label="Engine Hours"
           value={totalHours.toFixed(1)}
           color="rgba(99,102,241,0.1)"
-          info={`Total engine hours = Base hours entered in boat profile (${boat.current_hours || 0}) + hours logged across all bookings (${bookingEngineHours.toFixed(1)}) + hours from personal trips (${personalTripHours.toFixed(1)}).`}
+          info={`Total hours = Base (${boat.current_hours || 0}) + Bookings (${bookingEngineHours.toFixed(1)}) + Personal trips (${personalTripHours.toFixed(1)}).`}
         />
       </div>
 
