@@ -841,7 +841,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         <Input type="date" disabled={locks['maintenance']} value={formData.battery_inspection_date || ''} onChange={(e) => setFormData({ ...formData, battery_inspection_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date zinc/aluminum anodes protecting the hull from corrosion were last replaced." example="2024-07-15">Zinc Anodes Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, zinc_anodes_last_replaced_date: d })} /></div>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date zinc/aluminum anodes protecting the hull from corrosion were last replaced." example="2024-07-15">Zinc Anodes Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} meta={formData.field_meta?.zinc_anodes_last_replaced_date} onStamp={(d, m) => setFormData(prev => ({ ...prev, zinc_anodes_last_replaced_date: d, field_meta: { ...prev.field_meta, zinc_anodes_last_replaced_date: m } }))} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.zinc_anodes_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, zinc_anodes_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
