@@ -286,9 +286,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       status: 'active',
       maintenance_checklist: {},
       custom_fields_general: [],
-      custom_fields_maintenance: []
-    });
-    setImageFile(null);
+      custom_fields_maintenance: [],
+      field_meta: {}
+      });
+      setImageFile(null);
     setImagePreview('');
     setNewSupplier({ name: '', phone: '', email: '', specialty: '' });
     setNewRecurringCost({
