@@ -104,7 +104,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     status: 'active',
     maintenance_checklist: {},
     custom_fields_general: [],
-    custom_fields_maintenance: []
+    custom_fields_maintenance: [],
+    field_meta: {}
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
