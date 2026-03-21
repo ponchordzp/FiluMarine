@@ -1,5 +1,6 @@
 import React from 'react';
 import { Lock, LockOpen, Info, Clock } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 // Tooltip for field info
 export function FieldInfo({ text, example }) {
