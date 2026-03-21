@@ -417,7 +417,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     <Clock className="h-4 w-4 shrink-0 mt-0.5 text-amber-300" /><span><span className="font-semibold">Extra hours:</span> Additional time beyond scheduled duration is{' '}
                     <span className="font-semibold">
                       ${((activeBoats.find(b => b.id === selectedBoat)?.price_per_additional_hour) || 2500).toLocaleString()} MXN per hour
-                    </span>
+                    </span></span>
                   </p>
                 </motion.div>
               )}
