@@ -119,6 +119,47 @@ function KpiCell({ label, value, color, info }) {
   );
 }
 
+// ─── Smart Suggestions collapsible ───────────────────────────────────────────
+function SmartSuggestions({ suggestions }) {
+  const [open, setOpen] = useState(false);
+  const typeStyles = {
+    success: { bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)', text: 'text-emerald-300', icon: '✅' },
+    warning: { bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.25)', text: 'text-amber-300', icon: '⚠️' },
+    danger:  { bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)',  text: 'text-red-300',   icon: '🚨' },
+    info:    { bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.25)', text: 'text-blue-300',  icon: 'ℹ️' },
+  };
+  const hasDanger = suggestions.some(s => s.type === 'danger' || s.type === 'warning');
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${hasDanger ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.08)'}` }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-left hover:bg-white/5 transition-colors"
+        style={{ background: hasDanger ? 'rgba(245,158,11,0.07)' : 'rgba(255,255,255,0.04)' }}
+      >
+        <div className="flex items-center gap-2">
+          <Lightbulb className="h-3.5 w-3.5 text-amber-300" />
+          <span className="text-sm font-semibold text-white">Smart Suggestions</span>
+          <span className="text-xs px-1.5 py-0.5 rounded-full font-bold" style={{ background: 'rgba(245,158,11,0.2)', color: '#fcd34d' }}>{suggestions.length}</span>
+        </div>
+        {open ? <ChevronUp className="h-4 w-4 text-white/40" /> : <ChevronDown className="h-4 w-4 text-white/40" />}
+      </button>
+      {open && (
+        <div className="p-4 space-y-2" style={{ background: 'rgba(255,255,255,0.02)' }}>
+          {suggestions.map((s, i) => {
+            const st = typeStyles[s.type] || typeStyles.info;
+            return (
+              <div key={i} className="flex items-start gap-2.5 rounded-lg px-3 py-2.5 text-sm" style={{ background: st.bg, border: `1px solid ${st.border}` }}>
+                <span className="mt-0.5 shrink-0">{st.icon}</span>
+                <p className={st.text}>{s.text}</p>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SectionRow({ label, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
