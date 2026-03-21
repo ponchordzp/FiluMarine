@@ -153,7 +153,8 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
   const completedIds = completedBookings.map(b => b.id);
   const boatExpenses = expenses.filter(e => completedIds.includes(e.booking_id));
   const totalExpenseAmt = boatExpenses.reduce((s, e) =>
-    s + (e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0), 0);
+    s + (e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.fees_cost || 0) + (e.other_cost || 0), 0);
+  const totalFeesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
   const totalRevenue = completedBookings.reduce((s, b) => s + (b.total_price || 0), 0);
   const grossProfit = totalRevenue - totalExpenseAmt;
   const roi = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : '—';
