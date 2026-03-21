@@ -175,8 +175,8 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats }
   const totalOtherCost     = boatExpenses.reduce((s, e) => s + (e.other_cost || 0), 0);
   const totalExpenses      = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
 
-  // Fees (logged platform/operator fees per booking)
-  const totalFeesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
+  // Fees = commission % of each booking's revenue (matches global KPI exactly)
+  const totalFeesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, allBoats) / 100, 0);
 
   // ── P&L ──────────────────────────────────────────────────────────────────
   // Gross Profit = Revenue − Expenses
