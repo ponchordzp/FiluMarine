@@ -870,7 +870,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Fleet Revenue"
                 value={fmtK(totals.revenue)}
                 sub="completed bookings"
-                color="rgba(16,185,129,0.12)" border="rgba(16,185,129,0.3)" textColor="#6ee7b7" icon="💰"
+                color="rgba(16,185,129,0.12)" border="rgba(16,185,129,0.3)" textColor="#6ee7b7" icon={<TrendingUp className="h-4 w-4" />}
                 info="Sum of total_price across all completed bookings for every boat in view."
               />
               <KpiCard
