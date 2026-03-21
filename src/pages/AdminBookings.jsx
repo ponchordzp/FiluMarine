@@ -550,8 +550,8 @@ function AdminBookingsInner() {
         <div className="mb-2 rounded-xl px-3 py-2" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
           <button onClick={() => toggleRowExpansion('financial')} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity" style={{ marginBottom: expandedRows.financial ? '8px' : '0' }}>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm">💵</span>
-              <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Financial</span>
+            <TrendingUp className="h-4 w-4 text-emerald-300" />
+            <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Financial</span>
             </div>
             <ChevronDown className={`h-3.5 w-3.5 text-emerald-300/60 transition-transform ${expandedRows.financial ? '' : '-rotate-90'}`} />
           </button>
