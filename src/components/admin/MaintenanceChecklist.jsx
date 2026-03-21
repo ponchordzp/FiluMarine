@@ -3,6 +3,58 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Check, ChevronDown, ChevronUp, Plus, Info, Pencil, X, Clock } from 'lucide-react';
 
+// Inline timestamp button for checklist items — hover shows audit info, click stamps today
+function ChecklistTimestampButton({ onStamp, meta = null }) {
+  const [show, setShow] = useState(false);
+  const [flashed, setFlashed] = useState(false);
+  const hasMeta = meta && (meta.by || meta.at);
+
+  const handleClick = async () => {
+    const today = new Date().toISOString().split('T')[0];
+    let userName = 'Unknown';
+    try {
+      const user = await base44.auth.me();
+      userName = user?.full_name || user?.email || 'Unknown';
+    } catch {}
+    const newMeta = { by: userName, at: new Date().toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' }) };
+    onStamp(today, newMeta);
+    setFlashed(true);
+    setTimeout(() => setFlashed(false), 800);
+  };
+
+  return (
+    <span className="relative inline-flex items-center">
+      <button
+        type="button"
+        onClick={handleClick}
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onFocus={() => setShow(true)}
+        onBlur={() => setShow(false)}
+        className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ${
+          flashed ? 'bg-green-500 text-white' :
+          hasMeta ? 'bg-green-100 text-green-600 hover:bg-green-200' :
+          'bg-amber-100 text-amber-600 hover:bg-amber-200'
+        }`}
+      >
+        <Clock className="h-2.5 w-2.5" />
+      </button>
+      {show && hasMeta && (
+        <div className="absolute z-50 left-5 top-0 w-52 bg-slate-800 text-white text-xs rounded-lg p-2.5 shadow-xl pointer-events-none">
+          <p className="font-semibold text-slate-300 mb-1">Last updated by</p>
+          <p className="text-white">{meta.by}</p>
+          <p className="text-slate-400 mt-1">{meta.at}</p>
+        </div>
+      )}
+      {show && !hasMeta && (
+        <div className="absolute z-50 left-5 top-0 w-44 bg-slate-800 text-white text-xs rounded-lg p-2.5 shadow-xl pointer-events-none">
+          <p className="text-slate-300">Click to set today's date and record who filled this field.</p>
+        </div>
+      )}
+    </span>
+  );
+}
+
 // Editable tooltip — SuperAdmin can click the pencil to change the tooltip text
 function EditableInfo({ text, onSave, isSuperAdmin }) {
   const [show, setShow] = useState(false);
