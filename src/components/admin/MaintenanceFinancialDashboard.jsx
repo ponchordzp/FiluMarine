@@ -35,40 +35,54 @@ function urgencyText(daysUntil) {
 // ─── Info tooltip ─────────────────────────────────────────────────────────────
 function InfoTip({ text }) {
   const [show, setShow] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const btnRef = React.useRef(null);
+
+  const handleShow = () => {
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setPos({ x: rect.left + rect.width / 2, y: rect.top });
+    }
+    setShow(true);
+  };
+
   return (
     <div className="relative inline-block">
       <button
-        onMouseEnter={() => setShow(true)}
+        ref={btnRef}
+        onMouseEnter={handleShow}
         onMouseLeave={() => setShow(false)}
-        onClick={() => setShow(s => !s)}
+        onClick={handleShow}
         className="text-white/25 hover:text-white/60 transition-colors"
       >
         <Info className="h-3 w-3" />
       </button>
-      {show && (
+      {show && typeof window !== 'undefined' && React.createPortal(
         <div
-          className="fixed z-[9999] rounded-lg px-3 py-2 text-xs text-white/80 leading-relaxed shadow-xl pointer-events-none"
+          className="pointer-events-none"
           style={{
+            position: 'fixed',
+            left: Math.min(pos.x, window.innerWidth - 230),
+            top: pos.y - 8,
+            transform: 'translateY(-100%)',
+            zIndex: 9999,
+            width: '220px',
             background: 'rgba(15,23,42,0.98)',
-            border: '1px solid rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '8px',
+            padding: '8px 10px',
+            fontSize: '11px',
+            lineHeight: '1.5',
+            color: 'rgba(255,255,255,0.8)',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
             backdropFilter: 'blur(12px)',
-            maxWidth: '220px',
-            width: 'max-content',
-            transform: 'translate(-50%, calc(-100% - 8px))',
-            left: 'var(--tip-x)',
-            top: 'var(--tip-y)',
-            whiteSpace: 'normal',
             wordBreak: 'break-word',
-          }}
-          ref={el => {
-            if (el) {
-              const btn = el.previousSibling;
-              // no-op, positioning handled via onMouseEnter on parent
-            }
+            whiteSpace: 'normal',
           }}
         >
           {text}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
