@@ -1276,6 +1276,14 @@ function AdminBookingsInner() {
           )}
 
           {isSuperAdmin && (
+            <TabsContent value="join-applications">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', backdropFilter: 'blur(16px)' }}>
+                <JoinFiluApplications />
+              </div>
+            </TabsContent>
+          )}
+
+          {isSuperAdmin && (
             <TabsContent value="checklist-template">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', backdropFilter: 'blur(16px)' }}>
                 <div className="mb-4">
