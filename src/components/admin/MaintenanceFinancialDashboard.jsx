@@ -759,7 +759,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
             </div>
 
             {/* Row 2 — Operational Metrics */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <KpiCard
                 label="Avg Cost / Booking"
                 value={fmtK(avgCostPerBooking)}
@@ -788,19 +788,20 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 color="rgba(168,85,247,0.12)" border="rgba(168,85,247,0.3)" textColor="#d8b4fe" icon="🔁"
                 info="Annual fixed overhead across all boats: docking, insurance, permits, etc. Not deducted from Net Profit — shown for context."
               />
-              <KpiCard
-                label="Next Service Budget"
-                value={fmtK(totalNextServiceBudget)}
-                sub={overdueCount > 0 ? `⚠ ${overdueCount} overdue` : 'estimated cost'}
-                color={overdueCount > 0 ? "rgba(239,68,68,0.12)" : "rgba(249,115,22,0.12)"}
-                border={overdueCount > 0 ? "rgba(239,68,68,0.3)" : "rgba(249,115,22,0.3)"}
-                textColor={overdueCount > 0 ? "#fca5a5" : "#fdba74"} icon="⚙️"
-                info={`Sum of next scheduled service cost estimates across all boats (minor or major × engine count).\n\n${nextServiceInfo}`}
-              />
             </div>
 
             {/* Smart Suggestions — collapsible */}
             <SmartSuggestions suggestions={suggestions} />
+
+            {/* Next Service Budget — collapsible detailed breakdown */}
+            <NextServiceBudgetPanel
+              breakdown={nextServiceBreakdown}
+              total={totalNextServiceBudget}
+              overdueCount={overdueCount}
+              boats={filteredBoats}
+              bookings={bookings}
+              personalTrips={personalTrips}
+            />
           </div>
         );
       })()}
