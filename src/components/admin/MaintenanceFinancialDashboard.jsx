@@ -277,10 +277,10 @@ function NextServiceBudgetPanel({ breakdown, total, overdueCount, boats, booking
 function SmartSuggestions({ suggestions }) {
   const [open, setOpen] = useState(false);
   const typeStyles = {
-    success: { bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)', text: 'text-emerald-300', icon: '✅' },
-    warning: { bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.25)', text: 'text-amber-300', icon: '⚠️' },
-    danger:  { bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)',  text: 'text-red-300',   icon: '🚨' },
-    info:    { bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.25)', text: 'text-blue-300',  icon: 'ℹ️' },
+    success: { bg: 'rgba(16,185,129,0.1)', border: 'rgba(16,185,129,0.25)', text: 'text-emerald-300', icon: <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" /> },
+    warning: { bg: 'rgba(245,158,11,0.1)', border: 'rgba(245,158,11,0.25)', text: 'text-amber-300', icon: <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" /> },
+    danger:  { bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)',  text: 'text-red-300',   icon: <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" /> },
+    info:    { bg: 'rgba(59,130,246,0.1)',  border: 'rgba(59,130,246,0.25)', text: 'text-blue-300',  icon: <Info className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" /> },
   };
   const hasDanger = suggestions.some(s => s.type === 'danger' || s.type === 'warning');
   return (
