@@ -599,45 +599,52 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
       </div>
 
       {/* Fleet KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-        <KpiCard
-          label="Fleet Revenue"
-          value={fmtK(totals.revenue)}
-          sub="completed bookings"
-          color="rgba(16,185,129,0.12)" border="rgba(16,185,129,0.3)" textColor="#6ee7b7" icon="💰"
-          info="Sum of total_price across all completed bookings for every boat in view."
-        />
-        <KpiCard
-          label="Trip Expenses"
-          value={fmtK(totals.expAmt)}
-          sub={`incl. ${fmtK(totals.feesAmt)} fees`}
-          color="rgba(239,68,68,0.12)" border="rgba(239,68,68,0.3)" textColor="#fca5a5" icon="📉"
-          info={`Variable per-trip costs (fuel, crew, maintenance, cleaning, supplies, fees, other). Fees portion: ${fmtK(totals.feesAmt)}.`}
-        />
-        <KpiCard
-          label="Gross Profit"
-          value={fmtK(totals.grossProfit)}
-          sub={`Margin: ${totals.revenue > 0 ? ((totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—'}%`}
-          color="rgba(59,130,246,0.12)" border="rgba(59,130,246,0.3)" textColor="#93c5fd" icon="📊"
-          info="Revenue − Trip Expenses. Fixed/recurring overhead NOT yet deducted."
-        />
-        <KpiCard
-          label="Net Profit"
-          value={fmtK(totals.netProfit)}
-          sub={`Net Margin: ${totals.revenue > 0 ? ((totals.netProfit / totals.revenue) * 100).toFixed(1) : '—'}%`}
-          color={totals.netProfit >= 0 ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)"}
-          border={totals.netProfit >= 0 ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}
-          textColor={totals.netProfit >= 0 ? "#6ee7b7" : "#fca5a5"} icon="💵"
-          info={`Gross Profit − Annual Recurring Costs (${fmtK(Math.round(totals.annualRecurring))}/yr fleet total). True bottom line.`}
-        />
-        <KpiCard
-          label="Maint. Logged"
-          value={fmtK(totals.maintenanceSpent)}
-          sub="actual records"
-          color="rgba(249,115,22,0.12)" border="rgba(249,115,22,0.3)" textColor="#fdba74" icon="🔧"
-          info="Sum of cost entries in each boat's Maintenance History log — real recorded service events, not estimates."
-        />
-      </div>
+      {(() => {
+        const fleetGrossMargin = totals.revenue > 0 ? Math.min(100, (totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—';
+        const fleetNetMargin = totals.revenue > 0 ? ((totals.netProfit / totals.revenue) * 100).toFixed(1) : '—';
+        const fleetROI = totals.totalCosts > 0 ? Math.min(100, Math.max(0, (totals.netProfit / totals.totalCosts) * 100)).toFixed(1) : '—';
+        return (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <KpiCard
+              label="Fleet Revenue"
+              value={fmtK(totals.revenue)}
+              sub="completed bookings"
+              color="rgba(16,185,129,0.12)" border="rgba(16,185,129,0.3)" textColor="#6ee7b7" icon="💰"
+              info="Sum of total_price across all completed bookings for every boat in view."
+            />
+            <KpiCard
+              label="Trip Expenses"
+              value={fmtK(totals.tripExp)}
+              sub={totals.feesAmt > 0 ? `+ ${fmtK(totals.feesAmt)} fees` : 'ex-fees'}
+              color="rgba(239,68,68,0.12)" border="rgba(239,68,68,0.3)" textColor="#fca5a5" icon="📉"
+              info={`Direct operating costs (fuel, crew, maintenance, cleaning, supplies, other). Fees (${fmtK(totals.feesAmt)}) are shown separately.`}
+            />
+            <KpiCard
+              label="Gross Profit"
+              value={fmtK(totals.grossProfit)}
+              sub={`Gross Margin: ${fleetGrossMargin}%`}
+              color="rgba(59,130,246,0.12)" border="rgba(59,130,246,0.3)" textColor="#93c5fd" icon="📊"
+              info="Revenue − Trip Expenses (ex-fees). Fees and recurring overhead not yet deducted."
+            />
+            <KpiCard
+              label="Net Profit"
+              value={fmtK(totals.netProfit)}
+              sub={`Net Margin: ${fleetNetMargin}% · ROI: ${fleetROI}%`}
+              color={totals.netProfit >= 0 ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)"}
+              border={totals.netProfit >= 0 ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}
+              textColor={totals.netProfit >= 0 ? "#6ee7b7" : "#fca5a5"} icon="💵"
+              info={`Gross Profit − Fees (${fmtK(totals.feesAmt)}) − Annual Recurring (${fmtK(Math.round(totals.annualRecurring))}). ROI = Net Profit ÷ Total Costs (0–100%).`}
+            />
+            <KpiCard
+              label="Maint. Logged"
+              value={fmtK(totals.maintenanceSpent)}
+              sub="actual records"
+              color="rgba(249,115,22,0.12)" border="rgba(249,115,22,0.3)" textColor="#fdba74" icon="🔧"
+              info="Sum of cost entries in each boat's Maintenance History log — real recorded service events, not estimates."
+            />
+          </div>
+        );
+      })()}
 
       {/* Alerts */}
       {alertBoats.length > 0 && (
