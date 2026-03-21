@@ -694,7 +694,7 @@ const COLOR_MAP = {
   indigo: { header: 'bg-indigo-700', bg: 'bg-indigo-50', border: 'border-indigo-200', check: 'bg-indigo-600', sub: 'bg-indigo-100 text-indigo-800' },
 };
 
-function ChecklistItem({ id, label, interval, info, checked, na, note, lastDate, onToggle, onToggleNA, onNoteChange, onDateChange, isSuperAdmin, onInfoChange }) {
+function ChecklistItem({ id, label, interval, info, checked, na, note, lastDate, lastDateMeta, onToggle, onToggleNA, onNoteChange, onDateChange, isSuperAdmin, onInfoChange }) {
   const defaultInfo = info || `Check and record when "${label}" was last completed. Recommended interval: ${interval}.`;
   return (
     <div className={`py-2 border-b border-slate-100 last:border-0 ${na ? 'opacity-50' : ''}`}>
