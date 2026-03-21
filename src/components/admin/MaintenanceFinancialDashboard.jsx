@@ -315,7 +315,7 @@ function SmartSuggestions({ suggestions }) {
   );
 }
 
-function SectionRow({ label, children, defaultOpen = false }) {
+function SectionRow({ label, icon, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className="rounded-xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -324,7 +324,7 @@ function SectionRow({ label, children, defaultOpen = false }) {
         className="w-full flex items-center justify-between px-5 py-3 text-left hover:bg-white/5 transition-colors"
         style={{ background: 'rgba(255,255,255,0.04)' }}
       >
-        <span className="text-sm font-semibold text-white">{label}</span>
+        <span className="text-sm font-semibold text-white flex items-center gap-2">{icon}{label}</span>
         {open ? <ChevronUp className="h-4 w-4 text-white/40" /> : <ChevronDown className="h-4 w-4 text-white/40" />}
       </button>
       {open && <div className="p-5" style={{ background: 'rgba(255,255,255,0.02)' }}>{children}</div>}
