@@ -286,8 +286,8 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                                 <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
                               </div>
                               <div className="flex gap-3 text-xs text-white/55 pl-5">
-                                <span>⏱ {durationHours}h</span>
-                                <span>🕐 {departureTime}</span>
+                                <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{durationHours}h</span>
+                                <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{departureTime}</span>
                               </div>
                             </div>
                           );
