@@ -1075,7 +1075,7 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
             {customItems.map(item => (
               <div key={item.id} className="py-2 border-b border-green-100 last:border-0 flex items-start gap-2">
                 <div className="flex-1">
-                  <ChecklistItem {...item} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} onToggle={handleToggle} onNoteChange={handleNote} onDateChange={handleDate} />
+                  <ChecklistItem {...item} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} lastDateMeta={getVal(checklist, item.id, 'lastDateMeta')} onToggle={handleToggle} onNoteChange={handleNote} onDateChange={handleDate} />
                 </div>
                 <button type="button" onClick={() => handleRemoveCustom(item.id)} className="mt-2 text-red-400 hover:text-red-600 text-xs flex-shrink-0">✕</button>
               </div>
