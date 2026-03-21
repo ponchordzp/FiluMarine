@@ -1000,7 +1000,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
 
       {/* Fleet Comparison Table */}
       {filteredBoats.length > 1 && (
-        <SectionRow label="📊 Fleet Cost Comparison">
+        <SectionRow label="Fleet Cost Comparison" icon={<BarChart2 className="h-4 w-4 text-blue-300" />}>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
