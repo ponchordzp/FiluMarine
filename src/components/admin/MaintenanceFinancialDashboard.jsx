@@ -578,35 +578,44 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
         <span className="text-xs text-white/30">{filteredBoats.length} boat{filteredBoats.length !== 1 ? 's' : ''} in view</span>
       </div>
 
-      {/* Fleet KPIs — 4 cards, no "Annual Recurring" or "Upcoming Services" */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      {/* Fleet KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         <KpiCard
           label="Fleet Revenue"
           value={fmtK(totals.revenue)}
           sub="completed bookings"
           color="rgba(16,185,129,0.12)" border="rgba(16,185,129,0.3)" textColor="#6ee7b7" icon="💰"
-          info="Sum of total_price across all bookings with status = 'completed', for every boat in view. Cancelled, pending, and confirmed bookings are excluded."
+          info="Sum of total_price across all completed bookings for every boat in view."
         />
         <KpiCard
           label="Trip Expenses"
           value={fmtK(totals.expAmt)}
-          sub="logged per trip"
+          sub={`incl. ${fmtK(totals.feesAmt)} fees`}
           color="rgba(239,68,68,0.12)" border="rgba(239,68,68,0.3)" textColor="#fca5a5" icon="📉"
-          info="Total of all BookingExpense records linked to completed bookings: fuel + crew + maintenance + cleaning + supplies + other costs summed across all boats."
+          info={`Variable per-trip costs (fuel, crew, maintenance, cleaning, supplies, fees, other). Fees portion: ${fmtK(totals.feesAmt)}.`}
         />
         <KpiCard
           label="Gross Profit"
-          value={fmtK(totals.profit)}
-          sub="revenue − trip expenses"
+          value={fmtK(totals.grossProfit)}
+          sub={`Margin: ${totals.revenue > 0 ? ((totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—'}%`}
           color="rgba(59,130,246,0.12)" border="rgba(59,130,246,0.3)" textColor="#93c5fd" icon="📊"
-          info="Fleet Revenue minus Trip Expenses. Fixed recurring costs (docking, insurance, etc.) are not deducted here — they appear per-boat in the detail view."
+          info="Revenue − Trip Expenses. Fixed/recurring overhead NOT yet deducted."
+        />
+        <KpiCard
+          label="Net Profit"
+          value={fmtK(totals.netProfit)}
+          sub={`Net Margin: ${totals.revenue > 0 ? ((totals.netProfit / totals.revenue) * 100).toFixed(1) : '—'}%`}
+          color={totals.netProfit >= 0 ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)"}
+          border={totals.netProfit >= 0 ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}
+          textColor={totals.netProfit >= 0 ? "#6ee7b7" : "#fca5a5"} icon="💵"
+          info={`Gross Profit − Annual Recurring Costs (${fmtK(Math.round(totals.annualRecurring))}/yr fleet total). True bottom line.`}
         />
         <KpiCard
           label="Maint. Logged"
           value={fmtK(totals.maintenanceSpent)}
           sub="actual records"
           color="rgba(249,115,22,0.12)" border="rgba(249,115,22,0.3)" textColor="#fdba74" icon="🔧"
-          info="Sum of cost entries in each boat's Maintenance History log. These are real, recorded service events — not estimates. Expand a boat card to see the full breakdown."
+          info="Sum of cost entries in each boat's Maintenance History log — real recorded service events, not estimates."
         />
       </div>
 
