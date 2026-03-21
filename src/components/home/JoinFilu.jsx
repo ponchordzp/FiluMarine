@@ -21,7 +21,7 @@ export default function JoinFilu() {
     boat_year: '',
     boat_name: '',
     location: '',
-    message: '',
+    message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -32,11 +32,11 @@ export default function JoinFilu() {
 
     try {
       await Promise.all([
-        base44.entities.JoinFiluApplication.create({ ...formData, review_status: 'pending' }),
-        base44.integrations.Core.SendEmail({
-          to: 'arodriguezpenam@gmail.com',
-          subject: `New Boat Owner Application - ${formData.name}`,
-          body: `
+      base44.entities.JoinFiluApplication.create({ ...formData, review_status: 'pending' }),
+      base44.integrations.Core.SendEmail({
+        to: 'arodriguezpenam@gmail.com',
+        subject: `New Boat Owner Application - ${formData.name}`,
+        body: `
 New boat owner wants to join FILU Marine!
 
 Name: ${formData.name}
@@ -52,9 +52,9 @@ Location: ${formData.location}
 
 Message:
 ${formData.message}
-          `.trim(),
-        }),
-      ]);
+          `.trim()
+      })]
+      );
 
       setSubmitted(true);
       setFormData({
@@ -68,7 +68,7 @@ ${formData.message}
         boat_year: '',
         boat_name: '',
         location: '',
-        message: '',
+        message: ''
       });
     } catch (error) {
       console.error('Error sending email:', error);
@@ -83,9 +83,9 @@ ${formData.message}
         <div className="max-w-3xl mx-auto px-6 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="relative bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-12 border border-white/20 shadow-2xl"
-          >
+            animate={{ opacity: 1, scale: 1 }} className="bg-gradient-to-br p-12 opacity-100 rounded-3xl relative from-white/10 to-white/5 backdrop-blur-xl border border-white/20 shadow-2xl">
+            
+            
             <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
               <CheckCircle className="h-10 w-10 text-white" />
             </div>
@@ -95,15 +95,15 @@ ${formData.message}
             </p>
             <Button
               onClick={() => setSubmitted(false)}
-              variant="outline"
-              className="border-white/30 text-white hover:bg-white/20"
-            >
+              variant="outline" className="bg-purple-500 text-white px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-9 border-white/30 hover:bg-white/20">
+
+              
               Submit Another Application
             </Button>
           </motion.div>
         </div>
-      </section>
-    );
+      </section>);
+
   }
 
   return (
@@ -113,12 +113,12 @@ ${formData.message}
         <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
       </div>
       <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
-        >
+          className="text-center mb-12">
+          
           <div className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-cyan-500/30">
             <Anchor className="h-12 w-12 text-white" />
           </div>
@@ -139,10 +139,10 @@ ${formData.message}
                   id="name"
                   required
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                  placeholder="John Smith"
-                />
+                  placeholder="John Smith" />
+                
               </div>
               <div>
                 <Label htmlFor="email" className="text-white mb-2 block">Email *</Label>
@@ -151,10 +151,10 @@ ${formData.message}
                   type="email"
                   required
                   value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                  placeholder="john@example.com"
-                />
+                  placeholder="john@example.com" />
+                
               </div>
             </div>
 
@@ -165,10 +165,10 @@ ${formData.message}
                   id="phone"
                   required
                   value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                  placeholder="+52 55 1234 5678"
-                />
+                  placeholder="+52 55 1234 5678" />
+                
               </div>
               <div>
                 <Label htmlFor="boat_type" className="text-white mb-2 block">Boat Type *</Label>
@@ -176,10 +176,10 @@ ${formData.message}
                   id="boat_type"
                   required
                   value={formData.boat_type}
-                  onChange={(e) => setFormData({...formData, boat_type: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, boat_type: e.target.value })}
                   className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                  placeholder="e.g., Center Console, Yacht, etc."
-                />
+                  placeholder="e.g., Center Console, Yacht, etc." />
+                
               </div>
             </div>
 
@@ -189,10 +189,10 @@ ${formData.message}
                 id="boat_model"
                 required
                 value={formData.boat_model}
-                onChange={(e) => setFormData({...formData, boat_model: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, boat_model: e.target.value })}
                 className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                placeholder="e.g., Sunseeker Predator 75"
-              />
+                placeholder="e.g., Sunseeker Predator 75" />
+              
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
@@ -235,9 +235,9 @@ ${formData.message}
                     <SelectValue placeholder="Select year" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Array.from({ length: 35 }, (_, i) => 2026 - i).map(year => (
-                      <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                    ))}
+                    {Array.from({ length: 35 }, (_, i) => 2026 - i).map((year) =>
+                    <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -250,10 +250,10 @@ ${formData.message}
                   id="boat_name"
                   required
                   value={formData.boat_name}
-                  onChange={(e) => setFormData({...formData, boat_name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, boat_name: e.target.value })}
                   className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                  placeholder="Your boat's name"
-                />
+                  placeholder="Your boat's name" />
+                
               </div>
               <div>
                 <Label htmlFor="location" className="text-white mb-2 block">Current Location *</Label>
@@ -261,10 +261,10 @@ ${formData.message}
                   id="location"
                   required
                   value={formData.location}
-                  onChange={(e) => setFormData({...formData, location: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   className="bg-white/10 border-white/30 text-white placeholder:text-white/50"
-                  placeholder="e.g., Marina Ixtapa"
-                />
+                  placeholder="e.g., Marina Ixtapa" />
+                
               </div>
             </div>
 
@@ -274,37 +274,37 @@ ${formData.message}
                 id="message"
                 required
                 value={formData.message}
-                onChange={(e) => setFormData({...formData, message: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 className="bg-white/10 border-white/30 text-white placeholder:text-white/50 min-h-[120px]"
-                placeholder="Share details about your vessel, experience, and why you'd like to join FILU Marine..."
-              />
+                placeholder="Share details about your vessel, experience, and why you'd like to join FILU Marine..." />
+              
             </div>
 
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-7 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] disabled:opacity-50 disabled:hover:scale-100"
-            >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-7 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] disabled:opacity-50 disabled:hover:scale-100">
+              
+              {isSubmitting ?
+              <span className="flex items-center gap-2">
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Submitting...
-                </span>
-              ) : (
-                <span className="flex items-center gap-2">
+                </span> :
+
+              <span className="flex items-center gap-2">
                   <Ship className="h-5 w-5" />
                   Submit Application
                 </span>
-              )}
+              }
             </Button>
           </form>
 
           <div className="mt-8 pt-8 border-t border-white/10 text-center">
-            <Button 
+            <Button
               size="lg"
               asChild
-              className="bg-emerald-600 text-white hover:bg-emerald-700 px-8 py-6 text-base font-medium rounded-full shadow-xl transition-all hover:scale-105"
-            >
+              className="bg-emerald-600 text-white hover:bg-emerald-700 px-8 py-6 text-base font-medium rounded-full shadow-xl transition-all hover:scale-105">
+              
               <a href="tel:+525513782169">
                 <svg className="mr-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
@@ -315,6 +315,6 @@ ${formData.message}
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
