@@ -1198,6 +1198,13 @@ function AdminBookingsInner() {
             </div>
           </TabsContent>
 
+          {/* ── MAINTENANCE FINANCE TAB ── */}
+          <TabsContent value="maintenance-finance">
+            <div className="rounded-2xl p-6" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)', backdropFilter: 'blur(16px)' }}>
+              <MaintenanceFinancialDashboard operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
+            </div>
+          </TabsContent>
+
           {/* ── BOATS TAB ── */}
           <TabsContent value="boats">
             <div className="rounded-2xl p-6" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', backdropFilter: 'blur(16px)' }}>
