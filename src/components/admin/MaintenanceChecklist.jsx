@@ -722,21 +722,17 @@ function ChecklistItem({ id, label, interval, info, checked, na, note, lastDate,
           {!na && (
             <div className="flex gap-2 mt-1.5">
               <div className="flex items-center gap-1">
-                <input
-                  type="date"
-                  value={lastDate || ''}
-                  onChange={(e) => onDateChange(id, e.target.value)}
-                  className="text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400"
-                  title="Last done date"
-                />
-                <button
-                  type="button"
-                  onClick={() => onDateChange(id, new Date().toISOString().split('T')[0])}
-                  title="Set to today's date"
-                  className="w-4 h-4 rounded-full bg-amber-100 text-amber-600 hover:bg-amber-200 flex items-center justify-center flex-shrink-0 transition-colors"
-                >
-                  <Clock className="h-2.5 w-2.5" />
-                </button>
+              <input
+                type="date"
+                value={lastDate || ''}
+                onChange={(e) => onDateChange(id, e.target.value)}
+                className="text-xs border border-slate-200 rounded px-2 py-1 bg-white text-slate-700 focus:outline-none focus:border-green-400"
+                title="Last done date"
+              />
+              <ChecklistTimestampButton
+                meta={lastDateMeta}
+                onStamp={(d, m) => onDateChange(id, d, m)}
+              />
               </div>
               <input
                 type="text"
