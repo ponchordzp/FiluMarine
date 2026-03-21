@@ -36,7 +36,7 @@ function urgencyText(daysUntil) {
 function InfoTip({ text }) {
   const [show, setShow] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
-  const btnRef = React.useRef(null);
+  const btnRef = useRef(null);
 
   const handleShow = () => {
     if (btnRef.current) {
