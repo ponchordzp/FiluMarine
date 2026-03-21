@@ -390,32 +390,34 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
                 <div className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.15)' }}>
                   <div className="flex items-center gap-1">
                     <span className="text-pink-400/90">Fees</span>
-                    <InfoTip text="Platform or operator fees logged per trip. Deducted after Gross Profit." />
+                    <InfoTip text="Platform or operator fees logged per trip." />
                   </div>
                   <span className="text-pink-400 font-semibold">−{fmt(totalFeesAmt)}</span>
                 </div>
               )}
 
-              {/* Recurring costs deduction */}
-              <div className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(245,158,11,0.08)' }}>
-                <div className="flex items-center gap-1">
-                  <span className="text-amber-400/80">Annual Recurring Costs</span>
-                  <InfoTip text="Fixed annual overhead: docking, insurance, crew, permits, etc. (annualized from recurring cost entries)." />
-                </div>
-                <span className="text-amber-400 font-semibold">−{fmt(Math.round(annualRecurring))} / yr</span>
-              </div>
-
-              {/* NET PROFIT = Gross Profit − Fees − Recurring */}
+              {/* NET PROFIT = Revenue − Trip Expenses − Fees */}
               <div className="flex justify-between items-center rounded px-2 py-2" style={{ background: netProfit >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)', border: `1px solid ${netProfit >= 0 ? 'rgba(16,185,129,0.25)' : 'rgba(239,68,68,0.25)'}` }}>
                 <div className="flex items-center gap-1">
                   <span className="font-bold text-white/80">Net Profit</span>
-                  <InfoTip text="Gross Profit − Fees − Annual Recurring Costs. True bottom line after all costs." />
+                  <InfoTip text="Revenue − Trip Expenses − Fees. Matches global KPI calculation." />
                 </div>
                 <div className="text-right">
                   <span className={`font-bold text-sm ${netProfit >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{fmt(netProfit)}</span>
-                  <span className="ml-2 text-[10px] text-white/40">Margin: {netMargin === '—' ? '—' : `${netMargin}%`} · ROI: {roi === '—' ? '—' : `${roi}%`}</span>
+                  <span className="ml-2 text-[10px] text-white/40">Margin: {netMargin === '—' ? '—' : `${netMargin}%`}</span>
                 </div>
               </div>
+
+              {/* Annual Recurring — shown as context, not deducted from net profit */}
+              {annualRecurring > 0 && (
+                <div className="flex justify-between items-center rounded px-2 py-1.5" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.12)' }}>
+                  <div className="flex items-center gap-1">
+                    <span className="text-amber-400/60 text-[10px] italic">Annual Recurring (context)</span>
+                    <InfoTip text="Fixed overhead (docking, insurance, etc.) shown for reference only. Not deducted from Net Profit shown above." />
+                  </div>
+                  <span className="text-amber-400/60 text-[10px]">{fmt(Math.round(annualRecurring))} / yr</span>
+                </div>
+              )}
 
               {/* Supplies */}
               {suppliesCost > 0 && (
