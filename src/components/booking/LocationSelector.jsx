@@ -173,8 +173,8 @@ export default function LocationSelector({ onSelectLocation }) {
         {/* Bottom Info */}
         <div className="mt-20 text-center">
           <div className="inline-block bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-3">
-            <p className="text-white/60 text-sm">
-              🌊 More destinations coming soon across Mexico's Pacific and Caribbean coasts
+            <p className="text-white/60 text-sm flex items-center justify-center gap-2">
+              <Waves className="h-4 w-4 text-cyan-400/60 flex-shrink-0" /> More destinations coming soon across Mexico's Pacific and Caribbean coasts
             </p>
           </div>
         </div>
