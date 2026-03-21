@@ -891,7 +891,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Fees"
                 value={fmtK(totals.feesAmt)}
                 sub="operator commission"
-                color="rgba(236,72,153,0.12)" border="rgba(236,72,153,0.3)" textColor="#f9a8d4" icon="💳"
+                color="rgba(236,72,153,0.12)" border="rgba(236,72,153,0.3)" textColor="#f9a8d4" icon={<CreditCard className="h-4 w-4" />}
                 info={`Operator commission calculated as a % of each booking's revenue. Deducted from Gross Profit to arrive at Net Profit.`}
               />
               <KpiCard
