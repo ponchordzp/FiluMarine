@@ -858,6 +858,7 @@ function ChecklistSection({ section, checklist, onToggle, onToggleNA, onNote, on
                   na={getVal(checklist, item.id, 'na')}
                   note={getVal(checklist, item.id, 'note')}
                   lastDate={getVal(checklist, item.id, 'lastDate')}
+                  lastDateMeta={getVal(checklist, item.id, 'lastDateMeta')}
                   onToggle={onToggle}
                   onToggleNA={onToggleNA}
                   onNoteChange={onNote}
