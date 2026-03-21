@@ -978,7 +978,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
       )}
 
       {/* Per-Boat Cards */}
-      <SectionRow label="📋 Per-Boat Financial Detail" defaultOpen={true}>
+      <SectionRow label="Per-Boat Financial Detail" icon={<ListChecks className="h-4 w-4 text-blue-300" />} defaultOpen={true}>
         <div className="space-y-4">
           {filteredBoats.length === 0 ? (
             <div className="text-center py-12 text-white/30">
