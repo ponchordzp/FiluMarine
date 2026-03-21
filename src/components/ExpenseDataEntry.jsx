@@ -16,6 +16,7 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
     maintenance_cost: 0,
     cleaning_cost: 0,
     supplies_cost: 0,
+    fees_cost: 0,
     other_cost: 0,
     notes: ''
   });
