@@ -41,6 +41,30 @@ export function InfoLabel({ children, info, example, className = '' }) {
   );
 }
 
+// Timestamp button — sets a date field to today on click
+export function TimestampButton({ onStamp, disabled = false, className = '' }) {
+  const [flashed, setFlashed] = React.useState(false);
+  const handleClick = () => {
+    onStamp(new Date().toISOString().split('T')[0]);
+    setFlashed(true);
+    setTimeout(() => setFlashed(false), 800);
+  };
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={handleClick}
+      title="Set to today's date"
+      className={`w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-colors ml-1 ${
+        disabled ? 'opacity-30 cursor-not-allowed bg-slate-100 text-slate-400' :
+        flashed ? 'bg-green-500 text-white' : 'bg-amber-100 text-amber-600 hover:bg-amber-200'
+      } ${className}`}
+    >
+      <Clock className="h-2.5 w-2.5" />
+    </button>
+  );
+}
+
 // Section lock toggle button + state hook
 export function useSectionLocks(sections) {
   const [locks, setLocks] = React.useState(() =>
