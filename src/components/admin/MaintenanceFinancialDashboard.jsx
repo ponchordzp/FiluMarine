@@ -277,7 +277,7 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
             <div className="space-y-2 text-xs">
               {[
                 { label: 'Total Revenue (completed)', value: fmt(totalRevenue), color: 'text-emerald-400', info: 'Sum of total_price on all bookings with status = completed for this boat.' },
-                { label: 'Total Trip Expenses', value: `−${fmt(totalExpenseAmt)}`, color: 'text-red-400', info: 'All BookingExpense entries linked to this boat's completed bookings: fuel + crew + maintenance + cleaning + supplies + other.' },
+                { label: 'Total Trip Expenses', value: `−${fmt(totalExpenseAmt)}`, color: 'text-red-400', info: "All BookingExpense entries linked to this boat's completed bookings: fuel + crew + maintenance + cleaning + supplies + other." },
                 { label: 'Gross Profit', value: fmt(grossProfit), color: grossProfit >= 0 ? 'text-blue-300' : 'text-red-400', info: 'Revenue minus Trip Expenses. Fixed/recurring costs are not deducted here.' },
                 { label: 'Annual Recurring Costs', value: `−${fmt(Math.round(annualRecurring))} / yr`, color: 'text-amber-400', info: `Sum of all recurring cost entries annualized: each cost amount ÷ frequency_months × 12. Covers docking, insurance, crew, permits, and other fixed expenses.` },
                 { label: 'Supplies Inventory Value', value: fmt(suppliesCost), color: 'text-cyan-400', info: 'Total value of supplies in the inventory: quantity × price_per_unit for each supply item regardless of in_stock/needed status.' },
