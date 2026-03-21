@@ -33,6 +33,7 @@ import PickupLocationsManagement from '@/components/admin/PickupLocationsManagem
 import ExtrasManagement from '@/components/admin/ExtrasManagement';
 import EngineDatabases from '@/components/admin/EngineDatabases';
 import JoinFiluApplications from '@/components/admin/JoinFiluApplications';
+import MaintenanceFinancialDashboard from '@/components/admin/MaintenanceFinancialDashboard';
 import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
 
