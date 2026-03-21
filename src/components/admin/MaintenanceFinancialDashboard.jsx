@@ -193,7 +193,7 @@ function NextServiceBudgetPanel({ breakdown, total, overdueCount, boats, booking
                             {item.type} service
                           </span>
                           {item.serviceOverdue && (
-                            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">⚠ OVERDUE</span>
+                            <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse flex items-center gap-1"><AlertTriangle className="h-3 w-3" />OVERDUE</span>
                           )}
                         </div>
                         {item.boat && <p className="text-xs text-white/30 mt-0.5">{item.boat.type} · {item.boat.size} · {item.boat.engine_name || 'No engine info'}</p>}
