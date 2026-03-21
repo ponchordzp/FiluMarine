@@ -510,6 +510,25 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
   );
 }
 
+// ─── Commission helper (mirrors global KPI logic exactly) ────────────────────
+function getOperatorCommission(boatName, allBoats) {
+  try {
+    const raw = localStorage.getItem('filu_operators');
+    if (!raw) return 0;
+    const ops = JSON.parse(raw);
+    const boat = allBoats.find(b => b.name === boatName);
+    const boatOpName = (boat?.operator || '').toLowerCase().trim();
+    let op = null;
+    if (boatOpName && boatOpName !== 'filu') {
+      op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+    }
+    if (!op) op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
+    return parseFloat(op?.commission_pct || 0);
+  } catch {
+    return 0;
+  }
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }) {
   const { data: boats = [], isLoading: loadingBoats } = useQuery({
