@@ -692,14 +692,14 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                   {[
                     { label: 'Boat' },
                     { label: 'Revenue' },
-                    { label: 'Trip Exp.' },
-                    { label: 'Fees', tip: 'Platform / operator fees — subset of Trip Expenses' },
-                    { label: 'Gross Profit', tip: 'Revenue − Trip Expenses (variable costs only)' },
-                    { label: 'Gross Margin', tip: 'Gross Profit ÷ Revenue' },
-                    { label: 'ROI', tip: 'Gross Profit ÷ Trip Expenses (return on spend)' },
+                    { label: 'Trip Exp. (ex-fees)' },
+                    { label: 'Fees', tip: 'Platform/operator fees — deducted after Gross Profit' },
+                    { label: 'Gross Profit', tip: 'Revenue − Trip Expenses (ex-fees)' },
+                    { label: 'Gross Margin %', tip: 'Gross Profit ÷ Revenue (0–100%)' },
                     { label: 'Recurring /yr', tip: 'Annual fixed overhead (docking, insurance, etc.)' },
-                    { label: 'Net Profit', tip: 'Gross Profit − Annual Recurring Costs' },
-                    { label: 'Net Margin', tip: 'Net Profit ÷ Revenue' },
+                    { label: 'Net Profit', tip: 'Gross Profit − Fees − Annual Recurring' },
+                    { label: 'Net Margin %', tip: 'Net Profit ÷ Revenue (0–100%)' },
+                    { label: 'ROI %', tip: 'Net Profit ÷ Total Costs (trip + fees + recurring), always 0–100%' },
                     { label: 'Maint. Logged' },
                   ].map(({ label, tip }) => (
                     <th key={label} className="text-left pb-3 pr-4 font-semibold uppercase tracking-wider text-white/30 whitespace-nowrap" style={{ fontSize: '10px' }}>
@@ -711,9 +711,9 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
               <tbody className="divide-y divide-white/5">
                 {filteredBoats.map((boat) => {
                   const s = fleetStats[filteredBoats.indexOf(boat)];
-                  const grossMarginPct = s.revenue > 0 ? ((s.grossProfit / s.revenue) * 100).toFixed(1) : '—';
-                  const roiPct = s.expAmt > 0 ? ((s.grossProfit / s.expAmt) * 100).toFixed(1) : '—';
-                  const netMarginPct = s.revenue > 0 ? ((s.netProfit / s.revenue) * 100).toFixed(1) : '—';
+                  const gm = s.revenue > 0 ? Math.min(100, (s.grossProfit / s.revenue) * 100).toFixed(1) : '—';
+                  const nm = s.revenue > 0 ? ((s.netProfit / s.revenue) * 100).toFixed(1) : '—';
+                  const roiPct = s.totalCosts > 0 ? Math.min(100, Math.max(0, (s.netProfit / s.totalCosts) * 100)).toFixed(1) : '—';
                   return (
                     <tr key={boat.id} className="hover:bg-white/3 transition-colors">
                       <td className="py-3 pr-4">
@@ -723,33 +723,40 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                         </div>
                       </td>
                       <td className="py-3 pr-4 text-emerald-400 font-semibold">{fmtK(s.revenue)}</td>
-                      <td className="py-3 pr-4 text-red-400">{fmtK(s.expAmt)}</td>
+                      <td className="py-3 pr-4 text-red-400">{fmtK(s.tripExp)}</td>
                       <td className="py-3 pr-4 text-pink-400">{s.feesAmt > 0 ? fmtK(s.feesAmt) : <span className="text-white/20">—</span>}</td>
                       <td className={`py-3 pr-4 font-bold ${s.grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fmtK(s.grossProfit)}</td>
-                      <td className={`py-3 pr-4 font-semibold ${s.grossProfit >= 0 ? 'text-blue-300/70' : 'text-red-400'}`}>{grossMarginPct === '—' ? '—' : `${grossMarginPct}%`}</td>
-                      <td className="py-3 pr-4 text-purple-300">{roiPct === '—' ? '—' : `${roiPct}%`}</td>
+                      <td className={`py-3 pr-4 font-semibold ${s.grossProfit >= 0 ? 'text-blue-300/70' : 'text-red-400'}`}>{gm === '—' ? '—' : `${gm}%`}</td>
                       <td className="py-3 pr-4 text-amber-400/70">{s.annualRecurring > 0 ? fmtK(Math.round(s.annualRecurring)) : <span className="text-white/20">—</span>}</td>
                       <td className={`py-3 pr-4 font-bold ${s.netProfit >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{fmtK(s.netProfit)}</td>
-                      <td className={`py-3 pr-4 font-semibold ${s.netProfit >= 0 ? 'text-emerald-300/70' : 'text-red-400'}`}>{netMarginPct === '—' ? '—' : `${netMarginPct}%`}</td>
+                      <td className={`py-3 pr-4 font-semibold ${s.netProfit >= 0 ? 'text-emerald-300/70' : 'text-red-400'}`}>{nm === '—' ? '—' : `${nm}%`}</td>
+                      <td className="py-3 pr-4 text-purple-300">{roiPct === '—' ? '—' : `${roiPct}%`}</td>
                       <td className="py-3 text-white/60">{fmtK(s.maintenanceSpent)}</td>
                     </tr>
                   );
                 })}
               </tbody>
               <tfoot>
-                <tr style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}>
-                  <td className="pt-3 pr-4 text-white/50 font-bold text-xs uppercase">Fleet Total</td>
-                  <td className="pt-3 pr-4 text-emerald-400 font-bold">{fmtK(totals.revenue)}</td>
-                  <td className="pt-3 pr-4 text-red-400 font-bold">{fmtK(totals.expAmt)}</td>
-                  <td className="pt-3 pr-4 text-pink-400 font-bold">{totals.feesAmt > 0 ? fmtK(totals.feesAmt) : '—'}</td>
-                  <td className={`pt-3 pr-4 font-bold ${totals.grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fmtK(totals.grossProfit)}</td>
-                  <td className={`pt-3 pr-4 font-bold ${totals.grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{totals.revenue > 0 ? `${((totals.grossProfit / totals.revenue) * 100).toFixed(1)}%` : '—'}</td>
-                  <td className="pt-3 pr-4 text-purple-300 font-bold">{totals.expAmt > 0 ? `${((totals.grossProfit / totals.expAmt) * 100).toFixed(1)}%` : '—'}</td>
-                  <td className="pt-3 pr-4 text-amber-400/70 font-bold">{totals.annualRecurring > 0 ? fmtK(Math.round(totals.annualRecurring)) : '—'}</td>
-                  <td className={`pt-3 pr-4 font-bold ${totals.netProfit >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{fmtK(totals.netProfit)}</td>
-                  <td className={`pt-3 pr-4 font-bold ${totals.netProfit >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{totals.revenue > 0 ? `${((totals.netProfit / totals.revenue) * 100).toFixed(1)}%` : '—'}</td>
-                  <td className="pt-3 text-white/60 font-bold">{fmtK(totals.maintenanceSpent)}</td>
-                </tr>
+                {(() => {
+                  const fgm = totals.revenue > 0 ? Math.min(100, (totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—';
+                  const fnm = totals.revenue > 0 ? ((totals.netProfit / totals.revenue) * 100).toFixed(1) : '—';
+                  const froi = totals.totalCosts > 0 ? Math.min(100, Math.max(0, (totals.netProfit / totals.totalCosts) * 100)).toFixed(1) : '—';
+                  return (
+                    <tr style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}>
+                      <td className="pt-3 pr-4 text-white/50 font-bold text-xs uppercase">Fleet Total</td>
+                      <td className="pt-3 pr-4 text-emerald-400 font-bold">{fmtK(totals.revenue)}</td>
+                      <td className="pt-3 pr-4 text-red-400 font-bold">{fmtK(totals.tripExp)}</td>
+                      <td className="pt-3 pr-4 text-pink-400 font-bold">{totals.feesAmt > 0 ? fmtK(totals.feesAmt) : '—'}</td>
+                      <td className={`pt-3 pr-4 font-bold ${totals.grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fmtK(totals.grossProfit)}</td>
+                      <td className={`pt-3 pr-4 font-bold ${totals.grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fgm === '—' ? '—' : `${fgm}%`}</td>
+                      <td className="pt-3 pr-4 text-amber-400/70 font-bold">{totals.annualRecurring > 0 ? fmtK(Math.round(totals.annualRecurring)) : '—'}</td>
+                      <td className={`pt-3 pr-4 font-bold ${totals.netProfit >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{fmtK(totals.netProfit)}</td>
+                      <td className={`pt-3 pr-4 font-bold ${totals.netProfit >= 0 ? 'text-emerald-300' : 'text-red-400'}`}>{fnm === '—' ? '—' : `${fnm}%`}</td>
+                      <td className="pt-3 pr-4 text-purple-300 font-bold">{froi === '—' ? '—' : `${froi}%`}</td>
+                      <td className="pt-3 text-white/60 font-bold">{fmtK(totals.maintenanceSpent)}</td>
+                    </tr>
+                  );
+                })()}
               </tfoot>
             </table>
           </div>
