@@ -339,6 +339,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       recurring_costs: boat.recurring_costs || [],
       price_per_additional_hour: boat.price_per_additional_hour || 0,
       maintenance_checklist: boat.maintenance_checklist || {},
+      field_meta: boat.field_meta || {},
       equipment: boat.equipment || {
         bathroom: false,
         live_well: false,
