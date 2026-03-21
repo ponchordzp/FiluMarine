@@ -149,6 +149,17 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
   const hoursUntilService = Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - totalHours);
   const serviceOverdue = totalHours > (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100);
 
+  // Maintenance costs
+  const engineQty = boat.engine_quantity || 1;
+  const totalMinorCost = (boat.minor_maintenance_cost || 0) * engineQty;
+  const totalMajorCost = (boat.major_maintenance_cost || 0) * engineQty;
+  const nextServiceCost = boat.next_service_type === 'major' ? totalMajorCost : totalMinorCost;
+
+  // Recurring costs (must come before net profit calc)
+  const recurringCosts = boat.recurring_costs || [];
+  const monthlyRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0);
+  const annualRecurring = monthlyRecurring * 12;
+
   // Revenue & expenses
   const completedIds = completedBookings.map(b => b.id);
   const boatExpenses = expenses.filter(e => completedIds.includes(e.booking_id));
@@ -159,27 +170,22 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
   const totalSuppliesCost = boatExpenses.reduce((s, e) => s + (e.supplies_cost || 0), 0);
   const totalFeesAmt = boatExpenses.reduce((s, e) => s + (e.fees_cost || 0), 0);
   const totalOtherCost = boatExpenses.reduce((s, e) => s + (e.other_cost || 0), 0);
-  const totalExpenseAmt = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalFeesAmt + totalOtherCost;
+  // Trip expenses = variable per-trip costs (fees included)
+  const tripExpensesNoFees = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
+  const totalExpenseAmt = tripExpensesNoFees + totalFeesAmt;
   const totalRevenue = completedBookings.reduce((s, b) => s + (b.total_price || 0), 0);
-  const grossProfit = totalRevenue - totalExpenseAmt;
-  const grossMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : '—';
 
-  // Net Profit = Gross Profit − annualized recurring (monthly avg × months in period, approximated as annual/12 × completed trips span, but we use monthly avg for simplicity)
-  // We show net profit as Gross − monthly recurring avg (per-month basis since we can't know the exact period)
-  const netProfit = grossProfit - annualRecurring;
-  const netMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '—';
+  // GROSS PROFIT = Revenue − Trip Expenses (variable costs only, before fixed/recurring)
+  const grossProfit = totalRevenue - totalExpenseAmt;
+  // Gross Margin % = Gross Profit / Revenue
+  const grossMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : '—';
+  // ROI = Gross Profit / Total Trip Expenses (return on money spent per trip)
   const roi = totalExpenseAmt > 0 ? ((grossProfit / totalExpenseAmt) * 100).toFixed(1) : '—';
 
-  // Maintenance costs
-  const engineQty = boat.engine_quantity || 1;
-  const totalMinorCost = (boat.minor_maintenance_cost || 0) * engineQty;
-  const totalMajorCost = (boat.major_maintenance_cost || 0) * engineQty;
-  const nextServiceCost = boat.next_service_type === 'major' ? totalMajorCost : totalMinorCost;
-
-  // Recurring costs
-  const recurringCosts = boat.recurring_costs || [];
-  const monthlyRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0);
-  const annualRecurring = monthlyRecurring * 12;
+  // NET PROFIT = Gross Profit − Annual Recurring Costs (fixed overhead)
+  const netProfit = grossProfit - annualRecurring;
+  // Net Margin % = Net Profit / Revenue
+  const netMargin = totalRevenue > 0 ? ((netProfit / totalRevenue) * 100).toFixed(1) : '—';
 
   // Supplies inventory cost
   const suppliesCost = (boat.supplies_inventory || []).reduce((s, item) =>
