@@ -737,11 +737,11 @@ function AdminBookingsInner() {
                 </div>
                 <div className="grid grid-cols-5 gap-2">
                   {[
-                    { label: 'Total', value: bookingStats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/80', svg: '📊' },
-                    { label: 'Pending', value: bookingStats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-200', svg: '⏳' },
-                    { label: 'Confirmed', value: bookingStats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-200', svg: '✔️' },
-                    { label: 'Completed', value: bookingStats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', svg: '🎯' },
-                    { label: 'Cancelled', value: bookingStats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-200', svg: '❌' },
+                    { label: 'Total', value: bookingStats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/80', Icon: LayoutGrid },
+                    { label: 'Pending', value: bookingStats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-200', Icon: Hourglass },
+                    { label: 'Confirmed', value: bookingStats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-200', Icon: CheckCircle2 },
+                    { label: 'Completed', value: bookingStats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', Icon: Target },
+                    { label: 'Cancelled', value: bookingStats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-200', Icon: XCircle },
                   ].map(s => (
                     <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
                       <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
