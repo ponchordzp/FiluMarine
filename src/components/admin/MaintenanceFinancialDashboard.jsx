@@ -608,18 +608,18 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
               info="Sum of total_price across all completed bookings for every boat in view."
             />
             <KpiCard
-              label="Trip Expenses"
-              value={fmtK(totals.tripExp)}
-              sub={totals.feesAmt > 0 ? `+ ${fmtK(totals.feesAmt)} fees` : 'ex-fees'}
+              label="Expenses"
+              value={fmtK(totals.expAmt)}
+              sub={totals.feesAmt > 0 ? `+ ${fmtK(totals.feesAmt)} fees` : 'no fees logged'}
               color="rgba(239,68,68,0.12)" border="rgba(239,68,68,0.3)" textColor="#fca5a5" icon="📉"
-              info={`Direct operating costs (fuel, crew, maintenance, cleaning, supplies, other). Fees (${fmtK(totals.feesAmt)}) are shown separately.`}
+              info={`fuel + crew + maintenance + cleaning + supplies + other. Fees (${fmtK(totals.feesAmt)}) shown separately.`}
             />
             <KpiCard
               label="Gross Profit"
               value={fmtK(totals.grossProfit)}
-              sub={`Gross Margin: ${fleetGrossMargin}%`}
+              sub={`Revenue − Expenses · ${fleetGrossMargin}%`}
               color="rgba(59,130,246,0.12)" border="rgba(59,130,246,0.3)" textColor="#93c5fd" icon="📊"
-              info="Revenue − Trip Expenses (ex-fees). Fees and recurring overhead not yet deducted."
+              info="Gross Profit = Revenue − Expenses. Fees not yet deducted."
             />
             <KpiCard
               label="Net Profit"
