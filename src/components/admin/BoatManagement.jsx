@@ -938,15 +938,18 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                               {item.interval && <p className="text-xs text-orange-700">{item.interval}</p>}
                               {item.notes && <p className="text-xs text-slate-500">{item.notes}</p>}
                               {formData.maintenance_checklist[item.id]?.checked && (
-                                <Input type="date" className="mt-1 h-7 text-xs w-40"
-                                  value={formData.maintenance_checklist[item.id]?.date || ''}
-                                  disabled={locks['maintenance']}
-                                  onChange={e => setFormData(fd => ({
-                                    ...fd,
-                                    maintenance_checklist: { ...fd.maintenance_checklist, [item.id]: { ...fd.maintenance_checklist[item.id], date: e.target.value } }
-                                  }))}
-                                  placeholder="Date completed"
-                                />
+                                <div className="flex items-center gap-1 mt-1">
+                                  <Input type="date" className="h-7 text-xs w-40"
+                                    value={formData.maintenance_checklist[item.id]?.date || ''}
+                                    disabled={locks['maintenance']}
+                                    onChange={e => setFormData(fd => ({
+                                      ...fd,
+                                      maintenance_checklist: { ...fd.maintenance_checklist, [item.id]: { ...fd.maintenance_checklist[item.id], date: e.target.value } }
+                                    }))}
+                                    placeholder="Date completed"
+                                  />
+                                  <TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData(fd => ({ ...fd, maintenance_checklist: { ...fd.maintenance_checklist, [item.id]: { ...fd.maintenance_checklist[item.id], date: d } } }))} />
+                                </div>
                               )}
                             </div>
                             {!locks['maintenance'] && (
