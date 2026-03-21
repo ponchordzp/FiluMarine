@@ -816,37 +816,37 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <p className="text-xs font-bold text-orange-900 uppercase tracking-wide">Component Replacement Dates</p>
                     <div className="grid md:grid-cols-2 gap-3">
                       <div>
-                        <InfoLabel className="text-xs" info="Date the water pump impeller was last replaced. Usually every 1-2 years." example="2024-06-01">Impeller Last Replaced</InfoLabel>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date the water pump impeller was last replaced. Usually every 1-2 years." example="2024-06-01">Impeller Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, impeller_last_replaced_date: d })} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.impeller_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, impeller_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <InfoLabel className="text-xs" info="Date the fuel filter was last replaced. Usually every annual service." example="2024-12-01">Fuel Filter Last Replaced</InfoLabel>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date the fuel filter was last replaced. Usually every annual service." example="2024-12-01">Fuel Filter Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, fuel_filter_last_replaced_date: d })} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.fuel_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, fuel_filter_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <InfoLabel className="text-xs" info="Date the oil filter was last replaced. Usually every 100 engine hours or 1 year." example="2024-11-10">Oil Filter Last Replaced</InfoLabel>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date the oil filter was last replaced. Usually every 100 engine hours or 1 year." example="2024-11-10">Oil Filter Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, oil_filter_last_replaced_date: d })} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.oil_filter_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, oil_filter_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       {formData.engine_config === 'outboard' &&
                       <div>
-                          <InfoLabel className="text-xs" info="Date spark plugs were last replaced on outboard engine. Usually every 100 hrs or 1 year." example="2024-09-20">Spark Plugs Last Replaced</InfoLabel>
+                          <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date spark plugs were last replaced on outboard engine. Usually every 100 hrs or 1 year." example="2024-09-20">Spark Plugs Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, spark_plugs_last_replaced_date: d })} /></div>
                           <Input type="date" disabled={locks['maintenance']} value={formData.spark_plugs_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, spark_plugs_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                         </div>
                       }
                       <div>
-                        <InfoLabel className="text-xs" info="Date batteries were last tested or replaced. Annual inspection recommended." example="2024-08-05">Battery Last Inspected</InfoLabel>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date batteries were last tested or replaced. Annual inspection recommended." example="2024-08-05">Battery Last Inspected</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, battery_inspection_date: d })} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.battery_inspection_date || ''} onChange={(e) => setFormData({ ...formData, battery_inspection_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <InfoLabel className="text-xs" info="Date zinc/aluminum anodes protecting the hull from corrosion were last replaced." example="2024-07-15">Zinc Anodes Last Replaced</InfoLabel>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date zinc/aluminum anodes protecting the hull from corrosion were last replaced." example="2024-07-15">Zinc Anodes Last Replaced</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, zinc_anodes_last_replaced_date: d })} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.zinc_anodes_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, zinc_anodes_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <InfoLabel className="text-xs" info="Date anti-fouling bottom paint was last applied to prevent marine growth." example="2024-02-10">Anti-Fouling Paint Last Applied</InfoLabel>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date anti-fouling bottom paint was last applied to prevent marine growth." example="2024-02-10">Anti-Fouling Paint Last Applied</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, antifouling_last_applied_date: d })} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.antifouling_last_applied_date || ''} onChange={(e) => setFormData({ ...formData, antifouling_last_applied_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <InfoLabel className="text-xs" info="Date life jackets, flares, fire extinguishers, and other safety gear were last inspected." example="2025-01-01">Safety Equipment Last Inspected</InfoLabel>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date life jackets, flares, fire extinguishers, and other safety gear were last inspected." example="2025-01-01">Safety Equipment Last Inspected</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, safety_equipment_inspection_date: d })} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.safety_equipment_inspection_date || ''} onChange={(e) => setFormData({ ...formData, safety_equipment_inspection_date: e.target.value })} className="text-sm mt-1" />
                         <p className="text-xs text-orange-700 mt-1">Life jackets, flares, fire extinguishers</p>
                       </div>
