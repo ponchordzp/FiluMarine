@@ -105,9 +105,8 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
     saveExpenseMutation.mutate(expenseData);
   };
 
-  const totalExpenses = Object.values(expenseData)
-    .filter((v, i) => i < 6)
-    .reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+  const totalExpenses = ['fuel_cost','crew_cost','maintenance_cost','cleaning_cost','supplies_cost','fees_cost','other_cost']
+    .reduce((sum, key) => sum + (parseFloat(expenseData[key]) || 0), 0);
 
   const revenue = booking?.total_price || 0;
   const profit = revenue - totalExpenses;
