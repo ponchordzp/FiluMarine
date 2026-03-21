@@ -177,6 +177,15 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
               />
             </div>
             <div>
+              <Label>Fees (MXN)</Label>
+              <Input
+                type="number"
+                value={expenseData.fees_cost}
+                onChange={(e) => setExpenseData({...expenseData, fees_cost: parseFloat(e.target.value) || 0})}
+                placeholder="0"
+              />
+            </div>
+            <div>
               <Label>Other Costs (MXN)</Label>
               <Input
                 type="number"
