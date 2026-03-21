@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format, parseISO, differenceInDays } from 'date-fns';
-import { Wrench, DollarSign, AlertTriangle, Clock, ChevronDown, ChevronUp, Ship, Info, Lightbulb } from 'lucide-react';
+import { Wrench, DollarSign, AlertTriangle, Clock, ChevronDown, ChevronUp, Ship, Info, Lightbulb, TrendingUp, TrendingDown, BarChart2, CreditCard, Banknote, Receipt, Fuel, Percent, RefreshCw, Settings, CheckCircle2, XCircle, Phone, ListChecks } from 'lucide-react';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const fmt = (n) => `$${Number(n || 0).toLocaleString('es-MX')} MXN`;
