@@ -951,7 +951,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                     }))}
                                     placeholder="Date completed"
                                   />
-                                  <TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData(fd => ({ ...fd, maintenance_checklist: { ...fd.maintenance_checklist, [item.id]: { ...fd.maintenance_checklist[item.id], date: d } } }))} />
+                                  <TimestampButton disabled={locks['maintenance']} meta={formData.maintenance_checklist[item.id]?.date_meta} onStamp={(d, m) => setFormData(fd => ({ ...fd, maintenance_checklist: { ...fd.maintenance_checklist, [item.id]: { ...fd.maintenance_checklist[item.id], date: d, date_meta: m } } }))} />
                                 </div>
                               )}
                             </div>
