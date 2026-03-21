@@ -303,7 +303,7 @@ function SmartSuggestions({ suggestions }) {
             const st = typeStyles[s.type] || typeStyles.info;
             return (
               <div key={i} className="flex items-start gap-2.5 rounded-lg px-3 py-2.5 text-sm" style={{ background: st.bg, border: `1px solid ${st.border}` }}>
-                <span className="mt-0.5 shrink-0">{st.icon}</span>
+                {st.icon}
                 <p className={st.text}>{s.text}</p>
               </div>
             );
