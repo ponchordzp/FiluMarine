@@ -83,7 +83,7 @@ const extendedExperience = {
   description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration with restaurant visits.',
   targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado', 'Roosterfish'],
   icon: Fish,
-  availableBoats: 'FILU, TYCOON, La Güera, Pirula',
+  availableBoats: 'FILU, TYCOON',
 };
 
 // Location-specific boat availability
