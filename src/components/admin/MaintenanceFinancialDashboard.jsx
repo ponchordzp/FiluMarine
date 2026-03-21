@@ -418,7 +418,7 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats }
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs px-2 py-1 rounded-full font-medium capitalize" style={{ background: statusColor, color: 'white' }}>{boat.status}</span>
-          {serviceOverdue && <span className="text-xs px-2 py-1 rounded-full font-bold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">⚠ Service Overdue</span>}
+          {serviceOverdue && <span className="text-xs px-2 py-1 rounded-full font-bold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse flex items-center gap-1"><AlertTriangle className="h-3 w-3" />Service Overdue</span>}
           <button onClick={() => setExpanded(e => !e)} className="p-1.5 rounded-lg hover:bg-white/10 transition-colors">
             {expanded ? <ChevronUp className="h-4 w-4 text-white/50" /> : <ChevronDown className="h-4 w-4 text-white/50" />}
           </button>
