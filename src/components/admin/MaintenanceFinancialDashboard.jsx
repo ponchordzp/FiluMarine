@@ -740,7 +740,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                     <tr style={{ borderTop: '1px solid rgba(255,255,255,0.12)' }}>
                       <td className="pt-3 pr-4 text-white/50 font-bold text-xs uppercase">Fleet Total</td>
                       <td className="pt-3 pr-4 text-emerald-400 font-bold">{fmtK(totals.revenue)}</td>
-                      <td className="pt-3 pr-4 text-red-400 font-bold">{fmtK(totals.tripExp)}</td>
+                      <td className="pt-3 pr-4 text-red-400 font-bold">{fmtK(totals.expAmt)}</td>
                       <td className="pt-3 pr-4 text-pink-400 font-bold">{totals.feesAmt > 0 ? fmtK(totals.feesAmt) : '—'}</td>
                       <td className={`pt-3 pr-4 font-bold ${totals.grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fmtK(totals.grossProfit)}</td>
                       <td className={`pt-3 pr-4 font-bold ${totals.grossProfit >= 0 ? 'text-blue-300' : 'text-red-400'}`}>{fgm === '—' ? '—' : `${fgm}%`}</td>
