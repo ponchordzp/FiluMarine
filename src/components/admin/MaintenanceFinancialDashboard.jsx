@@ -884,7 +884,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Gross Profit"
                 value={fmtK(totals.grossProfit)}
                 sub={`${fleetGrossMargin}% margin`}
-                color="rgba(59,130,246,0.12)" border="rgba(59,130,246,0.3)" textColor="#93c5fd" icon="📊"
+                color="rgba(59,130,246,0.12)" border="rgba(59,130,246,0.3)" textColor="#93c5fd" icon={<BarChart2 className="h-4 w-4" />}
                 info="Gross Profit = Revenue − Expenses. Fees not yet deducted."
               />
               <KpiCard
