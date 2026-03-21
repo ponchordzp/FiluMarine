@@ -907,7 +907,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Maint. Logged"
                 value={fmtK(totals.maintenanceSpent)}
                 sub="actual records"
-                color="rgba(249,115,22,0.12)" border="rgba(249,115,22,0.3)" textColor="#fdba74" icon="🔧"
+                color="rgba(249,115,22,0.12)" border="rgba(249,115,22,0.3)" textColor="#fdba74" icon={<Wrench className="h-4 w-4" />}
                 info="Sum of cost entries in each boat's Maintenance History log — real recorded service events, not estimates."
               />
             </div>
