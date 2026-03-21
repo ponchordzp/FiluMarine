@@ -900,7 +900,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 sub={`${fleetNetMargin}% net margin`}
                 color={totals.netProfit >= 0 ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.12)"}
                 border={totals.netProfit >= 0 ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}
-                textColor={totals.netProfit >= 0 ? "#6ee7b7" : "#fca5a5"} icon="💵"
+                textColor={totals.netProfit >= 0 ? "#6ee7b7" : "#fca5a5"} icon={<Banknote className="h-4 w-4" />}
                 info={`Gross Profit − Fees (${fmtK(totals.feesAmt)}). This is the final bottom-line after all trip costs and commissions.`}
               />
               <KpiCard
