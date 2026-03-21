@@ -137,7 +137,7 @@ function SectionRow({ label, children, defaultOpen = false }) {
 }
 
 // ─── Per-boat card ────────────────────────────────────────────────────────────
-function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
+function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats }) {
   const [expanded, setExpanded] = useState(false);
 
   // Engine hours — use all non-cancelled bookings
