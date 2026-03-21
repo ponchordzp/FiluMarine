@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Anchor } from 'lucide-react';
+import { MapPin, Anchor, Waves } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
