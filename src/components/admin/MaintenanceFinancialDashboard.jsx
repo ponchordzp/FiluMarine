@@ -238,28 +238,28 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips }) {
           info="Sum of total_price from all completed bookings for this boat."
         />
         <KpiCell
-          label="Trip Expenses"
-          value={fmtK(tripExpenses)}
+          label="Expenses"
+          value={fmtK(totalExpenses)}
           color="rgba(239,68,68,0.1)"
-          info="Direct operating costs per trip: fuel, crew, maintenance, cleaning, supplies, other. Fees are shown separately."
+          info="fuel + crew + maintenance + cleaning + supplies + other. Fees shown separately."
         />
         <KpiCell
           label="Gross Profit"
           value={fmtK(grossProfit)}
           color={grossProfit >= 0 ? 'rgba(59,130,246,0.1)' : 'rgba(239,68,68,0.15)'}
-          info={`Revenue − Trip Expenses (ex-fees). Gross Margin: ${grossMargin}%. Fees and recurring costs not yet deducted.`}
+          info={`Revenue − Expenses = ${fmtK(grossProfit)}. Gross Margin: ${grossMargin}%.`}
         />
         <KpiCell
           label="Net Profit"
           value={fmtK(netProfit)}
           color={netProfit >= 0 ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.15)'}
-          info={`Revenue − Trip Expenses − Fees. Same formula as global KPI. Net Margin: ${netMargin}%.`}
+          info={`Gross Profit − Fees (${fmtK(totalFeesAmt)}) = ${fmtK(netProfit)}. Net Margin: ${netMargin}%.`}
         />
         <KpiCell
-          label={`Margin ${netMargin === '—' ? '—' : netMargin + '%'}`}
+          label={`Net ${netMargin === '—' ? '—' : netMargin + '%'}`}
           value={grossMargin === '—' ? '—' : `Gross ${grossMargin}%`}
           color="rgba(168,85,247,0.1)"
-          info={`Net Margin = Net Profit ÷ Revenue (${netMargin}%). Gross Margin = Gross Profit ÷ Revenue (${grossMargin}%).`}
+          info={`Net Margin = Net Profit ÷ Revenue. Gross Margin = Gross Profit ÷ Revenue.`}
         />
         <KpiCell
           label="Engine Hours"
