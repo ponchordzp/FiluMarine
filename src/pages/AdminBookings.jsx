@@ -32,6 +32,7 @@ import AdminBookingCard from '@/components/admin/AdminBookingCard';
 import PickupLocationsManagement from '@/components/admin/PickupLocationsManagement';
 import ExtrasManagement from '@/components/admin/ExtrasManagement';
 import EngineDatabases from '@/components/admin/EngineDatabases';
+import JoinFiluApplications from '@/components/admin/JoinFiluApplications';
 import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
 
