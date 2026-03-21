@@ -918,7 +918,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Avg Cost / Booking"
                 value={fmtK(avgCostPerBooking)}
                 sub={`${totalActiveBookings} bookings`}
-                color="rgba(99,102,241,0.12)" border="rgba(99,102,241,0.3)" textColor="#a5b4fc" icon="🧾"
+                color="rgba(99,102,241,0.12)" border="rgba(99,102,241,0.3)" textColor="#a5b4fc" icon={<Receipt className="h-4 w-4" />}
                 info="Total trip expenses ÷ number of active (non-cancelled) bookings. Helps identify if per-trip costs are rising."
               />
               <KpiCard
