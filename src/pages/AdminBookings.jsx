@@ -98,6 +98,7 @@ function AdminBookingsInner() {
   const [customDateRangeBooking, setCustomDateRangeBooking] = useState({ from: null, to: null });
   const [showCustomDatePickerFinancial, setShowCustomDatePickerFinancial] = useState(false);
   const [showCustomDatePickerBooking, setShowCustomDatePickerBooking] = useState(false);
+  const [activeTab, setActiveTab] = useState('bookings');
 
   const queryClient = useQueryClient();
 
