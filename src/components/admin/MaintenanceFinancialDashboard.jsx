@@ -970,7 +970,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
           <div className="flex flex-wrap gap-2">
             {alertBoats.map(b => (
               <span key={b.id} className="text-xs px-2.5 py-1 rounded-full text-red-300 font-medium" style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }}>
-                ⚠ {b.name}
+                {b.name}
               </span>
             ))}
           </div>
