@@ -932,7 +932,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
                 label="Expense Ratio"
                 value={expenseRatio === '—' ? '—' : `${expenseRatio}%`}
                 sub="expenses ÷ revenue"
-                color="rgba(239,68,68,0.10)" border="rgba(239,68,68,0.25)" textColor="#fca5a5" icon="📐"
+                color="rgba(239,68,68,0.10)" border="rgba(239,68,68,0.25)" textColor="#fca5a5" icon={<Percent className="h-4 w-4" />}
                 info="Total trip expenses ÷ revenue. Lower is better. Above 80% means very little is left after expenses before fees."
               />
               <KpiCard
