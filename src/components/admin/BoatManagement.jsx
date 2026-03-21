@@ -845,7 +845,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         <Input type="date" disabled={locks['maintenance']} value={formData.zinc_anodes_last_replaced_date || ''} onChange={(e) => setFormData({ ...formData, zinc_anodes_last_replaced_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date anti-fouling bottom paint was last applied to prevent marine growth." example="2024-02-10">Anti-Fouling Paint Last Applied</InfoLabel><TimestampButton disabled={locks['maintenance']} onStamp={(d) => setFormData({ ...formData, antifouling_last_applied_date: d })} /></div>
+                        <div className="flex items-center gap-0.5"><InfoLabel className="text-xs" info="Date anti-fouling bottom paint was last applied to prevent marine growth." example="2024-02-10">Anti-Fouling Paint Last Applied</InfoLabel><TimestampButton disabled={locks['maintenance']} meta={formData.field_meta?.antifouling_last_applied_date} onStamp={(d, m) => setFormData(prev => ({ ...prev, antifouling_last_applied_date: d, field_meta: { ...prev.field_meta, antifouling_last_applied_date: m } }))} /></div>
                         <Input type="date" disabled={locks['maintenance']} value={formData.antifouling_last_applied_date || ''} onChange={(e) => setFormData({ ...formData, antifouling_last_applied_date: e.target.value })} className="text-sm mt-1" />
                       </div>
                       <div>
