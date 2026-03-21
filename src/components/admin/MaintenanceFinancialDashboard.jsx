@@ -156,7 +156,7 @@ function NextServiceBudgetPanel({ breakdown, total, overdueCount, boats, booking
         style={{ background: hasOverdue ? 'rgba(239,68,68,0.08)' : 'rgba(249,115,22,0.08)' }}
       >
         <div className="flex items-center gap-2">
-          <span className="text-base">⚙️</span>
+          <Settings className="h-4 w-4 text-orange-300" />
           <span className="text-sm font-semibold text-white">Next Service Budget</span>
           <span className="text-xs px-2 py-0.5 rounded-full font-bold" style={{ background: hasOverdue ? 'rgba(239,68,68,0.2)' : 'rgba(249,115,22,0.2)', color: hasOverdue ? '#fca5a5' : '#fdba74' }}>
             {fmt(total)}
