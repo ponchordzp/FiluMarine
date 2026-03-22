@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, EyeOff, Shield, Anchor, Users, CheckCircle, XCircle, Key, Building2, Settings, CreditCard } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, Shield, Anchor, Users, CheckCircle, XCircle, Key, Building2, Settings, CreditCard, Mail } from 'lucide-react';
 import RolePermissionsManager from './RolePermissionsManager';
 import { format, parseISO } from 'date-fns';
 
@@ -316,8 +316,8 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                       </div>
                       <p className="text-sm text-slate-500">@{user.username}</p>
                       <div className="flex gap-3 mt-1 flex-wrap">
-                         {user.email && <p className="text-xs text-slate-500">✉ {user.email}</p>}
-                         {user.assigned_boat && <p className="text-xs text-blue-600 font-medium">⚓ {user.assigned_boat}</p>}
+                         {user.email && <p className="text-xs text-slate-500 flex items-center gap-1"><Mail className="h-3 w-3" /> {user.email}</p>}
+                         {user.assigned_boat && <p className="text-xs text-blue-600 font-medium flex items-center gap-1"><Anchor className="h-3 w-3" /> {user.assigned_boat}</p>}
                          {user.last_login && <p className="text-xs text-slate-400">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
                        </div>
                        {(user.bank_name || user.bank_account_clabe) &&
@@ -414,8 +414,8 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {form.password && pwErrors.length > 0 && <ul className="mt-1 space-y-0.5">{pwErrors.map((e) => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul>}
-              {form.password && pwErrors.length === 0 && <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>}
+              {form.password && pwErrors.length > 0 && <ul className="mt-1 space-y-0.5">{pwErrors.map((e) => <li key={e} className="text-xs text-red-600 flex items-center gap-1"><XCircle className="h-3 w-3 shrink-0" />{e}</li>)}</ul>}
+              {form.password && pwErrors.length === 0 && <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1"><CheckCircle className="h-3 w-3" />Password meets requirements</p>}
             </div>
             {(form.password || !editingUser) &&
               <div>
@@ -426,7 +426,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                     {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                {form.confirm_password && form.password !== form.confirm_password && <p className="text-xs text-red-600 mt-1">✗ Passwords do not match</p>}
+                {form.confirm_password && form.password !== form.confirm_password && <p className="text-xs text-red-600 mt-1 flex items-center gap-1"><XCircle className="h-3 w-3" />Passwords do not match</p>}
               </div>
               }
             {/* Bank Details */}
@@ -470,7 +470,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {newPassword && (() => {const errs = validatePassword(newPassword);return errs.length > 0 ? <ul className="mt-1">{errs.map((e) => <li key={e} className="text-xs text-red-600">✗ {e}</li>)}</ul> : <p className="text-xs text-emerald-600 mt-1">✓ Password meets requirements</p>;})()}
+              {newPassword && (() => {const errs = validatePassword(newPassword);return errs.length > 0 ? <ul className="mt-1">{errs.map((e) => <li key={e} className="text-xs text-red-600 flex items-center gap-1"><XCircle className="h-3 w-3 shrink-0" />{e}</li>)}</ul> : <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1"><CheckCircle className="h-3 w-3" />Password meets requirements</p>;})()}
             </div>
             <div className="flex gap-2">
               <Button onClick={handleResetPassword} disabled={resetSaving || !newPassword} className="flex-1 bg-amber-600 hover:bg-amber-700">{resetSaving ? 'Saving...' : 'Reset Password'}</Button>
