@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import {
   Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign,
   CheckCircle2, XCircle, Info, Trash2, PenSquare, FileText,
+  Banknote, CreditCard, Landmark, Wallet,
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { motion } from 'framer-motion';
@@ -82,7 +83,7 @@ function CompletionIndicator({ booking, hasExpenses }) {
         <div className="absolute right-0 top-11 z-[100] w-56 rounded-xl p-3 shadow-2xl pointer-events-none"
           style={{ background: 'rgba(8,18,38,0.98)', border: '1px solid rgba(30,136,229,0.35)', backdropFilter: 'blur(20px)' }}>
           <p className="text-[10px] font-bold text-white/50 uppercase tracking-wider mb-2.5">
-            {allDone ? '✅ All Complete' : `${completed}/${total} Complete`}
+            {allDone ? 'All Complete' : `${completed}/${total} Complete`}
           </p>
           {criteria.map((c, i) => (
             <div key={i} className="flex items-center gap-2 py-0.5">
@@ -133,13 +134,13 @@ export default function AdminBookingCard({
 
   // Summary badges for collapsed payment section
   const balanceBadge = isCollected
-    ? <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">✅ Collected</span>
-    : <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25">⏳ ${remaining.toLocaleString(undefined,{maximumFractionDigits:0})} MXN</span>;
+    ? <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />Collected</span>
+    : <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25 flex items-center gap-1"><Clock className="h-3 w-3" />${remaining.toLocaleString(undefined,{maximumFractionDigits:0})} MXN</span>;
 
   const operatorBadge = paypalUser
     ? isPaid
-      ? <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">✅ Paid</span>
-      : <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25">⏳ Pending</span>
+      ? <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />Paid</span>
+      : <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/25 flex items-center gap-1"><Clock className="h-3 w-3" />Pending</span>
     : null;
 
   return (
@@ -230,8 +231,8 @@ export default function AdminBookingCard({
               {/* On-site balance */}
               {booking.total_price > 0 && (
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-white/75">
-                    💵 On-Site Balance{' '}
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/75 flex items-center gap-1">
+                    <Banknote className="h-3.5 w-3.5" /> On-Site Balance{' '}
                     <span className={isCollected ? 'text-emerald-400' : 'text-amber-400'}>
                       ({remaining > 0 ? `$${remaining.toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN` : 'Fully Paid'})
                     </span>
@@ -249,8 +250,8 @@ export default function AdminBookingCard({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending_collection">⏳ Pending Collection</SelectItem>
-                        <SelectItem value="collected_on_site">✅ Collected On-Site</SelectItem>
+                        <SelectItem value="pending_collection">Pending Collection</SelectItem>
+                        <SelectItem value="collected_on_site">Collected On-Site</SelectItem>
                       </SelectContent>
                     </Select>
                     <Select
@@ -263,10 +264,10 @@ export default function AdminBookingCard({
                         <SelectValue placeholder="Method…" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="cash">💵 Cash</SelectItem>
-                        <SelectItem value="card">💳 Card</SelectItem>
-                        <SelectItem value="bank_transfer">🏦 Bank Transfer</SelectItem>
-                        <SelectItem value="paypal">🅿️ PayPal</SelectItem>
+                        <SelectItem value="cash">Cash</SelectItem>
+                         <SelectItem value="card">Card</SelectItem>
+                         <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                         <SelectItem value="paypal">PayPal</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -276,8 +277,8 @@ export default function AdminBookingCard({
               {/* Operator payment */}
               {paypalUser && (
                 <div className="flex items-center justify-between gap-2 flex-wrap">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-white/75">
-                    🏦 Operator Payment
+                  <span className="text-xs font-semibold uppercase tracking-wider text-white/75 flex items-center gap-1">
+                    <Landmark className="h-3.5 w-3.5" /> Operator Payment
                     {commission > 0 && (
                       <span className={`ml-2 normal-case font-semibold ${isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
                         → ${((booking.total_price || 0) - (booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN
@@ -306,8 +307,8 @@ export default function AdminBookingCard({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pending_payment">⏳ Pending Payment</SelectItem>
-                        <SelectItem value="payment_done">✅ Payment Done</SelectItem>
+                        <SelectItem value="pending_payment">Pending Payment</SelectItem>
+                        <SelectItem value="payment_done">Payment Done</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
