@@ -581,6 +581,23 @@ function BoatMechanicCard({ boat, currentUser, allBookings, personalTrips }) {
           </div>
         )}
 
+        {/* Send Maintenance Alert */}
+        <div className="space-y-1.5">
+          <Button
+            variant="outline"
+            className={`w-full gap-2 text-sm ${criticalAlerts.length > 0 ? 'border-red-300 text-red-700 hover:bg-red-50' : warningAlerts.length > 0 ? 'border-amber-300 text-amber-700 hover:bg-amber-50' : 'border-slate-300 text-slate-600'}`}
+            onClick={handleSendAlert}
+            disabled={sendingAlert || sortedAlerts.filter(a => a.severity !== 'info').length === 0}
+          >
+            {sendingAlert ? <><Send className="h-4 w-4 animate-pulse" />Sending...</> :
+             alertSent ? <><CheckCircle className="h-4 w-4 text-emerald-600" />Alert Sent!</> :
+             <><Bell className="h-4 w-4" />Send Alert to Owner / Mechanic</>}
+          </Button>
+          {alertError && <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1">{alertError}</p>}
+          {alertSent && <p className="text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-2 py-1">Maintenance alert emailed successfully.</p>}
+          <p className="text-[10px] text-slate-400 text-center">Email sent to mechanic_email from boat profile. Add it in Boat Inventory to enable.</p>
+        </div>
+
         {/* Log Work Order Button */}
         <Button
           className="w-full bg-[#1e88e5] hover:bg-[#1976d2]"
