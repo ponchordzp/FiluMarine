@@ -193,10 +193,11 @@ function buildAlerts(boat) {
   const currentHrs = boat.current_hours || 0;
   const hoursUntil = Math.max(0, lastMaint + interval - currentHrs);
 
-  if (hoursUntil === 0) {
-    alerts.push({ id: 'engine_overdue', severity: 'critical', title: 'Engine Service OVERDUE', description: `Overdue by ${Math.abs(currentHrs - lastMaint - interval)} hrs.`, action: 'Schedule service immediately' });
-  } else if (hoursUntil <= 10) {
-    alerts.push({ id: 'engine_soon', severity: 'warning', title: `Engine Service Due in ${hoursUntil} hrs`, description: `Next service at ${lastMaint + interval} total hours.`, action: 'Schedule service now' });
+  const approachWarn = Math.round(interval * 0.15);
+  if (currentHrs > lastMaint + interval) {
+    alerts.push({ id: 'engine_overdue', severity: 'critical', title: 'Engine Service OVERDUE', description: `Overdue by ${(currentHrs - lastMaint - interval).toFixed(1)} hrs.`, action: 'Schedule service immediately' });
+  } else if (hoursUntil <= approachWarn) {
+    alerts.push({ id: 'engine_soon', severity: 'warning', title: `Engine Service in ${hoursUntil.toFixed(1)} hrs`, description: `Next service at ${lastMaint + interval} hrs. You are within the ${approachWarn}-hr warning window.`, action: 'Schedule service soon' });
   }
 
   const checks = [
