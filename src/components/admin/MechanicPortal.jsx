@@ -402,12 +402,27 @@ function WorkOrderForm({ boat, onClose }) {
 
 // ── Boat Card for Mechanic ────────────────────────────────────────────────────
 
-function BoatMechanicCard({ boat, currentUser }) {
+function BoatMechanicCard({ boat, currentUser, allBookings, personalTrips }) {
   const [expanded, setExpanded] = useState(false);
   const [workOrderOpen, setWorkOrderOpen] = useState(false);
   const [alertsExpanded, setAlertsExpanded] = useState(true);
+  const [sendingAlert, setSendingAlert] = useState(false);
+  const [alertSent, setAlertSent] = useState(false);
+  const [alertError, setAlertError] = useState('');
 
-  const alerts = buildAlerts(boat);
+  // Compute real engine hours: base + booking hours + personal trip hours
+  const bookingHrs = (allBookings || [])
+    .filter(b => b.boat_name === boat.name && b.status !== 'cancelled')
+    .reduce((s, b) => s + (b.engine_hours_used || 0), 0);
+  const personalHrs = (personalTrips || [])
+    .filter(t => t.boat_id === boat.id)
+    .reduce((s, t) => s + (t.engine_hours_used || 0), 0);
+  const totalEngineHours = (boat.current_hours || 0) + bookingHrs + personalHrs;
+
+  // Build a synthetic boat object with computed hours for alerts
+  const boatWithComputedHours = { ...boat, current_hours: totalEngineHours };
+
+  const alerts = buildAlerts(boatWithComputedHours);
   const criticalAlerts = alerts.filter(a => a.severity === 'critical');
   const warningAlerts = alerts.filter(a => a.severity === 'warning');
   const infoAlerts = alerts.filter(a => a.severity === 'info');
@@ -417,6 +432,39 @@ function BoatMechanicCard({ boat, currentUser }) {
     .slice()
     .sort((a, b) => new Date(b.date) - new Date(a.date))
     .slice(0, 5);
+
+  const interval = boat.maintenance_interval_hours || 100;
+  const hoursUntilService = Math.max(0, (boat.last_maintenance_hours || 0) + interval - totalEngineHours);
+  const serviceOverdue = totalEngineHours > (boat.last_maintenance_hours || 0) + interval;
+  const approachingThreshold = interval * 0.15; // flag when within 15% of interval
+  const isApproaching = !serviceOverdue && hoursUntilService <= approachingThreshold;
+
+  const handleSendAlert = async () => {
+    const ownerEmail = boat.owner_phone?.includes('@') ? boat.owner_phone : null;
+    // Try mechanic email or boat contact
+    const emailTarget = boat.mechanic_email || ownerEmail;
+    if (!emailTarget) {
+      setAlertError('No email address on file. Add a mechanic email in the boat profile.');
+      return;
+    }
+    setSendingAlert(true);
+    setAlertError('');
+    try {
+      await base44.functions.invoke('sendMaintenanceAlert', {
+        boatName: boat.name,
+        ownerEmail: emailTarget,
+        ownerPhone: boat.owner_phone || '',
+        alerts: sortedAlerts.filter(a => a.severity !== 'info'),
+        engineHours: totalEngineHours,
+        hoursUntilService,
+      });
+      setAlertSent(true);
+      setTimeout(() => setAlertSent(false), 4000);
+    } catch (err) {
+      setAlertError(err.message || 'Failed to send alert.');
+    }
+    setSendingAlert(false);
+  };
 
   return (
     <Card className="overflow-hidden border-2 border-slate-200 hover:border-slate-300 transition-all">
