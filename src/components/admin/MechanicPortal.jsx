@@ -384,7 +384,7 @@ function WorkOrderForm({ boat, onClose }) {
       {savedRecord && (
         <div className="mt-3 p-3 bg-emerald-50 border border-emerald-300 rounded-lg flex items-center justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-emerald-800">✓ Service logged successfully!</p>
+            <p className="text-sm font-semibold text-emerald-800 flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Service logged successfully!</p>
             <p className="text-xs text-emerald-600">Download the auto-generated PDF report.</p>
           </div>
           <Button
