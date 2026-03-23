@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Check, ChevronDown, ChevronUp, Plus, Info, Pencil, X, Clock } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, Plus, Info, Pencil, X, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { differenceInDays, parseISO, format } from 'date-fns';
 
 // Inline timestamp button for checklist items — hover shows audit info, click stamps today
 function ChecklistTimestampButton({ onStamp, meta = null }) {
