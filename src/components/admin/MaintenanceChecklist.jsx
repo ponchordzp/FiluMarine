@@ -1172,7 +1172,7 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
                 <div className="flex-1">
                   <ChecklistItem {...item} checked={getVal(checklist, item.id, 'checked')} note={getVal(checklist, item.id, 'note')} lastDate={getVal(checklist, item.id, 'lastDate')} lastDateMeta={getVal(checklist, item.id, 'lastDateMeta')} onToggle={handleToggle} onNoteChange={handleNote} onDateChange={handleDate} />
                 </div>
-                <button type="button" onClick={() => handleRemoveCustom(item.id)} className="mt-2 text-red-400 hover:text-red-600 text-xs flex-shrink-0">✕</button>
+                <button type="button" onClick={() => handleRemoveCustom(item.id)} className="mt-2 text-red-400 hover:text-red-600 text-xs flex-shrink-0"><X className="h-3.5 w-3.5" /></button>
               </div>
             ))}
           </div>
