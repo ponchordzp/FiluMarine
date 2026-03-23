@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin, Navigation } from 'lucide-react';
+import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin, Navigation, History } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import PersonalTripDialog from './PersonalTripDialog';
@@ -122,6 +122,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const [tripHistoryExpanded, setTripHistoryExpanded] = useState({});
   const [engineHoursExpanded, setEngineHoursExpanded] = useState({});
   const [collapsedSections, setCollapsedSections] = useState({});
+  const [supplyUsageLogExpanded, setSupplyUsageLogExpanded] = useState({});
   const dialogContentRef = React.useRef(null);
 
   const toggleSection = (key) => setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -300,7 +301,6 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   };
 
   const scrollToSection = (sectionId) => {
-    // Open edit dialog for the boat first (caller handles this), then scroll
     setTimeout(() => {
       const el = document.getElementById(sectionId);
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -478,7 +478,12 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const addSupply = (supply) => {
     setFormData((prev) => ({
       ...prev,
-      supplies_inventory: [...prev.supplies_inventory, { ...supply, id: Date.now() }]
+      supplies_inventory: [...prev.supplies_inventory, {
+        ...supply,
+        id: Date.now(),
+        // Stamp original_quantity at creation time so deductions are tracked correctly
+        original_quantity: supply.quantity
+      }]
     }));
   };
 
@@ -534,15 +539,28 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     }));
   };
 
-  const calculateSupplyTimeRemaining = (purchasedDate, durationMonths) => {
+  // Duration bar: accounts for quantity deductions proportionally
+  const calculateSupplyTimeRemaining = (purchasedDate, durationMonths, quantity, originalQuantity) => {
     if (!purchasedDate || !durationMonths) return null;
     const purchased = new Date(purchasedDate);
     const now = new Date();
     const totalDays = durationMonths * 30;
     const elapsedDays = Math.floor((now - purchased) / (1000 * 60 * 60 * 24));
-    const remainingDays = Math.max(0, totalDays - elapsedDays);
-    const percentageRemaining = Math.max(0, Math.min(100, remainingDays / totalDays * 100));
-    return { remainingDays, percentageRemaining, expired: remainingDays === 0 };
+
+    // Scale effective duration by remaining quantity fraction
+    const baseQty = originalQuantity ?? quantity;
+    let effectiveTotalDays = totalDays;
+    if (baseQty > 0 && quantity !== undefined && quantity < baseQty) {
+      const remainingFraction = Math.max(0, quantity / baseQty);
+      effectiveTotalDays = totalDays * remainingFraction;
+    }
+
+    const remainingDays = Math.max(0, effectiveTotalDays - elapsedDays);
+    const percentageRemaining = effectiveTotalDays > 0
+      ? Math.max(0, Math.min(100, remainingDays / effectiveTotalDays * 100))
+      : 0;
+    const deducted = baseQty > 0 && quantity !== undefined && quantity < baseQty;
+    return { remainingDays, percentageRemaining, expired: remainingDays === 0, deducted, originalQuantity: baseQty, currentQuantity: quantity };
   };
 
   const addSupplier = () => {
@@ -598,7 +616,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
         <div className="flex gap-2 pt-2">
           <Button type="submit" disabled={createMutation.isPending || uploading}>{uploading ? 'Uploading...' : 'Create Boat'}</Button>
         </div>
-        {createMutation.isSuccess && <p className="text-green-600 text-sm mt-2">✓ Boat created! You can find it in the Boat Inventory tab.</p>}
+        {createMutation.isSuccess && <p className="text-green-600 text-sm mt-2">Boat created! You can find it in the Boat Inventory tab.</p>}
       </form>
     );
   }
@@ -632,7 +650,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {collapsedSections['general'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['general'] && <div className="bg-sky-50 p-5 space-y-4">
-                  {locks['general'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
+                  {locks['general'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><InfoLabel info="The official name of the boat as it appears to guests and in reports." example="FILU, TYCOON, La Güera">Boat Name *</InfoLabel><Input required disabled={locks['general']} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
                     <div><InfoLabel info="The category or model type of the boat." example="Center Console, Yacht, Panga">Type *</InfoLabel><Input required disabled={locks['general']} value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console, Yacht" /></div>
@@ -640,7 +658,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><InfoLabel info="Maximum number of passengers allowed on board." example="Up to 6 guests, Up to 12 guests">Capacity *</InfoLabel><Input required disabled={locks['general']} value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" /></div>
                     <div><InfoLabel info="Number of crew members typically assigned to this boat (not counting captain)." example="2">Crew Members</InfoLabel><Input type="number" min="0" disabled={locks['general']} value={formData.crew_members} onChange={(e) => setFormData({ ...formData, crew_members: parseInt(e.target.value) || 0 })} placeholder="e.g., 2" /></div>
                     <div><InfoLabel info="The city/port where this boat operates and takes bookings." example="Ixtapa-Zihuatanejo">Location *</InfoLabel><Select disabled={locks['general']} value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem><SelectItem value="acapulco">Acapulco</SelectItem></SelectContent></Select></div>
-                    <div><InfoLabel info="Exact dock slip or marina name where the boat is currently moored." example="Marina Paradise Slip 14, Dry Dock 3">Dock Location</InfoLabel><Input disabled={locks['general']} value={formData.dock_location} onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })} placeholder="e.g., Marina Paradise, Dry Dock 3" /><p className="text-xs text-sky-700 mt-1">⚓ Where the boat is currently docked</p></div>
+                    <div><InfoLabel info="Exact dock slip or marina name where the boat is currently moored." example="Marina Paradise Slip 14, Dry Dock 3">Dock Location</InfoLabel><Input disabled={locks['general']} value={formData.dock_location} onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })} placeholder="e.g., Marina Paradise, Dry Dock 3" /></div>
                     <div><InfoLabel info="Current operational status. 'Maintenance' hides the boat from bookings." example="active">Status</InfoLabel><Select disabled={locks['general']} value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
                     <div className="md:col-span-2"><InfoLabel info="The operator this boat belongs to. Used to group boats by fleet." example="FILU, NAUTIKA">Operator</InfoLabel><Select disabled={locks['general']} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
                   </div>
@@ -671,7 +689,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {collapsedSections['expeditions'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['expeditions'] && <div className="bg-indigo-50 p-5 space-y-4">
-                  {locks['expeditions'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
+                  {locks['expeditions'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   <div>
                     <InfoLabel info="Cost charged for every additional hour beyond the scheduled expedition duration." example="2500">Price Per Additional Hour (MXN)</InfoLabel>
                     <Input type="number" min="0" disabled={locks['expeditions']} value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
@@ -718,7 +736,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     {collapsedSections['equipment'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                   </button>
                   {!collapsedSections['equipment'] && <div className="bg-teal-50 p-5">
-                    {locks['equipment'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5 mb-3"><span>🔒 Section locked — unlock to edit.</span></div>}
+                    {locks['equipment'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5 mb-3"><span>Section locked — unlock to edit.</span></div>}
                     <EquipmentManager
                     equipment={formData.equipment}
                     customEquipment={formData.custom_equipment}
@@ -745,7 +763,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {collapsedSections['engine'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['engine'] && <div className="bg-amber-50 p-5 space-y-4">
-                  {locks['engine'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
+                  {locks['engine'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><InfoLabel info="Inboard engines are inside the hull; outboard engines are mounted externally on the transom." example="outboard">Engine Type</InfoLabel><Select disabled={locks['engine']} value={formData.engine_config} onValueChange={(value) => setFormData({ ...formData, engine_config: value })}><SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger><SelectContent><SelectItem value="inboard">Inboard</SelectItem><SelectItem value="outboard">Outboard</SelectItem></SelectContent></Select></div>
                     <div><InfoLabel info="Total number of engines on this boat." example="2">Number of Engines</InfoLabel><Input type="number" min="1" disabled={locks['engine']} value={formData.engine_quantity} onChange={(e) => setFormData({ ...formData, engine_quantity: parseInt(e.target.value) || 1 })} /></div>
@@ -769,7 +787,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 </div>}
               </div>
 
-              {/* ── SECTION 4b: Maintenance Checklist ── green (engine-type specific) */}
+              {/* ── SECTION 4b: Maintenance Checklist ── green */}
               <div className="rounded-xl overflow-hidden border border-green-200 mb-4">
                 <button type="button" onClick={() => toggleSection('checklist')} className="w-full bg-green-700 px-5 py-3 flex items-center gap-2">
                   <Check className="h-4 w-4 text-white" />
@@ -783,7 +801,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {collapsedSections['checklist'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['checklist'] && <div className="bg-green-50 p-5 space-y-4">
-                  {locks['checklist'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
+                  {locks['checklist'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   <MaintenanceChecklist
                     engineConfig={formData.engine_config}
                     checklist={formData.maintenance_checklist || {}}
@@ -802,7 +820,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {collapsedSections['maintenance'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['maintenance'] && <div className="bg-orange-50 p-5 space-y-4">
-                  {locks['maintenance'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
+                  {locks['maintenance'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   <div className="grid md:grid-cols-2 gap-4">
                     <div>
                       <div className="flex items-center gap-0.5">
@@ -865,7 +883,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     </div>
                   </div>
 
-                  <div className="bg-orange-100 border border-orange-200 rounded-lg p-3"><p className="text-sm text-orange-900">💡 <strong>Note:</strong> Enter the maintenance cost <strong>per engine</strong>. Total is calculated from engine count above.</p></div>
+                  <div className="bg-orange-100 border border-orange-200 rounded-lg p-3"><p className="text-sm text-orange-900">Enter the maintenance cost <strong>per engine</strong>. Total is calculated from engine count above.</p></div>
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><InfoLabel info="Cost of a minor service per engine (oil, filters, basic check)." example="5000">Minor Maintenance Cost (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['maintenance']} value={formData.minor_maintenance_cost} onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 5000" /><p className="text-xs text-orange-700 mt-1">Oil change, filters, basic service</p></div>
                     <div><InfoLabel info="Cost of a major service per engine (full overhaul, timing, impeller, etc.)." example="25000">Major Maintenance Cost (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['maintenance']} value={formData.major_maintenance_cost} onChange={(e) => setFormData({ ...formData, major_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 25000" /><p className="text-xs text-orange-700 mt-1">Engine rebuild, major repairs</p></div>
@@ -990,14 +1008,19 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {collapsedSections['supplies'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['supplies'] && <div className="bg-emerald-50 p-5 space-y-3">
-                  {locks['supplies'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
+                  {locks['supplies'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   <p className="text-sm text-emerald-800">Track all materials and supplies needed to keep your boat in optimal condition.</p>
                   <SuppliesManager supplies={formData.supplies_inventory} onAddSupply={addSupply} onRemoveSupply={removeSupply} onUpdateSupply={updateSupplyField} />
                   {formData.supplies_inventory.length > 0 &&
                   <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       {formData.supplies_inventory.map((supply, index) => {
-                      const timeRemaining = supply.duration_months > 0 && supply.purchased_date ? calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months) : null;
+                      const timeRemaining = supply.duration_months > 0 && supply.purchased_date
+                        ? calculateSupplyTimeRemaining(supply.purchased_date, supply.duration_months, supply.quantity, supply.original_quantity)
+                        : null;
                       const totalCost = (supply.quantity || 0) * (supply.price_per_unit || 0);
+                      const hasDeductions = (supply.usage_log || []).length > 0;
+                      const totalDeducted = (supply.usage_log || []).reduce((s, l) => s + (l.amount_used || 0), 0);
+                      const logExpanded = supplyUsageLogExpanded[index];
                       return (
                         <div key={index} className={`p-3 rounded-lg border-2 transition-all ${supply.status === 'in_stock' ? 'bg-white border-emerald-300' : 'bg-red-50 border-red-300'}`}>
                           <div className="flex items-start gap-3">
@@ -1009,12 +1032,22 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                   <div className="flex gap-2 flex-wrap mt-1">
                                     {supply.category && <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">{supply.category}</span>}
                                     {totalCost > 0 && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">${totalCost.toLocaleString()} MXN</span>}
+                                    {/* Deduction badge */}
+                                    {hasDeductions && (
+                                      <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium flex items-center gap-1">
+                                        <History className="h-2.5 w-2.5" />
+                                        -{totalDeducted} {supply.unit || 'units'} used
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                                 <Button type="button" variant="ghost" size="sm" onClick={() => removeSupply(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
                               </div>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                <div><Label className="text-xs text-slate-600">Qty</Label><Input type="number" min="0" value={supply.quantity || 0} onChange={(e) => updateSupplyQuantity(index, e.target.value)} className="h-7 text-sm" /></div>
+                                <div>
+                                  <Label className="text-xs text-slate-600">Qty</Label>
+                                  <Input type="number" min="0" value={supply.quantity || 0} onChange={(e) => updateSupplyQuantity(index, e.target.value)} className="h-7 text-sm" />
+                                </div>
                                 <div><Label className="text-xs text-slate-600">Unit</Label><Input value={supply.unit || ''} onChange={(e) => updateSupplyField(index, 'unit', e.target.value)} placeholder="gallons" className="h-7 text-sm" /></div>
                                 <div><Label className="text-xs text-slate-600">Price/Unit</Label><Input type="number" min="0" value={supply.price_per_unit || 0} onChange={(e) => updateSupplyField(index, 'price_per_unit', parseFloat(e.target.value) || 0)} className="h-7 text-sm" /></div>
                                 <div><Label className="text-xs text-slate-600">Duration (mo)</Label><Input type="number" min="0" value={supply.duration_months || 0} onChange={(e) => updateSupplyField(index, 'duration_months', parseInt(e.target.value) || 0)} className="h-7 text-sm" /></div>
@@ -1022,9 +1055,57 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                               {supply.duration_months > 0 && <div><div className="flex items-center gap-0.5"><Label className="text-xs text-slate-600">Purchased Date</Label><TimestampButton meta={supply.purchased_date_meta} onStamp={(d, m) => { updateSupplyField(index, 'purchased_date', d); updateSupplyField(index, 'purchased_date_meta', m); }} /></div><Input type="date" value={supply.purchased_date || ''} onChange={(e) => updateSupplyField(index, 'purchased_date', e.target.value)} className="h-7 text-sm" /></div>}
                               {supply.duration_months > 0 &&
                               <div className="space-y-1">
-                                  {timeRemaining ? <><div className="flex justify-between text-xs"><span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>{timeRemaining.expired ? '⚠️ Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}</span><span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span></div><div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden"><div className={`h-full transition-all ${timeRemaining.percentageRemaining > 50 ? 'bg-green-500' : timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${timeRemaining.percentageRemaining}%` }} /></div></> : <div className="bg-amber-50 border border-amber-300 rounded p-2"><p className="text-xs text-amber-700">⚠️ Set purchase date to track duration</p></div>}
+                                  {timeRemaining ? (
+                                    <>
+                                      <div className="flex justify-between text-xs">
+                                        <span className={timeRemaining.expired ? 'text-red-600 font-semibold' : 'text-slate-600'}>
+                                          {timeRemaining.expired ? 'Needs Replacement' : `${timeRemaining.remainingDays} days remaining`}
+                                        </span>
+                                        <span className="text-slate-500">{timeRemaining.percentageRemaining.toFixed(0)}%</span>
+                                      </div>
+                                      {/* Show deduction impact */}
+                                      {timeRemaining.deducted && (
+                                        <p className="text-xs text-amber-600 flex items-center gap-1">
+                                          <History className="h-2.5 w-2.5" />
+                                          Duration adjusted: {supply.original_quantity} → {supply.quantity} {supply.unit || 'units'} remaining
+                                        </p>
+                                      )}
+                                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                                        <div className={`h-full transition-all ${timeRemaining.percentageRemaining > 50 ? 'bg-green-500' : timeRemaining.percentageRemaining > 20 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${timeRemaining.percentageRemaining}%` }} />
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="bg-amber-50 border border-amber-300 rounded p-2">
+                                      <p className="text-xs text-amber-700">Set purchase date to track duration</p>
+                                    </div>
+                                  )}
                                 </div>
                               }
+                              {/* Usage Log */}
+                              {hasDeductions && (
+                                <div>
+                                  <button
+                                    type="button"
+                                    onClick={() => setSupplyUsageLogExpanded(prev => ({ ...prev, [index]: !prev[index] }))}
+                                    className="flex items-center gap-1 text-xs text-amber-700 hover:text-amber-900 font-medium"
+                                  >
+                                    <History className="h-3 w-3" />
+                                    Usage log ({supply.usage_log.length} entries)
+                                    {logExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                                  </button>
+                                  {logExpanded && (
+                                    <div className="mt-1 space-y-1 border-l-2 border-amber-200 pl-2">
+                                      {supply.usage_log.map((entry, li) => (
+                                        <div key={li} className="text-xs text-slate-600 bg-amber-50 rounded px-2 py-1">
+                                          <span className="font-medium text-amber-800">-{entry.amount_used} {supply.unit || 'units'}</span>
+                                          {' '} on {entry.trip_date || entry.date}
+                                          {entry.destination && <span className="text-slate-400"> — {entry.destination}</span>}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                               <div className="flex items-center gap-2">
                                 <button type="button" onClick={() => updateSupplyStatus(index, 'in_stock')} className={`px-3 py-1 text-xs rounded-md transition-all ${supply.status === 'in_stock' ? 'bg-emerald-600 text-white' : 'bg-white border border-emerald-300 text-emerald-700 hover:bg-emerald-50'}`}>In Stock</button>
                                 <button type="button" onClick={() => updateSupplyStatus(index, 'needed')} className={`px-3 py-1 text-xs rounded-md transition-all ${supply.status === 'needed' ? 'bg-red-600 text-white' : 'bg-white border border-red-300 text-red-700 hover:bg-red-50'}`}>Needed</button>
@@ -1050,7 +1131,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   {collapsedSections['sellers'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['sellers'] && <div className="bg-cyan-50 p-5 space-y-3">
-                  {locks['sellers'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
+                  {locks['sellers'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   {formData.supply_sellers && formData.supply_sellers.length > 0 &&
                   <div className="space-y-2">
                       {formData.supply_sellers.map((supplier, index) =>
@@ -1065,8 +1146,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                 </div>
                                 <Button type="button" variant="ghost" size="sm" onClick={() => removeSupplier(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
                               </div>
-                              {supplier.phone && <p className="text-xs text-slate-600">📞 {supplier.phone}</p>}
-                              {supplier.email && <p className="text-xs text-slate-600">✉️ {supplier.email}</p>}
+                              {supplier.phone && <p className="text-xs text-slate-600">{supplier.phone}</p>}
+                              {supplier.email && <p className="text-xs text-slate-600">{supplier.email}</p>}
                             </div>
                           </div>
                         </div>
@@ -1092,12 +1173,12 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <button type="button" onClick={() => toggleSection('recurring')} className="w-full bg-purple-600 px-5 py-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Recurring Costs</h3>
-                  {(() => {const n = (formData.recurring_costs||[]).length;const t = n||1;return <><span className="text-xs text-white/80 mr-1">{n} costs</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${n>0?100:0}%` }} /></div></>;})()}
+                  {(() => {const n = (formData.recurring_costs||[]).length;return <><span className="text-xs text-white/80 mr-1">{n} costs</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${n>0?100:0}%` }} /></div></>;})()}
                   <SectionLockButton sectionKey="recurring" locks={locks} toggle={toggleLock} isComplete={isRecurringComplete} />
                   {collapsedSections['recurring'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
                 {!collapsedSections['recurring'] && <div className="bg-purple-50 p-5 space-y-3">
-                  {locks['recurring'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>🔒 Section locked — unlock to edit.</span></div>}
+                  {locks['recurring'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   <p className="text-sm text-purple-800">Track periodic payments: docking fees, insurance, crew salaries, permits, etc.</p>
                   {formData.recurring_costs && formData.recurring_costs.length > 0 &&
                   <div className="space-y-2">
@@ -1221,8 +1302,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   </button>
                   {engineHoursExpanded[boat.id] && (
                     <>
-                      {maintenanceOverdue && <div className="p-2 bg-red-50 border border-red-300 rounded-lg mb-2"><p className="text-xs font-bold text-red-800">⚠️ OVERDUE</p></div>}
-                      {!maintenanceOverdue && maintenanceDue && <div className="p-2 bg-amber-50 border border-amber-300 rounded-lg mb-2"><p className="text-xs font-bold text-amber-800">🔔 DUE SOON</p></div>}
+                      {maintenanceOverdue && <div className="p-2 bg-red-50 border border-red-300 rounded-lg mb-2"><p className="text-xs font-bold text-red-800">OVERDUE</p></div>}
+                      {!maintenanceOverdue && maintenanceDue && <div className="p-2 bg-amber-50 border border-amber-300 rounded-lg mb-2"><p className="text-xs font-bold text-amber-800">DUE SOON</p></div>}
                       <div className="space-y-1.5">
                         <div className="grid grid-cols-3 gap-1.5 text-center text-xs">
                           <div className="bg-slate-50 p-1.5 rounded"><p className="text-slate-500" style={{ fontSize: '10px' }}>Base</p><p className="font-bold text-sm">{boat.current_hours}</p></div>
@@ -1283,7 +1364,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   }
               </div>
 
-              <Button variant="ghost" size="sm" onClick={() => setExpandedBoats((prev) => ({ ...prev, [boat.id]: !prev[boat.id] }))} className="w-full mt-2 h-8">{isExpanded ? <><ChevronUp className="h-3 w-3 mr-1" /><span className="text-xs">Hide Equipment, Expeditions & Statistics</span></> : <><ChevronDown className="h-3 w-3 mr-1" /><span className="text-xs">Show Equipment, Expeditions & Statistics</span></>}</Button>
+              <Button variant="ghost" size="sm" onClick={() => setExpandedBoats((prev) => ({ ...prev, [boat.id]: !prev[boat.id] }))} className="w-full mt-2 h-8">{isExpanded ? <><ChevronUp className="h-3 w-3 mr-1" /><span className="text-xs">Hide Equipment, Expeditions &amp; Statistics</span></> : <><ChevronDown className="h-3 w-3 mr-1" /><span className="text-xs">Show Equipment, Expeditions &amp; Statistics</span></>}</Button>
 
               {isExpanded && isRentalMode &&
                 <div className="mb-4">
@@ -1340,7 +1421,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <div className="pt-2"><p className="text-slate-500 text-xs">Most Frequent Trip</p><p className="font-medium text-sm capitalize">{stats.frequentTrip} ({stats.frequentTripCount}x)</p></div>
                   {stats.lastTrip && <div className="pt-3 border-t"><p className="text-slate-500 text-xs mb-2">Last Completed Trip</p><div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm"><p className="font-medium capitalize">{stats.lastTrip.experience_type?.replace(/_/g, ' ')}</p><p className="text-xs text-slate-600">{format(parseISO(stats.lastTrip.date), 'MMM d, yyyy')} • {stats.lastTrip.guests} guests</p></div></div>}
                   {boat.last_service_date && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Last Service</p><div className="bg-blue-50 p-2 rounded text-xs"><p className="font-medium">{format(parseISO(boat.last_service_date), 'MMM d, yyyy')}</p>{boat.last_service_mechanic_phone && <p className="text-slate-600 mt-1">Mechanic: {boat.last_service_mechanic_phone}</p>}</div></div>}
-                  {boat.mechanic_name && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Mechanic</p><div className="bg-slate-50 p-2 rounded text-xs space-y-1"><p className="font-medium">{boat.mechanic_name}</p>{boat.mechanic_phone && <p className="text-slate-600">📞 {boat.mechanic_phone}</p>}{boat.mechanic_email && <p className="text-slate-600">✉️ {boat.mechanic_email}</p>}</div></div>}
+                  {boat.mechanic_name && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Mechanic</p><div className="bg-slate-50 p-2 rounded text-xs space-y-1"><p className="font-medium">{boat.mechanic_name}</p>{boat.mechanic_phone && <p className="text-slate-600">{boat.mechanic_phone}</p>}{boat.mechanic_email && <p className="text-slate-600">{boat.mechanic_email}</p>}</div></div>}
                   {needsMaintenance && <div className="pt-2"><Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Action Needed: Schedule Maintenance</Badge></div>}
                 </div>
                 }
