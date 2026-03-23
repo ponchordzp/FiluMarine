@@ -117,6 +117,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   });
   const [personalTripDialogOpen, setPersonalTripDialogOpen] = useState(false);
   const [selectedBoatForTrips, setSelectedBoatForTrips] = useState(null);
+  const [dailyLogDialogOpen, setDailyLogDialogOpen] = useState(false);
+  const [selectedBoatForDailyLog, setSelectedBoatForDailyLog] = useState(null);
   const [expeditionPickupDepartures, setExpeditionPickupDepartures] = useState({});
   const [newEquipment, setNewEquipment] = useState('');
   const [tripHistoryFilter, setTripHistoryFilter] = useState('all');
