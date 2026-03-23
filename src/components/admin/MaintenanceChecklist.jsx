@@ -810,7 +810,10 @@ function ChecklistItem({ id, label, interval, info, checked, na, note, lastDate,
               onSave={(val) => onInfoChange && onInfoChange(id, val)}
             />
           </p>
-          <p className="text-xs text-slate-400 mt-0.5">Interval: {interval}</p>
+          <p className="text-xs text-slate-400 mt-0.5 flex items-center flex-wrap gap-1">
+            Interval: {interval}
+            <IntervalBadge interval={interval} lastDate={lastDate} />
+          </p>
           {!na && (
             <div className="flex gap-2 mt-1.5">
               <div className="flex items-center gap-1">
