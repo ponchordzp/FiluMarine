@@ -490,22 +490,40 @@ function BoatMechanicCard({ boat, currentUser, allBookings, personalTrips }) {
       </div>
 
       <CardContent className="p-4 space-y-4">
-        {/* Engine Hours Summary */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="bg-slate-50 rounded-lg p-3 text-center border">
-            <p className="text-xs text-slate-500 mb-1">Current Hours</p>
-            <p className="text-xl font-bold text-slate-800">{boat.current_hours || 0}</p>
+        {/* Engine Hours Summary — uses computed total hours */}
+        <div className="space-y-2">
+          {(isApproaching || serviceOverdue) && (
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold ${serviceOverdue ? 'bg-red-50 border border-red-300 text-red-700' : 'bg-amber-50 border border-amber-300 text-amber-700'}`}>
+              <BellRing className="h-4 w-4 flex-shrink-0 animate-pulse" />
+              {serviceOverdue
+                ? `Service OVERDUE by ${(totalEngineHours - (boat.last_maintenance_hours || 0) - interval).toFixed(1)} hrs — Schedule immediately!`
+                : `Service approaching — only ${hoursUntilService.toFixed(1)} hrs remaining (within ${Math.round(approachingThreshold)} hr warning threshold)`}
+            </div>
+          )}
+          <div className="grid grid-cols-4 gap-2">
+            <div className="bg-slate-50 rounded-lg p-2.5 text-center border">
+              <p className="text-[10px] text-slate-500 mb-1">Base Hours</p>
+              <p className="text-lg font-bold text-slate-800">{boat.current_hours || 0}</p>
+            </div>
+            <div className="bg-blue-50 rounded-lg p-2.5 text-center border border-blue-200">
+              <p className="text-[10px] text-blue-600 mb-1">Booking Hrs</p>
+              <p className="text-lg font-bold text-blue-700">+{bookingHrs.toFixed(1)}</p>
+            </div>
+            <div className="bg-amber-50 rounded-lg p-2.5 text-center border border-amber-200">
+              <p className="text-[10px] text-amber-700 mb-1">Total Hours</p>
+              <p className="text-lg font-bold text-amber-700">{totalEngineHours.toFixed(1)}</p>
+            </div>
+            <div className={`rounded-lg p-2.5 text-center border ${serviceOverdue ? 'bg-red-50 border-red-300' : isApproaching ? 'bg-amber-50 border-amber-300' : 'bg-green-50 border-green-200'}`}>
+              <p className="text-[10px] text-slate-500 mb-1">Until Service</p>
+              <p className={`text-lg font-bold ${serviceOverdue ? 'text-red-600' : isApproaching ? 'text-amber-600' : 'text-green-600'}`}>
+                {serviceOverdue ? 'OVERDUE' : hoursUntilService.toFixed(1)}
+              </p>
+            </div>
           </div>
-          <div className="bg-amber-50 rounded-lg p-3 text-center border border-amber-200">
-            <p className="text-xs text-amber-700 mb-1">Since Service</p>
-            <p className="text-xl font-bold text-amber-700">{(boat.current_hours || 0) - (boat.last_maintenance_hours || 0)}</p>
-          </div>
-          <div className={`rounded-lg p-3 text-center border ${Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - (boat.current_hours || 0)) === 0 ? 'bg-red-50 border-red-300' : 'bg-green-50 border-green-200'}`}>
-            <p className="text-xs text-slate-500 mb-1">Until Service</p>
-            <p className={`text-xl font-bold ${Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - (boat.current_hours || 0)) === 0 ? 'text-red-600' : 'text-green-600'}`}>
-              {Math.max(0, (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100) - (boat.current_hours || 0))}
-            </p>
-          </div>
+          {/* Hours breakdown note */}
+          <p className="text-[10px] text-slate-400 text-right">
+            Total = base {boat.current_hours || 0} + bookings {bookingHrs.toFixed(1)} + personal {personalHrs.toFixed(1)} hrs
+          </p>
         </div>
 
         {/* Mechanic Contact Info */}
