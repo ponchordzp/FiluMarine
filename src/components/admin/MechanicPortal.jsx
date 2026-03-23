@@ -719,8 +719,8 @@ export default function MechanicPortal({ currentUser, operatorFilter = 'all' }) 
           </div>
           <div className="text-right">
             {totalAlerts > 0 && (
-              <div className="bg-red-500 text-white text-sm font-bold px-3 py-1.5 rounded-full animate-pulse">
-                ⛔ {totalAlerts} Critical Alert{totalAlerts > 1 ? 's' : ''}
+              <div className="bg-red-500 text-white text-sm font-bold px-3 py-1.5 rounded-full animate-pulse flex items-center gap-1.5">
+                <AlertTriangle className="h-4 w-4" /> {totalAlerts} Critical Alert{totalAlerts > 1 ? 's' : ''}
               </div>
             )}
             <p className="text-white/50 text-xs mt-2">{visibleBoats.length} boat{visibleBoats.length !== 1 ? 's' : ''} in view</p>
