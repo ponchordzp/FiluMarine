@@ -1013,7 +1013,7 @@ export default function MaintenanceChecklist({ engineConfig, checklist = {}, onC
   if (!engineConfig) {
     return (
       <div className="text-center py-6 text-slate-500 text-sm bg-slate-50 rounded-lg border border-dashed border-slate-300">
-        ⚙️ Select an engine type (Inboard / Outboard) in Engine Configuration to unlock the maintenance checklist.
+        Select an engine type (Inboard / Outboard) in Engine Configuration to unlock the maintenance checklist.
       </div>
     );
   }
