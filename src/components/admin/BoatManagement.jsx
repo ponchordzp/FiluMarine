@@ -1437,6 +1437,14 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <Plus className="h-4 w-4 mr-1.5" /> Log Trip
               </Button>
             </div>
+            <div className="px-4 pb-2">
+              <Button
+                onClick={() => { setSelectedBoatForDailyLog(boat); setDailyLogDialogOpen(true); }}
+                className="w-full h-9 text-sm font-semibold bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-md"
+              >
+                <ClipboardList className="h-4 w-4 mr-1.5" /> Daily Log
+              </Button>
+            </div>
             <div className="flex gap-2 px-4 pb-3">
               <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1 h-8 text-xs"><Edit className="h-3 w-3 mr-1" />{readOnlyMode ? 'View / Fill Maintenance' : 'Manage Vessel'}</Button>
               {!readOnlyMode && <Button variant="destructive" size="sm" onClick={() => {if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) deleteMutation.mutate(boat.id);}} className="h-8"><Trash2 className="h-3 w-3" /></Button>}
