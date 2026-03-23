@@ -388,6 +388,12 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
   const suppliesCost = (boat.supplies_inventory || []).reduce((s, item) =>
     s + (item.quantity || 0) * (item.price_per_unit || 0), 0);
 
+  // Daily log totals for this boat
+  const boatDailyLogs = (dailyLogs || []).filter(l => l.boat_id === boat.id);
+  const dailyLogFuelCost = boatDailyLogs.reduce((s, l) => s + (l.fuel_quantity || 0) * (l.fuel_price_per_unit || 0), 0);
+  const dailyLogSuppliesCost = boatDailyLogs.reduce((s, l) => s + ((l.supplies_used || []).reduce((ss, x) => ss + (x.price || 0), 0)), 0);
+  const dailyLogTotalCost = boatDailyLogs.reduce((s, l) => s + (l.total_cost || 0), 0);
+
   // Upcoming recurring payments (next 60 days)
   const today = new Date();
   const upcomingPayments = recurringCosts
