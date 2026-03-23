@@ -371,7 +371,7 @@ function WorkOrderForm({ boat, onClose }) {
         <Label className="text-xs flex items-center gap-1"><Upload className="h-3 w-3" /> Upload Service Report (PDF/Image)</Label>
         <Input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileUpload} className="mt-1 cursor-pointer" disabled={uploading} />
         {uploading && <p className="text-xs text-blue-600 mt-1">Uploading...</p>}
-        {reportUrl && <p className="text-xs text-emerald-600 mt-1">✓ Report uploaded successfully</p>}
+        {reportUrl && <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1"><CheckCircle className="h-3 w-3" /> Report uploaded successfully</p>}
       </div>
 
       <div className="flex gap-2 pt-2">
