@@ -624,6 +624,31 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
                   <span className="text-cyan-400 font-semibold">{fmt(suppliesCost)}</span>
                 </div>
               )}
+
+              {/* Daily Logs */}
+              {boatDailyLogs.length > 0 && (
+                <div className="rounded overflow-hidden" style={{ border: '1px solid rgba(52,211,153,0.2)' }}>
+                  <div className="flex justify-between items-center px-2 py-1.5" style={{ background: 'rgba(52,211,153,0.08)' }}>
+                    <div className="flex items-center gap-1">
+                      <span className="text-emerald-300 font-medium">Daily Logs ({boatDailyLogs.length})</span>
+                      <InfoTip text="Operational costs logged daily by crew: fuel consumed + supplies used. Not counted in booking P&L — shown here for total operational visibility." />
+                    </div>
+                    <span className="font-bold text-emerald-400">{fmt(dailyLogTotalCost)}</span>
+                  </div>
+                  {dailyLogFuelCost > 0 && (
+                    <div className="flex justify-between items-center px-3 py-1" style={{ background: 'rgba(52,211,153,0.04)', borderTop: '1px solid rgba(52,211,153,0.08)' }}>
+                      <span className="text-white/30 text-xs">↳ Daily Fuel</span>
+                      <span className="text-white/40 text-xs">{fmt(dailyLogFuelCost)}</span>
+                    </div>
+                  )}
+                  {dailyLogSuppliesCost > 0 && (
+                    <div className="flex justify-between items-center px-3 py-1" style={{ background: 'rgba(52,211,153,0.04)', borderTop: '1px solid rgba(52,211,153,0.08)' }}>
+                      <span className="text-white/30 text-xs">↳ Daily Supplies</span>
+                      <span className="text-white/40 text-xs">{fmt(dailyLogSuppliesCost)}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {recurringCosts.length > 0 && (
