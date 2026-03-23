@@ -1034,6 +1034,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
               expenses={expenses}
               personalTrips={personalTrips}
               allBoats={boats}
+              dailyLogs={dailyLogs}
             />
           ))}
         </div>
