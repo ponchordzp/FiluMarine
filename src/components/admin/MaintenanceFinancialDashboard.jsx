@@ -978,6 +978,11 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
         </div>
       )}
 
+      {/* Operational Calendar */}
+      <SectionRow label="Operational Calendar — Services &amp; Payments" icon={<CalendarDays className="h-4 w-4 text-cyan-300" />} defaultOpen={true}>
+        <OperationalCalendar boats={filteredBoats} />
+      </SectionRow>
+
       {/* Per-Boat Cards */}
       <SectionRow label="Per-Boat Financial Detail" icon={<ListChecks className="h-4 w-4 text-blue-300" />} defaultOpen={true}>
         <div className="space-y-4">
