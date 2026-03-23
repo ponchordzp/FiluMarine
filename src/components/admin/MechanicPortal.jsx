@@ -762,7 +762,7 @@ export default function MechanicPortal({ currentUser, operatorFilter = 'all' }) 
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
           {visibleBoats.map(boat => (
-            <BoatMechanicCard key={boat.id} boat={boat} currentUser={currentUser} />
+            <BoatMechanicCard key={boat.id} boat={boat} currentUser={currentUser} allBookings={allBookings} personalTrips={personalTrips} />
           ))}
         </div>
       )}
