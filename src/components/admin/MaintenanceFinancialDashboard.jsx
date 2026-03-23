@@ -744,6 +744,10 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
     queryKey: ['personal-trips'],
     queryFn: () => base44.entities.PersonalTrip.list('-trip_date'),
   });
+  const { data: dailyLogs = [] } = useQuery({
+    queryKey: ['daily-logs-all'],
+    queryFn: () => base44.entities.DailyLog.list('-log_date'),
+  });
 
   const filteredBoats = boats.filter(boat => {
     if (operatorFilter === 'all') return true;
