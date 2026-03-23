@@ -1457,6 +1457,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       {selectedBoatForTrips &&
       <PersonalTripDialog boat={selectedBoatForTrips} open={personalTripDialogOpen} onOpenChange={(open) => {setPersonalTripDialogOpen(open);if (!open) setSelectedBoatForTrips(null);}} />
       }
+      {selectedBoatForDailyLog &&
+      <DailyLogDialog boat={selectedBoatForDailyLog} open={dailyLogDialogOpen} onOpenChange={(open) => {setDailyLogDialogOpen(open);if (!open) setSelectedBoatForDailyLog(null);}} />
+      }
     </div>);
 
 }
