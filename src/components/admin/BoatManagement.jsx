@@ -12,6 +12,7 @@ import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, C
 import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import PersonalTripDialog from './PersonalTripDialog';
+import DailyLogDialog from './DailyLogDialog';
 import TripHistoryCard from './TripHistoryCard';
 import PickupAndDeparture from './PickupAndDeparture';
 import EquipmentManager from './EquipmentManager';
