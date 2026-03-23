@@ -4,6 +4,97 @@ import { base44 } from '@/api/base44Client';
 import { Check, ChevronDown, ChevronUp, Plus, Info, Pencil, X, Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { differenceInDays, parseISO, format } from 'date-fns';
 
+// ── Interval parser → days ────────────────────────────────────────────────────
+// Returns number of days that represents the interval string, or null if not applicable.
+function parseIntervalDays(interval) {
+  if (!interval) return null;
+  const s = interval.toLowerCase().trim();
+  // Skip non-time intervals
+  if (['daily', 'each use', 'after each use', 'each fuel fill', 'each offshore departure',
+       'each haul-out', 'continuous', 'live/continuous', 'immediate', 'on change', 'on update',
+       'when needed', 'scheduled', 'before offshore trip', 'keep onboard', 'seasonal storage'].some(k => s.includes(k))) {
+    return null;
+  }
+  // hours-based: show nothing (engine-hours handled separately)
+  if (s.includes('h)') || s.match(/\d+h$/) || s.match(/^\d+[-–]\d+h/) || s.match(/^\d{2,4}h/) || s.match(/every \d+ hour/)) return null;
+
+  if (s === 'weekly' || s.includes('week')) return 7;
+  if (s === 'biannual' || s === 'bi-annual') return 180;
+  if (s === 'quarterly' || s.includes('quarter') || s === '3 months' || s.includes('3-month') || s.includes('90 days')) return 90;
+  if (s.includes('30 days')) return 30;
+  if (s.includes('6 month') || s.includes('6-month') || s.includes('biannual') || s.includes('6 months')) return 183;
+  if (s.includes('monthly') || s === '1 month') return 30;
+  if (s.match(/^(\d+)\s*month/)) {
+    const m = s.match(/^(\d+)\s*month/);
+    return parseInt(m[1]) * 30;
+  }
+  if (s === 'yearly' || s.includes('yearly') || s === 'annual' || s.includes('annual') || s === '1 year' || s === '12 months') return 365;
+  if (s.includes('2 year') || s.includes('2-year')) return 730;
+  if (s.includes('3 year') || s.includes('3-year') || s.includes('36 month')) return 1095;
+  if (s.includes('5 year') || s.includes('5-year')) return 1825;
+  if (s.includes('1-3 year') || s.includes('1–3 year')) return 365;
+  if (s.includes('2-5 year') || s.includes('2–5 year')) return 730;
+  // manufacturer term
+  if (s.includes('manufacturer')) return 365;
+  // every N hours (already excluded above) — skip
+  if (s.match(/every \d+/)) return null;
+  return null;
+}
+
+// ── Interval status badge ─────────────────────────────────────────────────────
+function IntervalBadge({ interval, lastDate }) {
+  const days = parseIntervalDays(interval);
+  if (!days || !lastDate) {
+    // Show a soft "not recorded" only if interval is time-based
+    if (days !== null && !lastDate) {
+      return (
+        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-400 border border-slate-200 ml-1">
+          <Clock className="h-2.5 w-2.5" /> No date
+        </span>
+      );
+    }
+    return null;
+  }
+
+  let daysSince;
+  try {
+    daysSince = differenceInDays(new Date(), parseISO(lastDate));
+  } catch {
+    return null;
+  }
+
+  const remaining = days - daysSince;
+  const pct = daysSince / days;
+
+  let color, label, Icon;
+  if (remaining < 0) {
+    color = 'bg-red-100 text-red-700 border-red-300';
+    Icon = AlertTriangle;
+    const overBy = Math.abs(remaining);
+    label = overBy < 30 ? `Overdue ${overBy}d` : overBy < 365 ? `Overdue ${Math.round(overBy/30)}mo` : `Overdue ${(overBy/365).toFixed(1)}y`;
+  } else if (pct >= 0.85) {
+    color = 'bg-amber-100 text-amber-700 border-amber-300';
+    Icon = AlertTriangle;
+    label = remaining < 30 ? `Due in ${remaining}d` : `Due in ${Math.round(remaining/30)}mo`;
+  } else if (pct >= 0.6) {
+    color = 'bg-yellow-50 text-yellow-700 border-yellow-200';
+    Icon = Clock;
+    label = remaining < 30 ? `${remaining}d left` : `${Math.round(remaining/30)}mo left`;
+  } else {
+    color = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    Icon = CheckCircle2;
+    const doneAgo = daysSince < 30 ? `${daysSince}d ago` : daysSince < 365 ? `${Math.round(daysSince/30)}mo ago` : `${(daysSince/365).toFixed(1)}y ago`;
+    label = doneAgo;
+  }
+
+  return (
+    <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full border font-medium ml-1 ${color}`}>
+      <Icon className="h-2.5 w-2.5" />
+      {label}
+    </span>
+  );
+}
+
 // Inline timestamp button for checklist items — hover shows audit info, click stamps today
 function ChecklistTimestampButton({ onStamp, meta = null }) {
   const [show, setShow] = useState(false);
