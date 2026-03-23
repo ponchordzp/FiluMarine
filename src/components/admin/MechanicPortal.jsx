@@ -681,6 +681,16 @@ export default function MechanicPortal({ currentUser, operatorFilter = 'all' }) 
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
   });
 
+  const { data: allBookings = [] } = useQuery({
+    queryKey: ['admin-bookings'],
+    queryFn: () => base44.entities.Booking.list('-created_date'),
+  });
+
+  const { data: personalTrips = [] } = useQuery({
+    queryKey: ['personal-trips'],
+    queryFn: () => base44.entities.PersonalTrip.list('-trip_date'),
+  });
+
   const visibleBoats = boats.filter(boat => {
     if (isAdmin || currentUser?.role === 'crew') return assignedBoat ? boat.name === assignedBoat : true;
     // Apply operator filter for superadmin/operator_admin
