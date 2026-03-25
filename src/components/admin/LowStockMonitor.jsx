@@ -1,39 +1,73 @@
 import React, { useState } from 'react';
-import { AlertTriangle, ShoppingCart, MessageCircle, ChevronDown, ChevronUp, ExternalLink, Package, CheckCircle } from 'lucide-react';
+import { AlertTriangle, ShoppingCart, MessageCircle, ChevronDown, ChevronUp, ExternalLink, Package, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
-const LOW_STOCK_THRESHOLD = 0.20; // 20% of original quantity
+const LOW_STOCK_THRESHOLD = 0.20; // 20%
 
-function isLowStock(item) {
-  const qty = item.quantity || 0;
-  const original = item.original_quantity || 0;
-  if (original > 0) {
-    return qty <= original * LOW_STOCK_THRESHOLD;
+// Mirrors the calculateSupplyTimeRemaining logic from BoatManagement
+function getTimeRemaining(item) {
+  if (!item.purchased_date || !item.duration_months) return null;
+  const purchased = new Date(item.purchased_date);
+  const now = new Date();
+  const totalDays = item.duration_months * 30;
+  const elapsedDays = Math.floor((now - purchased) / (1000 * 60 * 60 * 24));
+  const baseQty = item.original_quantity ?? item.quantity ?? 0;
+  let effectiveTotalDays = totalDays;
+  if (baseQty > 0 && item.quantity !== undefined && item.quantity < baseQty) {
+    const remainingFraction = Math.max(0, item.quantity / baseQty);
+    effectiveTotalDays = totalDays * remainingFraction;
   }
-  // fallback: use minimum_stock if no original_quantity set
-  if (item.minimum_stock > 0) {
-    return qty <= item.minimum_stock;
-  }
-  return false;
+  const remainingDays = Math.max(0, effectiveTotalDays - elapsedDays);
+  const pct = effectiveTotalDays > 0
+    ? Math.max(0, Math.min(100, (remainingDays / effectiveTotalDays) * 100))
+    : 0;
+  return { remainingDays: Math.round(remainingDays), pct: Math.round(pct), expired: remainingDays === 0 };
 }
 
-function getStockPercent(item) {
-  const qty = item.quantity || 0;
-  const original = item.original_quantity || 0;
-  if (original > 0) return Math.min(100, Math.round((qty / original) * 100));
-  if (item.minimum_stock > 0) return Math.min(100, Math.round((qty / item.minimum_stock) * 100));
-  return 100;
+// Item is low stock if EITHER quantity ≤ 20% of original OR time remaining ≤ 20%
+function getLowStockInfo(item) {
+  const qty = item.quantity ?? 0;
+  const original = item.original_quantity ?? 0;
+  const timeInfo = getTimeRemaining(item);
+
+  // Quantity-based check
+  if (original > 0) {
+    const qtyPct = Math.round((qty / original) * 100);
+    if (qtyPct <= LOW_STOCK_THRESHOLD * 100) {
+      return { isLow: true, reason: 'quantity', pct: qtyPct, label: `${qty} / ${original} ${item.unit || 'units'} (${qtyPct}%)` };
+    }
+  }
+
+  // Fallback minimum_stock check
+  if (item.minimum_stock > 0 && qty <= item.minimum_stock) {
+    const pct = Math.round((qty / item.minimum_stock) * 100);
+    return { isLow: true, reason: 'minimum_stock', pct, label: `${qty} / ${item.minimum_stock} min (${pct}%)` };
+  }
+
+  // Time/duration-based check
+  if (timeInfo && (timeInfo.expired || timeInfo.pct <= LOW_STOCK_THRESHOLD * 100)) {
+    const label = timeInfo.expired
+      ? `Expired — 0 days left`
+      : `${timeInfo.remainingDays} days left (${timeInfo.pct}% remaining)`;
+    return { isLow: true, reason: 'duration', pct: timeInfo.pct, label };
+  }
+
+  return { isLow: false };
 }
 
 function buildWhatsAppUrl(phone, boatName, items) {
   const clean = phone.replace(/[\s\-\(\)\+]/g, '');
   const date = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
   const itemLines = items.map((item, i) => {
-    const qty = item.quantity || 0;
-    const original = item.original_quantity || 0;
-    const suggested = original > 0 ? Math.max(1, original - qty) : 1;
-    return `${i + 1}. *${item.name}*\n   • Stock actual: ${qty} ${item.unit || 'unidades'}\n   • Stock original: ${original || 'N/A'} ${item.unit || 'unidades'}\n   • Cantidad a reponer: ${suggested} ${item.unit || 'unidades'}`;
+    const qty = item.quantity ?? 0;
+    const original = item.original_quantity ?? 0;
+    const timeInfo = getTimeRemaining(item);
+    const suggested = original > qty ? Math.ceil(original - qty) : original > 0 ? original : 1;
+    const statusLine = timeInfo
+      ? `Tiempo restante: ${timeInfo.remainingDays} días (${timeInfo.pct}%)`
+      : `Stock actual: ${qty} ${item.unit || 'unidades'}`;
+    return `${i + 1}. *${item.name}*\n   • ${statusLine}\n   • Cantidad original: ${original || 'N/A'} ${item.unit || 'unidades'}\n   • Cantidad sugerida a reponer: ${suggested} ${item.unit || 'unidades'}`;
   });
   const message = [
     `📦 *ORDEN DE COMPRA — ${boatName}*`,
@@ -54,7 +88,11 @@ export default function LowStockMonitor({ boat }) {
   const supplies = boat.supplies_inventory || [];
   const sellers = boat.supply_sellers || [];
 
-  const lowStockItems = supplies.filter(isLowStock);
+  // Evaluate every supply item
+  const lowStockItems = supplies
+    .map((item) => ({ ...item, _lowInfo: getLowStockInfo(item) }))
+    .filter((item) => item._lowInfo.isLow);
+
   const hasLowStock = lowStockItems.length > 0;
 
   // Group by supplier_name
@@ -108,7 +146,6 @@ export default function LowStockMonitor({ boat }) {
             const hasPhone = !!seller?.phone;
             return (
               <div key={supplierName} className="rounded-lg border-2 border-red-200 overflow-hidden">
-                {/* Supplier header + WhatsApp button */}
                 <div className="flex items-center justify-between gap-2 px-3 py-2 bg-red-50 border-b border-red-200">
                   <div>
                     <p className="text-xs font-bold text-red-800">{supplierName}</p>
@@ -127,27 +164,33 @@ export default function LowStockMonitor({ boat }) {
                     <Badge className="bg-amber-100 text-amber-700 text-xs border border-amber-300">No phone on file</Badge>
                   )}
                 </div>
-
-                {/* Low stock items */}
                 <div className="divide-y divide-red-100 bg-white">
                   {items.map((item, idx) => {
-                    const pct = getStockPercent(item);
+                    const info = item._lowInfo;
+                    const isDuration = info.reason === 'duration';
                     return (
                       <div key={idx} className="px-3 py-2 flex items-center gap-3">
-                        <ShoppingCart className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
+                        {isDuration
+                          ? <Clock className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                          : <ShoppingCart className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
+                        }
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-semibold text-slate-800">{item.name}</p>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-xs text-red-600 font-medium whitespace-nowrap">
-                              {item.quantity || 0} / {item.original_quantity || item.minimum_stock || '?'} {item.unit || 'units'}
+                            <span className={`text-xs font-medium whitespace-nowrap ${isDuration ? 'text-amber-600' : 'text-red-600'}`}>
+                              {info.label}
                             </span>
                             <div className="flex-1 h-1.5 bg-red-100 rounded-full overflow-hidden">
-                              <div className="h-full bg-red-500 rounded-full" style={{ width: `${pct}%` }} />
+                              <div
+                                className={`h-full rounded-full ${isDuration ? 'bg-amber-500' : 'bg-red-500'}`}
+                                style={{ width: `${info.pct}%` }}
+                              />
                             </div>
-                            <span className="text-xs text-red-600 font-bold whitespace-nowrap">{pct}%</span>
                           </div>
                         </div>
-                        <Badge className="bg-red-100 text-red-700 text-xs border border-red-200 flex-shrink-0">Low Stock</Badge>
+                        <Badge className={`text-xs border flex-shrink-0 ${isDuration ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
+                          {isDuration ? 'Expiring' : 'Low Stock'}
+                        </Badge>
                       </div>
                     );
                   })}
@@ -156,7 +199,7 @@ export default function LowStockMonitor({ boat }) {
             );
           })}
 
-          {/* Items with no supplier assigned */}
+          {/* Items with no supplier */}
           {noSupplier.length > 0 && (
             <div className="rounded-lg border-2 border-amber-200 overflow-hidden">
               <div className="px-3 py-2 bg-amber-50 border-b border-amber-200 flex items-center gap-2">
@@ -168,23 +211,26 @@ export default function LowStockMonitor({ boat }) {
               </div>
               <div className="divide-y divide-amber-100 bg-white">
                 {noSupplier.map((item, idx) => {
-                  const pct = getStockPercent(item);
+                  const info = item._lowInfo;
+                  const isDuration = info.reason === 'duration';
                   return (
                     <div key={idx} className="px-3 py-2 flex items-center gap-3">
-                      <ShoppingCart className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                      {isDuration
+                        ? <Clock className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                        : <ShoppingCart className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+                      }
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-semibold text-slate-800">{item.name}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-amber-700 font-medium whitespace-nowrap">
-                            {item.quantity || 0} / {item.original_quantity || item.minimum_stock || '?'} {item.unit || 'units'}
-                          </span>
+                          <span className="text-xs text-amber-700 font-medium whitespace-nowrap">{info.label}</span>
                           <div className="flex-1 h-1.5 bg-amber-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-amber-500 rounded-full" style={{ width: `${pct}%` }} />
+                            <div className="h-full bg-amber-500 rounded-full" style={{ width: `${info.pct}%` }} />
                           </div>
-                          <span className="text-xs text-amber-700 font-bold whitespace-nowrap">{pct}%</span>
                         </div>
                       </div>
-                      <Badge className="bg-amber-100 text-amber-700 text-xs border border-amber-200 flex-shrink-0">Low Stock</Badge>
+                      <Badge className="bg-amber-100 text-amber-700 text-xs border border-amber-200 flex-shrink-0">
+                        {isDuration ? 'Expiring' : 'Low Stock'}
+                      </Badge>
                     </div>
                   );
                 })}
