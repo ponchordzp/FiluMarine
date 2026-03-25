@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { AlertTriangle, ShoppingCart, MessageCircle, ChevronDown, ChevronUp, ExternalLink, Package } from 'lucide-react';
+import { AlertTriangle, ShoppingCart, MessageCircle, ChevronDown, ChevronUp, ExternalLink, Package, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 function buildWhatsAppUrl(phone, boatName, items) {
   const clean = phone.replace(/[\s\-\(\)]/g, '');
   const date = new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'long', year: 'numeric' });
-
   const lines = [
     `📦 *ORDEN DE COMPRA — ${boatName}*`,
     `📅 Fecha: ${date}`,
@@ -22,7 +21,6 @@ function buildWhatsAppUrl(phone, boatName, items) {
     ``,
     `Por favor confirmar disponibilidad y precio. Gracias.`,
   ];
-
   return `https://wa.me/${clean}?text=${encodeURIComponent(lines.join('\n'))}`;
 }
 
@@ -36,9 +34,9 @@ export default function LowStockMonitor({ boat }) {
     (item) => item.minimum_stock > 0 && (item.quantity || 0) <= item.minimum_stock
   );
 
-  if (lowStockItems.length === 0) return null;
+  const hasLowStock = lowStockItems.length > 0;
 
-  // Group by supplier_name
+  // Group low stock items by supplier
   const grouped = {};
   const noSupplier = [];
   lowStockItems.forEach((item) => {
@@ -52,18 +50,23 @@ export default function LowStockMonitor({ boat }) {
 
   return (
     <div className="mt-3 pt-3 border-t">
-      {/* Collapsible header — matches Engine Hours / Trip History style */}
       <button
         type="button"
         onClick={() => setExpanded((p) => !p)}
         className="w-full flex items-center justify-between gap-2 mb-2 group"
       >
-        <h4 className="font-semibold text-xs text-red-700 flex items-center gap-2">
-          <AlertTriangle className="h-3 w-3 animate-pulse" />
-          Low Stock Alert
-          <span className="ml-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-            {lowStockItems.length}
-          </span>
+        <h4 className={`font-semibold text-xs flex items-center gap-2 ${hasLowStock ? 'text-red-700' : 'text-slate-700'}`}>
+          {hasLowStock ? (
+            <AlertTriangle className="h-3 w-3 text-red-500" />
+          ) : (
+            <ShoppingCart className="h-3 w-3 text-slate-500" />
+          )}
+          Low Stock Monitor
+          {hasLowStock && (
+            <span className="bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+              {lowStockItems.length}
+            </span>
+          )}
         </h4>
         {expanded
           ? <ChevronUp className="h-3 w-3 text-slate-400" />
@@ -72,14 +75,19 @@ export default function LowStockMonitor({ boat }) {
 
       {expanded && (
         <div className="space-y-3">
+          {!hasLowStock && (
+            <div className="flex items-center gap-2 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+              <CheckCircle className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+              <p className="text-xs text-emerald-700 font-medium">All supplies are sufficiently stocked.</p>
+            </div>
+          )}
+
           {/* Items with a known supplier */}
           {Object.entries(grouped).map(([supplierName, items]) => {
             const seller = sellers.find((s) => s.name === supplierName);
             const hasPhone = !!seller?.phone;
-
             return (
               <div key={supplierName} className="rounded-lg border-2 border-red-200 overflow-hidden">
-                {/* Supplier header */}
                 <div className="flex items-center justify-between gap-2 px-3 py-2 bg-red-50 border-b border-red-200">
                   <div>
                     <p className="text-xs font-bold text-red-800">{supplierName}</p>
@@ -88,11 +96,7 @@ export default function LowStockMonitor({ boat }) {
                   </div>
                   {hasPhone ? (
                     <a href={buildWhatsAppUrl(seller.phone, boat.name, items)} target="_blank" rel="noopener noreferrer">
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="h-7 bg-green-600 hover:bg-green-700 text-white text-xs gap-1 shadow"
-                      >
+                      <Button type="button" size="sm" className="h-7 bg-green-600 hover:bg-green-700 text-white text-xs gap-1 shadow">
                         <MessageCircle className="h-3 w-3" />
                         Order via WhatsApp
                         <ExternalLink className="h-2.5 w-2.5 opacity-70" />
@@ -102,8 +106,6 @@ export default function LowStockMonitor({ boat }) {
                     <Badge className="bg-amber-100 text-amber-700 text-xs border border-amber-300">No phone on file</Badge>
                   )}
                 </div>
-
-                {/* Items */}
                 <div className="divide-y divide-red-100 bg-white">
                   {items.map((item, idx) => {
                     const pct = item.minimum_stock > 0
@@ -132,7 +134,7 @@ export default function LowStockMonitor({ boat }) {
             );
           })}
 
-          {/* Items with no supplier assigned */}
+          {/* Items with no supplier */}
           {noSupplier.length > 0 && (
             <div className="rounded-lg border-2 border-amber-200 overflow-hidden">
               <div className="px-3 py-2 bg-amber-50 border-b border-amber-200">
