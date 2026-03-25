@@ -1348,7 +1348,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 }
 
               {/* Low Stock Monitor */}
-              <LowStockMonitor boat={boat} />
+              <LowStockMonitor boat={boat} onEditSupplies={() => handleEditAndScroll(boat, 'section-supplies')} />
 
               {/* Trip History - collapsible */}
               <div className="mt-3 pt-3 border-t">

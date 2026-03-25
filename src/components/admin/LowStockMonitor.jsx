@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { AlertTriangle, ShoppingCart, MessageCircle, ChevronDown, ChevronUp, ExternalLink, Package, CheckCircle, Clock } from 'lucide-react';
+import { AlertTriangle, ShoppingCart, MessageCircle, ChevronDown, ChevronUp, ExternalLink, Package, CheckCircle, Clock, Pencil } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 const LOW_STOCK_THRESHOLD = 0.20; // 20%
 
-// Mirrors the calculateSupplyTimeRemaining logic from BoatManagement
 function getTimeRemaining(item) {
   if (!item.purchased_date || !item.duration_months) return null;
   const purchased = new Date(item.purchased_date);
@@ -25,31 +24,27 @@ function getTimeRemaining(item) {
   return { remainingDays: Math.round(remainingDays), pct: Math.round(pct), expired: remainingDays === 0 };
 }
 
-// Item is low stock if EITHER quantity ≤ 20% of original OR time remaining ≤ 20%
 function getLowStockInfo(item) {
   const qty = item.quantity ?? 0;
   const original = item.original_quantity ?? 0;
   const timeInfo = getTimeRemaining(item);
 
-  // Quantity-based check
   if (original > 0) {
     const qtyPct = Math.round((qty / original) * 100);
     if (qtyPct <= LOW_STOCK_THRESHOLD * 100) {
-      return { isLow: true, reason: 'quantity', pct: qtyPct, label: `${qty} / ${original} ${item.unit || 'units'} (${qtyPct}%)` };
+      return { isLow: true, reason: 'quantity', pct: qtyPct, label: `${qty} / ${original} ${item.unit || 'units'} remaining (${qtyPct}%)` };
     }
   }
 
-  // Fallback minimum_stock check
   if (item.minimum_stock > 0 && qty <= item.minimum_stock) {
     const pct = Math.round((qty / item.minimum_stock) * 100);
     return { isLow: true, reason: 'minimum_stock', pct, label: `${qty} / ${item.minimum_stock} min (${pct}%)` };
   }
 
-  // Time/duration-based check
   if (timeInfo && (timeInfo.expired || timeInfo.pct <= LOW_STOCK_THRESHOLD * 100)) {
     const label = timeInfo.expired
       ? `Expired — 0 days left`
-      : `${timeInfo.remainingDays} days left (${timeInfo.pct}% remaining)`;
+      : `${timeInfo.remainingDays} days left (${timeInfo.pct}% of duration remaining)`;
     return { isLow: true, reason: 'duration', pct: timeInfo.pct, label };
   }
 
@@ -82,20 +77,68 @@ function buildWhatsAppUrl(phone, boatName, items) {
   return `https://wa.me/${clean}?text=${encodeURIComponent(message)}`;
 }
 
-export default function LowStockMonitor({ boat }) {
+function SupplyRow({ item, onEditSupplies }) {
+  const info = item._lowInfo;
+  const isDuration = info.reason === 'duration';
+
+  return (
+    <div className="px-3 py-3 bg-white">
+      {/* Supply name + badge */}
+      <div className="flex items-start justify-between gap-2 mb-1.5">
+        <div className="flex items-center gap-2 min-w-0">
+          {isDuration
+            ? <Clock className="h-3.5 w-3.5 text-amber-500 flex-shrink-0 mt-0.5" />
+            : <ShoppingCart className="h-3.5 w-3.5 text-red-500 flex-shrink-0 mt-0.5" />
+          }
+          <p className="text-xs font-semibold text-slate-800 leading-tight">{item.name}</p>
+        </div>
+        <Badge className="bg-red-100 text-red-700 text-xs border border-red-200 flex-shrink-0 whitespace-nowrap">
+          Low Stock
+        </Badge>
+      </div>
+
+      {/* Status label */}
+      <p className={`text-xs font-medium mb-1.5 pl-5 ${isDuration ? 'text-amber-600' : 'text-red-600'}`}>
+        {info.label}
+      </p>
+
+      {/* Progress bar */}
+      <div className="pl-5 mb-2">
+        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all ${isDuration ? 'bg-amber-500' : 'bg-red-500'}`}
+            style={{ width: `${info.pct}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Edit link */}
+      {onEditSupplies && (
+        <button
+          type="button"
+          onClick={onEditSupplies}
+          className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline pl-5 transition-colors"
+        >
+          <Pencil className="h-2.5 w-2.5" />
+          View in Supplies Editor
+        </button>
+      )}
+    </div>
+  );
+}
+
+export default function LowStockMonitor({ boat, onEditSupplies }) {
   const [expanded, setExpanded] = useState(false);
 
   const supplies = boat.supplies_inventory || [];
   const sellers = boat.supply_sellers || [];
 
-  // Evaluate every supply item
   const lowStockItems = supplies
     .map((item) => ({ ...item, _lowInfo: getLowStockInfo(item) }))
     .filter((item) => item._lowInfo.isLow);
 
   const hasLowStock = lowStockItems.length > 0;
 
-  // Group by supplier_name
   const grouped = {};
   const noSupplier = [];
   lowStockItems.forEach((item) => {
@@ -146,54 +189,33 @@ export default function LowStockMonitor({ boat }) {
             const hasPhone = !!seller?.phone;
             return (
               <div key={supplierName} className="rounded-lg border-2 border-red-200 overflow-hidden">
-                <div className="flex items-center justify-between gap-2 px-3 py-2 bg-red-50 border-b border-red-200">
-                  <div>
-                    <p className="text-xs font-bold text-red-800">{supplierName}</p>
-                    {seller?.phone && <p className="text-xs text-red-600">{seller.phone}</p>}
-                    {seller?.specialty && <p className="text-xs text-slate-500 italic">{seller.specialty}</p>}
+                {/* Supplier header */}
+                <div className="px-3 py-2.5 bg-red-50 border-b border-red-200">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-red-800">{supplierName}</p>
+                      {seller?.phone && <p className="text-xs text-red-600 mt-0.5">{seller.phone}</p>}
+                      {seller?.specialty && <p className="text-xs text-slate-500 italic mt-0.5">{seller.specialty}</p>}
+                    </div>
+                    {hasPhone ? (
+                      <a href={buildWhatsAppUrl(seller.phone, boat.name, items)} target="_blank" rel="noopener noreferrer" className="flex-shrink-0">
+                        <Button type="button" size="sm" className="h-8 bg-green-600 hover:bg-green-700 text-white text-xs gap-1 shadow-sm">
+                          <MessageCircle className="h-3 w-3" />
+                          Order
+                          <ExternalLink className="h-2.5 w-2.5 opacity-70" />
+                        </Button>
+                      </a>
+                    ) : (
+                      <Badge className="bg-amber-100 text-amber-700 text-xs border border-amber-300 flex-shrink-0">No phone</Badge>
+                    )}
                   </div>
-                  {hasPhone ? (
-                    <a href={buildWhatsAppUrl(seller.phone, boat.name, items)} target="_blank" rel="noopener noreferrer">
-                      <Button type="button" size="sm" className="h-7 bg-green-600 hover:bg-green-700 text-white text-xs gap-1 shadow-sm">
-                        <MessageCircle className="h-3 w-3" />
-                        Purchase Order
-                        <ExternalLink className="h-2.5 w-2.5 opacity-70" />
-                      </Button>
-                    </a>
-                  ) : (
-                    <Badge className="bg-amber-100 text-amber-700 text-xs border border-amber-300">No phone on file</Badge>
-                  )}
                 </div>
-                <div className="divide-y divide-red-100 bg-white">
-                  {items.map((item, idx) => {
-                    const info = item._lowInfo;
-                    const isDuration = info.reason === 'duration';
-                    return (
-                      <div key={idx} className="px-3 py-2 flex items-center gap-3">
-                        {isDuration
-                          ? <Clock className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
-                          : <ShoppingCart className="h-3.5 w-3.5 text-red-500 flex-shrink-0" />
-                        }
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-slate-800">{item.name}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className={`text-xs font-medium whitespace-nowrap ${isDuration ? 'text-amber-600' : 'text-red-600'}`}>
-                              {info.label}
-                            </span>
-                            <div className="flex-1 h-1.5 bg-red-100 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full ${isDuration ? 'bg-amber-500' : 'bg-red-500'}`}
-                                style={{ width: `${info.pct}%` }}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        <Badge className={`text-xs border flex-shrink-0 ${isDuration ? 'bg-amber-100 text-amber-700 border-amber-200' : 'bg-red-100 text-red-700 border-red-200'}`}>
-                          {isDuration ? 'Expiring' : 'Low Stock'}
-                        </Badge>
-                      </div>
-                    );
-                  })}
+
+                {/* Supply rows */}
+                <div className="divide-y divide-red-100">
+                  {items.map((item, idx) => (
+                    <SupplyRow key={idx} item={item} onEditSupplies={onEditSupplies} />
+                  ))}
                 </div>
               </div>
             );
@@ -202,38 +224,19 @@ export default function LowStockMonitor({ boat }) {
           {/* Items with no supplier */}
           {noSupplier.length > 0 && (
             <div className="rounded-lg border-2 border-amber-200 overflow-hidden">
-              <div className="px-3 py-2 bg-amber-50 border-b border-amber-200 flex items-center gap-2">
-                <Package className="h-3 w-3 text-amber-700" />
-                <div>
-                  <p className="text-xs font-bold text-amber-800">No supplier assigned</p>
-                  <p className="text-xs text-amber-600">Go to Manage Vessel → Supplies to assign a supplier</p>
+              <div className="px-3 py-2.5 bg-amber-50 border-b border-amber-200">
+                <div className="flex items-center gap-2">
+                  <Package className="h-3 w-3 text-amber-700 flex-shrink-0" />
+                  <div>
+                    <p className="text-xs font-bold text-amber-800">No supplier assigned</p>
+                    <p className="text-xs text-amber-600">Go to Manage Vessel → Supplies to assign a supplier</p>
+                  </div>
                 </div>
               </div>
-              <div className="divide-y divide-amber-100 bg-white">
-                {noSupplier.map((item, idx) => {
-                  const info = item._lowInfo;
-                  const isDuration = info.reason === 'duration';
-                  return (
-                    <div key={idx} className="px-3 py-2 flex items-center gap-3">
-                      {isDuration
-                        ? <Clock className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
-                        : <ShoppingCart className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
-                      }
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-slate-800">{item.name}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-xs text-amber-700 font-medium whitespace-nowrap">{info.label}</span>
-                          <div className="flex-1 h-1.5 bg-amber-100 rounded-full overflow-hidden">
-                            <div className="h-full bg-amber-500 rounded-full" style={{ width: `${info.pct}%` }} />
-                          </div>
-                        </div>
-                      </div>
-                      <Badge className="bg-amber-100 text-amber-700 text-xs border border-amber-200 flex-shrink-0">
-                        {isDuration ? 'Expiring' : 'Low Stock'}
-                      </Badge>
-                    </div>
-                  );
-                })}
+              <div className="divide-y divide-amber-100">
+                {noSupplier.map((item, idx) => (
+                  <SupplyRow key={idx} item={item} onEditSupplies={onEditSupplies} />
+                ))}
               </div>
             </div>
           )}
