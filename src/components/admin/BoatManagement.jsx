@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin, Navigation, History, ClipboardList } from 'lucide-react';
+import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin, Navigation, History, ClipboardList, AlertTriangle } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import PersonalTripDialog from './PersonalTripDialog';
@@ -21,6 +21,7 @@ import MaintenanceChecklist from './MaintenanceChecklist';
 import MaintenanceAlerts from './MaintenanceAlerts';
 import MaintenanceLogView from './MaintenanceLogView';
 import CustomFieldsManager from './CustomFieldsManager';
+import LowStockMonitor from './LowStockMonitor';
 import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from './SectionLock';
 
 const expeditionTypes = [
