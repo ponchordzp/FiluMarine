@@ -1314,8 +1314,6 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   actualCurrentHours={actualCurrentHours}
                   onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)} />
 
-              <LowStockMonitor boat={boat} />
-
               <MaintenanceLogView boat={boat} />
 
               {boat.current_hours >= 0 &&
@@ -1348,6 +1346,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   )}
                 </div>
                 }
+
+              {/* Low Stock Monitor */}
+              <LowStockMonitor boat={boat} />
 
               {/* Trip History - collapsible */}
               <div className="mt-3 pt-3 border-t">
