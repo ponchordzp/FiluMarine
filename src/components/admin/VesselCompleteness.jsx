@@ -114,7 +114,10 @@ function getSections(boat) {
 }
 
 function CircleFill({ pct, color, label, onClick }) {
-  const radius = 18;
+  const radius = 22;
+  const strokeWidth = 5;
+  const size = 64;
+  const center = size / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (pct / 100) * circumference;
   const isComplete = pct === 100;
@@ -124,35 +127,35 @@ function CircleFill({ pct, color, label, onClick }) {
       type="button"
       onClick={onClick}
       title={`${label}: ${pct}% — click to edit`}
-      className="flex flex-col items-center gap-1 group cursor-pointer focus:outline-none"
+      className="flex flex-col items-center gap-1.5 group cursor-pointer focus:outline-none"
     >
-      <div className="relative w-12 h-12">
-        <svg width="48" height="48" viewBox="0 0 48 48" className="rotate-[-90deg]">
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="rotate-[-90deg]">
           {/* Track */}
-          <circle cx="24" cy="24" r={radius} fill="none" stroke="#e2e8f0" strokeWidth="4" />
+          <circle cx={center} cy={center} r={radius} fill="none" stroke="#e2e8f0" strokeWidth={strokeWidth} />
           {/* Fill */}
           <circle
-            cx="24" cy="24" r={radius}
+            cx={center} cy={center} r={radius}
             fill="none"
             stroke={isComplete ? '#22c55e' : color}
-            strokeWidth="4"
+            strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
             className="transition-all duration-500"
           />
         </svg>
-        {/* Percentage text */}
+        {/* Percentage text — centered inside the ring */}
         <span
-          className="absolute inset-0 flex items-center justify-center text-xs font-bold"
-          style={{ color: isComplete ? '#16a34a' : color }}
+          className="absolute inset-0 flex items-center justify-center font-bold"
+          style={{ fontSize: '11px', color: isComplete ? '#16a34a' : color }}
         >
           {pct}%
         </span>
       </div>
       <span
         className="text-center leading-tight group-hover:underline"
-        style={{ fontSize: '9px', color: '#475569', maxWidth: '48px' }}
+        style={{ fontSize: '9px', color: '#475569', maxWidth: '60px' }}
       >
         {label}
       </span>
@@ -195,7 +198,7 @@ export default function VesselCompleteness({ boat, onEditSection }) {
           <p className="text-xs text-slate-500 mb-3 text-center">
             Click any circle to open that section in the editor
           </p>
-          <div className="grid grid-cols-3 gap-x-2 gap-y-4 justify-items-center">
+          <div className="grid grid-cols-3 gap-x-3 gap-y-5 justify-items-center">
             {sections.map(section => (
               <CircleFill
                 key={section.id}
