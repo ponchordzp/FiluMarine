@@ -1007,7 +1007,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <button type="button" onClick={() => toggleSection('supplies')} className="w-full bg-emerald-600 px-5 py-3 flex items-center gap-2">
                   <Package className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supplies Inventory</h3>
-                  {(() => {const n = (formData.supplies_inventory||[]).filter(s=>s.status==='in_stock').length;const t = (formData.supplies_inventory||[]).length||1;return <><span className="text-xs text-white/80 mr-1">{n}/{t}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n/t*100)}%` }} /></div></>;})()}
+                  {(() => {const n = (formData.supplies_inventory||[]).filter(s=>s.status==='in_stock').length;const t = (formData.supplies_inventory||[]).length||1;const lowStockCount=(formData.supplies_inventory||[]).filter(s=>s.minimum_stock>0&&(s.quantity||0)<=s.minimum_stock).length;return <><span className="text-xs text-white/80 mr-1">{n}/{t}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n/t*100)}%` }} /></div>{lowStockCount>0&&<span className="text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full font-bold mr-1 flex items-center gap-0.5"><AlertTriangle className="h-2.5 w-2.5"/>{lowStockCount}</span>}</>;})()}
                   <SectionLockButton sectionKey="supplies" locks={locks} toggle={toggleLock} isComplete={isSuppliesComplete} />
                   {collapsedSections['supplies'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
@@ -1048,14 +1048,36 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                 <Button type="button" variant="ghost" size="sm" onClick={() => removeSupply(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
                               </div>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                <div>
-                                  <Label className="text-xs text-slate-600">Qty</Label>
-                                  <Input type="number" min="0" value={supply.quantity || 0} onChange={(e) => updateSupplyQuantity(index, e.target.value)} className="h-7 text-sm" />
-                                </div>
-                                <div><Label className="text-xs text-slate-600">Unit</Label><Input value={supply.unit || ''} onChange={(e) => updateSupplyField(index, 'unit', e.target.value)} placeholder="gallons" className="h-7 text-sm" /></div>
-                                <div><Label className="text-xs text-slate-600">Price/Unit</Label><Input type="number" min="0" value={supply.price_per_unit || 0} onChange={(e) => updateSupplyField(index, 'price_per_unit', parseFloat(e.target.value) || 0)} className="h-7 text-sm" /></div>
-                                <div><Label className="text-xs text-slate-600">Duration (mo)</Label><Input type="number" min="0" value={supply.duration_months || 0} onChange={(e) => updateSupplyField(index, 'duration_months', parseInt(e.target.value) || 0)} className="h-7 text-sm" /></div>
-                              </div>
+                                 <div>
+                                   <Label className="text-xs text-slate-600">Qty</Label>
+                                   <Input type="number" min="0" value={supply.quantity || 0} onChange={(e) => updateSupplyQuantity(index, e.target.value)} className="h-7 text-sm" />
+                                 </div>
+                                 <div><Label className="text-xs text-slate-600">Unit</Label><Input value={supply.unit || ''} onChange={(e) => updateSupplyField(index, 'unit', e.target.value)} placeholder="gallons" className="h-7 text-sm" /></div>
+                                 <div><Label className="text-xs text-slate-600">Price/Unit</Label><Input type="number" min="0" value={supply.price_per_unit || 0} onChange={(e) => updateSupplyField(index, 'price_per_unit', parseFloat(e.target.value) || 0)} className="h-7 text-sm" /></div>
+                                 <div><Label className="text-xs text-slate-600">Duration (mo)</Label><Input type="number" min="0" value={supply.duration_months || 0} onChange={(e) => updateSupplyField(index, 'duration_months', parseInt(e.target.value) || 0)} className="h-7 text-sm" /></div>
+                               </div>
+                               {/* Min stock + supplier */}
+                               <div className="grid grid-cols-2 gap-2">
+                                 <div>
+                                   <Label className="text-xs text-red-600 font-semibold flex items-center gap-1">
+                                     <AlertTriangle className="h-3 w-3" /> Min Stock Alert
+                                   </Label>
+                                   <Input type="number" min="0" value={supply.minimum_stock || 0} onChange={(e) => updateSupplyField(index, 'minimum_stock', parseFloat(e.target.value) || 0)} placeholder="0 = off" className="h-7 text-sm border-red-200 focus:border-red-400" />
+                                 </div>
+                                 <div>
+                                   <Label className="text-xs text-cyan-700 font-semibold">Supplier</Label>
+                                   <select
+                                     value={supply.supplier_name || ''}
+                                     onChange={(e) => updateSupplyField(index, 'supplier_name', e.target.value)}
+                                     className="h-7 text-sm w-full rounded-md border border-input bg-background px-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+                                   >
+                                     <option value="">None</option>
+                                     {(formData.supply_sellers || []).map((s) => (
+                                       <option key={s.name} value={s.name}>{s.name}</option>
+                                     ))}
+                                   </select>
+                                 </div>
+                               </div>
                               {supply.duration_months > 0 && <div><div className="flex items-center gap-0.5"><Label className="text-xs text-slate-600">Purchased Date</Label><TimestampButton meta={supply.purchased_date_meta} onStamp={(d, m) => { updateSupplyField(index, 'purchased_date', d); updateSupplyField(index, 'purchased_date_meta', m); }} /></div><Input type="date" value={supply.purchased_date || ''} onChange={(e) => updateSupplyField(index, 'purchased_date', e.target.value)} className="h-7 text-sm" /></div>}
                               {supply.duration_months > 0 &&
                               <div className="space-y-1">
@@ -1291,6 +1313,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   boat={boat}
                   actualCurrentHours={actualCurrentHours}
                   onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)} />
+
+              <LowStockMonitor boat={boat} />
 
               <MaintenanceLogView boat={boat} />
 
