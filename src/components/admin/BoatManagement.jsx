@@ -1014,7 +1014,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 {!collapsedSections['supplies'] && <div className="bg-emerald-50 p-5 space-y-3">
                   {locks['supplies'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
                   <p className="text-sm text-emerald-800">Track all materials and supplies needed to keep your boat in optimal condition.</p>
-                  <SuppliesManager supplies={formData.supplies_inventory} onAddSupply={addSupply} onRemoveSupply={removeSupply} onUpdateSupply={updateSupplyField} />
+                  <SuppliesManager supplies={formData.supplies_inventory} sellers={formData.supply_sellers || []} onAddSupply={addSupply} onRemoveSupply={removeSupply} onUpdateSupply={updateSupplyField} />
                   {formData.supplies_inventory.length > 0 &&
                   <div className="space-y-2 max-h-[400px] overflow-y-auto">
                       {formData.supplies_inventory.map((supply, index) => {
