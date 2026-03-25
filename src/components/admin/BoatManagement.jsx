@@ -22,6 +22,7 @@ import MaintenanceAlerts from './MaintenanceAlerts';
 import MaintenanceLogView from './MaintenanceLogView';
 import CustomFieldsManager from './CustomFieldsManager';
 import LowStockMonitor from './LowStockMonitor';
+import VesselCompleteness from './VesselCompleteness';
 import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from './SectionLock';
 
 const expeditionTypes = [
@@ -1308,6 +1309,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 </div>
                 {boat.description && <p className="text-xs text-slate-600 line-clamp-2 mt-2">{boat.description}</p>}
               </div>
+
+              <VesselCompleteness boat={boat} onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)} />
 
               <MaintenanceAlerts
                   boat={boat}
