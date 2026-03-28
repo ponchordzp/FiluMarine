@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin, Navigation, History, ClipboardList, AlertTriangle } from 'lucide-react';
+import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin, Navigation, History, ClipboardList, AlertTriangle, Images } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import PersonalTripDialog from './PersonalTripDialog';
@@ -699,11 +699,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                       {(formData.images || []).length > 0 && (
                         <div className="grid grid-cols-4 gap-2">
                           {(formData.images || []).map((url, idx) => (
-                            <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-sky-200">
+                            <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-sky-200">
                               <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
                               <button type="button" onClick={() => removeAdditionalImage(idx)}
-                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                ×
+                                className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors">
+                                <Trash2 className="h-3 w-3" />
                               </button>
                             </div>
                           ))}
@@ -713,11 +713,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                       {additionalImageFiles.length > 0 && (
                         <div className="grid grid-cols-4 gap-2">
                           {additionalImageFiles.map((file, idx) => (
-                            <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
+                            <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
                               <img src={URL.createObjectURL(file)} alt={`New ${idx + 1}`} className="w-full h-full object-cover" />
                               <button type="button" onClick={() => removeAdditionalPendingFile(idx)}
-                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                ×
+                                className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors">
+                                <Trash2 className="h-3 w-3" />
                               </button>
                             </div>
                           ))}
