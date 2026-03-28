@@ -87,6 +87,7 @@ export default function AdminAuth({ children }) {
       full_name: match.full_name || match.username,
       role: match.role,
       assigned_boat: match.assigned_boat || '',
+      operator: match.operator || '',
     };
     sessionStorage.setItem('app_user', JSON.stringify(user));
     setCurrentUser(user);
