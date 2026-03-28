@@ -142,10 +142,13 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
   const role = currentUserRole || (isSuperAdmin ? 'superadmin' : isOperatorAdmin ? 'operator_admin' : 'admin');
   const canSeeFilter = operatorFilterAccess[role] ?? false;
 
-  // Build operator list based on role and filter permission
+  // Build operator list based on role
+  // SuperAdmin: all operators
+  // OperatorAdmin: their operator only
+  // Other roles with canSeeFilter: their assigned operator only
   const operators = isSuperAdmin
     ? loadOperators()
-    : isOperatorAdmin && currentUserOperator
+    : currentUserOperator
     ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }]
     : canSeeFilter
     ? loadOperators()
