@@ -142,16 +142,11 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
   const role = currentUserRole || (isSuperAdmin ? 'superadmin' : isOperatorAdmin ? 'operator_admin' : 'admin');
   const canSeeFilter = operatorFilterAccess[role] ?? false;
 
-  // Build operator list based on role
-  // SuperAdmin: all operators
-  // OperatorAdmin: their operator only
-  // Other roles with canSeeFilter: their assigned operator only
+  // SuperAdmin: all operators; everyone else: only their assigned operator
   const operators = isSuperAdmin
     ? loadOperators()
     : currentUserOperator
     ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }]
-    : canSeeFilter
-    ? loadOperators()
     : [];
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
 
@@ -161,7 +156,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
         <FamilyGroup key={family.id} family={family} />
       ))}
 
-      {canSeeFilter && operators.length > 0 && (
+      {(canSeeFilter || isSuperAdmin || isOperatorAdmin) && operators.length > 0 && (
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-white/40 flex items-center gap-1">
             <Ship className="h-3 w-3" /> Filter by Operator:
