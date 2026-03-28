@@ -1317,8 +1317,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
           if (operatorFilter && operatorFilter !== 'all') {
             const bOp = (boat.operator || '').toLowerCase();
             const fOp = operatorFilter.toLowerCase();
-            const match = fOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === fOp;
-            if (!match) return false;
+            // Strict match: operator must match exactly, no FILU fallback
+            if (bOp !== fOp) return false;
           }
           return true;
         }).map((boat) => {

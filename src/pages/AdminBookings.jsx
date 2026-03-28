@@ -182,14 +182,12 @@ function AdminBookingsInner() {
   });
 
   // Role-scoped visible data
-  // Operator admin sees all boats in their operator's fleet
+  // Operator admin sees ONLY boats explicitly assigned to their operator.
+  // If operator is missing from session, they see nothing (no fallback to FILU).
   const operatorBoatNames = isOperatorAdmin
-    ? allBoats.filter(b => {
-        const bOp = (b.operator || '').toLowerCase();
-        const uOp = currentUserOperator.toLowerCase();
-        if (!uOp || uOp === 'filu') return !bOp || bOp === 'filu';
-        return bOp === uOp;
-      }).map(b => b.name)
+    ? (currentUserOperator
+        ? allBoats.filter(b => (b.operator || '').toLowerCase() === currentUserOperator.toLowerCase()).map(b => b.name)
+        : [])
     : [];
 
   // Apply superadmin global operator filter

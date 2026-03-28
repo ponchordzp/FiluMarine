@@ -170,15 +170,13 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   // Roles the current user is allowed to assign when creating/editing
   const allowedRolesToCreate = ROLE_HIERARCHY[currentUser?.role] || [];
 
-  // Operator admins only see users from their own operator
-  const scopedUsers = isOperatorAdmin ?
-  appUsers.filter((u) => {
-    const uOp = (u.operator || '').toLowerCase();
-    const myOp = currentUserOperator.toLowerCase();
-    if (!myOp || myOp === 'filu') return !uOp || uOp === 'filu';
-    return uOp === myOp;
-  }) :
-  appUsers;
+  // Operator admins only see users from their own operator.
+  // Strict match — no fallback to FILU.
+  const scopedUsers = isOperatorAdmin
+    ? (currentUserOperator
+        ? appUsers.filter((u) => (u.operator || '').toLowerCase() === currentUserOperator.toLowerCase())
+        : [])
+    : appUsers;
 
   // Filtered users
   const filteredUsers = scopedUsers.filter((u) => {
