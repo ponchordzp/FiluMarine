@@ -43,6 +43,7 @@
       "type": "string",
       "enum": [
         "rental_and_maintenance",
+        "rental_only",
         "maintenance_only"
       ],
       "default": "rental_and_maintenance",
@@ -409,20 +410,19 @@
           },
           "original_quantity": {
             "type": "number",
-            "description": "Original quantity at purchase time \u2014 used as baseline for duration calculations"
+            "description": "Original quantity at purchase time"
           },
           "minimum_stock": {
             "type": "number",
             "default": 0,
-            "description": "Minimum quantity threshold \u2014 triggers Low Stock alert when quantity drops to or below this"
+            "description": "Minimum quantity threshold"
           },
           "supplier_name": {
             "type": "string",
-            "description": "Name of the supply seller responsible for this item (must match a name in supply_sellers)"
+            "description": "Name of the supply seller"
           },
           "usage_log": {
             "type": "array",
-            "description": "Log of quantity deductions from trips",
             "items": {
               "type": "object",
               "properties": {

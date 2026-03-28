@@ -738,7 +738,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               </div>
 
               {/* ── SECTION 2: Expeditions & Pricing ── indigo */}
-              {formData.boat_mode === 'rental_and_maintenance' &&
+              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') &&
               <div className="rounded-xl overflow-hidden border border-indigo-200 mb-4">
                 <button type="button" onClick={() => toggleSection('expeditions')} className="w-full bg-indigo-600 px-5 py-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white" />
@@ -785,7 +785,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               }
 
               {/* ── SECTION 3: Equipment ── teal */}
-              {formData.boat_mode === 'rental_and_maintenance' &&
+              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') &&
               <div className="rounded-xl overflow-hidden border border-teal-200 mb-4">
                   <button type="button" onClick={() => toggleSection('equipment')} className="w-full bg-teal-600 px-5 py-3 flex items-center gap-2">
                     <Package className="h-4 w-4 text-white" />
@@ -1330,7 +1330,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
           const maintenanceOverdue = hoursUntilMaintenance <= 0;
           const needsMaintenance = boat.status === 'maintenance' || maintenanceOverdue || maintenanceDue;
           const isExpanded = expandedBoats[boat.id];
-          const isRentalMode = boat.boat_mode === 'rental_and_maintenance';
+          const isRentalMode = boat.boat_mode === 'rental_and_maintenance' || boat.boat_mode === 'rental_only';
+          const isMaintenanceMode = boat.boat_mode === 'rental_and_maintenance' || boat.boat_mode === 'maintenance_only' || !boat.boat_mode;
 
           return (
             <Card key={boat.id} className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -1338,7 +1339,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <img src={boat.image} alt={boat.name} className="w-full h-full object-cover" />
               <div className="absolute top-2 right-2 flex gap-2">
                 <Badge className="bg-white/90 text-slate-800">{boat.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</Badge>
-                <Badge className={isRentalMode ? 'bg-blue-500 text-white' : 'bg-slate-500 text-white'}>{isRentalMode ? 'Rental + Maintenance' : 'Maintenance Only'}</Badge>
+                <Badge className={boat.boat_mode === 'rental_and_maintenance' ? 'bg-blue-500 text-white' : boat.boat_mode === 'rental_only' ? 'bg-green-500 text-white' : 'bg-slate-500 text-white'}>{boat.boat_mode === 'rental_and_maintenance' ? 'Rental + Maintenance' : boat.boat_mode === 'rental_only' ? 'Rental Only' : 'Maintenance Only'}</Badge>
               </div>
               {maintenanceOverdue && <Badge className="absolute top-2 left-2 bg-red-600 text-white animate-pulse">Maintenance OVERDUE</Badge>}
               {!maintenanceOverdue && maintenanceDue && <Badge className="absolute top-2 left-2 bg-amber-500 text-white">Maintenance Due Soon</Badge>}
@@ -1356,8 +1357,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <div className="mt-2 p-2 bg-slate-50 rounded-lg border">
                   <p className="text-xs text-slate-600 mb-1.5 font-medium">Boat Mode</p>
                   <div className="flex gap-2">
-                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'rental_and_maintenance' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${isRentalMode ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Rental + Maintenance</button>
-                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'maintenance_only' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${!isRentalMode ? 'bg-slate-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Maintenance Only</button>
+                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'rental_and_maintenance' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'rental_and_maintenance' ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Rental + Maint.</button>
+                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'rental_only' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'rental_only' ? 'bg-green-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Rental Only</button>
+                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'maintenance_only' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'maintenance_only' ? 'bg-slate-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Maint. Only</button>
                   </div>
                 </div>
                 {boat.description && <p className="text-xs text-slate-600 line-clamp-2 mt-2">{boat.description}</p>}
