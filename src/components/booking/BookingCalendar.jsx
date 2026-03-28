@@ -8,28 +8,14 @@ import { format, addDays, isBefore, startOfDay, isSameDay, isToday } from 'date-
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
-const timeSlots = {
-  half_day_fishing: [
-    { time: '7:00 AM', label: 'Morning Departure' },
-    { time: '8:00 AM', label: 'Morning Departure' },
-  ],
-  full_day_fishing: [
-    { time: '7:00 AM', label: 'Morning Departure' },
-    { time: '8:00 AM', label: 'Morning Departure' },
-  ],
-  extended_fishing: [
-    { time: '7:00 AM', label: 'Morning Departure' },
-  ],
-  snorkeling: [
-    { time: '9:00 AM', label: 'Morning' },
-    { time: '12:00 PM', label: 'Afternoon' },
-  ],
-  coastal_leisure: [
-    { time: '12:30 PM', label: 'Afternoon Departure' },
-  ],
-  sunset_tour: [
-    { time: '2:30 PM', label: 'Sunset Departure' },
-  ],
+// Fallback time slots when the vessel editor has no departure_time configured
+const fallbackTimeSlots = {
+  half_day_fishing: [{ time: '6:00 AM', label: 'Morning Departure' }],
+  full_day_fishing:  [{ time: '6:00 AM', label: 'Morning Departure' }],
+  extended_fishing:  [{ time: '6:00 AM', label: 'Morning Departure' }],
+  snorkeling:        [{ time: '7:00 AM', label: 'Morning Departure' }],
+  coastal_leisure:   [{ time: '7:00 AM', label: 'Departure' }],
+  sunset_tour:       [{ time: '4:00 PM', label: 'Sunset Departure' }],
 };
 
 // Helper to extract max guests from capacity string
@@ -77,7 +63,19 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const [blockedDates, setBlockedDates] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
 
-  const availableSlots = timeSlots[experience.id] || [];
+  // Derive time slot from the selected boat's vessel-editor expedition_pricing first
+  const getAvailableSlotsForBoat = (boatId) => {
+    const boat = activeBoats.find(b => b.id === boatId);
+    if (boat?.expedition_pricing) {
+      const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
+      if (pricing?.departure_time) {
+        return [{ time: pricing.departure_time, label: 'Departure' }];
+      }
+    }
+    return fallbackTimeSlots[experience.id] || [];
+  };
+
+  const availableSlots = getAvailableSlotsForBoat(selectedBoat);
   const today = startOfDay(new Date());
   const minDate = addDays(today, 1); // Only allow booking from tomorrow onwards
   
@@ -137,6 +135,11 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const handleDateSelect = (date) => {
     setSelectedDate(date);
     setSelectedTime(null);
+  };
+
+  const handleBoatSelect = (boatId) => {
+    setSelectedBoat(boatId);
+    setSelectedTime(null); // reset time since slots may differ per boat
   };
 
   const handleContinue = () => {
@@ -307,7 +310,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     return (
                       <button
                         key={boat.id}
-                        onClick={() => setSelectedBoat(boat.id)}
+                        onClick={() => handleBoatSelect(boat.id)}
                         className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
                           selectedBoat === boat.id
                             ? 'border-cyan-400 bg-cyan-400/20'
