@@ -351,12 +351,12 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md flex flex-col max-h-[90vh]">
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingUser ? `Edit User: ${editingUser.username}` : 'Create New User'}</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <div className="overflow-y-auto flex-1 pr-1 space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Username *</Label><Input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required placeholder="e.g., juan_perez" /></div>
               <div><Label>Full Name</Label><Input value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
