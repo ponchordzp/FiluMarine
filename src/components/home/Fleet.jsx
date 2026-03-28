@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import BoatImageCarousel from '@/components/booking/BoatImageCarousel';
 import { base44 } from '@/api/base44Client';
-import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, ChevronDown, ChevronUp, Waves, Sun, Clock, AlertTriangle } from 'lucide-react';
+import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, Waves, Sun, Clock, AlertTriangle, MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import BoatDetailModal from '@/components/booking/BoatDetailModal';
 
@@ -93,7 +93,6 @@ const equipmentIcons = {
 export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat }) {
   const [selectedBoatDetail, setSelectedBoatDetail] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
-  const [expandedExpeditions, setExpandedExpeditions] = useState({});
 
   const { data: boatsFromDB = [] } = useQuery({
     queryKey: ['boats', location],
@@ -241,56 +240,49 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                         <p className="text-xs font-semibold text-red-400 text-center flex items-center justify-center gap-1"><AlertTriangle className="h-3.5 w-3.5" />Available Tomorrow</p>
                       </div>
                     )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setExpandedExpeditions(prev => ({ ...prev, [boat.name]: !prev[boat.name] }));
-                      }}
-                      className="w-full flex items-center justify-between text-xs font-semibold text-white/60 uppercase tracking-wide mb-2 hover:text-white/80 transition-colors"
-                    >
-                      <span>Available Experiences</span>
-                      {expandedExpeditions[boat.name] ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                    </button>
-                    {expandedExpeditions[boat.name] && (
-                      <div className="space-y-2">
-                        {boat.available_expeditions.map((exp) => {
-                          const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
-                          const defaultDurations = {
-                            half_day_fishing: { hours: 5, time: '6:00 AM' },
-                            full_day_fishing: { hours: 8, time: '6:00 AM' },
-                            extended_fishing: { hours: 10, time: '6:00 AM' },
-                            snorkeling: { hours: 5, time: '7:00 AM' },
-                            coastal_leisure: { hours: 5, time: '7:00 AM' },
-                            sunset_tour: { hours: 3, time: '4:00 PM' },
-                          };
-                          const defaults = defaultDurations[exp] || { hours: 5, time: '7:00 AM' };
-                          const durationHours = pricing?.duration_hours ?? defaults.hours;
-                          const departureTime = pricing?.departure_time ?? defaults.time;
-                          const expIcons = {
-                            half_day_fishing: Fish,
-                            full_day_fishing: Fish,
-                            extended_fishing: Anchor,
-                            snorkeling: Waves,
-                            coastal_leisure: Navigation,
-                            sunset_tour: Sun,
-                          };
-                          const ExpIcon = expIcons[exp] || Anchor;
-                          const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
-                          return (
-                            <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                              <div className="flex items-center gap-2 mb-1">
-                                <ExpIcon className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
-                                <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
-                              </div>
-                              <div className="flex gap-3 text-xs text-white/55 pl-5">
-                                <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{durationHours}h</span>
-                                <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{departureTime}</span>
-                              </div>
+                    <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Available Experiences</p>
+                    <div className="space-y-2">
+                      {boat.available_expeditions.map((exp) => {
+                        const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
+                        const defaultDurations = {
+                          half_day_fishing: { hours: 5, time: '6:00 AM' },
+                          full_day_fishing: { hours: 8, time: '6:00 AM' },
+                          extended_fishing: { hours: 10, time: '6:00 AM' },
+                          snorkeling: { hours: 5, time: '7:00 AM' },
+                          coastal_leisure: { hours: 5, time: '7:00 AM' },
+                          sunset_tour: { hours: 3, time: '4:00 PM' },
+                        };
+                        const defaults = defaultDurations[exp] || { hours: 5, time: '7:00 AM' };
+                        const durationHours = pricing?.duration_hours ?? defaults.hours;
+                        const departureTime = pricing?.departure_time ?? defaults.time;
+                        const pickupLocation = pricing?.pickup_location;
+                        const expIcons = {
+                          half_day_fishing: Fish,
+                          full_day_fishing: Fish,
+                          extended_fishing: Anchor,
+                          snorkeling: Waves,
+                          coastal_leisure: Navigation,
+                          sunset_tour: Sun,
+                        };
+                        const ExpIcon = expIcons[exp] || Anchor;
+                        const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
+                        return (
+                          <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <ExpIcon className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
+                              <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
                             </div>
-                          );
-                        })}
-                      </div>
-                    )}
+                            <div className="flex flex-wrap gap-3 text-xs text-white/55 pl-5">
+                              <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{durationHours}h</span>
+                              <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{departureTime}</span>
+                              {pickupLocation && (
+                                <span className="flex items-center gap-1"><MapPin className="h-3 w-3 inline" />{pickupLocation}</span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 )}
 
