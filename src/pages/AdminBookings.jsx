@@ -747,7 +747,7 @@ function AdminBookingsInner() {
           </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} currentUserOperator={currentUserOperator} operatorFilter={effectiveOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} />
+          <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} currentUserOperator={currentUserOperator} currentUserRole={currentUser?.role} operatorFilter={effectiveOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} />
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">

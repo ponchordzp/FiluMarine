@@ -1,5 +1,6 @@
 import React from 'react';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { loadOperatorFilterAccess } from '@/components/admin/RolePermissionsManager';
 import {
   CalendarDays, CalendarRange, Ban, BarChart2,
   Anchor, DollarSign, Wrench, CheckSquare, BookOpen,
@@ -136,7 +137,11 @@ function loadOperators() {
   return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
 }
 
-export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, operatorFilter, onOperatorFilterChange }) {
+export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange }) {
+  const operatorFilterAccess = loadOperatorFilterAccess();
+  const role = currentUserRole || (isSuperAdmin ? 'superadmin' : isOperatorAdmin ? 'operator_admin' : 'admin');
+  const canSeeFilter = operatorFilterAccess[role] ?? false;
+
   // SuperAdmin: load all operators from localStorage
   // operator_admin: always show their own operator directly (no localStorage dependency)
   const operators = isSuperAdmin
@@ -152,7 +157,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
         <FamilyGroup key={family.id} family={family} />
       ))}
 
-      {(isSuperAdmin || isOperatorAdmin) && operators.length > 0 && (
+      {canSeeFilter && operators.length > 0 && (
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-white/40 flex items-center gap-1">
             <Ship className="h-3 w-3" /> Filter by Operator:

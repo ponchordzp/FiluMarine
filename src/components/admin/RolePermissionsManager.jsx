@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Plus, X, Check, Shield, Building2, Anchor, Users } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, X, Check, Shield, Building2, Anchor, Users, Filter } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const PERMISSIONS_KEY = 'filu_role_permissions';
+export const OPERATOR_FILTER_KEY = 'filu_operator_filter_access';
 
 // All available tabs in the system
 const ALL_TABS = [
@@ -29,13 +30,31 @@ const ALL_TABS = [
 
 const TAB_GROUPS = ['Reservations', 'Fleet', 'Locations', 'Management'];
 
-// Default permissions per role
 const DEFAULT_PERMISSIONS = {
   superadmin: ALL_TABS.map((t) => t.value),
   operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
   admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'engine-databases'],
   crew: ['bookings', 'booked-dates', 'dashboard', 'boats', 'engine-databases']
 };
+
+const DEFAULT_OPERATOR_FILTER_ACCESS = {
+  superadmin: true,
+  operator_admin: true,
+  admin: false,
+  crew: false,
+};
+
+export function loadOperatorFilterAccess() {
+  try {
+    const raw = localStorage.getItem(OPERATOR_FILTER_KEY);
+    if (raw) return { ...DEFAULT_OPERATOR_FILTER_ACCESS, ...JSON.parse(raw) };
+  } catch {}
+  return { ...DEFAULT_OPERATOR_FILTER_ACCESS };
+}
+
+function saveOperatorFilterAccess(access) {
+  localStorage.setItem(OPERATOR_FILTER_KEY, JSON.stringify(access));
+}
 
 const BUILT_IN_ROLES = [
   { key: 'superadmin',    label: 'Super Admin',        icon: Shield,    color: 'bg-purple-100 text-purple-800', iconColor: 'text-purple-600', locked: true },
@@ -72,9 +91,10 @@ function saveCustomRoles(roles) {
   localStorage.setItem('filu_custom_roles', JSON.stringify(roles));
 }
 
-function RoleRow({ roleKey, roleLabel, icon: Icon, iconColor, colorClass, locked, permissions, onChange, onDelete }) {
+function RoleRow({ roleKey, roleLabel, icon: Icon, iconColor, colorClass, locked, permissions, onChange, onDelete, operatorFilterAccess, onToggleOperatorFilter }) {
   const [open, setOpen] = useState(false);
   const allowedTabs = permissions[roleKey] || [];
+  const canFilter = operatorFilterAccess[roleKey] ?? false;
 
   const toggle = (tabValue) => {
     const current = permissions[roleKey] || [];
@@ -108,7 +128,24 @@ function RoleRow({ roleKey, roleLabel, icon: Icon, iconColor, colorClass, locked
           <p className="text-sm font-semibold text-slate-800">{roleLabel}</p>
           <p className="text-xs text-slate-400">{enabledCount} / {ALL_TABS.length} tabs accessible</p>
         </div>
-        <div className="w-20 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+
+        {/* Operator Filter toggle */}
+        <button
+          type="button"
+          disabled={locked}
+          onClick={(e) => { e.stopPropagation(); if (!locked) onToggleOperatorFilter(roleKey); }}
+          title="Toggle Operator Filter access"
+          className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium border transition-all flex-shrink-0 ${
+            canFilter
+              ? 'bg-indigo-100 text-indigo-700 border-indigo-300'
+              : 'bg-slate-100 text-slate-400 border-slate-200'
+          } ${locked ? 'opacity-70 cursor-default' : 'cursor-pointer hover:opacity-80'}`}
+        >
+          <Filter className="h-3 w-3" />
+          <span className="hidden sm:inline">Operator Filter</span>
+        </button>
+
+        <div className="w-16 h-1.5 bg-slate-100 rounded-full overflow-hidden flex-shrink-0">
           <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${enabledCount / ALL_TABS.length * 100}%` }} />
         </div>
         {!locked && onDelete && (
@@ -124,6 +161,14 @@ function RoleRow({ roleKey, roleLabel, icon: Icon, iconColor, colorClass, locked
           {locked && (
             <p className="text-xs text-slate-400 italic">Super Admin always has full access and cannot be restricted.</p>
           )}
+          {/* Operator Filter info row */}
+          <div className="flex items-center gap-2 p-2 rounded-lg bg-white border border-slate-200">
+            <Filter className="h-3.5 w-3.5 text-indigo-400 flex-shrink-0" />
+            <p className="text-xs text-slate-600 flex-1">
+              <span className="font-semibold">Filter by Operator:</span>{' '}
+              {canFilter ? <span className="text-indigo-600 font-medium">Enabled — this role can see the operator filter bar</span> : <span className="text-slate-400">Disabled — operator filter hidden for this role</span>}
+            </p>
+          </div>
           {TAB_GROUPS.map((group) => {
             const groupTabs = ALL_TABS.filter((t) => t.group === group);
             const allGroupOn = groupTabs.every((t) => allowedTabs.includes(t.value));
@@ -174,18 +219,26 @@ function RoleRow({ roleKey, roleLabel, icon: Icon, iconColor, colorClass, locked
 export default function RolePermissionsManager() {
   const [permissions, setPermissions] = useState(loadPermissions);
   const [customRoles, setCustomRoles] = useState(loadCustomRoles);
+  const [operatorFilterAccess, setOperatorFilterAccess] = useState(loadOperatorFilterAccess);
   const [newRoleName, setNewRoleName] = useState('');
   const [addingRole, setAddingRole] = useState(false);
 
   useEffect(() => {
     setPermissions(loadPermissions());
     setCustomRoles(loadCustomRoles());
+    setOperatorFilterAccess(loadOperatorFilterAccess());
   }, []);
 
   const handleChange = (roleKey, tabs) => {
     const updated = { ...permissions, [roleKey]: tabs };
     savePermissions(updated);
     setPermissions(updated);
+  };
+
+  const handleToggleOperatorFilter = (roleKey) => {
+    const updated = { ...operatorFilterAccess, [roleKey]: !operatorFilterAccess[roleKey] };
+    saveOperatorFilterAccess(updated);
+    setOperatorFilterAccess(updated);
   };
 
   const handleAddRole = () => {
@@ -217,11 +270,16 @@ export default function RolePermissionsManager() {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-blue-950 text-sm font-bold">Role Tab Permissions</p>
-          <p className="text-blue-950 mt-0.5 text-xs">Configure which tabs each role can access</p>
+          <p className="text-blue-950 mt-0.5 text-xs">Configure tab access and operator filter visibility per role</p>
         </div>
         <Button size="sm" variant="outline" onClick={() => setAddingRole(true)} className="gap-1.5 text-xs">
           <Plus className="h-3.5 w-3.5" />New Role
         </Button>
+      </div>
+
+      <div className="flex items-center gap-2 p-2 rounded-lg bg-indigo-50 border border-indigo-200">
+        <Filter className="h-3.5 w-3.5 text-indigo-500 flex-shrink-0" />
+        <p className="text-xs text-indigo-700">The <strong>Operator Filter</strong> badge on each role toggles whether that role can see the "Filter by Operator" bar. When enabled, users only see operators assigned to them.</p>
       </div>
 
       {addingRole && (
@@ -252,6 +310,8 @@ export default function RolePermissionsManager() {
             permissions={permissions}
             onChange={handleChange}
             onDelete={role.locked ? null : handleDeleteCustomRole}
+            operatorFilterAccess={operatorFilterAccess}
+            onToggleOperatorFilter={handleToggleOperatorFilter}
           />
         ))}
       </div>
