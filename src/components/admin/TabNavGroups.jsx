@@ -142,12 +142,13 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
   const role = currentUserRole || (isSuperAdmin ? 'superadmin' : isOperatorAdmin ? 'operator_admin' : 'admin');
   const canSeeFilter = operatorFilterAccess[role] ?? false;
 
-  // SuperAdmin: load all operators from localStorage
-  // operator_admin: always show their own operator directly (no localStorage dependency)
+  // Build operator list based on role and filter permission
   const operators = isSuperAdmin
     ? loadOperators()
     : isOperatorAdmin && currentUserOperator
     ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }]
+    : canSeeFilter
+    ? loadOperators()
     : [];
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
 
