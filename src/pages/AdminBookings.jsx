@@ -795,7 +795,7 @@ function AdminBookingsInner() {
                     <SelectTrigger className="mt-1 text-white" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Boats</SelectItem>
-                      {(isOperatorAdmin ? allBoats.filter(b => operatorBoatNames.includes(b.name)) : isSuperAdmin ? allBoats : allBoats.filter(b => b.name === assignedBoat)).map(b => (
+                      {(hasElevatedAccess ? (filteredOperatorBoats ? allBoats.filter(b => filteredOperatorBoats.includes(b.name)) : allBoats) : allBoats.filter(b => b.name === assignedBoat)).map(b => (
                         <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>
                       ))}
                     </SelectContent>
@@ -1115,7 +1115,7 @@ function AdminBookingsInner() {
                       <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
                       <SelectContent>
                         {isSuperAdmin && <SelectItem value="both">All Boats</SelectItem>}
-                        {(isSuperAdmin ? allBoats : allBoats.filter(b => operatorBoatNames.includes(b.name))).map(boat => (
+                        {(isSuperAdmin ? allBoats : allBoats.filter(b => (filteredOperatorBoats || []).includes(b.name))).map(boat => (
                           <SelectItem key={boat.id} value={boat.name}>{boat.name}</SelectItem>
                         ))}
                       </SelectContent>

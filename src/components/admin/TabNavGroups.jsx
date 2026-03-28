@@ -137,12 +137,12 @@ function loadOperators() {
 }
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, operatorFilter, onOperatorFilterChange }) {
-  const allOperators = (isSuperAdmin || isOperatorAdmin) ? loadOperators() : [];
-  // SuperAdmin sees all operators; operator_admin sees ONLY their own operator
+  // SuperAdmin: load all operators from localStorage
+  // operator_admin: always show their own operator directly (no localStorage dependency)
   const operators = isSuperAdmin
-    ? allOperators
-    : isOperatorAdmin
-    ? allOperators.filter(op => op.name.toLowerCase() === (currentUserOperator || '').toLowerCase())
+    ? loadOperators()
+    : isOperatorAdmin && currentUserOperator
+    ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }]
     : [];
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
 
