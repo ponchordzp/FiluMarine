@@ -253,9 +253,9 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                           sunset_tour: { hours: 3, time: '4:00 PM' },
                         };
                         const defaults = defaultDurations[exp] || { hours: 5, time: '7:00 AM' };
-                        const durationHours = pricing?.duration_hours ?? defaults.hours;
-                        const departureTime = pricing?.departure_time ?? defaults.time;
-                        const pickupLocation = pricing?.pickup_location;
+                        const durationHours = pricing?.duration_hours || defaults.hours;
+                        const departureTime = pricing?.departure_time || defaults.time;
+                        const pickupLocation = pricing?.pickup_location || null;
                         const expIcons = {
                           half_day_fishing: Fish,
                           full_day_fishing: Fish,
