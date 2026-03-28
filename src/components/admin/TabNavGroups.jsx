@@ -138,9 +138,23 @@ function loadOperators() {
 }
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange }) {
-  // Always load all operators — filter bar is shown for EVERY role
-  const operators = loadOperators();
+  const allOperators = loadOperators();
+  // SuperAdmin sees all operators and can switch freely.
+  // All other roles are locked to their assigned operator — show only that one.
+  const operators = isSuperAdmin
+    ? allOperators
+    : currentUserOperator
+      ? allOperators.filter(op => op.name.toLowerCase() === currentUserOperator.toLowerCase())
+          .concat(allOperators.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }] : [])
+      : allOperators;
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
+
+  // If no match found in stored operators, create a placeholder
+  const displayOperators = operators.length > 0
+    ? operators
+    : currentUserOperator
+      ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }]
+      : allOperators;
 
   return (
     <div className="flex flex-col gap-2 items-start">
@@ -148,33 +162,31 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
         <FamilyGroup key={family.id} family={family} />
       ))}
 
-      {operators.length > 0 && (
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs text-white/40 flex items-center gap-1">
-            <Ship className="h-3 w-3" /> Filter by Operator:
-          </span>
-          <div className="flex gap-1 flex-wrap">
-            {isSuperAdmin && (
-              <button
-                onClick={() => onOperatorFilterChange('all')}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === 'all' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
-              >
-                All
-              </button>
-            )}
-            {operators.map(op => (
-              <button
-                key={op.id}
-                onClick={() => onOperatorFilterChange(op.name)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === op.name ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
-                style={operatorFilter === op.name ? { background: op.color + '55', border: `1px solid ${op.color}88` } : {}}
-              >
-                {op.name}
-              </button>
-            ))}
-          </div>
+      <div className="flex items-center gap-2 mt-1">
+        <span className="text-xs text-white/40 flex items-center gap-1">
+          <Ship className="h-3 w-3" /> Filter by Operator:
+        </span>
+        <div className="flex gap-1 flex-wrap">
+          {isSuperAdmin && (
+            <button
+              onClick={() => onOperatorFilterChange('all')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === 'all' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
+            >
+              All
+            </button>
+          )}
+          {displayOperators.map(op => (
+            <button
+              key={op.id || op.name}
+              onClick={() => isSuperAdmin ? onOperatorFilterChange(op.name) : undefined}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase()) ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'} ${!isSuperAdmin ? 'cursor-default' : ''}`}
+              style={(operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase())) ? { background: (op.color || '#f97316') + '55', border: `1px solid ${(op.color || '#f97316')}88` } : {}}
+            >
+              {op.name}
+            </button>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

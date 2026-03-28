@@ -91,15 +91,9 @@ function AdminBookingsInner() {
   const [expenseBooking, setExpenseBooking] = useState(null);
   const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
   const [selectedBlockedDate, setSelectedBlockedDate] = useState(null);
-  const [globalOperatorFilter, setGlobalOperatorFilter] = useState(
-    // Non-superadmin roles default to their operator so filter is pre-applied
-    !isSuperAdmin && currentUserOperator ? currentUserOperator : 'all'
-  );
-  // For operator_admin: ALWAYS lock to their operator. SuperAdmin: use globalOperatorFilter freely.
-  // All other roles: default to their assigned operator but can switch if they have multiple.
-  const effectiveOperatorFilter = isOperatorAdmin
-    ? currentUserOperator
-    : globalOperatorFilter;
+  const [globalOperatorFilter, setGlobalOperatorFilter] = useState('all');
+  // ALL non-superadmin roles are LOCKED to their assigned operator. Only superadmin can freely switch.
+  const effectiveOperatorFilter = isSuperAdmin ? globalOperatorFilter : (currentUserOperator || 'all');
   const [financialTimeFilter, setFinancialTimeFilter] = useState('all');
   const [financialBoatFilter, setFinancialBoatFilter] = useState('all');
   const [bookingTimeFilter, setBookingTimeFilter] = useState('all');
