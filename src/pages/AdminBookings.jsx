@@ -91,15 +91,14 @@ function AdminBookingsInner() {
   const [expenseBooking, setExpenseBooking] = useState(null);
   const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
   const [selectedBlockedDate, setSelectedBlockedDate] = useState(null);
-  const [globalOperatorFilter, setGlobalOperatorFilter] = useState('all');
-  // Check if current role has operator filter permission
-  const operatorFilterAccess = loadOperatorFilterAccess();
-  const canUseOperatorFilter = operatorFilterAccess[currentUser?.role] ?? false;
-  // For operator_admin: ALWAYS lock to their operator. Others: use globalOperatorFilter if they have access.
+  const [globalOperatorFilter, setGlobalOperatorFilter] = useState(
+    // Non-superadmin roles default to their operator so filter is pre-applied
+    !isSuperAdmin && currentUserOperator ? currentUserOperator : 'all'
+  );
+  // For operator_admin: ALWAYS lock to their operator. SuperAdmin: use globalOperatorFilter freely.
+  // All other roles: default to their assigned operator but can switch if they have multiple.
   const effectiveOperatorFilter = isOperatorAdmin
     ? currentUserOperator
-    : (canUseOperatorFilter && currentUserOperator && !isSuperAdmin)
-    ? (globalOperatorFilter === 'all' ? currentUserOperator : globalOperatorFilter)
     : globalOperatorFilter;
   const [financialTimeFilter, setFinancialTimeFilter] = useState('all');
   const [financialBoatFilter, setFinancialBoatFilter] = useState('all');
@@ -192,22 +191,28 @@ function AdminBookingsInner() {
   });
 
   // Compute operator-filtered boat names using effectiveOperatorFilter
-  const hasOperatorAccess = isSuperAdmin || isOperatorAdmin || canUseOperatorFilter;
-  const filteredOperatorBoats = hasOperatorAccess && effectiveOperatorFilter && effectiveOperatorFilter !== 'all'
+  // SuperAdmin with 'all': no boat filter (see everything)
+  // Any role with a specific operator selected: filter to that operator's boats
+  // Non-elevated roles (admin/crew): always scope to their assigned boat
+  const filteredOperatorBoats = effectiveOperatorFilter && effectiveOperatorFilter !== 'all'
     ? allBoats.filter(b => (b.operator || '').toLowerCase() === effectiveOperatorFilter.toLowerCase()).map(b => b.name)
-    : (isSuperAdmin ? null : null);
+    : isSuperAdmin ? null : null;
 
-  const visibleBookings = hasOperatorAccess
+  const visibleBookings = (isSuperAdmin || isOperatorAdmin)
     ? (filteredOperatorBoats !== null ? bookings.filter(b => filteredOperatorBoats.includes(b.boat_name)) : bookings)
+    : filteredOperatorBoats !== null
+    ? bookings.filter(b => filteredOperatorBoats.includes(b.boat_name))
     : bookings.filter(b => b.boat_name === assignedBoat);
 
-  const visibleBlocked = hasOperatorAccess
+  const visibleBlocked = (isSuperAdmin || isOperatorAdmin)
     ? (filteredOperatorBoats !== null ? blockedDates.filter(b => b.boat_name === 'both' || filteredOperatorBoats.includes(b.boat_name)) : blockedDates)
+    : filteredOperatorBoats !== null
+    ? blockedDates.filter(b => b.boat_name === 'both' || filteredOperatorBoats.includes(b.boat_name))
     : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
 
   const filteredBookings = bookings.filter(booking => {
-    if (!hasOperatorAccess && assignedBoat && booking.boat_name !== assignedBoat) return false;
-    if (hasOperatorAccess && filteredOperatorBoats !== null && !filteredOperatorBoats.includes(booking.boat_name)) return false;
+    if (!isSuperAdmin && !isOperatorAdmin && filteredOperatorBoats === null && assignedBoat && booking.boat_name !== assignedBoat) return false;
+    if (filteredOperatorBoats !== null && !filteredOperatorBoats.includes(booking.boat_name)) return false;
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
     if (locationFilter !== 'all' && booking.location !== locationFilter) return false;

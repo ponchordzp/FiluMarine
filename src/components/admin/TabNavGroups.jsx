@@ -156,7 +156,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
         <FamilyGroup key={family.id} family={family} />
       ))}
 
-      {(canSeeFilter || isSuperAdmin || isOperatorAdmin) && operators.length > 0 && (
+      {operators.length > 0 && (
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-white/40 flex items-center gap-1">
             <Ship className="h-3 w-3" /> Filter by Operator:
