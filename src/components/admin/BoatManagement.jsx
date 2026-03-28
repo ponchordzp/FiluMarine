@@ -1313,7 +1313,6 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {boats.filter((boat) => {
-          if (!boat.image) return false;
           if (restrictToBoat && boat.name !== restrictToBoat) return false;
           if (operatorFilter && operatorFilter !== 'all') {
             const bOp = (boat.operator || '').toLowerCase();
