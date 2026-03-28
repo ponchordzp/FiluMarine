@@ -353,7 +353,7 @@ export default function OperatorsDashboard() {
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingOp ? 'Edit Operator' : 'Add New Operator'}</DialogTitle>
           </DialogHeader>

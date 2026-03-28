@@ -112,6 +112,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [additionalImageFiles, setAdditionalImageFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [newSupplier, setNewSupplier] = useState({ name: '', phone: '', email: '', specialty: '' });
   const [newRecurringCost, setNewRecurringCost] = useState({
@@ -240,6 +241,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       size: '',
       description: '',
       image: '',
+      images: [],
       capacity: '',
       location: 'ixtapa_zihuatanejo',
       dock_location: '',
@@ -249,21 +251,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       available_expeditions: [],
       expedition_pricing: [],
       equipment: {
-        bathroom: false,
-        live_well: false,
-        starlink: false,
-        cctv: false,
-        audio_system: false,
-        gps: false,
-        fishing_gear: false,
-        snorkeling_gear: false,
-        wifi: false,
-        air_conditioning: false,
-        refrigerator: false,
-        ice_maker: false,
-        shower: false,
-        bimini_top: false,
-        anchor: false
+        bathroom: false, live_well: false, starlink: false, cctv: false,
+        audio_system: false, gps: false, fishing_gear: false, snorkeling_gear: false,
+        wifi: false, air_conditioning: false, refrigerator: false, ice_maker: false,
+        shower: false, bimini_top: false, anchor: false
       },
       equipment_visibility: {},
       custom_equipment: [],
@@ -294,9 +285,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       custom_fields_general: [],
       custom_fields_maintenance: [],
       field_meta: {}
-      });
-      setImageFile(null);
+    });
+    setImageFile(null);
     setImagePreview('');
+    setAdditionalImageFiles([]);
     setNewSupplier({ name: '', phone: '', email: '', specialty: '' });
     setNewRecurringCost({
       name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: ''
@@ -377,15 +369,40 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     setImagePreview(URL.createObjectURL(file));
   };
 
+  const handleAdditionalImagesChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    const existing = formData.images || [];
+    const slots = 20 - existing.length;
+    setAdditionalImageFiles(prev => [...prev, ...files].slice(0, slots));
+  };
+
+  const removeAdditionalImage = (index) => {
+    // index 0..N-1 maps to formData.images
+    setFormData(prev => ({
+      ...prev,
+      images: (prev.images || []).filter((_, i) => i !== index)
+    }));
+  };
+
+  const removeAdditionalPendingFile = (index) => {
+    setAdditionalImageFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     let finalData = { ...formData };
+    setUploading(true);
     if (imageFile) {
-      setUploading(true);
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
       finalData.image = file_url;
-      setUploading(false);
     }
+    if (additionalImageFiles.length > 0) {
+      const uploaded = await Promise.all(additionalImageFiles.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      const newUrls = uploaded.map(r => r.file_url);
+      finalData.images = [...(finalData.images || []), ...newUrls].slice(0, 20);
+      setAdditionalImageFiles([]);
+    }
+    setUploading(false);
     if (editingBoat) {
       await updateMutation.mutateAsync({ id: editingBoat.id, data: finalData });
     } else {
@@ -669,10 +686,47 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   </div>
                   <div><InfoLabel info="A short marketing description shown to guests on the booking page.">Description</InfoLabel><Textarea disabled={locks['general']} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} /></div>
                   <div>
-                    <InfoLabel info="Main photo of the boat shown to guests. Use a high-quality landscape photo.">Boat Image</InfoLabel>
+                    <InfoLabel info="Main photo of the boat shown to guests. Use a high-quality landscape photo.">Boat Image (Main)</InfoLabel>
                     <div className="space-y-2 mt-1">
                       {imagePreview && <div className="relative w-full h-48 rounded-lg overflow-hidden border border-sky-200"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
                       <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
+                    </div>
+                  </div>
+                  <div>
+                    <InfoLabel info="Photo album shown to guests on the fleet page and booking flow. Up to 20 photos total.">Photo Album (up to 20 photos)</InfoLabel>
+                    <div className="space-y-2 mt-1">
+                      {/* Existing saved images */}
+                      {(formData.images || []).length > 0 && (
+                        <div className="grid grid-cols-4 gap-2">
+                          {(formData.images || []).map((url, idx) => (
+                            <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border border-sky-200">
+                              <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                              <button type="button" onClick={() => removeAdditionalImage(idx)}
+                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* Pending new files */}
+                      {additionalImageFiles.length > 0 && (
+                        <div className="grid grid-cols-4 gap-2">
+                          {additionalImageFiles.map((file, idx) => (
+                            <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
+                              <img src={URL.createObjectURL(file)} alt={`New ${idx + 1}`} className="w-full h-full object-cover" />
+                              <button type="button" onClick={() => removeAdditionalPendingFile(idx)}
+                                className="absolute top-0.5 right-0.5 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {(formData.images || []).length + additionalImageFiles.length < 20 && (
+                        <Input type="file" accept="image/*" multiple onChange={handleAdditionalImagesChange} className="cursor-pointer" />
+                      )}
+                      <p className="text-xs text-sky-600">{(formData.images || []).length + additionalImageFiles.length}/20 photos</p>
                     </div>
                   </div>
                   <CustomFieldsManager

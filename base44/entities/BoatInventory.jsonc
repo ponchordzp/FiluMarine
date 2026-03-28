@@ -1,0 +1,516 @@
+{
+  "name": "BoatInventory",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Boat name"
+    },
+    "type": {
+      "type": "string",
+      "description": "Boat type (e.g., Center Console, Yacht)"
+    },
+    "size": {
+      "type": "string",
+      "description": "Boat size (e.g., 25ft, 55ft)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Boat description"
+    },
+    "image": {
+      "type": "string",
+      "description": "Main boat image URL (uploaded file)"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional boat photo album (up to 20 images). First entry is primary.",
+      "maxItems": 20
+    },
+    "capacity": {
+      "type": "string",
+      "description": "Guest capacity (e.g., Up to 6 guests)"
+    },
+    "crew_members": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of crew members"
+    },
+    "boat_mode": {
+      "type": "string",
+      "enum": [
+        "rental_and_maintenance",
+        "maintenance_only"
+      ],
+      "default": "rental_and_maintenance",
+      "description": "Boat usage mode"
+    },
+    "location": {
+      "type": "string",
+      "enum": [
+        "ixtapa_zihuatanejo",
+        "acapulco"
+      ],
+      "description": "Boat location"
+    },
+    "dock_location": {
+      "type": "string",
+      "description": "Where the boat is docked"
+    },
+    "operator": {
+      "type": "string",
+      "description": "Operator name this boat belongs to"
+    },
+    "paypal_username": {
+      "type": "string",
+      "description": "Operator's PayPal.me username for payment links"
+    },
+    "available_expeditions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Available expedition types for this boat"
+    },
+    "price_per_additional_hour": {
+      "type": "number",
+      "default": 0,
+      "description": "Price in MXN for each additional hour"
+    },
+    "expedition_pricing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "expedition_type": {
+            "type": "string"
+          },
+          "duration_hours": {
+            "type": "number"
+          },
+          "price_mxn": {
+            "type": "number"
+          },
+          "pickup_location": {
+            "type": "string"
+          },
+          "departure_time": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Pricing for each expedition type"
+    },
+    "equipment": {
+      "type": "object",
+      "properties": {
+        "bathroom": {
+          "type": "boolean",
+          "default": false
+        },
+        "live_well": {
+          "type": "boolean",
+          "default": false
+        },
+        "starlink": {
+          "type": "boolean",
+          "default": false
+        },
+        "cctv": {
+          "type": "boolean",
+          "default": false
+        },
+        "audio_system": {
+          "type": "boolean",
+          "default": false
+        },
+        "gps": {
+          "type": "boolean",
+          "default": false
+        },
+        "fishing_gear": {
+          "type": "boolean",
+          "default": false
+        },
+        "snorkeling_gear": {
+          "type": "boolean",
+          "default": false
+        },
+        "wifi": {
+          "type": "boolean",
+          "default": false
+        },
+        "air_conditioning": {
+          "type": "boolean",
+          "default": false
+        },
+        "refrigerator": {
+          "type": "boolean",
+          "default": false
+        },
+        "ice_maker": {
+          "type": "boolean",
+          "default": false
+        },
+        "shower": {
+          "type": "boolean",
+          "default": false
+        },
+        "bimini_top": {
+          "type": "boolean",
+          "default": false
+        },
+        "anchor": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "equipment_visibility": {
+      "type": "object"
+    },
+    "custom_equipment": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "custom_equipment_visibility": {
+      "type": "array",
+      "items": {
+        "type": "boolean"
+      }
+    },
+    "engine_config": {
+      "type": "string",
+      "enum": [
+        "inboard",
+        "outboard"
+      ],
+      "description": "Engine configuration type"
+    },
+    "engine_name": {
+      "type": "string",
+      "description": "Engine details (e.g., Twin 2017 Yamaha 250)"
+    },
+    "engine_quantity": {
+      "type": "number",
+      "description": "Number of engines"
+    },
+    "engine_year": {
+      "type": "number",
+      "description": "Year of engine manufacture"
+    },
+    "current_hours": {
+      "type": "number",
+      "default": 0,
+      "description": "Current engine hours"
+    },
+    "maintenance_interval_hours": {
+      "type": "number",
+      "default": 100,
+      "description": "Hours between maintenance"
+    },
+    "last_maintenance_hours": {
+      "type": "number",
+      "default": 0,
+      "description": "Engine hours at last maintenance"
+    },
+    "last_service_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of last service"
+    },
+    "last_service_mechanic_phone": {
+      "type": "string",
+      "description": "Phone number of mechanic who performed last service"
+    },
+    "next_service_type": {
+      "type": "string",
+      "enum": [
+        "minor",
+        "major"
+      ],
+      "description": "Type of next scheduled service"
+    },
+    "minor_maintenance_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Cost of minor maintenance in MXN"
+    },
+    "major_maintenance_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Cost of major maintenance in MXN"
+    },
+    "mechanic_name": {
+      "type": "string",
+      "description": "Preferred mechanic name"
+    },
+    "mechanic_phone": {
+      "type": "string",
+      "description": "Mechanic phone/WhatsApp number"
+    },
+    "mechanic_email": {
+      "type": "string",
+      "description": "Mechanic email"
+    },
+    "impeller_last_replaced_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "fuel_filter_last_replaced_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "oil_filter_last_replaced_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "spark_plugs_last_replaced_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "battery_inspection_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "antifouling_last_applied_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "zinc_anodes_last_replaced_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "safety_equipment_inspection_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "hull_condition_notes": {
+      "type": "string"
+    },
+    "propeller_condition_notes": {
+      "type": "string"
+    },
+    "supply_sellers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "specialty": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "owner_phone": {
+      "type": "string",
+      "description": "Owner phone number for quote notifications"
+    },
+    "maintenance_schedule": {
+      "type": "string",
+      "description": "Next maintenance date or schedule details"
+    },
+    "maintenance_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "engine_hours": {
+            "type": "number"
+          },
+          "service_type": {
+            "type": "string",
+            "enum": [
+              "minor",
+              "major",
+              "repair",
+              "inspection"
+            ]
+          },
+          "cost": {
+            "type": "number"
+          },
+          "mechanic_name": {
+            "type": "string"
+          },
+          "mechanic_phone": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "work_performed": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "maintenance_checklist": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "supplies_inventory": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "price_per_unit": {
+            "type": "number"
+          },
+          "purchased_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "purchased_date_meta": {
+            "type": "object"
+          },
+          "duration_months": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in_stock",
+              "needed"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          },
+          "original_quantity": {
+            "type": "number",
+            "description": "Original quantity at purchase time \u2014 used as baseline for duration calculations"
+          },
+          "minimum_stock": {
+            "type": "number",
+            "default": 0,
+            "description": "Minimum quantity threshold \u2014 triggers Low Stock alert when quantity drops to or below this"
+          },
+          "supplier_name": {
+            "type": "string",
+            "description": "Name of the supply seller responsible for this item (must match a name in supply_sellers)"
+          },
+          "usage_log": {
+            "type": "array",
+            "description": "Log of quantity deductions from trips",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "amount_used": {
+                  "type": "number"
+                },
+                "trip_date": {
+                  "type": "string",
+                  "format": "date"
+                },
+                "destination": {
+                  "type": "string"
+                },
+                "note": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "recurring_costs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "frequency_months": {
+            "type": "number",
+            "enum": [
+              1,
+              3,
+              6,
+              9,
+              12
+            ]
+          },
+          "next_payment_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "next_payment_date_meta": {
+            "type": "object"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "docking",
+              "insurance",
+              "crew",
+              "permits",
+              "other"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "field_meta": {
+      "type": "object",
+      "description": "Audit metadata: who filled each field and when",
+      "additionalProperties": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "maintenance",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name",
+    "type",
+    "location"
+  ]
+}

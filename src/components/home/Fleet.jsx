@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import BoatImageCarousel from '@/components/booking/BoatImageCarousel';
 import { base44 } from '@/api/base44Client';
 import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, ChevronDown, ChevronUp, Waves, Sun, Clock, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -204,13 +205,9 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
               className="group bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/20 hover:border-cyan-400/40 hover:bg-white/15 transition-all duration-500 cursor-pointer hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)] flex flex-col"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
-                <img 
-                  src={boat.image} 
-                  alt={boat.name}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
+                <BoatImageCarousel boat={boat} aspectClass="aspect-[16/9]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
                   <h3 className="text-2xl font-bold text-white mb-1">{boat.name}</h3>
                   <p className="text-white/80 text-sm">{boat.type} • {boat.size}</p>
                 </div>
