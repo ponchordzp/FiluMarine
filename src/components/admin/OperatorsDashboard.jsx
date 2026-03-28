@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink } from 'lucide-react';
+import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink, CreditCard } from 'lucide-react';
 import BoatManagement from './BoatManagement';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
@@ -223,6 +223,20 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
           </div>
         )}
 
+        {/* Bank Details */}
+        {(operator.bank_name || operator.bank_account_clabe) && (
+          <div className="pt-3 border-t border-white/8">
+            <p className="text-xs text-white/40 uppercase tracking-wider mb-2 flex items-center gap-1"><CreditCard className="h-3 w-3" /> Bank Details</p>
+            <div className="rounded-lg px-3 py-2 space-y-1" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.18)' }}>
+              {operator.bank_account_holder && <p className="text-xs text-white/60"><span className="text-white/30">Holder:</span> {operator.bank_account_holder}</p>}
+              {operator.bank_name && <p className="text-xs text-white/60"><span className="text-white/30">Bank:</span> {operator.bank_name}</p>}
+              {operator.bank_account_clabe && <p className="text-xs text-white/60"><span className="text-white/30">CLABE:</span> <span className="font-mono">{operator.bank_account_clabe}</span></p>}
+              {operator.bank_account_number && <p className="text-xs text-white/60"><span className="text-white/30">Account:</span> <span className="font-mono">{operator.bank_account_number}</span></p>}
+              {operator.bank_notes && <p className="text-xs text-white/40 italic">{operator.bank_notes}</p>}
+            </div>
+          </div>
+        )}
+
         {/* PayPal */}
         {operator.paypal_username && (
           <div className="pt-3 border-t border-white/8">
@@ -249,7 +263,7 @@ export default function OperatorsDashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: '#1e88e5' });
+  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: '#1e88e5', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' });
 
   const queryClient = useQueryClient();
   const { data: boats = [] } = useQuery({ queryKey: ['all-boats'], queryFn: () => base44.entities.BoatInventory.list() });
@@ -273,13 +287,13 @@ export default function OperatorsDashboard() {
 
   const openAdd = () => {
     setEditingOp(null);
-    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: COLORS[operators.length % COLORS.length] });
+    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: COLORS[operators.length % COLORS.length], bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' });
     setDialogOpen(true);
   };
 
   const openEdit = (op) => {
     setEditingOp(op);
-    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', commission_pct: op.commission_pct || 0, color: op.color || '#1e88e5' });
+    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', commission_pct: op.commission_pct || 0, color: op.color || '#1e88e5', bank_name: op.bank_name || '', bank_account_clabe: op.bank_account_clabe || '', bank_account_number: op.bank_account_number || '', bank_account_holder: op.bank_account_holder || '', bank_notes: op.bank_notes || '' });
     setDialogOpen(true);
   };
 
@@ -404,6 +418,18 @@ export default function OperatorsDashboard() {
                 <Input value={form.paypal_username} onChange={e => setForm(f => ({ ...f, paypal_username: e.target.value }))} placeholder="username" className="rounded-l-none" />
               </div>
               <p className="text-xs text-white/30 mt-1">Used to generate the PayPal payment link for booking cards</p>
+            </div>
+            <div className="border-t pt-3">
+              <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Bank Details (Direct Deposit)</p>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div><Label className="text-sm">Bank Name</Label><Input value={form.bank_name} onChange={e => setForm(f => ({ ...f, bank_name: e.target.value }))} placeholder="e.g., BBVA" className="mt-1" /></div>
+                  <div><Label className="text-sm">Account Holder</Label><Input value={form.bank_account_holder} onChange={e => setForm(f => ({ ...f, bank_account_holder: e.target.value }))} placeholder="Name on account" className="mt-1" /></div>
+                </div>
+                <div><Label className="text-sm">CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={e => setForm(f => ({ ...f, bank_account_clabe: e.target.value }))} placeholder="e.g., 012180004713413911" maxLength={18} className="mt-1" /></div>
+                <div><Label className="text-sm">Account Number (optional)</Label><Input value={form.bank_account_number} onChange={e => setForm(f => ({ ...f, bank_account_number: e.target.value }))} placeholder="Account number" className="mt-1" /></div>
+                <div><Label className="text-sm">Notes</Label><Input value={form.bank_notes} onChange={e => setForm(f => ({ ...f, bank_notes: e.target.value }))} placeholder="e.g., reference required" className="mt-1" /></div>
+              </div>
             </div>
             <div>
               <Label className="text-sm">Brand Color</Label>

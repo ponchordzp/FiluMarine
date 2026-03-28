@@ -72,7 +72,7 @@ function AdminBookingsInner() {
   const isAdmin = currentUser?.role === 'admin';
   const isCrew = currentUser?.role === 'crew';
   const assignedBoat = currentUser?.assigned_boat || '';
-  const currentUserOperator = currentUser?.operator || 'FILU';
+  const currentUserOperator = currentUser?.operator || '';
   // Operator admin has elevated access (like superadmin) but scoped to their operator
   const hasElevatedAccess = isSuperAdmin || isOperatorAdmin;
 
@@ -187,7 +187,8 @@ function AdminBookingsInner() {
     ? allBoats.filter(b => {
         const bOp = (b.operator || '').toLowerCase();
         const uOp = currentUserOperator.toLowerCase();
-        return uOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === uOp;
+        if (!uOp || uOp === 'filu') return !bOp || bOp === 'filu';
+        return bOp === uOp;
       }).map(b => b.name)
     : [];
 

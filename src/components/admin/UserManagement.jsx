@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, EyeOff, Shield, Anchor, Users, CheckCircle, XCircle, Key, Building2, Settings, CreditCard, Mail } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, Shield, Anchor, Users, CheckCircle, XCircle, Key, Building2, Settings, Mail } from 'lucide-react';
 import RolePermissionsManager from './RolePermissionsManager';
 import { format, parseISO } from 'date-fns';
 
@@ -42,7 +42,7 @@ const roleConfig = {
   crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' }
 };
 
-const emptyForm = { username: '', full_name: '', email: '', role: 'crew', assigned_boat: '', operator: '', is_active: true, password: '', confirm_password: '', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' };
+const emptyForm = { username: '', full_name: '', email: '', role: 'crew', assigned_boat: '', operator: '', is_active: true, password: '', confirm_password: '' };
 
 const BUILT_IN_ROLE_TABS = [
 { value: 'all', label: 'All' },
@@ -76,7 +76,7 @@ function getOperatorForUser(user, operators) {
 export default function UserManagement({ currentUser, operatorFilter: externalOperatorFilter = 'all' }) {
   const isOperatorAdmin = currentUser?.role === 'operator_admin';
   const isSuperAdmin = currentUser?.role === 'superadmin';
-  const currentUserOperator = currentUser?.operator || 'FILU';
+  const currentUserOperator = currentUser?.operator || '';
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -113,8 +113,8 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     setDialogOpen(true);
   };
   const openEdit = (user) => {
-    setEditingUser(user);
-    setForm({ username: user.username, full_name: user.full_name || '', email: user.email || '', role: user.role, assigned_boat: user.assigned_boat || '', operator: user.operator || '', is_active: user.is_active !== false, password: '', confirm_password: '', bank_name: user.bank_name || '', bank_account_clabe: user.bank_account_clabe || '', bank_account_number: user.bank_account_number || '', bank_account_holder: user.bank_account_holder || '', bank_notes: user.bank_notes || '' });
+  setEditingUser(user);
+  setForm({ username: user.username, full_name: user.full_name || '', email: user.email || '', role: user.role, assigned_boat: user.assigned_boat || '', operator: user.operator || '', is_active: user.is_active !== false, password: '', confirm_password: '' });
     setError('');setDialogOpen(true);
   };
 
@@ -134,7 +134,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     setSaving(true);
     // Operator admins always assign their own operator to new users
     const operatorValue = isOperatorAdmin ? currentUserOperator : form.operator.trim();
-    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: operatorValue, is_active: form.is_active, bank_name: form.bank_name.trim(), bank_account_clabe: form.bank_account_clabe.trim(), bank_account_number: form.bank_account_number.trim(), bank_account_holder: form.bank_account_holder.trim(), bank_notes: form.bank_notes.trim() };
+    const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: operatorValue, is_active: form.is_active };
     if (!editingUser || form.password) payload.password_hash = await hashPassword(form.password || '');
     if (editingUser) {await updateMutation.mutateAsync({ id: editingUser.id, data: payload });} else
     {await createMutation.mutateAsync(payload);}
@@ -173,8 +173,10 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   // Operator admins only see users from their own operator
   const scopedUsers = isOperatorAdmin ?
   appUsers.filter((u) => {
-    const op = getOperatorForUser(u, operators);
-    return op?.name?.toLowerCase() === currentUserOperator.toLowerCase();
+    const uOp = (u.operator || '').toLowerCase();
+    const myOp = currentUserOperator.toLowerCase();
+    if (!myOp || myOp === 'filu') return !uOp || uOp === 'filu';
+    return uOp === myOp;
   }) :
   appUsers;
 
@@ -320,18 +322,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                          {user.assigned_boat && <p className="text-xs text-blue-600 font-medium flex items-center gap-1"><Anchor className="h-3 w-3" /> {user.assigned_boat}</p>}
                          {user.last_login && <p className="text-xs text-slate-400">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
                        </div>
-                       {(user.bank_name || user.bank_account_clabe) &&
-                    <div className="mt-2 px-3 py-2 rounded-lg text-xs" style={{ background: 'rgba(59,130,246,0.07)', border: '1px solid rgba(59,130,246,0.18)' }}>
-                           <p className="font-semibold text-blue-700 mb-1 flex items-center gap-1"><CreditCard className="h-3 w-3" /> Bank Details</p>
-                           <div className="space-y-0.5 text-slate-600">
-                             {user.bank_account_holder && <p><span className="text-slate-400">Holder:</span> {user.bank_account_holder}</p>}
-                             {user.bank_name && <p><span className="text-slate-400">Bank:</span> {user.bank_name}</p>}
-                             {user.bank_account_clabe && <p><span className="text-slate-400">CLABE:</span> <span className="font-mono">{user.bank_account_clabe}</span></p>}
-                             {user.bank_account_number && <p><span className="text-slate-400">Account:</span> <span className="font-mono">{user.bank_account_number}</span></p>}
-                             {user.bank_notes && <p className="text-slate-400 italic">{user.bank_notes}</p>}
-                           </div>
-                         </div>
-                    }
+
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => toggleActive(user)} title={user.is_active === false ? 'Activate' : 'Deactivate'} className={user.is_active === false ? 'text-slate-400 hover:text-emerald-600' : 'text-emerald-600 hover:text-slate-400'}>
@@ -429,20 +420,6 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                 {form.confirm_password && form.password !== form.confirm_password && <p className="text-xs text-red-600 mt-1 flex items-center gap-1"><XCircle className="h-3 w-3" />Passwords do not match</p>}
               </div>
               }
-            {/* Bank Details */}
-            <div className="border-t pt-3 mt-1">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Bank Details (Direct Deposit)</p>
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div><Label>Bank Name</Label><Input value={form.bank_name} onChange={(e) => setForm({ ...form, bank_name: e.target.value })} placeholder="e.g., BBVA" /></div>
-                  <div><Label>Account Holder</Label><Input value={form.bank_account_holder} onChange={(e) => setForm({ ...form, bank_account_holder: e.target.value })} placeholder="Name on account" /></div>
-                </div>
-                <div><Label>CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={(e) => setForm({ ...form, bank_account_clabe: e.target.value })} placeholder="e.g., 012180004713413911" maxLength={18} /></div>
-                <div><Label>Account Number (optional)</Label><Input value={form.bank_account_number} onChange={(e) => setForm({ ...form, bank_account_number: e.target.value })} placeholder="Account number" /></div>
-                <div><Label>Notes</Label><Input value={form.bank_notes} onChange={(e) => setForm({ ...form, bank_notes: e.target.value })} placeholder="e.g., Dollars accepted, reference required" /></div>
-              </div>
-            </div>
-
             <div className="flex items-center gap-2">
               <input type="checkbox" id="is_active" checked={form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} className="rounded" />
               <Label htmlFor="is_active" className="cursor-pointer">Active (can log in)</Label>
