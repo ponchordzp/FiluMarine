@@ -295,7 +295,8 @@ function AdminBookingsInner() {
 
   // Filter bookings/expenses for financial KPIs
   const financialFilteredBoats = financialBoatFilter === 'all' 
-    ? (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
+    ? isOperatorAdmin ? operatorBoatNames
+      : (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
     : [financialBoatFilter];
 
   const getTimeRange = (timeFilter, customRange) => {
@@ -349,7 +350,8 @@ function AdminBookingsInner() {
 
   // Filter bookings for booking KPIs section
   const bookingFilteredBoats = bookingBoatFilter === 'all' 
-    ? (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
+    ? isOperatorAdmin ? operatorBoatNames
+      : (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
     : [bookingBoatFilter];
 
   const bookingFilteredBookings = visibleBookings.filter(b => {
@@ -815,10 +817,9 @@ function AdminBookingsInner() {
                     <SelectTrigger className="mt-1 text-white" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Boats</SelectItem>
-                      <SelectItem value="FILU">FILU</SelectItem>
-                      <SelectItem value="TYCOON">TYCOON</SelectItem>
-                      <SelectItem value="Pirula">Pirula</SelectItem>
-                      <SelectItem value="La Güera">La Güera</SelectItem>
+                      {(isOperatorAdmin ? allBoats.filter(b => operatorBoatNames.includes(b.name)) : isSuperAdmin ? allBoats : allBoats.filter(b => b.name === assignedBoat)).map(b => (
+                        <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -1002,9 +1003,9 @@ function AdminBookingsInner() {
           <TabsContent value="dashboard" className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { label: 'Trips Today', value: bookings.filter(b => b.date === format(new Date(), 'yyyy-MM-dd') && b.status !== 'cancelled').length, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300' },
-                { label: 'Available (Next 30d)', value: (() => { const today = new Date(); const next30 = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); }); return next30.filter(ds => !bookings.some(b => b.date === ds && b.status !== 'cancelled')).length; })(), color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300' },
-                { label: 'Booked (Next 30d)', value: (() => { const today = new Date(); const next30 = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); }); return next30.filter(ds => bookings.some(b => b.date === ds && b.status !== 'cancelled')).length; })(), color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300' },
+                { label: 'Trips Today', value: visibleBookings.filter(b => b.date === format(new Date(), 'yyyy-MM-dd') && b.status !== 'cancelled').length, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300' },
+                { label: 'Available (Next 30d)', value: (() => { const today = new Date(); const next30 = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); }); return next30.filter(ds => !visibleBlocked.some(b => b.date === ds) && !visibleBookings.some(b => b.date === ds && b.status !== 'cancelled')).length; })(), color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300' },
+                { label: 'Booked (Next 30d)', value: (() => { const today = new Date(); const next30 = Array.from({ length: 30 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); }); return next30.filter(ds => visibleBookings.some(b => b.date === ds && b.status !== 'cancelled')).length; })(), color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300' },
               ].map(s => (
                 <div key={s.label} className="rounded-2xl p-5 text-center" style={{ background: s.color, border: `1px solid ${s.border}`, backdropFilter: 'blur(16px)' }}>
                   <p className={`text-3xl font-bold ${s.text}`}>{s.value}</p>
@@ -1024,9 +1025,9 @@ function AdminBookingsInner() {
                   className="rounded-xl border-white/10 bg-transparent text-white w-full"
                   modifiers={{
                     today: (date) => format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd'),
-                    available: (date) => { const ds = format(date, 'yyyy-MM-dd'); const ts = format(new Date(), 'yyyy-MM-dd'); return !blockedDates.some(b => b.date === ds) && !bookings.some(b => b.date === ds && b.status !== 'cancelled') && date >= new Date() && ds !== ts; },
-                    booked: (date) => { const ds = format(date, 'yyyy-MM-dd'); return bookings.some(b => b.date === ds && b.status !== 'cancelled') && !blockedDates.some(b => b.date === ds) && ds !== format(new Date(), 'yyyy-MM-dd'); },
-                    blocked: (date) => { const ds = format(date, 'yyyy-MM-dd'); return blockedDates.some(b => b.date === ds) && ds !== format(new Date(), 'yyyy-MM-dd'); },
+                    available: (date) => { const ds = format(date, 'yyyy-MM-dd'); const ts = format(new Date(), 'yyyy-MM-dd'); return !visibleBlocked.some(b => b.date === ds) && !visibleBookings.some(b => b.date === ds && b.status !== 'cancelled') && date >= new Date() && ds !== ts; },
+                    booked: (date) => { const ds = format(date, 'yyyy-MM-dd'); return visibleBookings.some(b => b.date === ds && b.status !== 'cancelled') && !visibleBlocked.some(b => b.date === ds) && ds !== format(new Date(), 'yyyy-MM-dd'); },
+                    blocked: (date) => { const ds = format(date, 'yyyy-MM-dd'); return visibleBlocked.some(b => b.date === ds) && ds !== format(new Date(), 'yyyy-MM-dd'); },
                   }}
                   modifiersStyles={{
                     today: { backgroundColor: 'rgba(251,191,36,0.3)', color: '#fde68a', fontWeight: 'bold', border: '1px solid rgba(251,191,36,0.5)', borderRadius: '6px' },
@@ -1052,11 +1053,11 @@ function AdminBookingsInner() {
                   <p className="text-xs text-emerald-200 uppercase tracking-wider flex items-center gap-1 font-semibold"><Info className="h-3 w-3" /> Smart Suggestions</p>
                   {(() => {
                     const suggestions = [];
-                    const weekendBookings = bookings.filter(b => { const d = new Date(b.date); return (d.getDay() === 0 || d.getDay() === 6) && b.status !== 'cancelled'; }).length;
+                    const weekendBookings = visibleBookings.filter(b => { const d = new Date(b.date); return (d.getDay() === 0 || d.getDay() === 6) && b.status !== 'cancelled'; }).length;
                     if (weekendBookings > 5) suggestions.push({ type: 'success', text: 'High weekend demand! Consider premium pricing.' });
                     const today = new Date();
                     const next7 = Array.from({ length: 7 }, (_, i) => { const d = new Date(today); d.setDate(d.getDate() + i + 1); return format(d, 'yyyy-MM-dd'); });
-                    const avail7 = next7.filter(ds => !blockedDates.some(b => b.date === ds) && !bookings.some(b => b.date === ds && b.status !== 'cancelled')).length;
+                    const avail7 = next7.filter(ds => !visibleBlocked.some(b => b.date === ds) && !visibleBookings.some(b => b.date === ds && b.status !== 'cancelled')).length;
                     if (avail7 > 5) suggestions.push({ type: 'warning', text: `${avail7} days available next week. Consider promotions.` });
                     if (blockedDates.length > 10) suggestions.push({ type: 'info', text: 'Many dates blocked. Review if all are still needed.' });
                     return suggestions.length > 0 ? suggestions.map((s, i) => (
@@ -1076,7 +1077,7 @@ function AdminBookingsInner() {
                 <div className="space-y-3 max-h-[480px] overflow-y-auto">
                   {(() => {
                     const todayStr = format(new Date(), 'yyyy-MM-dd');
-                    const todayBookings = bookings.filter(b => b.date === todayStr && b.status !== 'cancelled');
+                    const todayBookings = visibleBookings.filter(b => b.date === todayStr && b.status !== 'cancelled');
                     return todayBookings.length === 0 ? (
                       <div className="text-center py-8">
                         <CalendarIcon className="h-10 w-10 text-amber-500/20 mx-auto mb-2" />
