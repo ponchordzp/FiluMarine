@@ -136,8 +136,14 @@ function loadOperators() {
   return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
 }
 
-export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, operatorFilter, onOperatorFilterChange }) {
-  const operators = isSuperAdmin ? loadOperators() : [];
+export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, operatorFilter, onOperatorFilterChange }) {
+  const allOperators = (isSuperAdmin || isOperatorAdmin) ? loadOperators() : [];
+  // SuperAdmin sees all operators; operator_admin sees ONLY their own operator
+  const operators = isSuperAdmin
+    ? allOperators
+    : isOperatorAdmin
+    ? allOperators.filter(op => op.name.toLowerCase() === (currentUserOperator || '').toLowerCase())
+    : [];
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
 
   return (
@@ -146,18 +152,20 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, operatorFi
         <FamilyGroup key={family.id} family={family} />
       ))}
 
-      {isSuperAdmin && operators.length > 0 && (
+      {(isSuperAdmin || isOperatorAdmin) && operators.length > 0 && (
         <div className="flex items-center gap-2 mt-1">
           <span className="text-xs text-white/40 flex items-center gap-1">
             <Ship className="h-3 w-3" /> Filter by Operator:
           </span>
           <div className="flex gap-1 flex-wrap">
-            <button
-              onClick={() => onOperatorFilterChange('all')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === 'all' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
-            >
-              All
-            </button>
+            {isSuperAdmin && (
+              <button
+                onClick={() => onOperatorFilterChange('all')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === 'all' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
+              >
+                All
+              </button>
+            )}
             {operators.map(op => (
               <button
                 key={op.id}

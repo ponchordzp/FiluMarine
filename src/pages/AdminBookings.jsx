@@ -90,7 +90,7 @@ function AdminBookingsInner() {
   const [expenseBooking, setExpenseBooking] = useState(null);
   const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
   const [selectedBlockedDate, setSelectedBlockedDate] = useState(null);
-  const [globalOperatorFilter, setGlobalOperatorFilter] = useState('all');
+  const [globalOperatorFilter, setGlobalOperatorFilter] = useState(() => isOperatorAdmin ? currentUserOperator : 'all');
   const [financialTimeFilter, setFinancialTimeFilter] = useState('all');
   const [financialBoatFilter, setFinancialBoatFilter] = useState('all');
   const [bookingTimeFilter, setBookingTimeFilter] = useState('all');
@@ -181,40 +181,22 @@ function AdminBookingsInner() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] }),
   });
 
-  // Role-scoped visible data
-  // Operator admin sees ONLY boats explicitly assigned to their operator.
-  // If operator is missing from session, they see nothing (no fallback to FILU).
-  const operatorBoatNames = isOperatorAdmin
-    ? (currentUserOperator
-        ? allBoats.filter(b => (b.operator || '').toLowerCase() === currentUserOperator.toLowerCase()).map(b => b.name)
-        : [])
-    : [];
-
-  // Apply superadmin global operator filter
-  const superAdminOperatorBoats = isSuperAdmin && globalOperatorFilter !== 'all'
-    ? allBoats.filter(b => {
-        const bOp = (b.operator || '').toLowerCase();
-        const filterOp = globalOperatorFilter.toLowerCase();
-        return filterOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === filterOp;
-      }).map(b => b.name)
+  // Compute operator-filtered boat names (works for both superadmin and operator_admin via globalOperatorFilter)
+  const filteredOperatorBoats = (isSuperAdmin || isOperatorAdmin) && globalOperatorFilter !== 'all'
+    ? allBoats.filter(b => (b.operator || '').toLowerCase() === globalOperatorFilter.toLowerCase()).map(b => b.name)
     : null;
 
-  const visibleBookings = isSuperAdmin
-    ? (superAdminOperatorBoats ? bookings.filter(b => superAdminOperatorBoats.includes(b.boat_name)) : bookings)
-    : isOperatorAdmin
-    ? bookings.filter(b => operatorBoatNames.includes(b.boat_name))
+  const visibleBookings = (isSuperAdmin || isOperatorAdmin)
+    ? (filteredOperatorBoats ? bookings.filter(b => filteredOperatorBoats.includes(b.boat_name)) : bookings)
     : bookings.filter(b => b.boat_name === assignedBoat);
 
-  const visibleBlocked = isSuperAdmin
-    ? (superAdminOperatorBoats ? blockedDates.filter(b => b.boat_name === 'both' || superAdminOperatorBoats.includes(b.boat_name)) : blockedDates)
-    : isOperatorAdmin
-    ? blockedDates.filter(b => b.boat_name === 'both' || operatorBoatNames.includes(b.boat_name))
+  const visibleBlocked = (isSuperAdmin || isOperatorAdmin)
+    ? (filteredOperatorBoats ? blockedDates.filter(b => b.boat_name === 'both' || filteredOperatorBoats.includes(b.boat_name)) : blockedDates)
     : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
 
   const filteredBookings = bookings.filter(booking => {
     if (!isSuperAdmin && !isOperatorAdmin && assignedBoat && booking.boat_name !== assignedBoat) return false;
-    if (isOperatorAdmin && !operatorBoatNames.includes(booking.boat_name)) return false;
-    if (isSuperAdmin && superAdminOperatorBoats && !superAdminOperatorBoats.includes(booking.boat_name)) return false;
+    if ((isSuperAdmin || isOperatorAdmin) && filteredOperatorBoats && !filteredOperatorBoats.includes(booking.boat_name)) return false;
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
     if (locationFilter !== 'all' && booking.location !== locationFilter) return false;
@@ -292,9 +274,8 @@ function AdminBookingsInner() {
   };
 
   // Filter bookings/expenses for financial KPIs
-  const financialFilteredBoats = financialBoatFilter === 'all' 
-    ? isOperatorAdmin ? operatorBoatNames
-      : (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
+  const financialFilteredBoats = financialBoatFilter === 'all'
+    ? (filteredOperatorBoats || allBoats.map(b => b.name))
     : [financialBoatFilter];
 
   const getTimeRange = (timeFilter, customRange) => {
@@ -347,9 +328,8 @@ function AdminBookingsInner() {
   });
 
   // Filter bookings for booking KPIs section
-  const bookingFilteredBoats = bookingBoatFilter === 'all' 
-    ? isOperatorAdmin ? operatorBoatNames
-      : (isSuperAdmin && globalOperatorFilter !== 'all' ? superAdminOperatorBoats : allBoats.map(b => b.name))
+  const bookingFilteredBoats = bookingBoatFilter === 'all'
+    ? (filteredOperatorBoats || allBoats.map(b => b.name))
     : [bookingBoatFilter];
 
   const bookingFilteredBookings = visibleBookings.filter(b => {
@@ -765,7 +745,7 @@ function AdminBookingsInner() {
           </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} operatorFilter={globalOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} />
+          <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} currentUserOperator={currentUserOperator} operatorFilter={globalOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} />
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">
@@ -1201,14 +1181,14 @@ function AdminBookingsInner() {
           {/* ── MAINTENANCE FINANCE TAB ── */}
           <TabsContent value="maintenance-finance">
             <div className="rounded-2xl p-6" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)', backdropFilter: 'blur(16px)' }}>
-              <MaintenanceFinancialDashboard operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
+              <MaintenanceFinancialDashboard operatorFilter={globalOperatorFilter} />
             </div>
           </TabsContent>
 
           {/* ── BOATS TAB ── */}
           <TabsContent value="boats">
             <div className="rounded-2xl p-6" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', backdropFilter: 'blur(16px)' }}>
-              <BoatManagement restrictToBoat={!hasElevatedAccess ? assignedBoat : null} readOnlyMode={isCrew} isSuperAdmin={isSuperAdmin} operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
+              <BoatManagement restrictToBoat={!hasElevatedAccess ? assignedBoat : null} readOnlyMode={isCrew} isSuperAdmin={isSuperAdmin} operatorFilter={globalOperatorFilter} />
             </div>
           </TabsContent>
 
@@ -1255,7 +1235,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="mechanic">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)', backdropFilter: 'blur(16px)' }}>
-                <MechanicPortal currentUser={currentUser} operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
+                <MechanicPortal currentUser={currentUser} operatorFilter={globalOperatorFilter} />
               </div>
             </TabsContent>
           )}
@@ -1263,7 +1243,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="users">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', backdropFilter: 'blur(16px)' }}>
-                <UserManagement currentUser={currentUser} operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
+                <UserManagement currentUser={currentUser} operatorFilter={globalOperatorFilter} />
               </div>
             </TabsContent>
           )}
