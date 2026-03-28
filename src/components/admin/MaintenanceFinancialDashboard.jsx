@@ -784,7 +784,8 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
     if (operatorFilter === 'all') return true;
     const bOp = (boat.operator || '').toLowerCase();
     const fOp = operatorFilter.toLowerCase();
-    return fOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === fOp;
+    // Strict exact match — no FILU fallback for non-'all' filters
+    return bOp === fOp;
   });
 
   if (loadingBoats) return <div className="text-white/40 text-center py-20">Loading financial data...</div>;

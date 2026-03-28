@@ -694,11 +694,16 @@ export default function MechanicPortal({ currentUser, operatorFilter = 'all' }) 
 
   const visibleBoats = boats.filter(boat => {
     if (isAdmin || currentUser?.role === 'crew') return assignedBoat ? boat.name === assignedBoat : true;
-    // Apply operator filter for superadmin/operator_admin
+    // Operator admin: ALWAYS strictly scope to their own operator — never fall through to all
+    if (isOperatorAdmin) {
+      const myOp = (currentUser?.operator || '').toLowerCase();
+      return myOp ? (boat.operator || '').toLowerCase() === myOp : false;
+    }
+    // SuperAdmin with optional filter
     if (operatorFilter && operatorFilter !== 'all') {
       const bOp = (boat.operator || '').toLowerCase();
       const fOp = operatorFilter.toLowerCase();
-      if (!(fOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === fOp)) return false;
+      return fOp === 'filu' ? (!bOp || bOp === 'filu') : bOp === fOp;
     }
     return true;
   });
