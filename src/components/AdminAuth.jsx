@@ -38,8 +38,14 @@ export default function AdminAuth({ children }) {
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
-        setCurrentUser(parsed);
-        setIsAuthenticated(true);
+        // Invalidate old sessions for operator_admin that don't have the operator field saved
+        // This forces a re-login so the operator scope is correctly established
+        if (parsed.role === 'operator_admin' && !parsed.operator) {
+          sessionStorage.removeItem('app_user');
+        } else {
+          setCurrentUser(parsed);
+          setIsAuthenticated(true);
+        }
       } catch {}
     }
     setCheckingSession(false);
