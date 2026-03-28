@@ -138,16 +138,8 @@ function loadOperators() {
 }
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange }) {
-  const operatorFilterAccess = loadOperatorFilterAccess();
-  const role = currentUserRole || (isSuperAdmin ? 'superadmin' : isOperatorAdmin ? 'operator_admin' : 'admin');
-  const canSeeFilter = operatorFilterAccess[role] ?? false;
-
-  // SuperAdmin: all operators; everyone else: only their assigned operator
-  const operators = isSuperAdmin
-    ? loadOperators()
-    : currentUserOperator
-    ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }]
-    : [];
+  // Always load all operators — filter bar is shown for EVERY role
+  const operators = loadOperators();
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
 
   return (
