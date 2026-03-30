@@ -1365,14 +1365,20 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
               <VesselCompleteness boat={boat} onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)} />
 
-              <MaintenanceAlerts
-                  boat={boat}
-                  actualCurrentHours={actualCurrentHours}
-                  onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)} />
+              {/* Maintenance sections — hidden for Rental Only */}
+              {boat.boat_mode !== 'rental_only' && (
+                <>
+                  <MaintenanceAlerts
+                      boat={boat}
+                      actualCurrentHours={actualCurrentHours}
+                      onEditSection={(sectionId) => handleEditAndScroll(boat, sectionId)} />
 
-              <MaintenanceLogView boat={boat} />
+                  <MaintenanceLogView boat={boat} />
+                </>
+              )}
 
-              {boat.current_hours >= 0 &&
+              {/* Engine Hours — hidden for Rental Only */}
+              {boat.boat_mode !== 'rental_only' && boat.current_hours >= 0 &&
                 <div className="mt-3 pt-3 border-t">
                   <button
                     type="button"
@@ -1403,8 +1409,53 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 </div>
                 }
 
-              {/* Low Stock Monitor */}
-              <LowStockMonitor boat={boat} onEditSupplies={() => handleEditAndScroll(boat, 'section-supplies')} />
+              {/* Low Stock Monitor — hidden for Rental Only */}
+              {boat.boat_mode !== 'rental_only' && (
+                <LowStockMonitor boat={boat} onEditSupplies={() => handleEditAndScroll(boat, 'section-supplies')} />
+              )}
+
+              {/* Rental Info Panel — shown only for Rental Only mode */}
+              {boat.boat_mode === 'rental_only' && (
+                <div className="mt-3 pt-3 border-t space-y-3">
+                  <h4 className="font-semibold text-xs text-green-700 flex items-center gap-2">
+                    <Navigation className="h-3 w-3" /> Rental Overview
+                  </h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-2 text-center">
+                      <p className="text-xs text-green-600">Upcoming</p>
+                      <p className="text-lg font-bold text-green-700">{stats.future}</p>
+                    </div>
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-center">
+                      <p className="text-xs text-blue-600">Completed</p>
+                      <p className="text-lg font-bold text-blue-700">{stats.completed}</p>
+                    </div>
+                  </div>
+                  <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-emerald-700 font-medium">Total Revenue</span>
+                      <span className="text-lg font-bold text-emerald-700">${stats.revenue.toLocaleString()} MXN</span>
+                    </div>
+                  </div>
+                  {boat.available_expeditions?.length > 0 && (
+                    <div>
+                      <p className="text-xs text-slate-500 mb-1">Available Expeditions</p>
+                      <div className="flex flex-wrap gap-1">
+                        {boat.available_expeditions.map((exp) => (
+                          <span key={exp} className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                            {exp.replace(/_/g, ' ')}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {stats.frequentTrip !== 'N/A' && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-2">
+                      <p className="text-xs text-amber-600">Most Popular Trip</p>
+                      <p className="text-sm font-semibold text-amber-800 capitalize">{stats.frequentTrip} ({stats.frequentTripCount}x)</p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Trip History - collapsible */}
               <div className="mt-3 pt-3 border-t">
