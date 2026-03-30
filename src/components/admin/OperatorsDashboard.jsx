@@ -11,6 +11,36 @@ import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, E
 import BoatManagement from './BoatManagement';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
+const OPERATOR_PROTECTED_KEY = 'filu_operators_protected'; // stores sensitive fields separately so they survive code edits
+
+// Protected fields that must never be overwritten by default values or code changes
+const PROTECTED_FIELDS = ['commission_pct', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color'];
+
+function loadProtectedData() {
+  try {
+    const raw = localStorage.getItem(OPERATOR_PROTECTED_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function saveProtectedData(ops) {
+  const protected_ = {};
+  ops.forEach(op => {
+    protected_[op.name.toUpperCase()] = {};
+    PROTECTED_FIELDS.forEach(f => { if (op[f] !== undefined) protected_[op.name.toUpperCase()][f] = op[f]; });
+  });
+  localStorage.setItem(OPERATOR_PROTECTED_KEY, JSON.stringify(protected_));
+}
+
+function mergeProtectedData(ops) {
+  const protected_ = loadProtectedData();
+  return ops.map(op => {
+    const saved = protected_[(op.name || '').toUpperCase()];
+    if (!saved) return op;
+    // Protected fields from storage always win over defaults
+    return { ...op, ...saved };
+  });
+}
 
 const DEFAULT_OPERATORS = [
   { id: 'filu',    name: 'FILU',    description: 'Primary charter service operator', paypal_username: 'filumarine', commission_pct: 0, color: '#1e88e5', contact_name: '', contact_email: '', contact_phone: '' },
@@ -19,16 +49,25 @@ const DEFAULT_OPERATORS = [
 
 function ensureDefaults(ops) {
   let updated = [...ops];
+  const protected_ = loadProtectedData();
   for (const def of DEFAULT_OPERATORS) {
     const exists = updated.some(o => (o.name || '').toLowerCase() === def.name.toLowerCase());
-    if (!exists) updated = [...updated, { ...def }];
+    if (!exists) {
+      // Restore from protected store if available, otherwise use code default
+      const saved = protected_[def.name.toUpperCase()] || {};
+      updated = [...updated, { ...def, ...saved }];
+    }
   }
-  // Migrate: ensure FILU operator always has filumarine as paypal_username
-  updated = updated.map(o =>
-    (o.name || '').toLowerCase() === 'filu' && (!o.paypal_username || o.paypal_username === 'ponchordzp')
-      ? { ...o, paypal_username: 'filumarine' }
-      : o
-  );
+  // Merge protected data on top of existing operators so code defaults never overwrite saved values
+  updated = mergeProtectedData(updated);
+  // Legacy migration only if no protected data exists for FILU paypal
+  updated = updated.map(o => {
+    if ((o.name || '').toLowerCase() === 'filu' && (!o.paypal_username || o.paypal_username === 'ponchordzp')) {
+      const filuProtected = protected_['FILU'] || {};
+      return filuProtected.paypal_username ? o : { ...o, paypal_username: 'filumarine' };
+    }
+    return o;
+  });
   return updated;
 }
 
@@ -49,6 +88,8 @@ function loadOperators() {
 
 function saveOperators(ops) {
   localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(ops));
+  // Always persist protected/sensitive fields in a separate vault
+  saveProtectedData(ops);
 }
 
 const COLORS = ['#1e88e5','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899','#6366f1'];
