@@ -704,10 +704,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                           {(formData.images || []).map((url, idx) => (
                             <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-sky-200">
                               <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
-                              <button type="button" onClick={() => removeAdditionalImage(idx)}
+                              {isSuperAdmin && <button type="button" onClick={() => removeAdditionalImage(idx)}
                                 className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors">
-                                <Trash2 className="h-3 w-3" />
-                              </button>
+                                 <Trash2 className="h-3 w-3" />
+                               </button>}
                             </div>
                           ))}
                         </div>
@@ -718,10 +718,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                           {additionalImageFiles.map((file, idx) => (
                             <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
                               <img src={URL.createObjectURL(file)} alt={`New ${idx + 1}`} className="w-full h-full object-cover" />
-                              <button type="button" onClick={() => removeAdditionalPendingFile(idx)}
+                              {isSuperAdmin && <button type="button" onClick={() => removeAdditionalPendingFile(idx)}
                                 className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors">
                                 <Trash2 className="h-3 w-3" />
-                              </button>
+                              </button>}
                             </div>
                           ))}
                         </div>
@@ -807,7 +807,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     onToggleEquipment={toggleEquipment}
                     onToggleVisibility={toggleEquipmentVisibility}
                     onAddCustom={addCustomEquipment}
-                    onRemoveCustom={removeCustomEquipment}
+                    onRemoveCustom={isSuperAdmin ? removeCustomEquipment : null}
                     newEquipment={newEquipment}
                     onNewEquipmentChange={setNewEquipment} />
 
@@ -1033,7 +1033,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                 </div>
                               )}
                             </div>
-                            {!locks['maintenance'] && (
+                            {!locks['maintenance'] && isSuperAdmin && (
                               <button type="button" className="text-red-400 hover:text-red-600 flex-shrink-0"
                                 onClick={() => setFormData(fd => {
                                   const cl = { ...fd.maintenance_checklist };
@@ -1100,7 +1100,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                     )}
                                   </div>
                                 </div>
-                                <Button type="button" variant="ghost" size="sm" onClick={() => removeSupply(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
+                                {isSuperAdmin && <Button type="button" variant="ghost" size="sm" onClick={() => removeSupply(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>}
                               </div>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                                  <div>
@@ -1224,7 +1224,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                   <p className="font-semibold text-slate-800">{supplier.name}</p>
                                   {supplier.specialty && <span className="text-xs bg-cyan-100 text-cyan-800 px-2 py-0.5 rounded inline-block mt-1">{supplier.specialty}</span>}
                                 </div>
-                                <Button type="button" variant="ghost" size="sm" onClick={() => removeSupplier(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
+                                {isSuperAdmin && <Button type="button" variant="ghost" size="sm" onClick={() => removeSupplier(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>}
                               </div>
                               {supplier.phone && <p className="text-xs text-slate-600">{supplier.phone}</p>}
                               {supplier.email && <p className="text-xs text-slate-600">{supplier.email}</p>}
@@ -1274,7 +1274,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                     <span className="text-xs bg-purple-200 text-purple-900 px-2 py-0.5 rounded font-medium">Every {cost.frequency_months} month{cost.frequency_months > 1 ? 's' : ''}</span>
                                   </div>
                                 </div>
-                                <Button type="button" variant="ghost" size="sm" onClick={() => removeRecurringCost(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>
+                                {isSuperAdmin && <Button type="button" variant="ghost" size="sm" onClick={() => removeRecurringCost(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>}
                               </div>
                               <p className="text-green-700 font-bold text-sm">${cost.amount.toLocaleString()} MXN</p>
                               {cost.next_payment_date && <p className="text-xs text-slate-600 mt-1">Next payment: {format(parseISO(cost.next_payment_date), 'MMM d, yyyy')}</p>}
@@ -1580,7 +1580,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
             </div>
             <div className="flex gap-2 px-4 pb-3">
               <Button variant="outline" size="sm" onClick={() => handleEdit(boat)} className="flex-1 h-8 text-xs"><Edit className="h-3 w-3 mr-1" />{readOnlyMode ? 'View / Fill Maintenance' : 'Manage Vessel'}</Button>
-              {!readOnlyMode && <Button variant="destructive" size="sm" onClick={() => {if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) deleteMutation.mutate(boat.id);}} className="h-8"><Trash2 className="h-3 w-3" /></Button>}
+              {!readOnlyMode && isSuperAdmin && <Button variant="destructive" size="sm" onClick={() => {if (window.confirm(`Delete ${boat.name}? This cannot be undone.`)) deleteMutation.mutate(boat.id);}} className="h-8"><Trash2 className="h-3 w-3" /></Button>}
             </div>
           </Card>);
 
