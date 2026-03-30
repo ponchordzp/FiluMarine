@@ -17,6 +17,10 @@
       ],
       "description": "Type of affiliate business"
     },
+    "location": {
+      "type": "string",
+      "description": "Location / destination this affiliate is based in (e.g. ixtapa_zihuatanejo, acapulco, cancun)"
+    },
     "contact_name": {
       "type": "string",
       "description": "Primary contact person"

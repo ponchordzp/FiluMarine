@@ -7,7 +7,23 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Edit, Trash2, Copy, CheckCircle, Building2, Hotel, Utensils, Globe, Tag, ClipboardCheck, Phone, Mail, User, Percent, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Copy, CheckCircle, Building2, Hotel, Utensils, Globe, Tag, ClipboardCheck, Phone, Mail, User, Percent, X, MapPin } from 'lucide-react';
+
+const LOCATIONS = [
+  { value: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' },
+  { value: 'acapulco', label: 'Acapulco' },
+  { value: 'cancun', label: 'Cancún' },
+  { value: 'los_cabos', label: 'Los Cabos' },
+  { value: 'puerto_vallarta', label: 'Puerto Vallarta' },
+  { value: 'mazatlan', label: 'Mazatlán' },
+  { value: 'huatulco', label: 'Huatulco' },
+  { value: 'other', label: 'Other' },
+];
+
+function locationLabel(val) {
+  if (!val) return null;
+  return LOCATIONS.find(l => l.value === val)?.label || val;
+}
 
 const TYPE_CONFIG = {
   restaurant:    { label: 'Restaurant',     Icon: Utensils,   color: 'bg-orange-100 text-orange-700' },
@@ -35,13 +51,14 @@ function generateCode(name, type) {
   return `${prefix}-${namePart}-${suffix}`;
 }
 
-const emptyForm = { name: '', type: 'other', contact_name: '', email: '', phone: '', code: '', commission_pct: 0, notes: '', is_active: true };
+const emptyForm = { name: '', type: 'other', location: 'ixtapa_zihuatanejo', contact_name: '', email: '', phone: '', code: '', commission_pct: 0, notes: '', is_active: true };
 
 export default function AffiliatesManagement() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [filterLocation, setFilterLocation] = useState('all');
   const [copiedId, setCopiedId] = useState(null);
   const [reviewingAff, setReviewingAff] = useState(null);
 
@@ -73,7 +90,7 @@ export default function AffiliatesManagement() {
 
   const openEdit = (aff) => {
     setEditing(aff);
-    setForm({ name: aff.name, type: aff.type || 'other', contact_name: aff.contact_name || '', email: aff.email || '', phone: aff.phone || '', code: aff.code, commission_pct: aff.commission_pct || 0, notes: aff.notes || '', is_active: aff.is_active !== false });
+    setForm({ name: aff.name, type: aff.type || 'other', location: aff.location || 'ixtapa_zihuatanejo', contact_name: aff.contact_name || '', email: aff.email || '', phone: aff.phone || '', code: aff.code, commission_pct: aff.commission_pct || 0, notes: aff.notes || '', is_active: aff.is_active !== false });
     setDialogOpen(true);
   };
 
@@ -108,6 +125,16 @@ export default function AffiliatesManagement() {
         </Button>
       </div>
 
+      {/* Location filter */}
+      <div className="flex gap-2 flex-wrap">
+        <button onClick={() => setFilterLocation('all')} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${ filterLocation === 'all' ? 'bg-teal-600 border-teal-500 text-white' : 'border-white/15 text-white/50 hover:text-white/80' }`}>All Locations</button>
+        {[...new Set(affiliates.map(a => a.location).filter(Boolean))].sort().map(loc => (
+          <button key={loc} onClick={() => setFilterLocation(loc)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${ filterLocation === loc ? 'bg-teal-600 border-teal-500 text-white' : 'border-white/15 text-white/50 hover:text-white/80' }`}>
+            {locationLabel(loc)}
+          </button>
+        ))}
+      </div>
+
       {/* Stats strip */}
       <div className="grid grid-cols-3 gap-3">
         {[
@@ -129,7 +156,7 @@ export default function AffiliatesManagement() {
             <Building2 className="h-12 w-12 text-white/20 mx-auto mb-3" />
             <p className="text-white/40">No affiliates yet. Add your first partner.</p>
           </div>
-        ) : affiliates.map(aff => {
+        ) : affiliates.filter(a => filterLocation === 'all' || a.location === filterLocation).map(aff => {
           const cfg = TYPE_CONFIG[aff.type] || TYPE_CONFIG.other;
           const Icon = cfg.Icon;
           const actions = getReviewActions(aff);
@@ -154,7 +181,8 @@ export default function AffiliatesManagement() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-wrap text-xs text-white/50 mb-2">
-                  {aff.contact_name && <span>{aff.contact_name}</span>}
+                  {aff.location && <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{locationLabel(aff.location)}</span>}
+                  {aff.contact_name && <span>• {aff.contact_name}</span>}
                   {aff.email && <span>• {aff.email}</span>}
                   {aff.phone && <span>• {aff.phone}</span>}
                 </div>
@@ -250,7 +278,8 @@ export default function AffiliatesManagement() {
                 {/* Current info */}
                 <div className="rounded-lg p-3 space-y-1.5 bg-slate-50 border border-slate-200">
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Current Info</p>
-                  {reviewingAff.phone && <p className="text-sm text-slate-800 flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-teal-600" />{reviewingAff.phone}</p>}
+                  {reviewingAff.location && <p className="text-sm text-slate-800 flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-teal-600" />{locationLabel(reviewingAff.location)}</p>}
+              {reviewingAff.phone && <p className="text-sm text-slate-800 flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-teal-600" />{reviewingAff.phone}</p>}
                   {reviewingAff.contact_name && <p className="text-sm text-slate-800 flex items-center gap-2"><User className="h-3.5 w-3.5 text-teal-600" />{reviewingAff.contact_name}</p>}
                   {reviewingAff.email && <p className="text-sm text-slate-800 flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-teal-600" />{reviewingAff.email}</p>}
                   {reviewingAff.commission_pct > 0 && <p className="text-sm text-slate-800 flex items-center gap-2"><Percent className="h-3.5 w-3.5 text-purple-600" />{reviewingAff.commission_pct}% commission</p>}
@@ -309,13 +338,24 @@ export default function AffiliatesManagement() {
                 <Label>Business Name *</Label>
                 <Input className="mt-1" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g., Hotel Camino Real" />
               </div>
-              <div className="col-span-2">
+              <div>
                 <Label>Type</Label>
                 <Select value={form.type} onValueChange={v => setForm(f => ({ ...f, type: v }))}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {Object.entries(TYPE_CONFIG).map(([k, v]) => (
                       <SelectItem key={k} value={k}>{v.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Location *</Label>
+                <Select value={form.location} onValueChange={v => setForm(f => ({ ...f, location: v }))}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select location" /></SelectTrigger>
+                  <SelectContent>
+                    {LOCATIONS.map(loc => (
+                      <SelectItem key={loc.value} value={loc.value}>{loc.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
