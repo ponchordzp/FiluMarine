@@ -813,7 +813,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               }
 
               {/* ── SECTION 4: Engine ── amber */}
-              <div id="section-engine" className="rounded-xl overflow-hidden border border-amber-200 mb-4">
+              {formData.boat_mode !== 'rental_only' && <div id="section-engine" className="rounded-xl overflow-hidden border border-amber-200 mb-4">
                 <button type="button" onClick={() => toggleSection('engine')} className="w-full bg-amber-500 px-5 py-3 flex items-center gap-2">
                   <Gauge className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Engine Configuration</h3>
@@ -844,10 +844,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     </div>
                   }
                 </div>}
-              </div>
+              </div>}
 
-              {/* ── SECTION 4b: Maintenance Checklist ── green */}
-              <div className="rounded-xl overflow-hidden border border-green-200 mb-4">
+              {formData.boat_mode !== 'rental_only' && <div className="rounded-xl overflow-hidden border border-green-200 mb-4">
                 <button type="button" onClick={() => toggleSection('checklist')} className="w-full bg-green-700 px-5 py-3 flex items-center gap-2">
                   <Check className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">
@@ -867,10 +866,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     onChange={(val) => setFormData((prev) => ({ ...prev, maintenance_checklist: val }))}
                     isSuperAdmin={isSuperAdmin} />
                 </div>}
-              </div>
+              </div>}
 
-              {/* ── SECTION 5: Maintenance ── orange/red */}
-              <div id="section-maintenance" className="rounded-xl overflow-hidden border border-orange-200 mb-4">
+              {formData.boat_mode !== 'rental_only' && <div id="section-maintenance" className="rounded-xl overflow-hidden border border-orange-200 mb-4">
                 <button type="button" onClick={() => toggleSection('maintenance')} className="w-full bg-orange-600 px-5 py-3 flex items-center gap-2">
                   <Wrench className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Maintenance</h3>
@@ -1055,10 +1053,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     onChange={(fields) => setFormData((prev) => ({ ...prev, custom_fields_maintenance: fields }))} />
 
                 </div>}
-              </div>
+              </div>}
 
-              {/* ── SECTION 6: Supplies Inventory ── emerald */}
-              <div id="section-supplies" className="rounded-xl overflow-hidden border border-emerald-200 mb-4">
+              {formData.boat_mode !== 'rental_only' && <div id="section-supplies" className="rounded-xl overflow-hidden border border-emerald-200 mb-4">
                 <button type="button" onClick={() => toggleSection('supplies')} className="w-full bg-emerald-600 px-5 py-3 flex items-center gap-2">
                   <Package className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supplies Inventory</h3>
@@ -1200,10 +1197,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     </div>
                   }
                 </div>}
-              </div>
+              </div>}
 
-              {/* ── SECTION 7: Supply Sellers ── cyan */}
-              <div className="rounded-xl overflow-hidden border border-cyan-200 mb-4">
+              {formData.boat_mode !== 'rental_only' && <div className="rounded-xl overflow-hidden border border-cyan-200 mb-4">
                 <button type="button" onClick={() => toggleSection('sellers')} className="w-full bg-cyan-600 px-5 py-3 flex items-center gap-2">
                   <Package className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Supply Sellers</h3>
@@ -1247,10 +1243,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   </div>
                   <div><InfoLabel info="Owner's WhatsApp/phone number to receive notifications about bookings and maintenance quotes." example="+52 755 987 6543">Owner Phone (for notifications)</InfoLabel><Input type="tel" disabled={locks['sellers']} value={formData.owner_phone} onChange={(e) => setFormData({ ...formData, owner_phone: e.target.value })} placeholder="e.g., +52 755 987 6543" className="mt-1" /><p className="text-xs text-cyan-700 mt-1">Receive maintenance quotes and updates</p></div>
                 </div>}
-              </div>
+              </div>}
 
-              {/* ── SECTION 8: Recurring Costs ── purple */}
-              <div id="section-recurring" className="rounded-xl overflow-hidden border border-purple-200 mb-4">
+              {formData.boat_mode !== 'rental_only' && <div id="section-recurring" className="rounded-xl overflow-hidden border border-purple-200 mb-4">
                 <button type="button" onClick={() => toggleSection('recurring')} className="w-full bg-purple-600 px-5 py-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Recurring Costs</h3>
@@ -1300,7 +1295,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <Button type="button" onClick={addRecurringCost} disabled={!newRecurringCost.name || !newRecurringCost.amount} variant="outline" size="sm" className="w-full border-purple-400 text-purple-700 hover:bg-purple-50"><Plus className="h-4 w-4 mr-2" />Add Recurring Cost</Button>
                   </div>
                 </div>}
-              </div>
+              </div>}
 
               <div className="flex gap-2 pt-2">
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || uploading}>{uploading ? 'Uploading Image...' : editingBoat ? 'Update Boat' : 'Create Boat'}</Button>
