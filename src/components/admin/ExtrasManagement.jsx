@@ -199,12 +199,12 @@ export default function ExtrasManagement({ allBoats = [] }) {
               <div className="flex flex-wrap gap-1 mt-2 ml-6">
                 {extra.applicable_boats?.length > 0
                   ? extra.applicable_boats.map(b => <span key={b} className="text-xs px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/20">{b}</span>)
-                  : <span className="text-xs text-white/25">All boats</span>}
+                  : <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All boats</span>}
               </div>
               <div className="flex flex-wrap gap-1 mt-1 ml-6">
                 {extra.applicable_trips?.length > 0
                   ? extra.applicable_trips.map(t => <span key={t} className="text-xs px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/20">{t.replace(/_/g, ' ')}</span>)
-                  : <span className="text-xs text-white/25">All trip types</span>}
+                  : <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All trip types</span>}
               </div>
             </div>
             <div className="flex gap-2 ml-4">
