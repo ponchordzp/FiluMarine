@@ -52,6 +52,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const [formData, setFormData] = useState({
     name: '',
     type: '',
+    boat_model: '',
     size: '',
     description: '',
     image: '',
@@ -238,6 +239,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     setFormData({
       name: '',
       type: '',
+      boat_model: '',
       size: '',
       description: '',
       image: '',
@@ -676,6 +678,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <div className="grid md:grid-cols-2 gap-4">
                     <div><InfoLabel info="The official name of the boat as it appears to guests and in reports." example="FILU, TYCOON, La Güera">Boat Name *</InfoLabel><Input required disabled={locks['general']} value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
                     <div><InfoLabel info="The category or model type of the boat." example="Center Console, Yacht, Panga">Type *</InfoLabel><Input required disabled={locks['general']} value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console, Yacht" /></div>
+                    <div><InfoLabel info="The specific model of the boat." example="Sea Ray 310, Grady-White 251, Azimut 55">Boat Model</InfoLabel><Input disabled={locks['general']} value={formData.boat_model || ''} onChange={(e) => setFormData({ ...formData, boat_model: e.target.value })} placeholder="e.g., Sea Ray 310" /></div>
                     <div><InfoLabel info="Total length of the boat including the unit." example="25ft, 55ft, 8m">Size *</InfoLabel><Input required disabled={locks['general']} value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} placeholder="e.g., 25ft" /></div>
                     <div><InfoLabel info="Maximum number of passengers allowed on board." example="Up to 6 guests, Up to 12 guests">Capacity *</InfoLabel><Input required disabled={locks['general']} value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" /></div>
                     <div><InfoLabel info="Number of crew members typically assigned to this boat (not counting captain)." example="2">Crew Members</InfoLabel><Input type="number" min="0" disabled={locks['general']} value={formData.crew_members} onChange={(e) => setFormData({ ...formData, crew_members: parseInt(e.target.value) || 0 })} placeholder="e.g., 2" /></div>

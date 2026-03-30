@@ -17,39 +17,44 @@ function getSections(boat) {
   const supplies = boat.supplies_inventory || [];
   const sellers = boat.supply_sellers || [];
   const recurring = boat.recurring_costs || [];
+  const isRentalOnly = boat.boat_mode === 'rental_only';
   const isRental = boat.boat_mode !== 'maintenance_only';
 
-  return [
+  const allSections = [
     {
       id: 'section-general',
       label: 'General Info',
       color: '#0284c7',
-      pct: calcPct([boat.name, boat.type, boat.size, boat.capacity, boat.location, boat.description, boat.image]),
+      pct: calcPct([boat.name, boat.type, boat.boat_model, boat.size, boat.capacity, boat.location, boat.description, boat.image]),
+      modes: ['rental_and_maintenance', 'rental_only', 'maintenance_only'],
     },
     {
       id: 'section-expeditions',
       label: 'Expeditions',
       color: '#4f46e5',
-      pct: !isRental ? 100 : calcPct([
+      pct: calcPct([
         exp.length > 0,
         pricing.some(p => p.price_mxn > 0),
         pricing.some(p => p.duration_hours > 0),
       ]),
+      modes: ['rental_and_maintenance', 'rental_only'],
     },
     {
       id: 'section-equipment',
       label: 'Equipment',
       color: '#0d9488',
-      pct: !isRental ? 100 : calcPct([
+      pct: calcPct([
         Object.values(equip).some(Boolean),
         custom.length > 0 || Object.values(equip).filter(Boolean).length >= 3,
       ]),
+      modes: ['rental_and_maintenance', 'rental_only'],
     },
     {
       id: 'section-engine',
       label: 'Engine Config',
       color: '#d97706',
       pct: calcPct([boat.engine_config, boat.engine_name, boat.engine_quantity, boat.engine_year]),
+      modes: ['rental_and_maintenance', 'maintenance_only'],
     },
     {
       id: 'section-checklist',
@@ -64,6 +69,7 @@ function getSections(boat) {
         }).length + customChecklist.filter(i => checklist[i.id]?.checked).length;
         return Math.round((checked / total) * 100);
       })(),
+      modes: ['rental_and_maintenance', 'maintenance_only'],
     },
     {
       id: 'section-maintenance',
@@ -80,6 +86,7 @@ function getSections(boat) {
         boat.zinc_anodes_last_replaced_date,
         boat.safety_equipment_inspection_date,
       ]),
+      modes: ['rental_and_maintenance', 'maintenance_only'],
     },
     {
       id: 'section-supplies',
@@ -90,6 +97,7 @@ function getSections(boat) {
         supplies.some(s => s.quantity > 0),
         supplies.some(s => s.price_per_unit > 0),
       ]),
+      modes: ['rental_and_maintenance', 'maintenance_only'],
     },
     {
       id: 'section-sellers',
@@ -100,6 +108,7 @@ function getSections(boat) {
         boat.owner_phone,
         sellers.some(s => s.phone),
       ]),
+      modes: ['rental_and_maintenance', 'maintenance_only'],
     },
     {
       id: 'section-recurring',
@@ -109,8 +118,12 @@ function getSections(boat) {
         recurring.length > 0,
         recurring.some(r => r.amount > 0),
       ]),
+      modes: ['rental_and_maintenance', 'maintenance_only'],
     },
   ];
+
+  const mode = boat.boat_mode || 'rental_and_maintenance';
+  return allSections.filter(s => s.modes.includes(mode));
 }
 
 function CircleFill({ pct, color, label, onClick }) {

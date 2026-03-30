@@ -10,6 +10,10 @@
       "type": "string",
       "description": "Boat type (e.g., Center Console, Yacht)"
     },
+    "boat_model": {
+      "type": "string",
+      "description": "Boat model (e.g., Sea Ray 310, Grady-White 251)"
+    },
     "size": {
       "type": "string",
       "description": "Boat size (e.g., 25ft, 55ft)"
