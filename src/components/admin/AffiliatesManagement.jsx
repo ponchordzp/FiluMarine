@@ -132,6 +132,11 @@ export default function AffiliatesManagement() {
         ) : affiliates.map(aff => {
           const cfg = TYPE_CONFIG[aff.type] || TYPE_CONFIG.other;
           const Icon = cfg.Icon;
+          const actions = getReviewActions(aff);
+          const completeness = Math.round(([
+            aff.phone, aff.contact_name, aff.email,
+            aff.commission_pct, aff.notes, aff.is_active !== false
+          ].filter(Boolean).length / 6) * 100);
           return (
             <div key={aff.id} className="flex items-center gap-4 p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
               <div className="w-10 h-10 rounded-xl bg-teal-500/15 flex items-center justify-center flex-shrink-0">
@@ -148,11 +153,48 @@ export default function AffiliatesManagement() {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 flex-wrap text-xs text-white/50">
+                <div className="flex items-center gap-2 flex-wrap text-xs text-white/50 mb-2">
                   {aff.contact_name && <span>{aff.contact_name}</span>}
                   {aff.email && <span>• {aff.email}</span>}
                   {aff.phone && <span>• {aff.phone}</span>}
                 </div>
+                {/* Completeness bar */}
+                <div className="mb-1.5">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-white/40">Partnership readiness</span>
+                    <span className={`text-xs font-bold ${
+                      completeness >= 70 ? 'text-emerald-400' : completeness >= 40 ? 'text-amber-400' : 'text-red-400'
+                    }`}>{completeness}%</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className={`h-full rounded-full transition-all ${
+                      completeness >= 70 ? 'bg-emerald-500' : completeness >= 40 ? 'bg-amber-500' : 'bg-red-500'
+                    }`} style={{ width: `${completeness}%` }} />
+                  </div>
+                </div>
+                {/* Next steps */}
+                {actions.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {actions.slice(0, 2).map((action, i) => {
+                      const ActionIcon = action.icon;
+                      return (
+                        <span key={i} className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
+                          action.priority === 'high' ? 'bg-red-500/15 text-red-300 border border-red-500/20' :
+                          action.priority === 'medium' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/20' :
+                          'bg-slate-500/15 text-slate-300 border border-slate-500/20'
+                        }`}>
+                          <ActionIcon className="h-2.5 w-2.5" />{action.label}
+                        </span>
+                      );
+                    })}
+                    {actions.length > 2 && <span className="text-xs text-white/30">+{actions.length - 2} more</span>}
+                  </div>
+                )}
+                {actions.length === 0 && (
+                  <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
+                    <CheckCircle className="h-3 w-3" /> Ready
+                  </span>
+                )}
               </div>
               {/* Affiliate code pill */}
               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg flex-shrink-0" style={{ background: 'rgba(20,184,166,0.12)', border: '1px solid rgba(20,184,166,0.25)' }}>
