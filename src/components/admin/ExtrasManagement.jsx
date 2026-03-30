@@ -131,10 +131,10 @@ export default function ExtrasManagement({ allBoats = [] }) {
               </div>
 
               <div>
-                <Label className="mb-2 block">Applicable Boats <span className="text-white/40 font-normal">(empty = all boats)</span></Label>
+                <Label className="mb-2 block">Applicable Boats <span className="text-slate-400 font-normal">(empty = all boats)</span></Label>
                 <div className="grid grid-cols-2 gap-2">
                   {boatNames.map(name => (
-                    <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-white/70 hover:text-white">
+                    <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
                       <Checkbox
                         checked={form.applicable_boats.includes(name)}
                         onCheckedChange={() => toggleBoat(name)}
@@ -146,10 +146,10 @@ export default function ExtrasManagement({ allBoats = [] }) {
               </div>
 
               <div>
-                <Label className="mb-2 block">Applicable Trip Types <span className="text-white/40 font-normal">(empty = all trips)</span></Label>
+                <Label className="mb-2 block">Applicable Trip Types <span className="text-slate-400 font-normal">(empty = all trips)</span></Label>
                 <div className="grid grid-cols-2 gap-2">
                   {EXPERIENCE_TYPES.map(t => (
-                    <label key={t.value} className="flex items-center gap-2 cursor-pointer text-sm text-white/70 hover:text-white">
+                    <label key={t.value} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
                       <Checkbox
                         checked={form.applicable_trips.includes(t.value)}
                         onCheckedChange={() => toggleTrip(t.value)}
