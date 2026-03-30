@@ -34,6 +34,7 @@ import PickupLocationsManagement from '@/components/admin/PickupLocationsManagem
 import ExtrasManagement from '@/components/admin/ExtrasManagement';
 import EngineDatabases from '@/components/admin/EngineDatabases';
 import JoinFiluApplications from '@/components/admin/JoinFiluApplications';
+import AffiliatesManagement from '@/components/admin/AffiliatesManagement';
 import MaintenanceFinancialDashboard from '@/components/admin/MaintenanceFinancialDashboard';
 import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
@@ -1262,6 +1263,14 @@ function AdminBookingsInner() {
             <TabsContent value="operators">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', backdropFilter: 'blur(16px)' }}>
                 <OperatorsDashboard />
+              </div>
+            </TabsContent>
+          )}
+
+          {isSuperAdmin && (
+            <TabsContent value="affiliates">
+              <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
+                <AffiliatesManagement />
               </div>
             </TabsContent>
           )}

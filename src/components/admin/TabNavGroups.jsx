@@ -7,7 +7,7 @@ import {
   MapPin, Fish, Ship, Sparkles, Map,
   Users, UserSquare,
   Building2,
-  ClipboardList, MailOpen
+  ClipboardList, MailOpen, Handshake
 } from 'lucide-react';
 
 const families = [
@@ -63,8 +63,9 @@ const families = [
     textColor: '#d8b4fe',
     adminOnly: true,
     tabs: [
-      { value: 'users',     label: 'Users',     Icon: Users },
-      { value: 'customers', label: 'Customers', Icon: UserSquare, superAdminOnly: true },
+      { value: 'users',       label: 'Users',       Icon: Users },
+      { value: 'affiliates',   label: 'Affiliates',  Icon: Handshake, superAdminOnly: true },
+      { value: 'customers',    label: 'Customers',   Icon: UserSquare, superAdminOnly: true },
     ],
   },
   {

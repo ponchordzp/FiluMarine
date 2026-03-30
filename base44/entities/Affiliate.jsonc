@@ -1,0 +1,55 @@
+{
+  "name": "Affiliate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Affiliate business name"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "restaurant",
+        "hotel",
+        "travel_agency",
+        "tour_operator",
+        "other"
+      ],
+      "description": "Type of affiliate business"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Primary contact person"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone / WhatsApp"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique affiliate referral code (e.g. HOTEL-CAMINO)"
+    },
+    "commission_pct": {
+      "type": "number",
+      "default": 0,
+      "description": "Commission percentage earned per booking"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal notes"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this affiliate is active"
+    }
+  },
+  "required": [
+    "name",
+    "code"
+  ]
+}
