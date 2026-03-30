@@ -12,22 +12,39 @@ import BoatManagement from './BoatManagement';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
 
+const DEFAULT_OPERATORS = [
+  { id: 'filu',    name: 'FILU',    description: 'Primary charter service operator', paypal_username: 'filumarine', commission_pct: 0, color: '#1e88e5', contact_name: '', contact_email: '', contact_phone: '' },
+  { id: 'hilario', name: 'HILARIO', description: 'Hilario charter operator',          paypal_username: '',            commission_pct: 0, color: '#10b981', contact_name: '', contact_email: '', contact_phone: '' },
+];
+
+function ensureDefaults(ops) {
+  let updated = [...ops];
+  for (const def of DEFAULT_OPERATORS) {
+    const exists = updated.some(o => (o.name || '').toLowerCase() === def.name.toLowerCase());
+    if (!exists) updated = [...updated, { ...def }];
+  }
+  // Migrate: ensure FILU operator always has filumarine as paypal_username
+  updated = updated.map(o =>
+    (o.name || '').toLowerCase() === 'filu' && (!o.paypal_username || o.paypal_username === 'ponchordzp')
+      ? { ...o, paypal_username: 'filumarine' }
+      : o
+  );
+  return updated;
+}
+
 function loadOperators() {
   try {
     const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
     if (raw) {
       const ops = JSON.parse(raw);
-      // Migrate: ensure FILU operator always has filumarine as paypal_username
-      const updated = ops.map(o =>
-        (o.name || '').toLowerCase() === 'filu' && (!o.paypal_username || o.paypal_username === 'ponchordzp')
-          ? { ...o, paypal_username: 'filumarine' }
-          : o
-      );
+      const updated = ensureDefaults(ops);
       localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(updated));
       return updated;
     }
   } catch {}
-  return [{ id: 'filu', name: 'FILU', contact_name: '', contact_email: '', contact_phone: '', description: 'Primary charter service operator', paypal_username: 'filumarine', commission_pct: 0, color: '#1e88e5' }];
+  const defaults = ensureDefaults([]);
+  localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(defaults));
+  return defaults;
 }
 
 function saveOperators(ops) {
