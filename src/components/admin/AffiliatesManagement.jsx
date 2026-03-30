@@ -206,18 +206,18 @@ export default function AffiliatesManagement() {
                   </div>
                 </div>
                 {/* Current info */}
-                <div className="rounded-lg p-3 space-y-1.5" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Current Info</p>
-                  {reviewingAff.phone && <p className="text-sm text-white flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-teal-400" />{reviewingAff.phone}</p>}
-                  {reviewingAff.contact_name && <p className="text-sm text-white flex items-center gap-2"><User className="h-3.5 w-3.5 text-teal-400" />{reviewingAff.contact_name}</p>}
-                  {reviewingAff.email && <p className="text-sm text-white flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-teal-400" />{reviewingAff.email}</p>}
-                  {reviewingAff.commission_pct > 0 && <p className="text-sm text-white flex items-center gap-2"><Percent className="h-3.5 w-3.5 text-purple-400" />{reviewingAff.commission_pct}% commission</p>}
-                  {reviewingAff.notes && <p className="text-sm text-white/70 italic">{reviewingAff.notes}</p>}
+                <div className="rounded-lg p-3 space-y-1.5 bg-slate-50 border border-slate-200">
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Current Info</p>
+                  {reviewingAff.phone && <p className="text-sm text-slate-800 flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-teal-600" />{reviewingAff.phone}</p>}
+                  {reviewingAff.contact_name && <p className="text-sm text-slate-800 flex items-center gap-2"><User className="h-3.5 w-3.5 text-teal-600" />{reviewingAff.contact_name}</p>}
+                  {reviewingAff.email && <p className="text-sm text-slate-800 flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-teal-600" />{reviewingAff.email}</p>}
+                  {reviewingAff.commission_pct > 0 && <p className="text-sm text-slate-800 flex items-center gap-2"><Percent className="h-3.5 w-3.5 text-purple-600" />{reviewingAff.commission_pct}% commission</p>}
+                  {reviewingAff.notes && <p className="text-sm text-slate-600 italic">{reviewingAff.notes}</p>}
                 </div>
                 {/* Suggested Actions */}
                 {actions.length > 0 ? (
                   <div>
-                    <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Suggested Next Steps</p>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Suggested Next Steps</p>
                     <div className="space-y-2">
                       {actions.map((action, i) => {
                         const ActionIcon = action.icon;
@@ -231,7 +231,7 @@ export default function AffiliatesManagement() {
                               action.priority === 'high' ? 'text-red-400' :
                               action.priority === 'medium' ? 'text-amber-400' : 'text-slate-400'
                             }`} />
-                            <span className="text-sm text-white/80">{action.label}</span>
+                            <span className="text-sm text-slate-800">{action.label}</span>
                           </div>
                         );
                       })}
@@ -240,7 +240,7 @@ export default function AffiliatesManagement() {
                 ) : (
                   <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
                     <CheckCircle className="h-5 w-5 text-emerald-400" />
-                    <span className="text-sm text-emerald-300 font-medium">Partnership fully set up! 🎉</span>
+                    <span className="text-sm text-emerald-700 font-medium">Partnership fully set up! 🎉</span>
                   </div>
                 )}
                 <div className="flex gap-2 pt-2 border-t border-white/10">
