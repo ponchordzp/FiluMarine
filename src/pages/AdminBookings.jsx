@@ -493,7 +493,7 @@ function AdminBookingsInner() {
             <div className="flex items-center gap-3">
               <span className={`text-xs font-bold px-3 py-1.5 rounded-full text-white ${roleBadge.cls}`}>{roleBadge.label}</span>
               <span className="font-medium text-white text-sm px-3 py-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', backdropFilter: 'blur(8px)' }}>
-                {currentUser?.full_name || currentUser?.username}
+                {currentUser?.username}
               </span>
               <button onClick={handleLogout} className="text-white/50 hover:text-white text-sm transition-colors">Logout</button>
             </div>
