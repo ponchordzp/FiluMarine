@@ -91,7 +91,8 @@ function saveCustomRoles(roles) {
   localStorage.setItem('filu_custom_roles', JSON.stringify(roles));
 }
 
-function RoleRow({ roleKey, roleLabel, icon: Icon, iconColor, colorClass, locked, permissions, onChange, onDelete, operatorFilterAccess, onToggleOperatorFilter }) {
+function RoleRow({ roleKey, roleLabel, icon, iconColor, colorClass, locked, permissions, onChange, onDelete, operatorFilterAccess, onToggleOperatorFilter }) {
+  const Icon = icon;
   const [open, setOpen] = useState(false);
   const allowedTabs = permissions[roleKey] || [];
   const canFilter = operatorFilterAccess[roleKey] ?? false;
@@ -121,8 +122,8 @@ function RoleRow({ roleKey, roleLabel, icon: Icon, iconColor, colorClass, locked
         onClick={() => setOpen((o) => !o)}
         className="w-full flex items-center gap-3 p-3 bg-white hover:bg-slate-50 transition-colors"
       >
-        <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClass.split(' ')[0]}`}>
-          <Icon className={`h-3.5 w-3.5 ${iconColor}`} />
+        <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClass ? colorClass.split(' ')[0] : 'bg-slate-100'}`}>
+          {Icon && <Icon className={`h-3.5 w-3.5 ${iconColor}`} />}
         </div>
         <div className="flex-1 text-left">
           <p className="text-sm font-semibold text-slate-800">{roleLabel}</p>
@@ -244,7 +245,7 @@ export default function RolePermissionsManager() {
   const handleAddRole = () => {
     if (!newRoleName.trim()) return;
     const key = newRoleName.trim().toLowerCase().replace(/\s+/g, '_');
-    const newRole = { key, label: newRoleName.trim(), icon: Users, iconColor: 'text-slate-600', color: 'bg-slate-100 text-slate-800', locked: false };
+    const newRole = { key, label: newRoleName.trim(), icon: Users, iconColor: 'text-slate-600', color: 'bg-slate-100 text-slate-800', locked: false, colorClass: 'bg-slate-100' };
     const updatedRoles = [...customRoles, newRole];
     saveCustomRoles(updatedRoles);
     setCustomRoles(updatedRoles);
