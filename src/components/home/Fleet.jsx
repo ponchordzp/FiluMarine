@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import BoatImageCarousel from '@/components/booking/BoatImageCarousel';
 import { base44 } from '@/api/base44Client';
-import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, Waves, Sun, Clock, AlertTriangle, MapPin, Lock } from 'lucide-react';
+import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, Waves, Sun, Clock, AlertTriangle, MapPin, Lock, ChevronDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import BoatDetailModal from '@/components/booking/BoatDetailModal';
 
@@ -93,6 +93,10 @@ const equipmentIcons = {
 export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat }) {
   const [selectedBoatDetail, setSelectedBoatDetail] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [expandedEquipment, setExpandedEquipment] = useState({});
+  const [expandedExperiences, setExpandedExperiences] = useState({});
+  const toggleEquipment = (name) => setExpandedEquipment(prev => ({ ...prev, [name]: !prev[name] }));
+  const toggleExperiences = (name) => setExpandedExperiences(prev => ({ ...prev, [name]: !prev[name] }));
 
   const { data: boatsFromDB = [] } = useQuery({
     queryKey: ['boats', location],
@@ -192,95 +196,83 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
               </div>
 
               <div className="p-4 sm:p-6 flex flex-col flex-grow">
-                {/* Fixed-height description area so capacity row stays aligned */}
-                <div className="h-16 overflow-hidden mb-3">
-                  <p className="text-white/80 text-sm line-clamp-3">{boat.description}</p>
-                </div>
+                {/* Description */}
+                <p className="text-white/80 text-sm mb-3 line-clamp-3">{boat.description}</p>
 
-                {/* Capacity — always on the same row */}
-                <p className="text-white/80 mb-4 flex items-center gap-2">
+                {/* Available Tomorrow Alert — right below description */}
+                {isAvailableTomorrow(boat.name) && (
+                  <div className="mb-3 px-3 py-2 bg-red-500/20 border border-red-500/40 rounded-lg animate-pulse">
+                    <p className="text-xs font-semibold text-red-400 text-center flex items-center justify-center gap-1">
+                      <AlertTriangle className="h-3.5 w-3.5" />Available Tomorrow
+                    </p>
+                  </div>
+                )}
+
+                {/* Capacity */}
+                <p className="text-white/80 mb-3 flex items-center gap-2">
                   <Users className="h-4 w-4 flex-shrink-0" />
                   {boat.capacity}
                 </p>
 
-                <div className="grid grid-cols-2 gap-x-4 gap-y-2 mb-4">
-                  {boat.strengths.map((strength, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-white">
-                      <strength.icon className="h-4 w-4 text-cyan-400 flex-shrink-0" />
-                      <span className="text-sm capitalize">{strength.text}</span>
+                {/* Equipment — Collapsible, collapsed by default */}
+                <div className="mb-3">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); toggleEquipment(boat.name); }}
+                    className="w-full flex items-center justify-between text-xs font-semibold text-white/50 uppercase tracking-wide hover:text-white/70 transition-colors"
+                  >
+                    <span>Standard Equipment</span>
+                    <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedEquipment[boat.name] ? '' : '-rotate-90'}`} />
+                  </button>
+                  {expandedEquipment[boat.name] && (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
+                      {boat.strengths.map((strength, idx) => (
+                        <div key={idx} className="flex items-center gap-2 text-white">
+                          <strength.icon className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                          <span className="text-sm capitalize">{strength.text}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
 
+                {/* Available Experiences — Collapsible, collapsed by default */}
                 {boat.available_expeditions && boat.available_expeditions.length > 0 && (
-                  <div className="pt-4 pb-4 border-t border-white/20">
-                    {isAvailableTomorrow(boat.name) && (
-                      <div className="mb-3 px-3 py-2 bg-red-500/20 border border-red-500/40 rounded-lg animate-pulse">
-                        <p className="text-xs font-semibold text-red-400 text-center flex items-center justify-center gap-1"><AlertTriangle className="h-3.5 w-3.5" />Available Tomorrow</p>
+                  <div className="pt-3 border-t border-white/20 mb-4">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleExperiences(boat.name); }}
+                      className="w-full flex items-center justify-between text-xs font-semibold text-white/50 uppercase tracking-wide hover:text-white/70 transition-colors"
+                    >
+                      <span>Available Experiences</span>
+                      <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedExperiences[boat.name] ? '' : '-rotate-90'}`} />
+                    </button>
+                    {expandedExperiences[boat.name] && (
+                      <div className="space-y-2 mt-2">
+                        {boat.available_expeditions.map((exp) => {
+                          const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
+                          const defaultDurations = {
+                            half_day_fishing: { hours: 5 }, full_day_fishing: { hours: 8 },
+                            extended_fishing: { hours: 10 }, snorkeling: { hours: 5 },
+                            coastal_leisure: { hours: 5 }, sunset_tour: { hours: 3 },
+                          };
+                          const durationHours = pricing?.duration_hours || (defaultDurations[exp]?.hours ?? 5);
+                          const expIcons = {
+                            half_day_fishing: Fish, full_day_fishing: Fish, extended_fishing: Anchor,
+                            snorkeling: Waves, coastal_leisure: Navigation, sunset_tour: Sun,
+                          };
+                          const ExpIcon = expIcons[exp] || Anchor;
+                          const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
+                          return (
+                            <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                              <div className="flex items-center gap-2">
+                                <ExpIcon className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
+                                <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
+                                <span className="text-xs text-white/40 ml-auto">{durationHours}h</span>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
-                    <p className="text-xs font-semibold text-white/60 uppercase tracking-wide mb-2">Available Experiences</p>
-                    <div className="space-y-2">
-                      {boat.available_expeditions.map((exp) => {
-                        const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
-                        const defaultDurations = {
-                          half_day_fishing: { hours: 5, time: '6:00 AM' },
-                          full_day_fishing: { hours: 8, time: '6:00 AM' },
-                          extended_fishing: { hours: 10, time: '6:00 AM' },
-                          snorkeling: { hours: 5, time: '7:00 AM' },
-                          coastal_leisure: { hours: 5, time: '7:00 AM' },
-                          sunset_tour: { hours: 3, time: '4:00 PM' },
-                        };
-                        const defaults = defaultDurations[exp] || { hours: 5, time: '7:00 AM' };
-                        const durationHours = pricing?.duration_hours || defaults.hours;
-                        const pickupDeps = pricing?.pickup_departures;
-                        // Collect all departure times
-                        const departureTimes = (pickupDeps && pickupDeps.length > 0)
-                          ? pickupDeps.map(d => d.departure_time).filter(Boolean)
-                          : (pricing?.departure_time ? [pricing.departure_time] : [defaults.time]);
-                        // Format: "10:00, 11:00 and 12:00"
-                        const departureDisplay = departureTimes.length > 1
-                          ? departureTimes.slice(0, -1).join(', ') + ' and ' + departureTimes[departureTimes.length - 1]
-                          : (departureTimes[0] || '');
-                        // Collect all pickup locations
-                        const pickupLocations = (pickupDeps && pickupDeps.length > 0)
-                          ? [...new Set(pickupDeps.map(d => d.pickup_location).filter(Boolean))]
-                          : (pricing?.pickup_location ? [pricing.pickup_location] : []);
-                        const pickupLocation = pickupLocations.length > 0 ? pickupLocations.join(', ') : null;
-                        const expIcons = {
-                          half_day_fishing: Fish,
-                          full_day_fishing: Fish,
-                          extended_fishing: Anchor,
-                          snorkeling: Waves,
-                          coastal_leisure: Navigation,
-                          sunset_tour: Sun,
-                        };
-                        const ExpIcon = expIcons[exp] || Anchor;
-                        const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
-                        return (
-                          <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
-                            <div className="flex items-center gap-2 mb-1">
-                              <ExpIcon className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
-                              <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
-                            </div>
-                            <div className="flex flex-wrap gap-2 text-xs text-white/55 pl-5">
-                               <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{durationHours}h</span>
-                               {departureTimes.length > 0 && (
-                                 <span className="flex items-center gap-1">
-                                   <Clock className="h-3 w-3 inline" />
-                                   {departureTimes.length > 1
-                                     ? departureTimes.slice(0, -1).join(', ') + ' and ' + departureTimes[departureTimes.length - 1]
-                                     : departureTimes[0]}
-                                 </span>
-                               )}
-                               {pickupLocation && (
-                                 <span className="flex items-center gap-1"><MapPin className="h-3 w-3 inline" />{pickupLocation}</span>
-                               )}
-                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
                   </div>
                 )}
 

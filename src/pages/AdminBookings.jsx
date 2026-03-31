@@ -213,9 +213,7 @@ function AdminBookingsInner() {
     ? blockedDates.filter(b => b.boat_name === 'both' || filteredOperatorBoats.includes(b.boat_name))
     : blockedDates.filter(b => b.boat_name === 'both' || b.boat_name === assignedBoat);
 
-  const filteredBookings = bookings.filter(booking => {
-    if (!isSuperAdmin && !isOperatorAdmin && filteredOperatorBoats === null && assignedBoat && booking.boat_name !== assignedBoat) return false;
-    if (filteredOperatorBoats !== null && !filteredOperatorBoats.includes(booking.boat_name)) return false;
+  const filteredBookings = visibleBookings.filter(booking => {
     if (statusFilter !== 'all' && booking.status !== statusFilter) return false;
     if (boatFilter !== 'all' && booking.boat_name !== boatFilter) return false;
     if (locationFilter !== 'all' && booking.location !== locationFilter) return false;
