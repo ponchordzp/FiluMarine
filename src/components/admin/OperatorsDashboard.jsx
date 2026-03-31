@@ -7,14 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink, CreditCard } from 'lucide-react';
+import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink, CreditCard, Lock, Unlock } from 'lucide-react';
 import BoatManagement from './BoatManagement';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
 const OPERATOR_PROTECTED_KEY = 'filu_operators_protected'; // stores sensitive fields separately so they survive code edits
 
 // Protected fields that must never be overwritten by default values or code changes
-const PROTECTED_FIELDS = ['commission_pct', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color', 'locations'];
+const PROTECTED_FIELDS = ['commission_pct', 'commission_pct_locked', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color', 'locations'];
 
 function loadProtectedData() {
   try {
@@ -104,7 +104,7 @@ function StatBox({ icon: Icon, label, value, color }) {
   );
 }
 
-function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDelete, onAddBoat }) {
+function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDelete, onAddBoat, onLockToggle }) {
   const opName = (operator.name || '').toLowerCase();
 
   const opBoats = boats.filter(b => {
@@ -216,9 +216,18 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
               <span className="text-white/40">Avg ticket</span>
               <span className="text-white/60 font-medium">{avgRevenue > 0 ? `$${(avgRevenue/1000).toFixed(1)}k` : '—'}</span>
             </div>
-            <div className="flex justify-between text-xs col-span-2 pt-1 border-t border-white/8">
-              <span className="text-white/40">FILU Fee ({commissionPct}% of revenue)</span>
-              <span className="text-orange-300 font-medium">-${(commission/1000).toFixed(1)}k</span>
+            <div className="flex justify-between items-center text-xs col-span-2 pt-1 border-t border-white/8">
+             <span className="text-white/40">FILU Fee ({commissionPct}% of revenue)</span>
+             <div className="flex items-center gap-2">
+               <span className="text-orange-300 font-medium">-${(commission/1000).toFixed(1)}k</span>
+               <button
+                 onClick={() => onLockToggle(operator.id)}
+                 className="p-1 rounded-md hover:bg-white/10 transition-colors"
+                 title={operator.commission_pct_locked ? 'Unlock FILU fee to edit' : 'Lock FILU fee (prevents all edits)'}
+               >
+                 {operator.commission_pct_locked ? <Lock className="h-3 w-3 text-red-400" /> : <Unlock className="h-3 w-3 text-white/40" />}
+               </button>
+             </div>
             </div>
             <div className="flex justify-between text-xs col-span-2">
               <span className="text-white/60 font-semibold">Earnings (net)</span>
@@ -443,7 +452,7 @@ export default function OperatorsDashboard() {
       {/* Operator cards */}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
         {operators.map(op => (
-          <OperatorCard key={op.id} operator={op} boats={boats} crew={crew} bookings={bookings} expenses={expenses} onEdit={openEdit} onDelete={handleDelete} onAddBoat={(opName) => setAddBoatForOperator(opName)} />
+          <OperatorCard key={op.id} operator={op} boats={boats} crew={crew} bookings={bookings} expenses={expenses} onEdit={openEdit} onDelete={handleDelete} onAddBoat={(opName) => setAddBoatForOperator(opName)} onLockToggle={async (opId) => { await base44.entities.Operator.update(opId, { commission_pct_locked: !(operators.find(o => o.id === opId)?.commission_pct_locked) }); queryClient.invalidateQueries({ queryKey: ['operators'] }); }} />
         ))}
       </div>
 
@@ -489,21 +498,22 @@ export default function OperatorsDashboard() {
               <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="operator@example.com" className="mt-1" />
             </div>
             <div>
-              <Label className="text-sm text-foreground">FILU Fee %</Label>
-              <div className="flex items-center mt-1">
-                <Input
-                  type="number"
-                  min="0"
-                  max="100"
-                  step="0.5"
-                  value={form.commission_pct}
-                  onChange={e => setForm(f => ({ ...f, commission_pct: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0"
-                  className="rounded-r-none"
-                />
-                <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted">%</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-1">FILU Fee % charged from each booking's revenue</p>
+             <Label className="text-sm text-foreground flex items-center gap-2">FILU Fee % {editingOp?.commission_pct_locked && <Lock className="h-3 w-3 text-red-400" />}</Label>
+             <div className="flex items-center mt-1">
+               <Input
+                 type="number"
+                 min="0"
+                 max="100"
+                 step="0.5"
+                 value={form.commission_pct}
+                 onChange={e => setForm(f => ({ ...f, commission_pct: parseFloat(e.target.value) || 0 }))}
+                 placeholder="0"
+                 disabled={editingOp?.commission_pct_locked}
+                 className="rounded-r-none"
+               />
+               <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted">%</span>
+             </div>
+             <p className="text-xs text-muted-foreground mt-1">{editingOp?.commission_pct_locked ? 'This field is locked and cannot be edited.' : 'FILU Fee % charged from each booking\'s revenue'}</p>
             </div>
             <div>
               <Label className="text-sm text-foreground">PayPal Username</Label>
