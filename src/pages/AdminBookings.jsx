@@ -285,6 +285,7 @@ function AdminBookingsInner() {
   };
 
   const [expandedRows, setExpandedRows] = useState({ financial: true, bookings: true });
+  const [showFinancialDialog, setShowFinancialDialog] = useState(false);
 
   const toggleRowExpansion = (category) => {
     setExpandedRows(prev => ({ ...prev, [category]: !prev[category] }));
@@ -544,70 +545,86 @@ function AdminBookingsInner() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
-        {/* Financial KPIs - Expenses from BookingExpense records */}
-        <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
-          {(() => {
-            // Get active bookings and match with their actual expenses
-            const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
-            const revenue = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
-            
-            // Sum operational expenses by matching booking to expense record
-            const operationalExpenses = activeBookings.reduce((sum, booking) => {
-              const expRecord = financialExpenses.find(e => e.booking_id === booking.id);
-              if (!expRecord) return sum;
-              return sum + ((expRecord.fuel_cost || 0) + (expRecord.crew_cost || 0) + 
-                           (expRecord.maintenance_cost || 0) + (expRecord.cleaning_cost || 0) + 
-                           (expRecord.supplies_cost || 0) + (expRecord.other_cost || 0));
-            }, 0);
-            
-            const fees = activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
-            const netProfit = revenue - operationalExpenses - fees;
-            const margin = revenue > 0 ? Math.min(100, Math.round((netProfit / revenue) * 100)) : 0;
-
-            return (
-              <div className="space-y-3">
-                <div className="grid grid-cols-5 gap-2">
-                  {[
-                    { label: 'Revenue', value: `$${(revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', Icon: TrendingUp },
-                    { label: 'Expenses', value: `$${(operationalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', Icon: TrendingDown },
-                    { label: 'Fees', value: `$${(fees / 1000).toFixed(1)}k`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', Icon: CreditCard },
-                    { label: 'Net Profit', value: `$${(netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', Icon: BarChart2 },
-                    { label: 'Margin', value: `${margin}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', Icon: Percent },
-                  ].map(s => (
-                    <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
-                      <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
-                        <s.Icon className={`h-3.5 w-3.5 shrink-0 ${s.text}`} />
-                        <p className={`text-[10px] text-white/70 font-medium whitespace-nowrap`}>{s.label}</p>
-                      </div>
-                      <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
-                        textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
-                                   s.label === 'Expenses' ? '0 0 10px rgba(239,68,68,0.7)' :
-                                   s.label === 'Fees' ? '0 0 10px rgba(245,158,11,0.7)' :
-                                   s.label === 'Net Profit' ? '0 0 10px rgba(59,130,246,0.7)' :
-                                   '0 0 10px rgba(168,85,247,0.7)'
-                      }}>{s.value}</p>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-xs text-white/40 px-2 py-1">Expenses = Total from matching BookingExpense records</p>
-              </div>
-            );
-          })()}
-        </div>
-
-        {/* Financial Trends Over Time */}
-        <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)', backdropFilter: 'blur(16px)' }}>
-          <button onClick={() => toggleRowExpansion('financial-trends')} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity" style={{ marginBottom: expandedRows['financial-trends'] ? '8px' : '0' }}>
-            <div className="flex items-center gap-1.5">
-              <LineChart className="h-4 w-4 text-amber-300" />
-              <span className="text-xs font-semibold text-amber-300 uppercase tracking-wider">Financial Trends</span>
+        {/* Financial Dashboard Dialog */}
+        <div className="mb-6">
+          <button onClick={() => setShowFinancialDialog(!showFinancialDialog)} className="w-full rounded-xl px-3 py-2 flex items-center justify-between hover:opacity-80 transition-opacity" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
+            <div className="flex items-center gap-2">
+              <BarChart2 className="h-4 w-4 text-emerald-300" />
+              <span className="text-sm font-semibold text-emerald-300 uppercase tracking-wider">Financial Dashboard</span>
             </div>
-            <ChevronDown className={`h-3.5 w-3.5 text-amber-300/60 transition-transform ${expandedRows['financial-trends'] ? '' : '-rotate-90'}`} />
+            <ChevronDown className={`h-3.5 w-3.5 text-emerald-300/60 transition-transform ${showFinancialDialog ? '' : '-rotate-90'}`} />
           </button>
-          {expandedRows['financial-trends'] && (
-            <FinancialTrendChart financialFilteredBookings={financialFilteredBookings} financialExpenses={financialExpenses} getOperatorCommission={getOperatorCommission} />
-          )}
         </div>
+
+        {showFinancialDialog && (
+          <Dialog open={showFinancialDialog} onOpenChange={setShowFinancialDialog}>
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <BarChart2 className="h-5 w-5 text-emerald-300" />
+                  Financial Dashboard
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                {/* KPIs Section */}
+                <div className="space-y-3">
+                  {(() => {
+                    const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
+                    const revenue = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+                    const operationalExpenses = activeBookings.reduce((sum, booking) => {
+                      const expRecord = financialExpenses.find(e => e.booking_id === booking.id);
+                      if (!expRecord) return sum;
+                      return sum + ((expRecord.fuel_cost || 0) + (expRecord.crew_cost || 0) + 
+                                   (expRecord.maintenance_cost || 0) + (expRecord.cleaning_cost || 0) + 
+                                   (expRecord.supplies_cost || 0) + (expRecord.other_cost || 0));
+                    }, 0);
+                    const fees = activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+                    const netProfit = revenue - operationalExpenses - fees;
+                    const margin = revenue > 0 ? Math.min(100, Math.round((netProfit / revenue) * 100)) : 0;
+
+                    return (
+                      <>
+                        <h3 className="text-sm font-semibold text-emerald-300 uppercase tracking-wider">Financial KPIs</h3>
+                        <div className="grid grid-cols-5 gap-2">
+                          {[
+                            { label: 'Revenue', value: `$${(revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', Icon: TrendingUp },
+                            { label: 'Expenses', value: `$${(operationalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', Icon: TrendingDown },
+                            { label: 'Fees', value: `$${(fees / 1000).toFixed(1)}k`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', Icon: CreditCard },
+                            { label: 'Net Profit', value: `$${(netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', Icon: BarChart2 },
+                            { label: 'Margin', value: `${margin}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', Icon: Percent },
+                          ].map(s => (
+                            <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                              <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
+                                <s.Icon className={`h-3.5 w-3.5 shrink-0 ${s.text}`} />
+                                <p className={`text-[10px] text-white/70 font-medium whitespace-nowrap`}>{s.label}</p>
+                              </div>
+                              <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
+                                textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
+                                           s.label === 'Expenses' ? '0 0 10px rgba(239,68,68,0.7)' :
+                                           s.label === 'Fees' ? '0 0 10px rgba(245,158,11,0.7)' :
+                                           s.label === 'Net Profit' ? '0 0 10px rgba(59,130,246,0.7)' :
+                                           '0 0 10px rgba(168,85,247,0.7)'
+                              }}>{s.value}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-xs text-white/40">Expenses = Total from matching BookingExpense records</p>
+                      </>
+                    );
+                  })()}
+                </div>
+
+                {/* Trends Section */}
+                <div className="border-t border-white/10 pt-6">
+                  <h3 className="text-sm font-semibold text-amber-300 uppercase tracking-wider mb-4 flex items-center gap-1.5">
+                    <LineChart className="h-4 w-4" /> Financial Trends
+                  </h3>
+                  <FinancialTrendChart financialFilteredBookings={financialFilteredBookings} financialExpenses={financialExpenses} getOperatorCommission={getOperatorCommission} />
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
           {/* Booking KPIs - Collapsible Row 2 */}
           <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', backdropFilter: 'blur(16px)' }}>
