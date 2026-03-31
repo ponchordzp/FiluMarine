@@ -544,15 +544,22 @@ function AdminBookingsInner() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
-        {/* Financial KPIs - NEW Calculation */}
+        {/* Financial KPIs - Expenses from BookingExpense records */}
         <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
           {(() => {
-            // Explicit calculation: SUM ONLY operational costs (NO fees_cost)
+            // Get active bookings and match with their actual expenses
             const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
             const revenue = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
-            const operationalExpenses = financialExpenses.reduce((sum, e) => sum + 
-              ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + 
-               (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
+            
+            // Sum operational expenses by matching booking to expense record
+            const operationalExpenses = activeBookings.reduce((sum, booking) => {
+              const expRecord = financialExpenses.find(e => e.booking_id === booking.id);
+              if (!expRecord) return sum;
+              return sum + ((expRecord.fuel_cost || 0) + (expRecord.crew_cost || 0) + 
+                           (expRecord.maintenance_cost || 0) + (expRecord.cleaning_cost || 0) + 
+                           (expRecord.supplies_cost || 0) + (expRecord.other_cost || 0));
+            }, 0);
+            
             const fees = activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
             const netProfit = revenue - operationalExpenses - fees;
             const margin = revenue > 0 ? Math.min(100, Math.round((netProfit / revenue) * 100)) : 0;
@@ -562,7 +569,7 @@ function AdminBookingsInner() {
                 <div className="grid grid-cols-5 gap-2">
                   {[
                     { label: 'Revenue', value: `$${(revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', Icon: TrendingUp },
-                    { label: 'Operations', value: `$${(operationalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', Icon: TrendingDown },
+                    { label: 'Expenses', value: `$${(operationalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', Icon: TrendingDown },
                     { label: 'Fees', value: `$${(fees / 1000).toFixed(1)}k`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', Icon: CreditCard },
                     { label: 'Net Profit', value: `$${(netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', Icon: BarChart2 },
                     { label: 'Margin', value: `${margin}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', Icon: Percent },
@@ -574,7 +581,7 @@ function AdminBookingsInner() {
                       </div>
                       <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
                         textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
-                                   s.label === 'Operations' ? '0 0 10px rgba(239,68,68,0.7)' :
+                                   s.label === 'Expenses' ? '0 0 10px rgba(239,68,68,0.7)' :
                                    s.label === 'Fees' ? '0 0 10px rgba(245,158,11,0.7)' :
                                    s.label === 'Net Profit' ? '0 0 10px rgba(59,130,246,0.7)' :
                                    '0 0 10px rgba(168,85,247,0.7)'
@@ -582,7 +589,7 @@ function AdminBookingsInner() {
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-white/40 px-2 py-1">Operations = Fuel + Crew + Maintenance + Cleaning + Supplies + Other (EXCLUDES Fees)</p>
+                <p className="text-xs text-white/40 px-2 py-1">Expenses = Total from matching BookingExpense records</p>
               </div>
             );
           })()}
