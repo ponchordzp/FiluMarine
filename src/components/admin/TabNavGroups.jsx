@@ -146,18 +146,24 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list('sort_order'),
   });
-  const locationOptions = dbLocations.length > 0
+  
+  // Build base location options from database
+  const allLocationOptions = dbLocations.length > 0
     ? [{ id: 'all', label: 'All' }, ...dbLocations.map(l => ({ id: l.location_id, label: l.name }))]
     : [{ id: 'all', label: 'All' }, { id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }];
-  // SuperAdmin sees all operators and can switch freely.
-  // All other roles are locked to their assigned operator — show only that one.
-  const operators = isSuperAdmin
-    ? allOperators
-    : currentUserOperator
-      ? allOperators.filter(op => op.name.toLowerCase() === currentUserOperator.toLowerCase())
-          .concat(allOperators.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }] : [])
-      : allOperators;
-  const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
+  
+  // For non-SuperAdmin, filter locations to only show what their operator has assigned
+  let locationOptions = allLocationOptions;
+  if (!isSuperAdmin && currentUserOperator) {
+    const currentOperator = allOperators.find(op => op.name?.toLowerCase() === currentUserOperator.toLowerCase());
+    if (currentOperator?.locations && currentOperator.locations.length > 0) {
+      locationOptions = [{ id: 'all', label: 'All' }, ...allLocationOptions.filter(loc => loc.id === 'all' || currentOperator.locations.includes(loc.id))];
+      // Remove duplicate 'All'
+      if (locationOptions.filter(l => l.id === 'all').length > 1) {
+        locationOptions = [locationOptions[0], ...locationOptions.slice(2)];
+      }
+    }
+  }
 
   // If no match found in stored operators, create a placeholder
   const displayOperators = operators.length > 0
