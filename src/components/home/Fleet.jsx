@@ -280,7 +280,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                               <ExpIcon className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
                               <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
                             </div>
-                            <div className="flex flex-wrap gap-3 text-xs text-white/55 pl-5">
+                            <div className="flex flex-wrap gap-2 text-xs text-white/55 pl-5">
                                <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{durationHours}h</span>
                                {departureTimes.length > 0 && (
                                  <span className="flex items-center gap-1">
@@ -289,6 +289,9 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                                      ? departureTimes.slice(0, -1).join(', ') + ' and ' + departureTimes[departureTimes.length - 1]
                                      : departureTimes[0]}
                                  </span>
+                               )}
+                               {pickupLocation && (
+                                 <span className="flex items-center gap-1"><MapPin className="h-3 w-3 inline" />{pickupLocation}</span>
                                )}
                              </div>
                           </div>

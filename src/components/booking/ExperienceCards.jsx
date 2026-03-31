@@ -261,28 +261,16 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   const filteredFullDay = fullDayExperiences;
   const showExtended = true;
 
-  // Helper to render live DB boat names only (no prices, no pickup locations)
+  // Helper to render live DB boat names only
   const renderExpMeta = (expId) => {
-    const { boatNames, departureTimes } = getExpDataFromDB(expId);
-    const hasDBData = boatNames.length > 0;
-    if (!hasDBData && departureTimes.length === 0) return null;
+    const { boatNames } = getExpDataFromDB(expId);
+    if (!boatNames.length) return null;
     return (
-      <div className="mt-2 space-y-1">
-        {hasDBData && (
-          <div className="flex items-start gap-1.5 text-xs text-white/60">
-            <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0 text-cyan-400" />
-            <span>{boatNames.join(', ')}</span>
-          </div>
-        )}
-        {departureTimes.length > 0 && (
-          <div className="flex items-center gap-1 text-xs text-cyan-300/80">
-            <Clock className="h-2.5 w-2.5 flex-shrink-0" />
-            <span>{departureTimes.length > 1
-              ? departureTimes.slice(0, -1).join(', ') + ' and ' + departureTimes[departureTimes.length - 1]
-              : departureTimes[0]}
-            </span>
-          </div>
-        )}
+      <div className="mt-2">
+        <div className="flex items-start gap-1.5 text-xs text-white/60">
+          <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0 text-cyan-400" />
+          <span>{boatNames.join(', ')}</span>
+        </div>
       </div>
     );
   };
