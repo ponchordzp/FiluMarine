@@ -741,15 +741,28 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
 // ─── Commission helper (mirrors global KPI logic exactly) ────────────────────
 function getOperatorCommission(boatName, allBoats, operatorsFromDB = []) {
   try {
+    if (!operatorsFromDB || operatorsFromDB.length === 0) return 0;
     const boat = allBoats.find(b => b.name === boatName);
-    const boatOpName = (boat?.operator || '').toLowerCase().trim();
+    if (!boat) return 0;
+    
+    // Get boat's operator name, default to empty if not set
+    const boatOpName = (boat.operator || '').toLowerCase().trim();
+    
+    // Try to find exact operator match
     let op = null;
-    if (boatOpName && boatOpName !== 'filu') {
+    if (boatOpName) {
       op = operatorsFromDB.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
     }
-    if (!op) op = operatorsFromDB.find(o => (o.name || '').toLowerCase().trim() === 'filu');
-    return parseFloat(op?.commission_pct || 0);
-  } catch {
+    
+    // If no match or boat has no operator, default to FILU
+    if (!op) {
+      op = operatorsFromDB.find(o => (o.name || '').toLowerCase().trim() === 'filu');
+    }
+    
+    const commission = parseFloat(op?.commission_pct || 0);
+    return commission;
+  } catch (e) {
+    console.error('Error calculating commission:', e);
     return 0;
   }
 }
