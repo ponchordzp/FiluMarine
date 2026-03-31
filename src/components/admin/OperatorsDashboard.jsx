@@ -444,29 +444,29 @@ export default function OperatorsDashboard() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm">Operator Name *</Label>
+              <Label className="text-sm text-foreground">Operator Name *</Label>
               <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g., NAUTIKA" className="mt-1" />
             </div>
             <div>
-              <Label className="text-sm">Description</Label>
+              <Label className="text-sm text-foreground">Description</Label>
               <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Short description..." rows={2} className="mt-1" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm">Contact Name</Label>
+                <Label className="text-sm text-foreground">Contact Name</Label>
                 <Input value={form.contact_name} onChange={e => setForm(f => ({ ...f, contact_name: e.target.value }))} placeholder="Full name" className="mt-1" />
               </div>
               <div>
-                <Label className="text-sm">Contact Phone</Label>
+                <Label className="text-sm text-foreground">Contact Phone</Label>
                 <Input value={form.contact_phone} onChange={e => setForm(f => ({ ...f, contact_phone: e.target.value }))} placeholder="+52..." className="mt-1" />
               </div>
             </div>
             <div>
-              <Label className="text-sm">Contact Email</Label>
+              <Label className="text-sm text-foreground">Contact Email</Label>
               <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="operator@example.com" className="mt-1" />
             </div>
             <div>
-              <Label className="text-sm">FILU Fee %</Label>
+              <Label className="text-sm text-foreground">FILU Fee %</Label>
               <div className="flex items-center mt-1">
                 <Input
                   type="number"
@@ -478,39 +478,39 @@ export default function OperatorsDashboard() {
                   placeholder="0"
                   className="rounded-r-none"
                 />
-                <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-white/40 border-input bg-white/5">%</span>
+                <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted">%</span>
               </div>
-              <p className="text-xs text-white/30 mt-1">FILU Fee % charged from each booking's revenue</p>
+              <p className="text-xs text-muted-foreground mt-1">FILU Fee % charged from each booking's revenue</p>
             </div>
             <div>
-              <Label className="text-sm">PayPal Username</Label>
+              <Label className="text-sm text-foreground">PayPal Username</Label>
               <div className="flex items-center mt-1">
-                <span className="px-3 py-2 text-sm rounded-l-md border border-r-0 text-white/40 border-input bg-white/5">paypal.me/</span>
+                <span className="px-3 py-2 text-sm rounded-l-md border border-r-0 text-muted-foreground border-input bg-muted">paypal.me/</span>
                 <Input value={form.paypal_username} onChange={e => setForm(f => ({ ...f, paypal_username: e.target.value }))} placeholder="username" className="rounded-l-none" />
               </div>
-              <p className="text-xs text-white/30 mt-1">Used to generate the PayPal payment link for booking cards</p>
+              <p className="text-xs text-muted-foreground mt-1">Used to generate the PayPal payment link for booking cards</p>
             </div>
             <div className="border-t pt-3">
-              <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Bank Details (Direct Deposit)</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Bank Details (Direct Deposit)</p>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <div><Label className="text-sm">Bank Name</Label><Input value={form.bank_name} onChange={e => setForm(f => ({ ...f, bank_name: e.target.value }))} placeholder="e.g., BBVA" className="mt-1" /></div>
-                  <div><Label className="text-sm">Account Holder</Label><Input value={form.bank_account_holder} onChange={e => setForm(f => ({ ...f, bank_account_holder: e.target.value }))} placeholder="Name on account" className="mt-1" /></div>
+                  <div><Label className="text-sm text-foreground">Bank Name</Label><Input value={form.bank_name} onChange={e => setForm(f => ({ ...f, bank_name: e.target.value }))} placeholder="e.g., BBVA" className="mt-1" /></div>
+                  <div><Label className="text-sm text-foreground">Account Holder</Label><Input value={form.bank_account_holder} onChange={e => setForm(f => ({ ...f, bank_account_holder: e.target.value }))} placeholder="Name on account" className="mt-1" /></div>
                 </div>
-                <div><Label className="text-sm">CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={e => setForm(f => ({ ...f, bank_account_clabe: e.target.value }))} placeholder="e.g., 012180004713413911" maxLength={18} className="mt-1" /></div>
-                <div><Label className="text-sm">Account Number (optional)</Label><Input value={form.bank_account_number} onChange={e => setForm(f => ({ ...f, bank_account_number: e.target.value }))} placeholder="Account number" className="mt-1" /></div>
-                <div><Label className="text-sm">Notes</Label><Input value={form.bank_notes} onChange={e => setForm(f => ({ ...f, bank_notes: e.target.value }))} placeholder="e.g., reference required" className="mt-1" /></div>
+                <div><Label className="text-sm text-foreground">CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={e => setForm(f => ({ ...f, bank_account_clabe: e.target.value }))} placeholder="e.g., 012180004713413911" maxLength={18} className="mt-1" /></div>
+                <div><Label className="text-sm text-foreground">Account Number (optional)</Label><Input value={form.bank_account_number} onChange={e => setForm(f => ({ ...f, bank_account_number: e.target.value }))} placeholder="Account number" className="mt-1" /></div>
+                <div><Label className="text-sm text-foreground">Notes</Label><Input value={form.bank_notes} onChange={e => setForm(f => ({ ...f, bank_notes: e.target.value }))} placeholder="e.g., reference required" className="mt-1" /></div>
               </div>
             </div>
             <div className="border-t pt-3">
-              <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Assigned Locations</p>
-              <p className="text-xs text-white/30 mb-3">Select which locations this operator operates in. Non-SuperAdmin users will only see these locations in the global filter.</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Assigned Locations</p>
+              <p className="text-xs text-muted-foreground mb-3">Select which locations this operator operates in. Non-SuperAdmin users will only see these locations in the global filter.</p>
               {dbLocations.length === 0 ? (
-                <p className="text-xs text-white/30 italic">No locations found in database</p>
+                <p className="text-xs text-muted-foreground italic">No locations found in database</p>
               ) : (
                 <div className="space-y-2">
                   {dbLocations.filter(l => l.visible !== false).map(loc => (
-                    <label key={loc.location_id} className="flex items-center gap-3 cursor-pointer group rounded-lg px-3 py-2 hover:bg-white/5 transition-colors">
+                    <label key={loc.location_id} className="flex items-center gap-3 cursor-pointer group rounded-lg px-3 py-2 hover:bg-muted transition-colors border border-border">
                       <input
                         type="checkbox"
                         checked={(form.locations || []).includes(loc.location_id)}
@@ -521,8 +521,8 @@ export default function OperatorsDashboard() {
                         className="w-4 h-4 accent-teal-500 flex-shrink-0"
                       />
                       <div>
-                        <span className="text-sm text-white/80 group-hover:text-white transition-colors font-medium">{loc.name}</span>
-                        <span className="text-xs text-white/30 ml-2">{loc.location_id}</span>
+                        <span className="text-sm text-foreground font-medium">{loc.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{loc.location_id}</span>
                       </div>
                     </label>
                   ))}
@@ -530,10 +530,10 @@ export default function OperatorsDashboard() {
               )}
             </div>
             <div>
-              <Label className="text-sm">Brand Color</Label>
+              <Label className="text-sm text-foreground">Brand Color</Label>
               <div className="flex items-center gap-2 mt-1">
                 {COLORS.map(c => (
-                  <button key={c} onClick={() => setForm(f => ({ ...f, color: c }))} className={`w-7 h-7 rounded-full border-2 transition-all ${form.color === c ? 'border-white scale-110' : 'border-transparent'}`} style={{ background: c }} />
+                  <button key={c} onClick={() => setForm(f => ({ ...f, color: c }))} className={`w-7 h-7 rounded-full border-2 transition-all ${form.color === c ? 'border-gray-800 scale-110' : 'border-transparent'}`} style={{ background: c }} />
                 ))}
               </div>
             </div>
