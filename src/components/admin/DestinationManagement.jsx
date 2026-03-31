@@ -22,6 +22,7 @@ export default function DestinationManagement({ operatorFilter = 'all', location
     };
     fetchUser();
   }, []);
+  const isChartOperator = currentUser?.role === 'charter_operator';
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDest, setEditingDest] = useState(null);
@@ -47,7 +48,6 @@ export default function DestinationManagement({ operatorFilter = 'all', location
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
-  // If user is not superadmin and has an assigned operator, only show their location
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
   const userLocation = isUserRestricted ? (() => {
     const userBoats = boats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
@@ -57,6 +57,9 @@ export default function DestinationManagement({ operatorFilter = 'all', location
     }
     return null;
   })() : null;
+
+  // Charter operators always use their location, ignore locationFilter prop
+  const effectiveLocationFilter = isChartOperator && userLocation ? userLocation : locationFilter;
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.DestinationContent.create(data),
@@ -292,12 +295,10 @@ export default function DestinationManagement({ operatorFilter = 'all', location
         {destinations.filter(dest => {
           // Restrict by user location if needed
           if (isUserRestricted && userLocation) {
-            // Map location to region for matching
-            const locationRegionMap = { ixtapa_zihuatanejo: 'ixtapa_zihuatanejo', acapulco: 'acapulco', cancun: 'cancun' };
-            const userRegion = locationRegionMap[userLocation];
+            const userRegion = userLocation;
             if (dest.region !== userRegion) return false;
           }
-          if (locationFilter && locationFilter !== 'all') return dest.region === locationFilter;
+          if (effectiveLocationFilter && effectiveLocationFilter !== 'all') return dest.region === effectiveLocationFilter;
           return true;
         }).map((dest) =>
         <Card key={dest.id}>

@@ -41,17 +41,19 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
-  const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form, setForm] = useState(emptyForm);
-  const [locationFilter, setLocationFilter] = useState('all');
+  const { data: pickupLocations = [] } = useQuery({
+    queryKey: ['pickup-locations'],
+    queryFn: () => base44.entities.PickupLocation.list('sort_order'),
+  });
 
-  // Get user's operator location if they're restricted
+  const { data: boats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
   const isChartOperator = currentUser?.role === 'charter_operator';
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
   const userLocation = isUserRestricted ? (() => {
-    // Find boat location for this user's operator
     const userBoats = boats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
     if (userBoats.length > 0) {
       const uniqueLocs = [...new Set(userBoats.map(b => b.location))];
@@ -60,8 +62,15 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
     return null;
   })() : null;
 
+  const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState(emptyForm);
+  // Initialize locationFilter: charter operators ALWAYS use their location, others default to 'all'
+  const [locationFilter, setLocationFilter] = useState(isChartOperator && userLocation ? userLocation : 'all');
+
   // Sync with global filter from admin panel
-  const effectiveLocationFilter = externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : locationFilter;
+  const effectiveLocationFilter = isChartOperator && userLocation ? userLocation : (externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : locationFilter);
 
   const boatNames = boats.filter(b => b.status !== 'inactive').map(b => b.name);
 
