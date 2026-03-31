@@ -38,6 +38,7 @@ function validatePassword(password) {
 const roleConfig = {
   superadmin: { label: 'Super Admin', color: 'bg-purple-100 text-purple-800', icon: Shield, description: 'Full access — can create users, manage all boats and settings' },
   operator_admin: { label: 'Operator Admin', color: 'bg-orange-100 text-orange-800', icon: Building2, description: 'Full access scoped to their operator fleet — cannot edit the global checklist template' },
+  charter_operator: { label: 'Charter Operator', color: 'bg-cyan-100 text-cyan-800', icon: Building2, description: 'Full access scoped to their operator fleet — cannot edit the global checklist template' },
   admin: { label: 'Admin (Boat Owner)', color: 'bg-blue-100 text-blue-800', icon: Anchor, description: 'Can view Bookings, Dates, Dashboard & their assigned boat' },
   crew: { label: 'Crew', color: 'bg-emerald-100 text-emerald-800', icon: Users, description: 'Can view Bookings, Dates, Dashboard & fill maintenance on their assigned boat' }
 };
@@ -48,6 +49,7 @@ const BUILT_IN_ROLE_TABS = [
 { value: 'all', label: 'All' },
 { value: 'superadmin', label: 'Super Admins' },
 { value: 'operator_admin', label: 'Operator Admins' },
+{ value: 'charter_operator', label: 'Charter Operators' },
 { value: 'admin', label: 'Admins' },
 { value: 'crew', label: 'Crew' }];
 
@@ -59,8 +61,9 @@ function loadCustomRoles() {
 
 // Hierarchy: which roles a given role can create
 const ROLE_HIERARCHY = {
-  superadmin: ['superadmin', 'operator_admin', 'admin', 'crew'],
+  superadmin: ['superadmin', 'operator_admin', 'charter_operator', 'admin', 'crew'],
   operator_admin: ['admin', 'crew'],
+  charter_operator: ['admin', 'crew'],
   admin: ['crew'],
   crew: []
 };
@@ -299,13 +302,13 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
             <Card key={user.id} className={`border-2 ${user.is_active === false ? 'border-slate-200 opacity-60' : 'border-slate-100'}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${user.role === 'superadmin' ? 'bg-purple-100' : user.role === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
-                      <Icon className={`h-5 w-5 ${user.role === 'superadmin' ? 'text-purple-600' : user.role === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`} />
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${user.role === 'superadmin' ? 'bg-purple-100' : user.role === 'operator_admin' ? 'bg-orange-100' : user.role === 'charter_operator' ? 'bg-cyan-100' : user.role === 'admin' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
+                      <Icon className={`h-5 w-5 ${user.role === 'superadmin' ? 'text-purple-600' : user.role === 'operator_admin' ? 'text-orange-600' : user.role === 'charter_operator' ? 'text-cyan-600' : user.role === 'admin' ? 'text-blue-600' : 'text-emerald-600'}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-semibold text-slate-800">{user.full_name || user.username}</p>
-                        <Badge className={cfg.color}>{cfg.label}</Badge>
+                        <Badge className={cfg.color || 'bg-slate-100 text-slate-800'}>{cfg.label || user.role}</Badge>
                         {user.is_active === false && <Badge className="bg-slate-100 text-slate-600">Inactive</Badge>}
                         {/* Operator badge */}
                         {opForUser &&

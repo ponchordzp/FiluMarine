@@ -33,6 +33,7 @@ const TAB_GROUPS = ['Reservations', 'Fleet', 'Locations', 'Management'];
 const DEFAULT_PERMISSIONS = {
   superadmin: ALL_TABS.map((t) => t.value),
   operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
+  charter_operator: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
   admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'engine-databases'],
   crew: ['bookings', 'booked-dates', 'dashboard', 'boats', 'engine-databases']
 };
@@ -40,6 +41,7 @@ const DEFAULT_PERMISSIONS = {
 const DEFAULT_OPERATOR_FILTER_ACCESS = {
   superadmin: true,
   operator_admin: true,
+  charter_operator: true,
   admin: false,
   crew: false,
 };
@@ -57,10 +59,11 @@ function saveOperatorFilterAccess(access) {
 }
 
 const BUILT_IN_ROLES = [
-  { key: 'superadmin',    label: 'Super Admin',        icon: Shield,    color: 'bg-purple-100 text-purple-800', iconColor: 'text-purple-600', locked: true },
-  { key: 'operator_admin', label: 'Operator Admin',   icon: Building2, color: 'bg-orange-100 text-orange-800', iconColor: 'text-orange-600', locked: false },
-  { key: 'admin',         label: 'Admin (Boat Owner)', icon: Anchor,    color: 'bg-blue-100 text-blue-800',     iconColor: 'text-blue-600',   locked: false },
-  { key: 'crew',          label: 'Crew',               icon: Users,     color: 'bg-emerald-100 text-emerald-800', iconColor: 'text-emerald-600', locked: false },
+  { key: 'superadmin',      label: 'Super Admin',        icon: Shield,    color: 'bg-purple-100 text-purple-800', iconColor: 'text-purple-600', locked: true },
+  { key: 'operator_admin',  label: 'Operator Admin',     icon: Building2, color: 'bg-orange-100 text-orange-800', iconColor: 'text-orange-600', locked: false },
+  { key: 'charter_operator', label: 'Charter Operator',  icon: Building2, color: 'bg-cyan-100 text-cyan-800', iconColor: 'text-cyan-600', locked: false },
+  { key: 'admin',           label: 'Admin (Boat Owner)', icon: Anchor,    color: 'bg-blue-100 text-blue-800',     iconColor: 'text-blue-600',   locked: false },
+  { key: 'crew',            label: 'Crew',               icon: Users,     color: 'bg-emerald-100 text-emerald-800', iconColor: 'text-emerald-600', locked: false },
 ];
 
 function loadPermissions() {
