@@ -261,10 +261,11 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   const filteredFullDay = fullDayExperiences;
   const showExtended = true;
 
-  // Helper to render live boat + pricing info under each card
+  // Helper to render live DB boat names only (no prices, no pickup locations)
   const renderExpMeta = (expId) => {
-    const { boatNames, duration, price, departureTimes, pickupLocations } = getExpDataFromDB(expId);
+    const { boatNames, departureTimes } = getExpDataFromDB(expId);
     const hasDBData = boatNames.length > 0;
+    if (!hasDBData && departureTimes.length === 0) return null;
     return (
       <div className="mt-2 space-y-1">
         {hasDBData && (
@@ -273,16 +274,14 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
             <span>{boatNames.join(', ')}</span>
           </div>
         )}
-        {(duration || price || departureTimes.length > 0) && (
+        {departureTimes.length > 0 && (
           <div className="flex items-center gap-1 text-xs text-cyan-300/80">
-            <Lock className="h-2.5 w-2.5 flex-shrink-0" />
-            {duration && <span>{duration}h</span>}
-            {price > 0 && <span className="font-semibold ml-1">${price.toLocaleString()} MXN</span>}
-            {departureTimes.length > 0 && <span className="ml-1 text-white/50">{departureTimes.join(', ')}</span>}
+            <Clock className="h-2.5 w-2.5 flex-shrink-0" />
+            <span>{departureTimes.length > 1
+              ? departureTimes.slice(0, -1).join(', ') + ' and ' + departureTimes[departureTimes.length - 1]
+              : departureTimes[0]}
+            </span>
           </div>
-        )}
-        {pickupLocations.length > 0 && (
-          <p className="text-xs text-white/40 pl-4">{pickupLocations.join(', ')}</p>
         )}
       </div>
     );

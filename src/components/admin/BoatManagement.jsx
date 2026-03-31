@@ -247,6 +247,18 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     }
   });
 
+  // Safe update: NEVER wipe expedition_pricing — always restore from vault if update would clear it
+  const safeUpdateBoat = async (id, updateData) => {
+    let data = { ...updateData };
+    if (!data.expedition_pricing || data.expedition_pricing.length === 0) {
+      const vault = loadExpeditionVault(id);
+      if (vault?.expedition_pricing?.length > 0) {
+        data.expedition_pricing = vault.expedition_pricing;
+      }
+    }
+    return updateMutation.mutateAsync({ id, data });
+  };
+
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.BoatInventory.delete(id),
     onSuccess: () => {
@@ -381,13 +393,14 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       custom_equipment_visibility: normalizedCustomVisibility
     });
     setImagePreview(boat.image || '');
-    // Restore expedition pricing from protected vault if DB data is missing/empty
+    // Always merge vault + DB — take whichever has richer expedition data
     const vaultData = loadExpeditionVault(boat.id);
-    const sourceExpPricing = (boat.expedition_pricing && boat.expedition_pricing.length > 0)
-      ? boat.expedition_pricing
-      : (vaultData?.expedition_pricing || []);
+    const dbExpPricing = boat.expedition_pricing || [];
+    const vaultExpPricing = vaultData?.expedition_pricing || [];
+    // Prefer DB if it has entries, otherwise fall back to vault
+    const sourceExpPricing = dbExpPricing.length > 0 ? dbExpPricing : vaultExpPricing;
     const sourcePDeps = vaultData?.pickup_departures || {};
-    // Populate expeditionPickupDepartures from saved data so edits don't lose existing entries
+    // Populate expeditionPickupDepartures — merge DB pickup_departures with vault fallback
     const pickupDeps = {};
     sourceExpPricing.forEach((p, idx) => {
       if (p.pickup_departures && p.pickup_departures.length > 0) {
@@ -1412,9 +1425,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <div className="mt-2 p-2 bg-slate-50 rounded-lg border">
                   <p className="text-xs text-slate-600 mb-1.5 font-medium">Boat Mode</p>
                   <div className="flex gap-2">
-                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'rental_and_maintenance' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'rental_and_maintenance' ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Rental + Maint.</button>
-                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'rental_only' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'rental_only' ? 'bg-green-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Rental Only</button>
-                    <button onClick={async () => await updateMutation.mutateAsync({ id: boat.id, data: { ...boat, boat_mode: 'maintenance_only' } })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'maintenance_only' ? 'bg-slate-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Maint. Only</button>
+                    <button onClick={async () => await safeUpdateBoat(boat.id, { ...boat, boat_mode: 'rental_and_maintenance' })}
+                      className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'rental_and_maintenance' ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Rental + Maint.</button>
+                    <button onClick={async () => await safeUpdateBoat(boat.id, { ...boat, boat_mode: 'rental_only' })}
+                      className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'rental_only' ? 'bg-green-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Rental Only</button>
+                    <button onClick={async () => await safeUpdateBoat(boat.id, { ...boat, boat_mode: 'maintenance_only' })} className={`flex-1 px-2 py-1.5 text-xs rounded-md font-medium transition-all ${boat.boat_mode === 'maintenance_only' ? 'bg-slate-600 text-white shadow-md' : 'bg-white border border-slate-300 text-slate-600 hover:bg-slate-50'}`}>Maint. Only</button>
                   </div>
                 </div>
                 {boat.description && <p className="text-xs text-slate-600 line-clamp-2 mt-2">{boat.description}</p>}

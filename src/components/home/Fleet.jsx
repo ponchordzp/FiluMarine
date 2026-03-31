@@ -281,11 +281,14 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                               <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
                             </div>
                             <div className="flex flex-wrap gap-3 text-xs text-white/55 pl-5">
-                               <span className="flex items-center gap-1"><Lock className="h-2.5 w-2.5 text-cyan-500/70" /><Clock className="h-3 w-3 inline" />{durationHours}h</span>
-                               {priceFromDB > 0 && <span className="flex items-center gap-1 text-cyan-300/80 font-semibold">${priceFromDB.toLocaleString()} MXN</span>}
-                               <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{departureTimes.join(', ')}</span>
-                               {pickupLocation && (
-                                 <span className="flex items-center gap-1"><MapPin className="h-3 w-3 inline" />{pickupLocation}</span>
+                               <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{durationHours}h</span>
+                               {departureTimes.length > 0 && (
+                                 <span className="flex items-center gap-1">
+                                   <Clock className="h-3 w-3 inline" />
+                                   {departureTimes.length > 1
+                                     ? departureTimes.slice(0, -1).join(', ') + ' and ' + departureTimes[departureTimes.length - 1]
+                                     : departureTimes[0]}
+                                 </span>
                                )}
                              </div>
                           </div>
