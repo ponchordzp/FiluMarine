@@ -37,8 +37,11 @@ const COMMON_INCLUDES = [
 const LOCATION_LABELS = {
   ixtapa_zihuatanejo: 'Ixtapa-Zihuatanejo',
   acapulco: 'Acapulco',
-  both: 'Both Locations'
+  cancun: 'Cancún',
+  both: 'All Locations'
 };
+
+const ALL_LOCATIONS = ['ixtapa_zihuatanejo', 'acapulco', 'cancun'];
 
 const emptyForm = {
   expedition_id: '',
@@ -126,9 +129,8 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
       // Editing: always update only this specific record (no location splitting)
       updateMutation.mutate({ id: editingExp.id, data: finalData });
     } else if (finalData.location === 'both') {
-      // Creating with 'both': create two separate records — one per location
-      createMutation.mutate({ ...finalData, location: 'ixtapa_zihuatanejo' });
-      createMutation.mutate({ ...finalData, location: 'acapulco' });
+      // Creating with 'both': create one separate record per location
+      ALL_LOCATIONS.forEach(loc => createMutation.mutate({ ...finalData, location: loc }));
     } else {
       createMutation.mutate(finalData);
     }
@@ -153,15 +155,15 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     setFormData((prev) => ({ ...prev, includes: prev.includes.filter((i) => i !== item) }));
   };
 
+  // Only show exact-location records in each group so edits are location-isolated
   const filtered = expeditions.filter((exp) => {
     if (locationFilter === 'all') return true;
-    return exp.location === locationFilter || exp.location === 'both';
+    return exp.location === locationFilter;
   });
 
-  const grouped = {
-    ixtapa_zihuatanejo: filtered.filter((e) => e.location === 'ixtapa_zihuatanejo' || e.location === 'both'),
-    acapulco: filtered.filter((e) => e.location === 'acapulco' || e.location === 'both')
-  };
+  const grouped = Object.fromEntries(
+    ALL_LOCATIONS.map(loc => [loc, filtered.filter(e => e.location === loc)])
+  );
 
   return (
     <div className="space-y-6">
@@ -179,6 +181,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
               <SelectItem value="all">All Locations</SelectItem>
               <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
               <SelectItem value="acapulco">Acapulco</SelectItem>
+              <SelectItem value="cancun">Cancún</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}} className="bg-purple-600 text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
@@ -299,9 +302,10 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
                 <Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="both">Both Locations</SelectItem>
+                    <SelectItem value="both">All Locations (creates one per location)</SelectItem>
                     <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
                     <SelectItem value="acapulco">Acapulco</SelectItem>
+                    <SelectItem value="cancun">Cancún</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
