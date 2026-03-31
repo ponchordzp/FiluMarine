@@ -84,6 +84,15 @@ export default function AffiliatesManagement({ locationFilter: externalLocationF
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['affiliates'] }),
   });
 
+  const [syncing, setSyncing] = useState(false);
+  const syncAllToIxtapa = async () => {
+    if (!window.confirm(`Set all ${affiliates.length} affiliates to Ixtapa-Zihuatanejo?`)) return;
+    setSyncing(true);
+    await Promise.all(affiliates.map(a => base44.entities.Affiliate.update(a.id, { ...a, location: 'ixtapa_zihuatanejo' })));
+    queryClient.invalidateQueries({ queryKey: ['affiliates'] });
+    setSyncing(false);
+  };
+
   const openCreate = () => {
     setEditing(null);
     setForm(emptyForm);
@@ -122,16 +131,21 @@ export default function AffiliatesManagement({ locationFilter: externalLocationF
           <h2 className="text-slate-200 text-2xl font-semibold">Affiliates</h2>
           <p className="text-slate-400 mt-1 text-sm">Restaurants, hotels, travel agencies and other partners that refer bookings</p>
         </div>
-        <Button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700">
-          <Plus className="h-4 w-4 mr-2" /> Add Affiliate
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={syncAllToIxtapa} disabled={syncing} variant="outline" className="text-teal-300 border-teal-500/40 hover:bg-teal-500/10 text-xs">
+            <MapPin className="h-3.5 w-3.5 mr-1.5" />{syncing ? 'Syncing...' : 'Sync All → Ixtapa-Zihuatanejo'}
+          </Button>
+          <Button onClick={openCreate} className="bg-teal-600 hover:bg-teal-700">
+            <Plus className="h-4 w-4 mr-2" /> Add Affiliate
+          </Button>
+        </div>
       </div>
 
       {/* Location filter */}
       <div className="flex gap-2 flex-wrap">
-        <button onClick={() => setFilterLocation('all')} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${ filterLocation === 'all' ? 'bg-teal-600 border-teal-500 text-white' : 'border-white/15 text-white/50 hover:text-white/80' }`}>All Locations</button>
+        <button onClick={() => setFilterLocation('all')} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${ effectiveFilterLocation === 'all' ? 'bg-teal-600 border-teal-500 text-white' : 'border-white/15 text-white/50 hover:text-white/80' }`}>All Locations</button>
         {[...new Set(affiliates.map(a => a.location).filter(Boolean))].sort().map(loc => (
-          <button key={loc} onClick={() => setFilterLocation(loc)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${ filterLocation === loc ? 'bg-teal-600 border-teal-500 text-white' : 'border-white/15 text-white/50 hover:text-white/80' }`}>
+          <button key={loc} onClick={() => setFilterLocation(loc)} className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${ effectiveFilterLocation === loc ? 'bg-teal-600 border-teal-500 text-white' : 'border-white/15 text-white/50 hover:text-white/80' }`}>
             {locationLabel(loc)}
           </button>
         ))}
@@ -202,6 +216,14 @@ export default function AffiliatesManagement({ locationFilter: externalLocationF
                     }`} style={{ width: `${completeness}%` }} />
                   </div>
                 </div>
+                {/* Location pill */}
+                {aff.location && (
+                  <div className="mb-1.5">
+                    <span className="inline-flex items-center gap-1 text-xs px-2.5 py-0.5 rounded-full" style={{ background: 'rgba(20,184,166,0.15)', border: '1px solid rgba(20,184,166,0.3)', color: '#5eead4' }}>
+                      <MapPin className="h-2.5 w-2.5" />{locationLabel(aff.location)}
+                    </span>
+                  </div>
+                )}
                 {/* Next steps */}
                 {actions.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1">
