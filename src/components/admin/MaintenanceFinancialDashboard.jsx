@@ -795,9 +795,13 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
   });
   const { data: operators = [] } = useQuery({
     queryKey: ['operators'],
-    queryFn: () => base44.entities.Operator.list('name'),
+    queryFn: async () => {
+      const ops = await base44.entities.Operator.list('name');
+      console.log('Fetched operators with commission data:', ops.map(o => ({ name: o.name, commission_pct: o.commission_pct })));
+      return ops;
+    },
     staleTime: 0,  // Always fresh — no cache
-    refetchInterval: 1000,  // Poll every second for live updates
+    refetchInterval: 2000,  // Poll every 2 seconds for live updates
   });
 
   const filteredBoats = boats.filter(boat => {
