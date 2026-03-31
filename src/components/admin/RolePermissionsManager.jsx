@@ -205,8 +205,8 @@ function RoleRow({ roleKey, roleLabel, icon: IconComponent, iconColor, colorClas
                         {tab.label}
                       </button>
                     );
-                  })}
-                </div>
+                    })}
+                    </div>
               </div>
             );
           })}
