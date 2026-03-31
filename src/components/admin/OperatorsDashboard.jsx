@@ -370,7 +370,10 @@ export default function OperatorsDashboard() {
 
   const openEdit = (op) => {
     setEditingOp(op);
-    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', commission_pct: op.commission_pct || 0, color: op.color || '#1e88e5', bank_name: op.bank_name || '', bank_account_clabe: op.bank_account_clabe || '', bank_account_number: op.bank_account_number || '', bank_account_holder: op.bank_account_holder || '', bank_notes: op.bank_notes || '', locations: op.locations || [] });
+    // Restore from vault to ensure protected fields aren't lost
+    const protected_ = loadProtectedData();
+    const vaultData = protected_[(op.name || '').toUpperCase()] || {};
+    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || vaultData.contact_name || '', contact_email: op.contact_email || vaultData.contact_email || '', contact_phone: op.contact_phone || vaultData.contact_phone || '', paypal_username: op.paypal_username || vaultData.paypal_username || '', commission_pct: op.commission_pct ?? vaultData.commission_pct ?? 0, color: op.color || vaultData.color || '#1e88e5', bank_name: op.bank_name || vaultData.bank_name || '', bank_account_clabe: op.bank_account_clabe || vaultData.bank_account_clabe || '', bank_account_number: op.bank_account_number || vaultData.bank_account_number || '', bank_account_holder: op.bank_account_holder || vaultData.bank_account_holder || '', bank_notes: op.bank_notes || vaultData.bank_notes || '', locations: op.locations || vaultData.locations || [] });
     setDialogOpen(true);
   };
 
