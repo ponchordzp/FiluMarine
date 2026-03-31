@@ -35,6 +35,25 @@ const expeditionTypes = [
 
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
+const EXPEDITION_VAULT_KEY = 'filu_expedition_pricing_vault';
+
+function saveExpeditionVault(boatId, expeditionPricing, pickupDepartures) {
+  try {
+    const raw = localStorage.getItem(EXPEDITION_VAULT_KEY);
+    const vault = raw ? JSON.parse(raw) : {};
+    vault[boatId] = { expedition_pricing: expeditionPricing, pickup_departures: pickupDepartures, saved_at: Date.now() };
+    localStorage.setItem(EXPEDITION_VAULT_KEY, JSON.stringify(vault));
+  } catch {}
+}
+
+function loadExpeditionVault(boatId) {
+  try {
+    const raw = localStorage.getItem(EXPEDITION_VAULT_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw)[boatId] || null;
+  } catch { return null; }
+}
+
 function loadOperatorNames() {
   try {
     const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
@@ -362,16 +381,24 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       custom_equipment_visibility: normalizedCustomVisibility
     });
     setImagePreview(boat.image || '');
+    // Restore expedition pricing from protected vault if DB data is missing/empty
+    const vaultData = loadExpeditionVault(boat.id);
+    const sourceExpPricing = (boat.expedition_pricing && boat.expedition_pricing.length > 0)
+      ? boat.expedition_pricing
+      : (vaultData?.expedition_pricing || []);
+    const sourcePDeps = vaultData?.pickup_departures || {};
     // Populate expeditionPickupDepartures from saved data so edits don't lose existing entries
     const pickupDeps = {};
-    (boat.expedition_pricing || []).forEach((p, idx) => {
+    sourceExpPricing.forEach((p, idx) => {
       if (p.pickup_departures && p.pickup_departures.length > 0) {
         pickupDeps[p.expedition_type] = p.pickup_departures;
+      } else if (sourcePDeps[p.expedition_type]) {
+        pickupDeps[p.expedition_type] = sourcePDeps[p.expedition_type];
       } else if (p.pickup_location || p.departure_time) {
-        // Migrate legacy single-entry to array format
         pickupDeps[p.expedition_type] = [{ id: Date.now() + idx, pickup_location: p.pickup_location || '', departure_time: p.departure_time || '' }];
       }
     });
+    setFormData(prev => ({ ...prev, expedition_pricing: sourceExpPricing }));
     setExpeditionPickupDepartures(pickupDeps);
     setDialogOpen(true);
   };
@@ -420,6 +447,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       // No new entries: preserve existing data untouched
       return p;
     });
+    // Save to protected vault BEFORE upload so data is never lost
+    const boatId = editingBoat?.id;
+    if (boatId) saveExpeditionVault(boatId, finalData.expedition_pricing, expeditionPickupDepartures);
     setUploading(true);
     if (imageFile) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });

@@ -1,5 +1,7 @@
 import React from 'react';
-import { Clock, Users, Fish, Waves, Sun, Camera, Anchor, Wifi, Video, Zap, Droplet, Navigation } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { Clock, Users, Fish, Waves, Sun, Camera, Anchor, Wifi, Video, Zap, Droplet, Navigation, Lock } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
@@ -110,6 +112,46 @@ const equipmentIcons = {
 };
 
 export default function ExperienceCards({ onSelectExperience, selectedBoat, location }) {
+  const { data: dbBoats = [] } = useQuery({
+    queryKey: ['boats-for-exp', location],
+    queryFn: () => base44.entities.BoatInventory.list('-created_date'),
+    enabled: !selectedBoat,
+  });
+
+  // For generic view: get active boats for this location that have each expedition
+  const activeBoats = dbBoats.filter(b =>
+    (!location || b.location === location) &&
+    b.status === 'active' &&
+    b.boat_mode !== 'maintenance_only'
+  );
+
+  // Returns { boatNames, duration, price, departureTimes, pickupLocations } for an expedition type
+  const getExpDataFromDB = (expId) => {
+    const boatsWithExp = activeBoats.filter(b => (b.available_expeditions || []).includes(expId));
+    const boatNames = boatsWithExp.map(b => b.name);
+    // Gather pricing from all boats — use first valid entry per field
+    let duration = null, price = null;
+    const allDepartureTimes = [];
+    const allPickupLocations = [];
+    boatsWithExp.forEach(b => {
+      const p = (b.expedition_pricing || []).find(ep => ep.expedition_type === expId);
+      if (!p) return;
+      if (!duration && p.duration_hours) duration = p.duration_hours;
+      if (!price && p.price_mxn > 0) price = p.price_mxn;
+      // Collect departure times from pickup_departures array or legacy single field
+      if (p.pickup_departures && p.pickup_departures.length > 0) {
+        p.pickup_departures.forEach(d => {
+          if (d.departure_time && !allDepartureTimes.includes(d.departure_time)) allDepartureTimes.push(d.departure_time);
+          if (d.pickup_location && !allPickupLocations.includes(d.pickup_location)) allPickupLocations.push(d.pickup_location);
+        });
+      } else {
+        if (p.departure_time && !allDepartureTimes.includes(p.departure_time)) allDepartureTimes.push(p.departure_time);
+        if (p.pickup_location && !allPickupLocations.includes(p.pickup_location)) allPickupLocations.push(p.pickup_location);
+      }
+    });
+    return { boatNames, duration, price, departureTimes: allDepartureTimes, pickupLocations: allPickupLocations };
+  };
+
   // If boat is selected, only show experiences configured for that boat
   if (selectedBoat?.available_expeditions && selectedBoat?.expedition_pricing) {
     const boatExperiences = selectedBoat.available_expeditions.map(expType => {
@@ -214,10 +256,37 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     );
   }
 
-  // Otherwise show default experiences
+  // Generic view — augment each experience with live DB data
   const filteredRegular = regularExperiences;
   const filteredFullDay = fullDayExperiences;
   const showExtended = true;
+
+  // Helper to render live boat + pricing info under each card
+  const renderExpMeta = (expId) => {
+    const { boatNames, duration, price, departureTimes, pickupLocations } = getExpDataFromDB(expId);
+    const hasDBData = boatNames.length > 0;
+    return (
+      <div className="mt-2 space-y-1">
+        {hasDBData && (
+          <div className="flex items-start gap-1.5 text-xs text-white/60">
+            <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0 text-cyan-400" />
+            <span>{boatNames.join(', ')}</span>
+          </div>
+        )}
+        {(duration || price || departureTimes.length > 0) && (
+          <div className="flex items-center gap-1 text-xs text-cyan-300/80">
+            <Lock className="h-2.5 w-2.5 flex-shrink-0" />
+            {duration && <span>{duration}h</span>}
+            {price > 0 && <span className="font-semibold ml-1">${price.toLocaleString()} MXN</span>}
+            {departureTimes.length > 0 && <span className="ml-1 text-white/50">{departureTimes.join(', ')}</span>}
+          </div>
+        )}
+        {pickupLocations.length > 0 && (
+          <p className="text-xs text-white/40 pl-4">{pickupLocations.join(', ')}</p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <section className="relative py-8 md:py-12 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/c6ed2e8cf_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#081830' }}>
@@ -286,18 +355,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                     <Users className="h-4 w-4" />
                     <span>{exp.idealFor}</span>
                   </div>
-                  {!selectedBoat && location && (
-                    <div className="flex items-start gap-2 text-xs text-white/60">
-                      <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                      <div className="flex flex-wrap gap-1.5">
-                        {getAvailableBoatsForLocation(exp.availableBoats, location).split(', ').map((boat, idx) => (
-                          <span key={idx} className="bg-white/10 px-2 py-0.5 rounded-md border border-white/20">
-                            {boat}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  {renderExpMeta(exp.id)}
                 </div>
 
                 <Button 
@@ -366,18 +424,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                       <span>Target: {exp.targetSpecies.join(', ')}</span>
                     </div>
                   )}
-                  {!selectedBoat && location && (
-                    <div className="flex items-start gap-2 text-xs text-white/60">
-                      <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                      <div className="flex flex-wrap gap-1.5">
-                        {getAvailableBoatsForLocation(exp.availableBoats, location).split(', ').map((boat, idx) => (
-                          <span key={idx} className="bg-white/10 px-2 py-0.5 rounded-md border border-white/20">
-                            {boat}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  {renderExpMeta(exp.id)}
                 </div>
 
                 <Button 
@@ -443,18 +490,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                     <span>Target: {extendedExperience.targetSpecies.join(', ')}</span>
                   </div>
                 )}
-                {!selectedBoat && location && (
-                  <div className="flex items-start gap-2 text-xs text-white/60">
-                    <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                    <div className="flex flex-wrap gap-1.5">
-                      {getAvailableBoatsForLocation(extendedExperience.availableBoats, location).split(', ').map((boat, idx) => (
-                        <span key={idx} className="bg-white/10 px-2 py-0.5 rounded-md border border-white/20">
-                          {boat}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {renderExpMeta(extendedExperience.id)}
               </div>
 
               <Button 
