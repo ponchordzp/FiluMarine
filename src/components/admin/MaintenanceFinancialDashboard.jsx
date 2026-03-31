@@ -759,10 +759,14 @@ function getOperatorCommission(boatName, allBoats, operatorsFromDB = []) {
       op = operatorsFromDB.find(o => (o.name || '').toLowerCase().trim() === 'filu');
     }
     
-    const commission = parseFloat(op?.commission_pct || 0);
+    // CRITICAL: Ensure commission_pct is always a valid number, never undefined
+    const commission = op?.commission_pct !== undefined && op?.commission_pct !== null
+      ? parseFloat(op.commission_pct)
+      : 0;
+    
     return commission;
   } catch (e) {
-    console.error('Error calculating commission:', e);
+    console.error('Error calculating commission for boat', boatName, ':', e);
     return 0;
   }
 }
@@ -792,7 +796,8 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
   const { data: operators = [] } = useQuery({
     queryKey: ['operators'],
     queryFn: () => base44.entities.Operator.list('name'),
-    staleTime: 2000,
+    staleTime: 0,  // Always fresh — no cache
+    refetchInterval: 1000,  // Poll every second for live updates
   });
 
   const filteredBoats = boats.filter(boat => {

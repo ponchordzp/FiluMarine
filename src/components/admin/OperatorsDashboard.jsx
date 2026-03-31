@@ -396,27 +396,30 @@ export default function OperatorsDashboard() {
   const handleSave = async () => {
     if (!form.name.trim()) return;
     try {
-      // CRITICAL: Preserve commission_pct on every save — merge with existing operator data
-      const dataToSave = { ...form };
-      if (editingOp) {
-        // When editing: merge form with existing to preserve commission_pct if locked
-        const existingCommissionPct = editingOp.commission_pct ?? form.commission_pct;
-        dataToSave.commission_pct = form.commission_pct ?? existingCommissionPct;
-        dataToSave.commission_pct_locked = form.commission_pct_locked ?? editingOp.commission_pct_locked;
-      } else {
-        // New operator: ensure commission_pct is set
-        dataToSave.commission_pct = form.commission_pct || 0;
-        dataToSave.commission_pct_locked = form.commission_pct_locked || false;
-      }
+      // BULLETPROOF: commission_pct MUST ALWAYS be sent and preserved
+      // Ensure commission_pct is always a valid number, never undefined or null
+      const commissionPct = form.commission_pct !== undefined && form.commission_pct !== null 
+        ? parseFloat(form.commission_pct) 
+        : (editingOp?.commission_pct ?? 0);
       
-      // Always save protected fields to vault first
+      const locked = form.commission_pct_locked ?? editingOp?.commission_pct_locked ?? false;
+      
+      const dataToSave = {
+        ...form,
+        commission_pct: commissionPct,  // EXPLICIT: Always include this field
+        commission_pct_locked: locked,  // EXPLICIT: Always include this field
+      };
+      
+      // Save to vault first (protected storage)
       saveProtectedData([dataToSave]);
       
+      // Send to database with explicit commission fields
       if (editingOp) {
         await base44.entities.Operator.update(editingOp.id, dataToSave);
       } else {
         await base44.entities.Operator.create(dataToSave);
       }
+      
       queryClient.invalidateQueries({ queryKey: ['operators'] });
       syncPaypalToBoats(form.name, form.paypal_username);
       setDialogOpen(false);
