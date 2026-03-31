@@ -14,6 +14,7 @@ import { Plus, Pencil, Trash2, MapPin, Ship } from 'lucide-react';
 const LOCATIONS = [
   { value: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' },
   { value: 'acapulco', label: 'Acapulco' },
+  { value: 'cancun', label: 'Cancún' },
 ];
 
 const emptyForm = { name: '', address: '', location: 'ixtapa_zihuatanejo', applicable_boats: [], notes: '', visible: true, sort_order: 0 };
@@ -38,9 +39,17 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
   // Sync with global filter from admin panel
   const effectiveLocationFilter = externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : locationFilter;
 
-  // If user is not superadmin and has an assigned operator, only show their location
+  // Get user's operator location if they're restricted
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
-  const userLocation = isUserRestricted ? currentUser.location : null;
+  const userLocation = isUserRestricted ? (() => {
+    // Find boat location for this user's operator
+    const userBoats = boats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
+    if (userBoats.length > 0) {
+      const uniqueLocs = [...new Set(userBoats.map(b => b.location))];
+      return uniqueLocs.length === 1 ? uniqueLocs[0] : null;
+    }
+    return null;
+  })() : null;
 
   const { data: pickupLocations = [] } = useQuery({
     queryKey: ['pickup-locations'],
@@ -105,8 +114,10 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
     if (isUserRestricted && userLocation && p.location !== userLocation) {
       return false;
     }
-    if (effectiveLocationFilter === 'all') return true;
-    return p.location === effectiveLocationFilter;
+    if (effectiveLocationFilter && effectiveLocationFilter !== 'all') {
+      return p.location === effectiveLocationFilter;
+    }
+    return true;
   });
 
   return (
@@ -115,6 +126,7 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
         <div>
           <h2 className="text-xl font-bold text-white mb-1">Pickup Locations</h2>
           <p className="text-sm text-white/50">Manage pickup points shown to guests during booking. Assign boats to control which boats offer each location.</p>
+          {isUserRestricted && userLocation && <p className="text-xs text-cyan-300 mt-1">Restricted to: <strong>{LOCATIONS.find(l => l.value === userLocation)?.label}</strong></p>}
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>

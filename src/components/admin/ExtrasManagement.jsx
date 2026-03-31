@@ -45,8 +45,17 @@ export default function ExtrasManagement({ allBoats = [] }) {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
 
-  // If user is not superadmin and has an assigned operator, only show extras for their boats
+  // Get user's operator and location if they're restricted
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
+  const userOperatorLocation = isUserRestricted ? (() => {
+    // Determine location from boats belonging to user's operator
+    const userBoats = boats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
+    if (userBoats.length > 0) {
+      const uniqueLocs = [...new Set(userBoats.map(b => b.location))];
+      return uniqueLocs.length === 1 ? uniqueLocs[0] : null;
+    }
+    return null;
+  })() : null;
 
   const { data: extras = [] } = useQuery({
     queryKey: ['extras'],
@@ -114,15 +123,19 @@ export default function ExtrasManagement({ allBoats = [] }) {
   };
 
   // Filter boats based on operator restriction
-  const filteredBoats = isUserRestricted && currentUser?.assigned_boat
+  // If restricted to an operator's location, show all boats for that location
+  // Otherwise filter to assigned boat if crew, else show all
+  const filteredBoats = isUserRestricted && userOperatorLocation
+    ? boats.filter(b => b.location === userOperatorLocation && b.status !== 'inactive')
+    : isUserRestricted && currentUser?.assigned_boat
     ? boats.filter(b => b.name === currentUser.assigned_boat)
     : boats;
   const boatNames = filteredBoats.filter(b => b.status !== 'inactive').map(b => b.name);
 
   // Filter extras: if restricted, only show extras applicable to their boats
-  const filteredExtras = isUserRestricted && boatNames.length > 0
+  const filteredExtras = boatNames.length > 0
     ? extras.filter(e => !e.applicable_boats || e.applicable_boats.length === 0 || e.applicable_boats.some(boat => boatNames.includes(boat)))
-    : extras;
+    : (isUserRestricted ? [] : extras);
 
   return (
     <div>
@@ -130,6 +143,7 @@ export default function ExtrasManagement({ allBoats = [] }) {
         <div>
           <h2 className="text-xl font-bold text-white mb-1">Extras</h2>
           <p className="text-sm text-white/50">Manage optional add-ons available to guests per boat and trip type.</p>
+          {isUserRestricted && userOperatorLocation && <p className="text-xs text-cyan-300 mt-1">Restricted to operator location and boats</p>}
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>

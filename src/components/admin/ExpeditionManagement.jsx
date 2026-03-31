@@ -81,9 +81,22 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
   // Use external filter if provided (from parent global filter), else local
   const locationFilter = externalLocationFilter || localLocationFilter;
 
-  // If user is not superadmin and has an assigned operator, only show their locations
+  // Get user's operator location if they're operator_admin, charter_operator, or admin/crew with operator
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
-  const userLocation = isUserRestricted ? currentUser.location : null;
+  const userLocation = isUserRestricted ? (() => {
+    // Find boat location for this user's operator
+    const userBoats = allBoats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
+    if (userBoats.length > 0) {
+      const uniqueLocs = [...new Set(userBoats.map(b => b.location))];
+      return uniqueLocs.length === 1 ? uniqueLocs[0] : null;
+    }
+    return null;
+  })() : null;
+
+  const { data: allBoats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
 
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
@@ -182,6 +195,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
 
   // Each location group shows its own records + any 'both' records
   // If user is restricted, only show their assigned location
+  // Show all locations for superadmin/operator_admin, only user's location for restricted roles
   const displayLocations = isUserRestricted && userLocation ? [userLocation] : ALL_LOCATIONS;
   const grouped = Object.fromEntries(
     displayLocations.map(loc => [loc, filtered.filter(e => e.location === loc || e.location === 'both')])
@@ -193,6 +207,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
         <div>
           <h2 className="text-slate-50 text-2xl font-semibold">Expedition Management</h2>
           {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
+          {isUserRestricted && userLocation && <p className="text-xs text-cyan-300 mt-0.5">Restricted to: <strong>{LOCATION_LABELS[userLocation]}</strong></p>}
         </div>
         <div className="flex items-center gap-3">
           {!isUserRestricted && (
