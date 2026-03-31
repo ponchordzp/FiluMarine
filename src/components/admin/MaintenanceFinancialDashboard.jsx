@@ -801,7 +801,9 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
     // Expenses (ex-fees) — ONLY sum from BookingExpense records
     const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.other_cost||0), 0);
-    // Fees — NEVER include FILU fee here; FILU fee is part of the above expenses, handled separately in booking creation
+    // Fees — The 'fees_cost' from BookingExpense records should NOT be included in 'expAmt' for the Expenses KPI.
+    // The FILU fee (or similar platform/operator fees) is handled separately in 'feesAmt' as a commission.
+    // To ensure 'Expenses' KPI excludes fees, we keep 'fees_cost' out of 'expAmt' sum.
     const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats) / 100, 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     const recurringCosts = boat.recurring_costs || [];
