@@ -164,6 +164,13 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
   };
 
+  // Merge includes: DB expedition record wins, fall back to static
+  const getIncludes = (expId, staticIncludes) => {
+    const dbExp = dbExpeditions.find(e => e.expedition_id === expId);
+    if (dbExp?.includes && dbExp.includes.length > 0) return dbExp.includes;
+    return staticIncludes || [];
+  };
+
   // Returns { boatNames, duration, price, departureTimes, pickupLocations } for an expedition type
   const getExpDataFromDB = (expId) => {
     const boatsWithExp = activeBoats.filter(b => (b.available_expeditions || []).includes(expId));
@@ -316,13 +323,6 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     : totalGeneric === 2 || totalGeneric === 4
     ? 'grid-cols-1 sm:grid-cols-2'
     : 'grid-cols-1 md:grid-cols-3';
-
-  // Merge includes: DB expedition record wins, fall back to static
-  const getIncludes = (expId, staticIncludes) => {
-    const dbExp = dbExpeditions.find(e => e.expedition_id === expId);
-    if (dbExp?.includes && dbExp.includes.length > 0) return dbExp.includes;
-    return staticIncludes || [];
-  };
 
   // Render live boat names from DB
   const renderExpMeta = (expId) => {
