@@ -469,10 +469,13 @@ function AdminBookingsInner() {
     );
   }
 
+  const isCharterOperator = currentUser?.role === 'charter_operator';
   const roleBadge = isSuperAdmin
     ? { label: 'Super Admin', cls: 'bg-purple-500' }
     : isOperatorAdmin
     ? { label: 'Operator Admin', cls: 'bg-orange-500' }
+    : isCharterOperator
+    ? { label: 'Charter Operator', cls: 'bg-cyan-500' }
     : isAdmin
     ? { label: 'Admin', cls: 'bg-blue-500' }
     : { label: 'Crew', cls: 'bg-emerald-500' };
