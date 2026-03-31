@@ -140,11 +140,13 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     b.boat_mode !== 'maintenance_only'
   );
 
-  // Helper: get ALL departure times from pickup_departures (authoritative) or legacy field
+  // Helper: get ALL unique departure times from pickup_departures (authoritative) or legacy field
   const getDepartureTimes = (p) => {
     if (!p) return [];
-    if (p.pickup_departures && p.pickup_departures.length > 0)
-      return p.pickup_departures.map(d => d.departure_time).filter(Boolean);
+    if (p.pickup_departures && p.pickup_departures.length > 0) {
+      const times = [...new Set(p.pickup_departures.map(d => d.departure_time).filter(Boolean))];
+      if (times.length > 0) return times;
+    }
     if (p.departure_time) return [p.departure_time];
     return [];
   };
@@ -324,15 +326,26 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     ? 'grid-cols-1 sm:grid-cols-2'
     : 'grid-cols-1 md:grid-cols-3';
 
-  // Render live boat names from DB
+  // Render live boat names + departure times from DB
   const renderExpMeta = (expId) => {
-    const { boatNames } = getExpDataFromDB(expId);
-    return boatNames.length > 0 ? (
-      <div className="flex items-center gap-1.5 text-xs text-white/60">
-        <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
-        <span>{boatNames.join(', ')}</span>
+    const { boatNames, departureTimes } = getExpDataFromDB(expId);
+    if (boatNames.length === 0 && departureTimes.length === 0) return null;
+    return (
+      <div className="flex flex-col gap-1">
+        {boatNames.length > 0 && (
+          <div className="flex items-center gap-1.5 text-xs text-white/60">
+            <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
+            <span>{boatNames.join(', ')}</span>
+          </div>
+        )}
+        {departureTimes.length > 0 && (
+          <div className="flex items-start gap-1.5 text-xs text-cyan-300">
+            <Clock className="h-3 w-3 flex-shrink-0 mt-0.5" />
+            <span>{departureTimes.join(' · ')}</span>
+          </div>
+        )}
       </div>
-    ) : null;
+    );
   };
 
   return (
