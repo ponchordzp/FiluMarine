@@ -33,7 +33,7 @@ const TAB_GROUPS = ['Reservations', 'Fleet', 'Locations', 'Management'];
 const DEFAULT_PERMISSIONS = {
   superadmin: ALL_TABS.map((t) => t.value),
   operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
-  charter_operator: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
+  charter_operator: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users', 'customers'],
   admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'engine-databases'],
   crew: ['bookings', 'booked-dates', 'dashboard', 'boats', 'engine-databases']
 };
@@ -45,6 +45,8 @@ const DEFAULT_OPERATOR_FILTER_ACCESS = {
   admin: false,
   crew: false,
 };
+
+export const DEFAULT_PERMISSIONS_EXPORT = DEFAULT_PERMISSIONS;
 
 export function loadOperatorFilterAccess() {
   try {

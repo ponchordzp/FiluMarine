@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { loadOperatorFilterAccess } from '@/components/admin/RolePermissionsManager';
+import { loadOperatorFilterAccess, DEFAULT_PERMISSIONS_EXPORT } from '@/components/admin/RolePermissionsManager';
 
 const PERMISSIONS_KEY = 'filu_role_permissions';
 
@@ -11,14 +11,8 @@ function loadPermissions() {
     const raw = localStorage.getItem(PERMISSIONS_KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
-  // Return exact DEFAULT_PERMISSIONS from RolePermissionsManager
-  return {
-    superadmin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'checklist-template', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'operators', 'join-applications', 'users', 'customers', 'affiliates'],
-    operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
-    charter_operator: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users', 'customers'],
-    admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'engine-databases'],
-    crew: ['bookings', 'booked-dates', 'dashboard', 'boats', 'engine-databases']
-  };
+  // Use DEFAULT_PERMISSIONS from RolePermissionsManager
+  return { ...DEFAULT_PERMISSIONS_EXPORT };
 }
 import {
   CalendarDays, CalendarRange, Ban, BarChart2,
