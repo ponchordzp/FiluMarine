@@ -132,7 +132,8 @@ const destinationsByLocation = {
 };
 
 export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
-  const destinations = destinationsByLocation[location] || destinationsByLocation.ixtapa_zihuatanejo;
+  const key = (location || '').toLowerCase();
+  const destinations = destinationsByLocation[key] || destinationsByLocation[location] || [];
 
   return (
     <section className="relative py-6 md:py-10 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#050f1e' }}>
