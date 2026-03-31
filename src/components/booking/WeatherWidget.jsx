@@ -20,15 +20,32 @@ const weatherIcons = {
   'Haze': '🌫️',
 };
 
-export default function WeatherWidget({ locationId }) {
+export default function WeatherWidget({ locationId, coordinates }) {
   const [weather, setWeather] = useState(null);
 
   useEffect(() => {
-    if (!locationId || !LOCATION_COORDS[locationId]) return;
-    const { lat, lon, city } = LOCATION_COORDS[locationId];
+    let lat, lon, city = 'Location';
+
+    // If coordinates string is provided (e.g., "17.6617°N, 101.5528°W")
+    if (coordinates) {
+      const match = coordinates.match(/(\d+\.\d+)[°]?([NS])?,?\s*(\d+\.\d+)[°]?([EW])?/);
+      if (match) {
+        lat = parseFloat(match[1]) * (match[2] === 'S' ? -1 : 1);
+        lon = parseFloat(match[3]) * (match[4] === 'W' ? -1 : 1);
+      } else {
+        return;
+      }
+    } else if (locationId && LOCATION_COORDS[locationId]) {
+      const loc = LOCATION_COORDS[locationId];
+      lat = loc.lat;
+      lon = loc.lon;
+      city = loc.city;
+    } else {
+      return;
+    }
 
     base44.integrations.Core.InvokeLLM({
-      prompt: `Get the current real-time weather for ${city}, Mexico (lat ${lat}, lon ${lon}). Return ONLY a JSON with: temp_c (number, current temperature in Celsius), condition (string, one word: Clear/Sunny/Clouds/Rain/Drizzle/Thunderstorm/Mist/Fog/Haze), description (short phrase like "Partly cloudy"). Use real weather data from your knowledge of typical conditions or internet context.`,
+      prompt: `Get the current real-time weather at coordinates (lat ${lat.toFixed(4)}, lon ${lon.toFixed(4)}). Return ONLY a JSON with: temp_c (number, current temperature in Celsius), condition (string, one word: Clear/Sunny/Clouds/Rain/Drizzle/Thunderstorm/Mist/Fog/Haze), description (short phrase like "Partly cloudy"). Use real weather data.`,
       add_context_from_internet: true,
       response_json_schema: {
         type: 'object',
@@ -39,23 +56,35 @@ export default function WeatherWidget({ locationId }) {
         },
       },
     }).then((result) => {
-      if (result?.temp_c !== undefined) {
+      if (result?.data?.temp_c !== undefined) {
+        setWeather(result.data);
+      } else if (result?.temp_c !== undefined) {
         setWeather(result);
       }
     }).catch(() => {});
-  }, [locationId]);
+  }, [locationId, coordinates]);
 
-  if (!weather) return null;
+  if (!weather) {
+    return (
+      <div className="flex items-center justify-center h-full text-white/40 text-xs">
+        <p>Loading weather...</p>
+      </div>
+    );
+  }
 
   const tempF = Math.round(weather.temp_c * 9 / 5 + 32);
   const icon = weatherIcons[weather.condition] || '🌤️';
 
   return (
-    <div className="flex items-center gap-1.5 text-xs text-cyan-300/80 font-mono mt-1">
-      <span>{icon}</span>
-      <span>{weather.description}</span>
-      <span className="text-white/60">·</span>
-      <span className="text-white/80">{Math.round(weather.temp_c)}°C / {tempF}°F</span>
+    <div className="p-4 h-full flex flex-col justify-center space-y-2">
+      <h4 className="text-sm font-semibold text-blue-300">Weather</h4>
+      <div className="flex items-center gap-2">
+        <span className="text-3xl">{icon}</span>
+        <div className="flex-1">
+          <p className="text-white font-medium text-sm">{weather.description}</p>
+          <p className="text-white/70 text-xs">{Math.round(weather.temp_c)}°C / {tempF}°F</p>
+        </div>
+      </div>
     </div>
   );
 }
