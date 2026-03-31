@@ -334,6 +334,8 @@ function AdminBookingsInner() {
   };
 
   const financialFilteredBookings = visibleBookings.filter(b => {
+    // Only include COMPLETED bookings in financial KPIs — these are trips that actually happened
+    if (b.status !== 'completed') return false;
     if (financialBoatFilter !== 'all' && b.boat_name !== financialBoatFilter) return false;
     if (financialTimeFilter !== 'all') {
       const range = getTimeRange(financialTimeFilter, customDateRangeFinancial);
@@ -399,7 +401,7 @@ function AdminBookingsInner() {
   };
 
   const stats = {
-    // Booking KPIs
+    // Booking KPIs (all statuses)
     total: visibleBookings.length,
     pending: visibleBookings.filter(b => b.status === 'pending').length,
     confirmed: visibleBookings.filter(b => b.status === 'confirmed').length,
@@ -412,25 +414,22 @@ function AdminBookingsInner() {
     })(),
     avgGuestSize: visibleBookings.length > 0 ? Math.round(visibleBookings.reduce((sum, b) => sum + (b.guests || 0), 0) / visibleBookings.length) : 0,
     confirmationRate: visibleBookings.length > 0 ? Math.round((visibleBookings.filter(b => b.status !== 'pending').length / visibleBookings.length) * 100) : 0,
-    // Financial KPIs (filtered)
-    revenue: financialFilteredBookings.filter(b => b.status !== 'cancelled').reduce((sum, b) => sum + (b.total_price || 0), 0),
+    // Financial KPIs (completed bookings only)
+    revenue: financialFilteredBookings.reduce((sum, b) => sum + (b.total_price || 0), 0),
     totalExpenses: financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0),
     fees: (() => {
-      const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
-      return activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+      return financialFilteredBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
     })(),
     netProfit: (() => {
-      const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
-      const rev = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+      const rev = financialFilteredBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
       const exp = financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
-      const commission = activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+      const commission = financialFilteredBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
       return rev - exp - commission;
     })(),
     roi: (() => {
-      const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
-      const rev = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+      const rev = financialFilteredBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
       const exp = financialExpenses.reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
-      const commission = activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+      const commission = financialFilteredBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
       const profit = rev - exp - commission;
       return rev > 0 ? Math.min(100, Math.round((profit / rev) * 100)) : 0;
     })(),
