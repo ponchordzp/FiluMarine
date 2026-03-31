@@ -182,6 +182,7 @@ export default function DestinationManagement({ operatorFilter = 'all', location
                     <SelectContent>
                       <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
                       <SelectItem value="acapulco">Acapulco</SelectItem>
+                      <SelectItem value="cancun">Cancún</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
