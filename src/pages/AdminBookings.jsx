@@ -194,11 +194,18 @@ function AdminBookingsInner() {
     ? allBoats.filter(b => (b.operator || '').toLowerCase() === effectiveOperatorFilter.toLowerCase()).map(b => b.name)
     : isSuperAdmin ? null : null;
 
-  const visibleBookings = (isSuperAdmin || isOperatorAdmin)
-    ? (filteredOperatorBoats !== null ? bookings.filter(b => filteredOperatorBoats.includes(b.boat_name)) : bookings)
-    : filteredOperatorBoats !== null
-    ? bookings.filter(b => filteredOperatorBoats.includes(b.boat_name))
-    : bookings.filter(b => b.boat_name === assignedBoat);
+  const visibleBookings = (() => {
+    let result = (isSuperAdmin || isOperatorAdmin)
+      ? (filteredOperatorBoats !== null ? bookings.filter(b => filteredOperatorBoats.includes(b.boat_name)) : bookings)
+      : filteredOperatorBoats !== null
+      ? bookings.filter(b => filteredOperatorBoats.includes(b.boat_name))
+      : bookings.filter(b => b.boat_name === assignedBoat);
+    // Apply global location filter across ALL tabs
+    if (globalLocationFilter && globalLocationFilter !== 'all') {
+      result = result.filter(b => b.location === globalLocationFilter);
+    }
+    return result;
+  })();
 
   const visibleBlocked = (isSuperAdmin || isOperatorAdmin)
     ? (filteredOperatorBoats !== null ? blockedDates.filter(b => b.boat_name === 'both' || filteredOperatorBoats.includes(b.boat_name)) : blockedDates)

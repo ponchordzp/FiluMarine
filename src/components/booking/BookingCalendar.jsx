@@ -64,20 +64,18 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const [existingBookings, setExistingBookings] = useState([]);
 
   // Derive time slots from the selected boat's vessel-editor expedition_pricing
-  // pickup_departures is authoritative; departure_time is legacy fallback
   const getAvailableSlotsForBoat = (boatId) => {
     const boat = activeBoats.find(b => b.id === boatId);
     if (boat?.expedition_pricing) {
       const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
       if (pricing) {
-        // pickup_departures is the authoritative source — may have multiple entries
+        // pickup_departures is authoritative — deduplicate departure times
         if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
           const times = [...new Set(
             pricing.pickup_departures.map(d => d.departure_time).filter(Boolean)
           )];
           if (times.length > 0) return times.map(t => ({ time: t, label: 'Departure' }));
         }
-        // Legacy single departure_time fallback
         if (pricing.departure_time) {
           return [{ time: pricing.departure_time, label: 'Departure' }];
         }
@@ -85,6 +83,12 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     }
     return fallbackTimeSlots[experience.id] || [];
   };
+
+  // Get booked time slots on a specific date for the selected boat
+  const getBookedTimesForDate = (boatName, dateStr) =>
+    existingBookings
+      .filter(b => b.date === dateStr && b.boat_name === boatName && b.status !== 'cancelled')
+      .map(b => b.time_slot);
 
   const availableSlots = getAvailableSlotsForBoat(selectedBoat);
   const today = startOfDay(new Date());
@@ -214,32 +218,22 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 selected={selectedDate}
                 onSelect={handleDateSelect}
                   disabled={(date) => {
-                    // Only allow dates from tomorrow onwards
                     if (isBefore(date, minDate)) return true;
-                    
-                    // Must select a boat first to check availability
                     if (!selectedBoat) return true;
-                    
                     const dateStr = format(date, 'yyyy-MM-dd');
                     const currentBoat = boats.find(b => b.id === selectedBoat);
-                    
-                    // Check if this exact date is blocked for the selected boat
+                    // Blocked by admin
                     const isBlockedForBoat = blockedDates.some(blocked => {
                       if (blocked.date !== dateStr) return false;
                       const blockBoatName = blocked.boat_name || 'both';
                       return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
                     });
-                    
                     if (isBlockedForBoat) return true;
-                    
-                    // Check if the selected boat is already booked on this exact date only
-                    const isBoatBooked = existingBookings.some(
-                      booking => booking.date === dateStr && 
-                                 booking.boat_name === currentBoat.name && 
-                                 booking.status !== 'cancelled'
-                    );
-                    
-                    return isBoatBooked;
+                    // Only disable if ALL available time slots are already booked
+                    const slots = getAvailableSlotsForBoat(selectedBoat);
+                    if (slots.length === 0) return false;
+                    const bookedTimes = getBookedTimesForDate(currentBoat?.name, dateStr);
+                    return slots.every(s => bookedTimes.includes(s.time));
                   }}
                   className="rounded-lg"
                   modifiers={{
@@ -248,22 +242,15 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                       if (!selectedBoat) return false;
                       const dateStr = format(date, 'yyyy-MM-dd');
                       const currentBoat = boats.find(b => b.id === selectedBoat);
-                      
-                      // Check blocked dates
                       const isBlocked = blockedDates.some(blocked => {
                         if (blocked.date !== dateStr) return false;
                         const blockBoatName = blocked.boat_name || 'both';
                         return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
                       });
-                      
-                      // Check booked dates
-                      const isBooked = existingBookings.some(
-                        booking => booking.date === dateStr && 
-                                   booking.boat_name === currentBoat.name && 
-                                   booking.status !== 'cancelled'
-                      );
-                      
-                      return isBlocked || isBooked;
+                      const slots = getAvailableSlotsForBoat(selectedBoat);
+                      const bookedTimes = getBookedTimesForDate(currentBoat?.name, dateStr);
+                      const allSlotsTaken = slots.length > 0 && slots.every(s => bookedTimes.includes(s.time));
+                      return isBlocked || allSlotsTaken;
                     },
                   }}
                   modifiersStyles={{
@@ -352,41 +339,45 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               {/* Time Slots */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20">
                 <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Time</h3>
-                {selectedDate ? (
-                  <div className="space-y-3">
-                    {availableSlots.map((slot) => (
-                      <button
-                        key={slot.time}
-                        onClick={() => setSelectedTime(slot.time)}
-                        className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
-                          selectedTime === slot.time
-                            ? 'border-cyan-400 bg-cyan-400/20'
-                            : 'border-white/20 hover:border-white/30 bg-white/5'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Clock className={`h-5 w-5 ${selectedTime === slot.time ? 'text-cyan-400' : 'text-white/60'}`} />
-                          <div className="text-left">
-                            <p className={`font-medium ${selectedTime === slot.time ? 'text-white' : 'text-white/80'}`}>
-                              {slot.time}
-                            </p>
-                            <p className="text-sm text-white/60">{slot.label}</p>
+                {selectedDate ? (() => {
+                  const dateStr = format(selectedDate, 'yyyy-MM-dd');
+                  const currentBoatObj = boats.find(b => b.id === selectedBoat);
+                  const bookedTimes = selectedBoat ? getBookedTimesForDate(currentBoatObj?.name, dateStr) : [];
+                  const openSlots = availableSlots.filter(s => !bookedTimes.includes(s.time));
+                  return openSlots.length > 0 ? (
+                    <div className="space-y-3">
+                      {openSlots.map((slot) => (
+                        <button
+                          key={slot.time}
+                          onClick={() => setSelectedTime(slot.time)}
+                          className={`w-full p-4 rounded-xl border-2 transition-all flex items-center justify-between ${
+                            selectedTime === slot.time
+                              ? 'border-cyan-400 bg-cyan-400/20'
+                              : 'border-white/20 hover:border-white/30 bg-white/5'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Clock className={`h-5 w-5 ${selectedTime === slot.time ? 'text-cyan-400' : 'text-white/60'}`} />
+                            <div className="text-left">
+                              <p className={`font-medium ${selectedTime === slot.time ? 'text-white' : 'text-white/80'}`}>{slot.time}</p>
+                              <p className="text-sm text-white/60">{slot.label}</p>
+                            </div>
                           </div>
-                        </div>
-                        {selectedTime === slot.time && (
-                          <div className="w-5 h-5 bg-cyan-400 rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-white/60 text-sm text-center py-8">
-                    Please select a date first
-                  </p>
+                          {selectedTime === slot.time && (
+                            <div className="w-5 h-5 bg-cyan-400 rounded-full flex items-center justify-center">
+                              <svg className="w-3 h-3 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-white/60 text-sm text-center py-8">No available time slots for this date</p>
+                  );
+                })() : (
+                  <p className="text-white/60 text-sm text-center py-8">Please select a date first</p>
                 )}
               </div>
 
@@ -399,18 +390,11 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     <span>Guests</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => setGuests(Math.max(1, guests - 1))}
-                      className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors text-white"
-                    >
+                    <button onClick={() => setGuests(Math.max(1, guests - 1))} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors text-white">
                       <Minus className="h-4 w-4" />
                     </button>
                     <span className="text-xl font-semibold w-8 text-center text-white">{guests}</span>
-                    <button
-                      onClick={() => setGuests(Math.min(maxGuests, guests + 1))}
-                      className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors text-white"
-                      disabled={!selectedBoat}
-                    >
+                    <button onClick={() => setGuests(Math.min(maxGuests, guests + 1))} className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors text-white" disabled={!selectedBoat}>
                       <Plus className="h-4 w-4" />
                     </button>
                   </div>

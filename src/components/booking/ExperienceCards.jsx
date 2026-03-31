@@ -190,19 +190,21 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       
       // Always use vessel-editor values — they are the authoritative locked source
       const lockIcon = '🔒 ';
+      const departureTimes = getDepartureTimes(pricing);
       return {
         ...baseExp,
         duration: pricing?.duration_hours ? `${pricing.duration_hours} hours` : baseExp.duration,
         price: pricing?.price_mxn > 0 ? pricing.price_mxn : baseExp.price,
         availableBoats: selectedBoat.name,
+        departureTimes,
       };
     }).filter(Boolean);
 
     const colClass = boatExperiences.length === 1
-      ? 'grid-cols-1 max-w-sm mx-auto'
+      ? 'grid-cols-1'
       : boatExperiences.length === 2
-      ? 'sm:grid-cols-2'
-      : 'md:grid-cols-3';
+      ? 'grid-cols-1 sm:grid-cols-2'
+      : 'grid-cols-1 md:grid-cols-3';
 
     return (
       <section className="relative py-8 md:py-12">
@@ -271,6 +273,12 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                         <Users className="h-4 w-4" />
                         <span>{exp.idealFor}</span>
                       </div>
+                      {exp.departureTimes && exp.departureTimes.length > 0 && (
+                        <div className="flex items-start gap-1.5 text-xs text-cyan-300">
+                          <Clock className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                          <span>{exp.departureTimes.join(' · ')}</span>
+                        </div>
+                      )}
                     </div>
 
                     <Button 
@@ -296,20 +304,29 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   const showExtended = isExpeditionVisible(extendedExperience.id);
   const totalGeneric = filteredRegular.length + filteredFullDay.length + (showExtended ? 1 : 0);
   const genericColClass = totalGeneric === 1
-    ? 'grid-cols-1 max-w-sm mx-auto'
+    ? 'grid-cols-1'
     : totalGeneric === 2
-    ? 'sm:grid-cols-2'
-    : 'md:grid-cols-3';
+    ? 'grid-cols-1 sm:grid-cols-2'
+    : 'grid-cols-1 md:grid-cols-3';
 
-  // Helper to render live DB boat names (no pickup info)
+  // Helper to render live DB boat names + departure times
   const renderExpMeta = (expId) => {
-    const { boatNames } = getExpDataFromDB(expId);
-    if (!boatNames.length) return null;
+    const { boatNames, departureTimes } = getExpDataFromDB(expId);
     return (
-      <div className="flex items-center gap-1.5 text-xs text-white/60">
-        <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
-        <span>{boatNames.join(', ')}</span>
-      </div>
+      <>
+        {boatNames.length > 0 && (
+          <div className="flex items-center gap-1.5 text-xs text-white/60">
+            <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
+            <span>{boatNames.join(', ')}</span>
+          </div>
+        )}
+        {departureTimes.length > 0 && (
+          <div className="flex items-start gap-1.5 text-xs text-cyan-300">
+            <Clock className="h-3 w-3 flex-shrink-0 mt-0.5" />
+            <span>{departureTimes.join(' · ')}</span>
+          </div>
+        )}
+      </>
     );
   };
 
