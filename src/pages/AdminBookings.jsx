@@ -790,6 +790,7 @@ function AdminBookingsInner() {
                       <SelectItem value="all">All Locations</SelectItem>
                       <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
                       <SelectItem value="acapulco">Acapulco</SelectItem>
+                      <SelectItem value="cancun">Cancún</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

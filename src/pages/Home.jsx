@@ -281,7 +281,7 @@ export default function Home() {
     return <LocationSelector onSelectLocation={handleSelectLocation} />;
   }
 
-  const locationName = selectedLocation === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : 'Acapulco';
+  const locationName = selectedLocation === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : selectedLocation === 'cancun' ? 'Cancún' : 'Acapulco';
 
   // Landing page view
   if (step === 'landing') {
