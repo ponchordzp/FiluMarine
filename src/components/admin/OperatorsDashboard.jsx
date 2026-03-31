@@ -7,14 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink, CreditCard, Lock, Unlock } from 'lucide-react';
+import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink, CreditCard } from 'lucide-react';
 import BoatManagement from './BoatManagement';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
 const OPERATOR_PROTECTED_KEY = 'filu_operators_protected'; // stores sensitive fields separately so they survive code edits
 
 // Protected fields that must never be overwritten by default values or code changes
-const PROTECTED_FIELDS = ['commission_pct', 'commission_pct_locked', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color', 'locations'];
+const PROTECTED_FIELDS = ['commission_pct', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color'];
 
 function loadProtectedData() {
   try {
@@ -104,7 +104,7 @@ function StatBox({ icon: Icon, label, value, color }) {
   );
 }
 
-function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDelete, onAddBoat, onLockToggle }) {
+function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDelete, onAddBoat }) {
   const opName = (operator.name || '').toLowerCase();
 
   const opBoats = boats.filter(b => {
@@ -216,18 +216,9 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
               <span className="text-white/40">Avg ticket</span>
               <span className="text-white/60 font-medium">{avgRevenue > 0 ? `$${(avgRevenue/1000).toFixed(1)}k` : '—'}</span>
             </div>
-            <div className="flex justify-between items-center text-xs col-span-2 pt-1 border-t border-white/8">
-             <span className="text-white/40">FILU Fee ({commissionPct}% of revenue)</span>
-             <div className="flex items-center gap-2">
-               <span className="text-orange-300 font-medium">-${(commission/1000).toFixed(1)}k</span>
-               <button
-                 onClick={() => onLockToggle(operator.id)}
-                 className="p-1 rounded-md hover:bg-white/10 transition-colors"
-                 title={operator.commission_pct_locked ? 'Unlock FILU fee to edit' : 'Lock FILU fee (prevents all edits)'}
-               >
-                 {operator.commission_pct_locked ? <Lock className="h-3 w-3 text-red-400" /> : <Unlock className="h-3 w-3 text-white/40" />}
-               </button>
-             </div>
+            <div className="flex justify-between text-xs col-span-2 pt-1 border-t border-white/8">
+              <span className="text-white/40">FILU Fee ({commissionPct}% of revenue)</span>
+              <span className="text-orange-300 font-medium">-${(commission/1000).toFixed(1)}k</span>
             </div>
             <div className="flex justify-between text-xs col-span-2">
               <span className="text-white/60 font-semibold">Earnings (net)</span>
@@ -281,18 +272,6 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
           </div>
         )}
 
-        {/* Locations */}
-        {operator.locations && operator.locations.length > 0 && (
-          <div className="pt-3 border-t border-white/8">
-            <p className="text-xs text-white/40 uppercase tracking-wider mb-2 flex items-center gap-1"><MapPin className="h-3 w-3" /> Assigned Locations</p>
-            <div className="flex flex-wrap gap-1.5">
-              {operator.locations.map(loc => (
-                <span key={loc} className="px-2.5 py-1 rounded-lg text-xs font-medium" style={{ background: 'rgba(20,184,166,0.15)', border: '1px solid rgba(20,184,166,0.3)', color: '#5eead4' }}>{loc}</span>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Contact */}
         {(operator.contact_email || operator.contact_phone || operator.contact_name) && (
           <div className="pt-3 border-t border-white/8 space-y-1">
@@ -338,31 +317,17 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
 }
 
 export default function OperatorsDashboard() {
+  const [operators, setOperators] = useState(loadOperators);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, commission_pct_locked: false, color: '#1e88e5', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '', locations: [] });
+  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: '#1e88e5', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' });
 
   const queryClient = useQueryClient();
-  const { data: dbLocations = [] } = useQuery({ queryKey: ['locations'], queryFn: () => base44.entities.Location.list('sort_order') });
   const { data: boats = [] } = useQuery({ queryKey: ['all-boats'], queryFn: () => base44.entities.BoatInventory.list() });
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
   const { data: bookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
   const { data: expenses = [] } = useQuery({ queryKey: ['booking-expenses'], queryFn: () => base44.entities.BookingExpense.list() });
-  const { data: dbOperators = [] } = useQuery({ 
-    queryKey: ['operators'], 
-    queryFn: async () => {
-      const ops = await base44.entities.Operator.list('name');
-      // Sync vault to DB if any protected fields are missing
-      const mergedOps = mergeProtectedData(ops);
-      // Save merged data back to vault to keep it in sync
-      saveProtectedData(mergedOps);
-      return mergedOps;
-    },
-    refetchInterval: 5000, // Sync vault every 5 seconds
-  });
-  
-  const operators = dbOperators;
 
   // Sync paypal_username to all boats belonging to this operator
   const syncPaypalToBoats = async (opName, paypalUsername) => {
@@ -380,128 +345,36 @@ export default function OperatorsDashboard() {
 
   const openAdd = () => {
     setEditingOp(null);
-    // Check vault for any previously saved default values
-    const protected_ = loadProtectedData();
-    // Default color selection
-    const defaultColor = COLORS[operators.length % COLORS.length];
-    // Initialize with guaranteed commission_pct value (never undefined)
-    setForm({
-      name: '',
-      description: '',
-      contact_name: '',
-      contact_email: '',
-      contact_phone: '',
-      paypal_username: '',
-      commission_pct: 0,  // EXPLICIT: Always start with 0, never undefined
-      commission_pct_locked: false,
-      color: defaultColor,
-      bank_name: '',
-      bank_account_clabe: '',
-      bank_account_number: '',
-      bank_account_holder: '',
-      bank_notes: '',
-      locations: []
-    });
+    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: COLORS[operators.length % COLORS.length], bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' });
     setDialogOpen(true);
   };
 
   const openEdit = (op) => {
     setEditingOp(op);
-    // BULLETPROOF: Load vault data first, then DB, then use whichever has the value
-    const protected_ = loadProtectedData();
-    const vaultData = protected_[(op.name || '').toUpperCase()] || {};
-    
-    // CRITICAL: commission_pct comes from vault first (encrypted backup), then DB, then default 0
-    let commissionValue = 0;
-    if (vaultData.commission_pct !== undefined && vaultData.commission_pct !== null) {
-      commissionValue = parseFloat(vaultData.commission_pct);
-      console.log('Restoring commission_pct from vault:', commissionValue, 'for operator:', op.name);
-    } else if (op.commission_pct !== undefined && op.commission_pct !== null) {
-      commissionValue = parseFloat(op.commission_pct);
-      console.log('Restoring commission_pct from DB:', commissionValue, 'for operator:', op.name);
-    }
-    
-    // GUARD: Ensure commission_pct is never undefined or string
-    if (isNaN(commissionValue)) commissionValue = 0;
-    
-    setForm({
-      name: op.name,
-      description: op.description || '',
-      contact_name: op.contact_name || vaultData.contact_name || '',
-      contact_email: op.contact_email || vaultData.contact_email || '',
-      contact_phone: op.contact_phone || vaultData.contact_phone || '',
-      paypal_username: op.paypal_username || vaultData.paypal_username || '',
-      commission_pct: commissionValue,  // GUARANTEED: Never undefined, always a number
-      commission_pct_locked: op.commission_pct_locked ?? vaultData.commission_pct_locked ?? false,
-      color: op.color || vaultData.color || '#1e88e5',
-      bank_name: op.bank_name || vaultData.bank_name || '',
-      bank_account_clabe: op.bank_account_clabe || vaultData.bank_account_clabe || '',
-      bank_account_number: op.bank_account_number || vaultData.bank_account_number || '',
-      bank_account_holder: op.bank_account_holder || vaultData.bank_account_holder || '',
-      bank_notes: op.bank_notes || vaultData.bank_notes || '',
-      locations: op.locations || vaultData.locations || []
-    });
+    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', commission_pct: op.commission_pct || 0, color: op.color || '#1e88e5', bank_name: op.bank_name || '', bank_account_clabe: op.bank_account_clabe || '', bank_account_number: op.bank_account_number || '', bank_account_holder: op.bank_account_holder || '', bank_notes: op.bank_notes || '' });
     setDialogOpen(true);
   };
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!form.name.trim()) return;
-    
-    // SAFETY CHECK: Never allow saving with missing commission_pct
-    if (form.commission_pct === undefined || form.commission_pct === null) {
-      console.error('CRITICAL: Attempting to save operator without commission_pct!');
-      alert('ERROR: FILU Fee % is missing. This value is required and cannot be empty.');
-      return;
+    let updated;
+    if (editingOp) {
+      updated = operators.map(o => o.id === editingOp.id ? { ...o, ...form } : o);
+    } else {
+      updated = [...operators, { id: `op_${Date.now()}`, ...form }];
     }
-    
-    try {
-      // BULLETPROOF: commission_pct MUST ALWAYS be sent and preserved
-      const commissionPct = parseFloat(form.commission_pct);
-      if (isNaN(commissionPct)) {
-        alert('ERROR: FILU Fee % must be a valid number.');
-        return;
-      }
-      
-      const locked = form.commission_pct_locked ?? editingOp?.commission_pct_locked ?? false;
-      
-      const dataToSave = {
-        ...form,
-        commission_pct: commissionPct,  // EXPLICIT: Always include this field
-        commission_pct_locked: locked,  // EXPLICIT: Always include this field
-      };
-      
-      console.log('SAVING OPERATOR:', dataToSave.name, 'with commission_pct:', dataToSave.commission_pct);
-      
-      // Save to vault first (protected storage)
-      saveProtectedData([dataToSave]);
-      
-      // CRITICAL: Save to database FIRST with all fields including commission_pct
-      let operatorId = editingOp?.id;
-      if (editingOp) {
-        await base44.entities.Operator.update(operatorId, dataToSave);
-      } else {
-        const created = await base44.entities.Operator.create(dataToSave);
-        operatorId = created?.id || created?.[0]?.id;
-      }
-      
-      // Force immediate refetch to sync DB→vault
-      await queryClient.refetchQueries({ queryKey: ['operators'], type: 'active' });
-      syncPaypalToBoats(form.name, form.paypal_username);
-      setDialogOpen(false);
-    } catch (error) {
-      console.error('Error saving operator:', error);
-      alert('Failed to save operator. Please check the console for details.');
-    }
+    saveOperators(updated);
+    setOperators(updated);
+    // Sync paypal_username directly onto all boats of this operator in the DB
+    syncPaypalToBoats(form.name, form.paypal_username);
+    setDialogOpen(false);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = (id) => {
     if (!window.confirm('Remove this operator?')) return;
-    try {
-      await base44.entities.Operator.delete(id);
-      queryClient.invalidateQueries({ queryKey: ['operators'] });
-    } catch (error) {
-      console.error('Error deleting operator:', error);
-    }
+    const updated = operators.filter(o => o.id !== id);
+    saveOperators(updated);
+    setOperators(updated);
   };
 
   return (
@@ -512,7 +385,7 @@ export default function OperatorsDashboard() {
           <p className="text-sm text-white/40 mt-0.5">Fleet, crew, and booking overview per operator</p>
         </div>
         <Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
-          <Plus className="h-4 w-4" /> Add Operator
+          <Plus className="h-4 w-4" />Add Operator
         </Button>
       </div>
 
@@ -534,7 +407,7 @@ export default function OperatorsDashboard() {
       {/* Operator cards */}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-5">
         {operators.map(op => (
-          <OperatorCard key={op.id} operator={op} boats={boats} crew={crew} bookings={bookings} expenses={expenses} onEdit={openEdit} onDelete={handleDelete} onAddBoat={(opName) => setAddBoatForOperator(opName)} onLockToggle={async (opId) => { await base44.entities.Operator.update(opId, { commission_pct_locked: !(operators.find(o => o.id === opId)?.commission_pct_locked) }); queryClient.invalidateQueries({ queryKey: ['operators'] }); }} />
+          <OperatorCard key={op.id} operator={op} boats={boats} crew={crew} bookings={bookings} expenses={expenses} onEdit={openEdit} onDelete={handleDelete} onAddBoat={(opName) => setAddBoatForOperator(opName)} />
         ))}
       </div>
 
@@ -554,155 +427,78 @@ export default function OperatorsDashboard() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <div className="flex items-center justify-between gap-2">
-              <DialogTitle>{editingOp ? 'Edit Operator' : 'Add New Operator'}</DialogTitle>
-              {editingOp && (
-                <button
-                  onClick={async () => {
-                    const newLocked = !editingOp.commission_pct_locked;
-                    await base44.entities.Operator.update(editingOp.id, { commission_pct_locked: newLocked });
-                    await queryClient.refetchQueries({ queryKey: ['operators'], type: 'active' });
-                    setEditingOp(prev => ({ ...prev, commission_pct_locked: newLocked }));
-                  }}
-                  className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-                  title={editingOp.commission_pct_locked ? 'Unlock to edit' : 'Lock to prevent changes'}
-                >
-                  {editingOp.commission_pct_locked ? <Lock className="h-4 w-4 text-red-400" /> : <Unlock className="h-4 w-4 text-white/40" />}
-                </button>
-              )}
-            </div>
+            <DialogTitle>{editingOp ? 'Edit Operator' : 'Add New Operator'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label className="text-sm text-foreground">Operator Name *</Label>
+              <Label className="text-sm">Operator Name *</Label>
               <Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g., NAUTIKA" className="mt-1" />
             </div>
             <div>
-              <Label className="text-sm text-foreground">Description</Label>
+              <Label className="text-sm">Description</Label>
               <Textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Short description..." rows={2} className="mt-1" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm text-foreground">Contact Name</Label>
+                <Label className="text-sm">Contact Name</Label>
                 <Input value={form.contact_name} onChange={e => setForm(f => ({ ...f, contact_name: e.target.value }))} placeholder="Full name" className="mt-1" />
               </div>
               <div>
-                <Label className="text-sm text-foreground">Contact Phone</Label>
+                <Label className="text-sm">Contact Phone</Label>
                 <Input value={form.contact_phone} onChange={e => setForm(f => ({ ...f, contact_phone: e.target.value }))} placeholder="+52..." className="mt-1" />
               </div>
             </div>
             <div>
-              <Label className="text-sm text-foreground">Contact Email</Label>
+              <Label className="text-sm">Contact Email</Label>
               <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="operator@example.com" className="mt-1" />
             </div>
-            <div className="rounded-lg p-3" style={{ background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.2)' }}>
-              <Label className="text-sm text-foreground flex items-center gap-2 mb-2">
-                <Lock className="h-4 w-4 text-orange-500" />
-                FILU Fee % — PROTECTED VAULT
-              </Label>
-              <div className="flex items-center gap-2 mb-2">
+            <div>
+              <Label className="text-sm">FILU Fee %</Label>
+              <div className="flex items-center mt-1">
                 <Input
                   type="number"
                   min="0"
                   max="100"
-                  step="0.1"
-                  value={form.commission_pct ?? 0}  // GUARD: Always has a value, never empty
-                  onChange={e => {
-                    const val = e.target.value.trim();
-                    const num = val === '' ? (form.commission_pct ?? 0) : parseFloat(val);
-                    const safeNum = isNaN(num) ? (form.commission_pct ?? 0) : num;
-                    setForm(f => ({
-                      ...f,
-                      commission_pct: safeNum
-                    }));
-                    console.log('Fee updated to:', safeNum);
-                  }}
+                  step="0.5"
+                  value={form.commission_pct}
+                  onChange={e => setForm(f => ({ ...f, commission_pct: parseFloat(e.target.value) || 0 }))}
                   placeholder="0"
-                  disabled={editingOp?.commission_pct_locked}
-                  className="rounded-r-none font-semibold"
-                  required
+                  className="rounded-r-none"
                 />
-                <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted font-semibold">%</span>
+                <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-white/40 border-input bg-white/5">%</span>
               </div>
-              <div className="flex items-center gap-2 text-xs">
-                {form.commission_pct > 0 && (
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-green-500/20 text-green-300 border border-green-500/30">
-                    <CheckCircle2 className="h-3 w-3" />
-                    <span>Fee saved: {form.commission_pct}%</span>
-                  </div>
-                )}
-                {editingOp?.commission_pct_locked && (
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">
-                    <Lock className="h-3 w-3" />
-                    <span>Locked</span>
-                  </div>
-                )}
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">This value is critical for revenue calculations and is permanently backed up.</p>
+              <p className="text-xs text-white/30 mt-1">FILU Fee % charged from each booking's revenue</p>
             </div>
             <div>
-              <Label className="text-sm text-foreground">PayPal Username</Label>
+              <Label className="text-sm">PayPal Username</Label>
               <div className="flex items-center mt-1">
-                <span className="px-3 py-2 text-sm rounded-l-md border border-r-0 text-muted-foreground border-input bg-muted">paypal.me/</span>
+                <span className="px-3 py-2 text-sm rounded-l-md border border-r-0 text-white/40 border-input bg-white/5">paypal.me/</span>
                 <Input value={form.paypal_username} onChange={e => setForm(f => ({ ...f, paypal_username: e.target.value }))} placeholder="username" className="rounded-l-none" />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Used to generate the PayPal payment link for booking cards</p>
+              <p className="text-xs text-white/30 mt-1">Used to generate the PayPal payment link for booking cards</p>
             </div>
             <div className="border-t pt-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Bank Details (Direct Deposit)</p>
+              <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3 flex items-center gap-1.5"><CreditCard className="h-3.5 w-3.5" /> Bank Details (Direct Deposit)</p>
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                  <div><Label className="text-sm text-foreground">Bank Name</Label><Input value={form.bank_name} onChange={e => setForm(f => ({ ...f, bank_name: e.target.value }))} placeholder="e.g., BBVA" className="mt-1" /></div>
-                  <div><Label className="text-sm text-foreground">Account Holder</Label><Input value={form.bank_account_holder} onChange={e => setForm(f => ({ ...f, bank_account_holder: e.target.value }))} placeholder="Name on account" className="mt-1" /></div>
+                  <div><Label className="text-sm">Bank Name</Label><Input value={form.bank_name} onChange={e => setForm(f => ({ ...f, bank_name: e.target.value }))} placeholder="e.g., BBVA" className="mt-1" /></div>
+                  <div><Label className="text-sm">Account Holder</Label><Input value={form.bank_account_holder} onChange={e => setForm(f => ({ ...f, bank_account_holder: e.target.value }))} placeholder="Name on account" className="mt-1" /></div>
                 </div>
-                <div><Label className="text-sm text-foreground">CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={e => setForm(f => ({ ...f, bank_account_clabe: e.target.value }))} placeholder="e.g., 012180004713413911" maxLength={18} className="mt-1" /></div>
-                <div><Label className="text-sm text-foreground">Account Number (optional)</Label><Input value={form.bank_account_number} onChange={e => setForm(f => ({ ...f, bank_account_number: e.target.value }))} placeholder="Account number" className="mt-1" /></div>
-                <div><Label className="text-sm text-foreground">Notes</Label><Input value={form.bank_notes} onChange={e => setForm(f => ({ ...f, bank_notes: e.target.value }))} placeholder="e.g., reference required" className="mt-1" /></div>
+                <div><Label className="text-sm">CLABE (18 digits)</Label><Input value={form.bank_account_clabe} onChange={e => setForm(f => ({ ...f, bank_account_clabe: e.target.value }))} placeholder="e.g., 012180004713413911" maxLength={18} className="mt-1" /></div>
+                <div><Label className="text-sm">Account Number (optional)</Label><Input value={form.bank_account_number} onChange={e => setForm(f => ({ ...f, bank_account_number: e.target.value }))} placeholder="Account number" className="mt-1" /></div>
+                <div><Label className="text-sm">Notes</Label><Input value={form.bank_notes} onChange={e => setForm(f => ({ ...f, bank_notes: e.target.value }))} placeholder="e.g., reference required" className="mt-1" /></div>
               </div>
             </div>
-            <div className="border-t pt-3">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Assigned Locations</p>
-              <p className="text-xs text-muted-foreground mb-3">Select which locations this operator operates in. Non-SuperAdmin users will only see these locations in the global filter.</p>
-              {dbLocations.length === 0 ? (
-                <p className="text-xs text-muted-foreground italic">No locations found in database</p>
-              ) : (
-                <div className="space-y-2">
-                  {dbLocations.filter(l => l.visible !== false).map(loc => (
-                    <label key={loc.location_id} className="flex items-center gap-3 cursor-pointer group rounded-lg px-3 py-2 hover:bg-muted transition-colors border border-border">
-                      <input
-                        type="checkbox"
-                        checked={(form.locations || []).includes(loc.location_id)}
-                        onChange={e => {
-                          const locs = form.locations || [];
-                          setForm(f => ({ ...f, locations: e.target.checked ? [...locs, loc.location_id] : locs.filter(l => l !== loc.location_id) }));
-                        }}
-                        className="w-4 h-4 accent-teal-500 flex-shrink-0"
-                      />
-                      <div>
-                        <span className="text-sm text-foreground font-medium">{loc.name}</span>
-                        <span className="text-xs text-muted-foreground ml-2">{loc.location_id}</span>
-                      </div>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
             <div>
-              <Label className="text-sm text-foreground">Brand Color</Label>
+              <Label className="text-sm">Brand Color</Label>
               <div className="flex items-center gap-2 mt-1">
                 {COLORS.map(c => (
-                  <button key={c} onClick={() => setForm(f => ({ ...f, color: c }))} className={`w-7 h-7 rounded-full border-2 transition-all ${form.color === c ? 'border-gray-800 scale-110' : 'border-transparent'}`} style={{ background: c }} />
+                  <button key={c} onClick={() => setForm(f => ({ ...f, color: c }))} className={`w-7 h-7 rounded-full border-2 transition-all ${form.color === c ? 'border-white scale-110' : 'border-transparent'}`} style={{ background: c }} />
                 ))}
               </div>
             </div>
-            {editingOp?.commission_pct_locked && (
-              <div className="rounded-lg p-3 bg-orange-500/10 border border-orange-500/30 flex items-center gap-2">
-                <Lock className="h-4 w-4 text-orange-400 flex-shrink-0" />
-                <p className="text-xs text-orange-300"><span className="font-semibold">Locked.</span> Click the lock icon in the header to unlock for editing.</p>
-              </div>
-            )}
             <div className="flex gap-2 pt-2">
-              <Button onClick={handleSave} disabled={!form.name.trim() || editingOp?.commission_pct_locked} className="flex-1">{editingOp ? 'Save Changes' : 'Add Operator'}</Button>
+              <Button onClick={handleSave} disabled={!form.name.trim()} className="flex-1">{editingOp ? 'Save Changes' : 'Add Operator'}</Button>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             </div>
           </div>

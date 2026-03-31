@@ -9,16 +9,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, MapPin, Eye, EyeOff, Upload, X } from 'lucide-react';
 
-const KNOWN_COORDINATES = {
-  ixtapa_zihuatanejo: '17.6617°N, 101.5528°W',
-  acapulco: '16.8531°N, 99.8237°W',
-  cancun: '21.1619°N, 86.8515°W',
-  los_cabos: '22.8905°N, 109.9167°W',
-  puerto_vallarta: '20.6534°N, 105.2253°W',
-  mazatlan: '23.2494°N, 106.4111°W',
-  huatulco: '15.7395°N, 96.1422°W',
-};
-
 const emptyForm = {
   location_id: '',
   name: '',
@@ -220,18 +210,7 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
               </div>
               <div>
                 <Label>Coordinates</Label>
-                <Input
-                  value={formData.coordinates}
-                  onChange={(e) => setFormData({ ...formData, coordinates: e.target.value })}
-                  placeholder="17.66°N, 101.55°W"
-                />
-                {!formData.coordinates && formData.location_id && KNOWN_COORDINATES[formData.location_id] && (
-                  <button type="button" className="text-xs text-teal-500 hover:text-teal-400 mt-1"
-                    onClick={() => setFormData(f => ({ ...f, coordinates: KNOWN_COORDINATES[f.location_id] }))}
-                  >
-                    Auto-fill: {KNOWN_COORDINATES[formData.location_id]}
-                  </button>
-                )}
+                <Input value={formData.coordinates} onChange={(e) => setFormData({ ...formData, coordinates: e.target.value })} placeholder="17.66°N, 101.55°W" />
               </div>
             </div>
 

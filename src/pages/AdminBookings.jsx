@@ -128,13 +128,6 @@ function AdminBookingsInner() {
     queryFn: () => base44.entities.BookingExpense.list(),
   });
 
-  const { data: operators = [] } = useQuery({
-    queryKey: ['operators'],
-    queryFn: () => base44.entities.Operator.list('name'),
-    staleTime: 0,
-    refetchInterval: 1000,
-  });
-
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.Booking.update(id, { status }),
     onSuccess: () => {
@@ -389,23 +382,18 @@ function AdminBookingsInner() {
 
   const getOperatorCommission = (boatName) => {
     try {
-      if (!operators || operators.length === 0) return 0;
+      const raw = localStorage.getItem('filu_operators');
+      if (!raw) return 0;
+      const ops = JSON.parse(raw);
       const boat = allBoats.find(b => b.name === boatName);
-      if (!boat) return 0;
-      const boatOpName = (boat.operator || '').toLowerCase().trim();
+      const boatOpName = (boat?.operator || '').toLowerCase().trim();
       let op = null;
-      if (boatOpName) {
-        op = operators.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+      if (boatOpName && boatOpName !== 'filu') {
+        op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
       }
-      if (!op) {
-        op = operators.find(o => (o.name || '').toLowerCase().trim() === 'filu');
-      }
-      const commission = op?.commission_pct !== undefined && op?.commission_pct !== null
-        ? parseFloat(op.commission_pct)
-        : 0;
-      return commission;
-    } catch (e) {
-      console.error('Error calculating commission:', e);
+      if (!op) op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
+      return parseFloat(op?.commission_pct || 0);
+    } catch {
       return 0;
     }
   };
@@ -802,7 +790,6 @@ function AdminBookingsInner() {
                       <SelectItem value="all">All Locations</SelectItem>
                       <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
                       <SelectItem value="acapulco">Acapulco</SelectItem>
-                      <SelectItem value="cancun">Cancún</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

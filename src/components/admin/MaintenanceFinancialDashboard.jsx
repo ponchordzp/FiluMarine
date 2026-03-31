@@ -334,7 +334,7 @@ function SectionRow({ label, icon, children, defaultOpen = false }) {
 }
 
 // ─── Per-boat card ────────────────────────────────────────────────────────────
-function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, dailyLogs, operators = [] }) {
+function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, dailyLogs }) {
   const [expanded, setExpanded] = useState(false);
 
   // Engine hours — use all non-cancelled bookings
@@ -373,7 +373,7 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
   const totalExpenses      = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
 
   // Fees = commission % of each booking's revenue (matches global KPI exactly)
-  const totalFeesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, allBoats, operators) / 100, 0);
+  const totalFeesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, allBoats) / 100, 0);
 
   // ── P&L ──────────────────────────────────────────────────────────────────
   // Gross Profit = Revenue − Expenses
@@ -739,34 +739,20 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
 }
 
 // ─── Commission helper (mirrors global KPI logic exactly) ────────────────────
-function getOperatorCommission(boatName, allBoats, operatorsFromDB = []) {
+function getOperatorCommission(boatName, allBoats) {
   try {
-    if (!operatorsFromDB || operatorsFromDB.length === 0) return 0;
+    const raw = localStorage.getItem('filu_operators');
+    if (!raw) return 0;
+    const ops = JSON.parse(raw);
     const boat = allBoats.find(b => b.name === boatName);
-    if (!boat) return 0;
-    
-    // Get boat's operator name, default to empty if not set
-    const boatOpName = (boat.operator || '').toLowerCase().trim();
-    
-    // Try to find exact operator match
+    const boatOpName = (boat?.operator || '').toLowerCase().trim();
     let op = null;
-    if (boatOpName) {
-      op = operatorsFromDB.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+    if (boatOpName && boatOpName !== 'filu') {
+      op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
     }
-    
-    // If no match or boat has no operator, default to FILU
-    if (!op) {
-      op = operatorsFromDB.find(o => (o.name || '').toLowerCase().trim() === 'filu');
-    }
-    
-    // CRITICAL: Ensure commission_pct is always a valid number, never undefined
-    const commission = op?.commission_pct !== undefined && op?.commission_pct !== null
-      ? parseFloat(op.commission_pct)
-      : 0;
-    
-    return commission;
-  } catch (e) {
-    console.error('Error calculating commission for boat', boatName, ':', e);
+    if (!op) op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
+    return parseFloat(op?.commission_pct || 0);
+  } catch {
     return 0;
   }
 }
@@ -793,16 +779,6 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     queryKey: ['daily-logs-all'],
     queryFn: () => base44.entities.DailyLog.list('-log_date'),
   });
-  const { data: operators = [] } = useQuery({
-    queryKey: ['operators'],
-    queryFn: async () => {
-      const ops = await base44.entities.Operator.list('name');
-      console.log('Fetched operators with commission data:', ops.map(o => ({ name: o.name, commission_pct: o.commission_pct })));
-      return ops;
-    },
-    staleTime: 0,  // Always fresh — no cache
-    refetchInterval: 2000,  // Poll every 2 seconds for live updates
-  });
 
   const filteredBoats = boats.filter(boat => {
     if (operatorFilter !== 'all') {
@@ -825,8 +801,8 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
     // Expenses (ex-fees)
     const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.other_cost||0), 0);
-    // Fees = commission % of each booking's revenue (same as global KPI) — using live operators data from DB
-    const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats, operators) / 100, 0);
+    // Fees = commission % of each booking's revenue (same as global KPI)
+    const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats) / 100, 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     const recurringCosts = boat.recurring_costs || [];
     const annualRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0) * 12;
@@ -955,7 +931,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
               <KpiCard
                 label="Fees"
                 value={fmtK(totals.feesAmt)}
-                sub={totals.feesAmt > 0 ? `commission deducted` : 'operator commission'}
+                sub="operator commission"
                 color="rgba(236,72,153,0.12)" border="rgba(236,72,153,0.3)" textColor="#f9a8d4" icon={<CreditCard className="h-4 w-4" />}
                 info={`Operator commission calculated as a % of each booking's revenue. Deducted from Gross Profit to arrive at Net Profit.`}
               />
@@ -1063,7 +1039,6 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
               personalTrips={personalTrips}
               allBoats={boats}
               dailyLogs={dailyLogs}
-              operators={operators}
             />
           ))}
         </div>

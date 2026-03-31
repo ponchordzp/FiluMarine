@@ -37,11 +37,8 @@ const COMMON_INCLUDES = [
 const LOCATION_LABELS = {
   ixtapa_zihuatanejo: 'Ixtapa-Zihuatanejo',
   acapulco: 'Acapulco',
-  cancun: 'Cancún',
-  both: 'All Locations'
+  both: 'Both Locations'
 };
-
-const ALL_LOCATIONS = ['ixtapa_zihuatanejo', 'acapulco', 'cancun'];
 
 const emptyForm = {
   expedition_id: '',
@@ -102,10 +99,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     setDialogOpen(false);
   };
 
-  const handleEdit = (exp, groupLocation) => {
+  const handleEdit = (exp) => {
     setEditingExp(exp);
-    // Lock the form to the group's location so edits only apply to this specific location
-    setFormData({ ...exp, location: groupLocation || exp.location });
+    setFormData({ ...exp });
     setImagePreview(exp.image || '');
     setDialogOpen(true);
   };
@@ -130,8 +126,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
       // Editing: always update only this specific record (no location splitting)
       updateMutation.mutate({ id: editingExp.id, data: finalData });
     } else if (finalData.location === 'both') {
-      // Creating with 'both': create one separate record per location
-      ALL_LOCATIONS.forEach(loc => createMutation.mutate({ ...finalData, location: loc }));
+      // Creating with 'both': create two separate records — one per location
+      createMutation.mutate({ ...finalData, location: 'ixtapa_zihuatanejo' });
+      createMutation.mutate({ ...finalData, location: 'acapulco' });
     } else {
       createMutation.mutate(finalData);
     }
@@ -161,10 +158,10 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     return exp.location === locationFilter || exp.location === 'both';
   });
 
-  // Each location group shows its own records + any 'both' records
-  const grouped = Object.fromEntries(
-    ALL_LOCATIONS.map(loc => [loc, filtered.filter(e => e.location === loc || e.location === 'both')])
-  );
+  const grouped = {
+    ixtapa_zihuatanejo: filtered.filter((e) => e.location === 'ixtapa_zihuatanejo' || e.location === 'both'),
+    acapulco: filtered.filter((e) => e.location === 'acapulco' || e.location === 'both')
+  };
 
   return (
     <div className="space-y-6">
@@ -182,7 +179,6 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
               <SelectItem value="all">All Locations</SelectItem>
               <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
               <SelectItem value="acapulco">Acapulco</SelectItem>
-              <SelectItem value="cancun">Cancún</SelectItem>
             </SelectContent>
           </Select>
           <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}} className="bg-purple-600 text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
@@ -252,7 +248,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
               }
 
                     <div className="flex gap-2 pt-1">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(exp, loc)} className="flex-1 h-8 text-xs">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(exp)} className="flex-1 h-8 text-xs">
                         <Edit className="h-3 w-3 mr-1" /> Edit
                       </Button>
                       <Button
@@ -303,10 +299,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
                 <Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="both">All Locations (creates one per location)</SelectItem>
+                    <SelectItem value="both">Both Locations</SelectItem>
                     <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
                     <SelectItem value="acapulco">Acapulco</SelectItem>
-                    <SelectItem value="cancun">Cancún</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

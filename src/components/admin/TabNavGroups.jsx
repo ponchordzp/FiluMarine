@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
+import React from 'react';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { loadOperatorFilterAccess } from '@/components/admin/RolePermissionsManager';
 import {
@@ -134,65 +132,23 @@ function buildFamiliesForUser(isSuperAdmin, isOperatorAdmin) {
     });
 }
 
-// Load operators from database instead of localStorage
-async function loadOperatorsFromDB() {
-  try {
-    const operators = await base44.entities.Operator.list('name');
-    return operators.map(op => ({ id: op.id, name: op.name, color: op.color || '#f97316', locations: op.locations || [] }));
-  } catch {
-    return [{ id: 'filu', name: 'FILU', color: '#1e88e5', locations: [] }];
-  }
+const OPERATOR_STORAGE_KEY = 'filu_operators';
+function loadOperators() {
+  try { const raw = localStorage.getItem(OPERATOR_STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
+  return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
 }
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
-  const [allOperators, setAllOperators] = useState([{ id: 'filu', name: 'FILU', color: '#1e88e5', locations: [] }]);
-
-  useEffect(() => {
-    loadOperatorsFromDB().then(setAllOperators);
-  }, []);
-  const { data: dbLocations = [] } = useQuery({
-    queryKey: ['locations'],
-    queryFn: () => base44.entities.Location.list('sort_order'),
-  });
-
-  const { data: dbOperators = [] } = useQuery({
-    queryKey: ['operators'],
-    queryFn: () => base44.entities.Operator.list('name'),
-  });
-  
-  // Build base location options from database
-  const allLocationOptions = dbLocations.length > 0
-    ? [{ id: 'all', label: 'All' }, ...dbLocations.map(l => ({ id: l.location_id, label: l.name }))]
-    : [{ id: 'all', label: 'All' }, { id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }];
-  
-  // Use database operators if available, fall back to local state
-  const operatorsToDisplay = dbOperators.length > 0
-    ? dbOperators.map(op => ({ id: op.id, name: op.name, color: op.color || '#f97316', locations: op.locations || [] }))
-    : allOperators;
-
+  const allOperators = loadOperators();
   // SuperAdmin sees all operators and can switch freely.
   // All other roles are locked to their assigned operator — show only that one.
   const operators = isSuperAdmin
-    ? operatorsToDisplay
+    ? allOperators
     : currentUserOperator
-      ? operatorsToDisplay.filter(op => op.name.toLowerCase() === currentUserOperator.toLowerCase())
-          .concat(operatorsToDisplay.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316', locations: [] }] : [])
-      : operatorsToDisplay;
-  
+      ? allOperators.filter(op => op.name.toLowerCase() === currentUserOperator.toLowerCase())
+          .concat(allOperators.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }] : [])
+      : allOperators;
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
-  
-  // For non-SuperAdmin, filter locations to only show what their operator has assigned
-  let locationOptions = allLocationOptions;
-  if (!isSuperAdmin && currentUserOperator) {
-    const currentOperator = allOperators.find(op => op.name?.toLowerCase() === currentUserOperator.toLowerCase());
-    if (currentOperator?.locations && currentOperator.locations.length > 0) {
-      locationOptions = [{ id: 'all', label: 'All' }, ...allLocationOptions.filter(loc => loc.id === 'all' || currentOperator.locations.includes(loc.id))];
-      // Remove duplicate 'All'
-      if (locationOptions.filter(l => l.id === 'all').length > 1) {
-        locationOptions = [locationOptions[0], ...locationOptions.slice(2)];
-      }
-    }
-  }
 
   // If no match found in stored operators, create a placeholder
   const displayOperators = operators.length > 0
@@ -224,9 +180,8 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
             <button
               key={op.id || op.name}
               onClick={() => isSuperAdmin ? onOperatorFilterChange(op.name) : undefined}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase()) ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'} ${!isSuperAdmin ? 'cursor-default' : ''}`}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase()) ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'} ${!isSuperAdmin ? 'cursor-default' : ''}`}
               style={(operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase())) ? { background: (op.color || '#f97316') + '55', border: `1px solid ${(op.color || '#f97316')}88` } : {}}
-              title={op.name}
             >
               {op.name}
             </button>
@@ -240,15 +195,15 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
             <MapPin className="h-3 w-3" /> Filter by Location:
           </span>
           <div className="flex gap-1 flex-wrap">
-            {locationOptions.map(loc => (
+            {['all', 'ixtapa_zihuatanejo', 'acapulco'].map(loc => (
               <button
-                key={loc.id}
-                onClick={() => onLocationFilterChange(loc.id)}
+                key={loc}
+                onClick={() => onLocationFilterChange(loc)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                  locationFilter === loc.id ? 'bg-teal-500/30 text-teal-200 border border-teal-500/40' : 'text-white/40 hover:text-white/70 hover:bg-white/10'
+                  locationFilter === loc ? 'bg-teal-500/30 text-teal-200 border border-teal-500/40' : 'text-white/40 hover:text-white/70 hover:bg-white/10'
                 }`}
               >
-                {loc.label}
+                {loc === 'all' ? 'All' : loc === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : 'Acapulco'}
               </button>
             ))}
           </div>

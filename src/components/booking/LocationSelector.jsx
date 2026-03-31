@@ -127,19 +127,15 @@ export default function LocationSelector({ onSelectLocation }) {
         </div>
 
         {/* Location Cards */}
-        <div className={`grid gap-10 ${
-          locations.length === 3 ? 'grid-cols-1 sm:grid-cols-3' :
-          locations.length === 4 ? 'grid-cols-1 sm:grid-cols-2' :
-          'grid-cols-1 sm:grid-cols-2'
-        }`}>
+        <div className="grid md:grid-cols-2 gap-10">
           {locations.map((location, index) => (
             <div 
               key={location.location_id || location.id}
-              className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)] flex flex-col"
+              className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/20 hover:border-cyan-400/50 transition-all duration-500 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(34,211,238,0.3)]"
               style={{ animationDelay: `${index * 0.2}s` }}
             >
               {/* Location Image */}
-              <div className="relative h-48 overflow-hidden flex-shrink-0">
+              <div className="relative h-72 overflow-hidden">
                 <img 
                   src={location.image}
                   alt={location.name}
@@ -155,17 +151,17 @@ export default function LocationSelector({ onSelectLocation }) {
               </div>
 
               {/* Location Info */}
-              <div className="p-6 flex flex-col flex-1">
-                <h3 className="text-2xl font-light text-white mb-1">
+              <div className="p-8">
+                <h3 className="text-3xl font-light text-white mb-2">
                   <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{location.name}</span>
                 </h3>
                 <p className="text-cyan-300/60 text-sm mb-1 font-mono">{location.coordinates}</p>
                 <WeatherWidget locationId={location.location_id} />
-                <p className="text-white/80 mt-3 mb-4 text-base leading-relaxed line-clamp-3 flex-1">{location.description}</p>
+                <p className="text-white/80 mb-8 text-lg leading-relaxed">{location.description}</p>
                 
                 <Button 
-                  onClick={() => onSelectLocation(location.location_id || location.id)}
-                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-5 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] text-base mt-auto"
+                onClick={() => onSelectLocation(location.location_id || location.id)}
+                  className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-6 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] text-lg"
                 >
                   Explore {location.name}
                 </Button>
