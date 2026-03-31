@@ -417,12 +417,21 @@ export default function OperatorsDashboard() {
 
   const handleSave = async () => {
     if (!form.name.trim()) return;
+    
+    // SAFETY CHECK: Never allow saving with missing commission_pct
+    if (form.commission_pct === undefined || form.commission_pct === null) {
+      console.error('CRITICAL: Attempting to save operator without commission_pct!');
+      alert('ERROR: FILU Fee % is missing. This value is required and cannot be empty.');
+      return;
+    }
+    
     try {
       // BULLETPROOF: commission_pct MUST ALWAYS be sent and preserved
-      // Ensure commission_pct is always a valid number, never undefined or null
-      const commissionPct = form.commission_pct !== undefined && form.commission_pct !== null 
-        ? parseFloat(form.commission_pct) 
-        : (editingOp?.commission_pct ?? 0);
+      const commissionPct = parseFloat(form.commission_pct);
+      if (isNaN(commissionPct)) {
+        alert('ERROR: FILU Fee % must be a valid number.');
+        return;
+      }
       
       const locked = form.commission_pct_locked ?? editingOp?.commission_pct_locked ?? false;
       
@@ -431,6 +440,8 @@ export default function OperatorsDashboard() {
         commission_pct: commissionPct,  // EXPLICIT: Always include this field
         commission_pct_locked: locked,  // EXPLICIT: Always include this field
       };
+      
+      console.log('SAVING OPERATOR:', dataToSave.name, 'with commission_pct:', dataToSave.commission_pct);
       
       // Save to vault first (protected storage)
       saveProtectedData([dataToSave]);
@@ -447,6 +458,7 @@ export default function OperatorsDashboard() {
       setDialogOpen(false);
     } catch (error) {
       console.error('Error saving operator:', error);
+      alert('Failed to save operator. Please check the console for details.');
     }
   };
 
@@ -535,28 +547,46 @@ export default function OperatorsDashboard() {
               <Label className="text-sm text-foreground">Contact Email</Label>
               <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="operator@example.com" className="mt-1" />
             </div>
-            <div>
-             <Label className="text-sm text-foreground flex items-center gap-2">FILU Fee % {editingOp?.commission_pct_locked && <Lock className="h-3 w-3 text-red-400" />}</Label>
-             <div className="flex items-center mt-1">
-              <Input
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                value={form.commission_pct}
-                onChange={e => {
-                  const val = e.target.value.trim();
-                  const num = val === '' ? 0 : parseFloat(val);
-                  setForm(f => ({ ...f, commission_pct: isNaN(num) ? 0 : num }));
-                }}
-                placeholder="0"
-                disabled={editingOp?.commission_pct_locked}
-                className="rounded-r-none"
-              />
-              <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted">%</span>
-             </div>
-             <p className="text-xs text-muted-foreground mt-1">{editingOp?.commission_pct_locked ? 'This field is locked and cannot be edited.' : 'FILU Fee % charged from each booking\'s revenue'}</p>
-             </div>
+            <div className="rounded-lg p-3" style={{ background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.2)' }}>
+              <Label className="text-sm text-foreground flex items-center gap-2 mb-2">
+                <Lock className="h-4 w-4 text-orange-500" />
+                FILU Fee % — PROTECTED
+              </Label>
+              <div className="flex items-center gap-2 mb-2">
+                <Input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value={form.commission_pct}
+                  onChange={e => {
+                    const val = e.target.value.trim();
+                    const num = val === '' ? form.commission_pct : parseFloat(val);
+                    setForm(f => ({ ...f, commission_pct: isNaN(num) ? f.commission_pct : num }));
+                  }}
+                  placeholder="0"
+                  disabled={editingOp?.commission_pct_locked}
+                  className="rounded-r-none font-semibold"
+                  required
+                />
+                <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted font-semibold">%</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                {form.commission_pct > 0 && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-green-500/20 text-green-300 border border-green-500/30">
+                    <CheckCircle2 className="h-3 w-3" />
+                    <span>Fee saved: {form.commission_pct}%</span>
+                  </div>
+                )}
+                {editingOp?.commission_pct_locked && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30">
+                    <Lock className="h-3 w-3" />
+                    <span>Locked</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">This value is critical for revenue calculations and is permanently backed up.</p>
+            </div>
             <div>
               <Label className="text-sm text-foreground">PayPal Username</Label>
               <div className="flex items-center mt-1">
