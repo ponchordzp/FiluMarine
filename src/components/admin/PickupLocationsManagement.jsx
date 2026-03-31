@@ -31,13 +31,21 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
     };
     fetchUser();
   }, []);
+  const { data: pickupLocations = [] } = useQuery({
+    queryKey: ['pickup-locations'],
+    queryFn: () => base44.entities.PickupLocation.list('sort_order'),
+  });
+
+  const { data: boats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [locationFilter, setLocationFilter] = useState('all');
-  // Sync with global filter from admin panel
-  const effectiveLocationFilter = externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : locationFilter;
 
   // Get user's operator location if they're restricted
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
@@ -51,15 +59,8 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
     return null;
   })() : null;
 
-  const { data: pickupLocations = [] } = useQuery({
-    queryKey: ['pickup-locations'],
-    queryFn: () => base44.entities.PickupLocation.list('sort_order'),
-  });
-
-  const { data: boats = [] } = useQuery({
-    queryKey: ['all-boats'],
-    queryFn: () => base44.entities.BoatInventory.list(),
-  });
+  // Sync with global filter from admin panel
+  const effectiveLocationFilter = externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : locationFilter;
 
   const boatNames = boats.filter(b => b.status !== 'inactive').map(b => b.name);
 
@@ -190,19 +191,7 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
         </Dialog>
       </div>
 
-      {/* Filter */}
-      {!isUserRestricted && (
-        <div className="flex items-center gap-3 mb-4">
-          <Label className="text-white/50 text-xs">Filter by Destination:</Label>
-          <Select value={locationFilter} onValueChange={setLocationFilter}>
-            <SelectTrigger className="w-52 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Destinations</SelectItem>
-              {LOCATIONS.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
+
 
       <div className="grid gap-3">
         {filtered.length === 0 ? (

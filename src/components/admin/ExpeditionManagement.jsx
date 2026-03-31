@@ -69,6 +69,11 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     };
     fetchUser();
   }, []);
+  const { data: allBoats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
@@ -93,14 +98,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     }
     return null;
   })() : null;
-  
-  // For charter operators, FORCE location to their operator's location, ignore externalLocationFilter
-  const effectiveLocationFilter = isChartOperator && userLocation ? userLocation : externalLocationFilter;
 
-  const { data: allBoats = [] } = useQuery({
-    queryKey: ['all-boats'],
-    queryFn: () => base44.entities.BoatInventory.list(),
-  });
+  // For charter operators, FORCE location to their operator's location, ignore all filters
+  const effectiveLocationFilter = isChartOperator && userLocation ? userLocation : (externalLocationFilter || localLocationFilter);
 
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
@@ -189,7 +189,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
   };
 
   const filtered = expeditions.filter((exp) => {
-    // Charter operators: ONLY show expeditions that match their location (ignore 'both')
+    // Charter operators: ONLY show expeditions that match their location (ignore 'both', ignore filters)
     if (isChartOperator && userLocation) {
       return exp.location === userLocation;
     }
@@ -197,8 +197,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     if (isUserRestricted && userLocation && exp.location !== 'both' && exp.location !== userLocation) {
       return false;
     }
-    if (effectiveLocationFilter === 'all') return true;
-    return exp.location === effectiveLocationFilter || exp.location === 'both';
+    const filterToUse = isChartOperator ? userLocation : effectiveLocationFilter;
+    if (filterToUse === 'all' || !filterToUse) return true;
+    return exp.location === filterToUse || exp.location === 'both';
   });
 
   // Each location group shows its own records + any 'both' records
@@ -218,7 +219,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
           {isUserRestricted && userLocation && <p className="text-xs text-cyan-300 mt-0.5">Restricted to: <strong>{LOCATION_LABELS[userLocation]}</strong></p>}
         </div>
         <div className="flex items-center gap-3">
-          {!isUserRestricted && (
+          {!isUserRestricted && !isChartOperator && (
             <Select value={localLocationFilter} onValueChange={setLocalLocationFilter}>
               <SelectTrigger className="w-44">
                 <SelectValue />

@@ -37,14 +37,26 @@ export default function DestinationManagement({ operatorFilter = 'all', location
   });
   const [activityInput, setActivityInput] = useState('');
 
-  // If user is not superadmin and has an assigned operator, only show their location
-  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
-  const userLocation = isUserRestricted ? currentUser.location : null;
-
   const { data: destinations = [] } = useQuery({
     queryKey: ['destinations', locationFilter],
     queryFn: () => base44.entities.DestinationContent.list('-created_date')
   });
+
+  const { data: boats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
+  // If user is not superadmin and has an assigned operator, only show their location
+  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
+  const userLocation = isUserRestricted ? (() => {
+    const userBoats = boats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
+    if (userBoats.length > 0) {
+      const uniqueLocs = [...new Set(userBoats.map(b => b.location))];
+      return uniqueLocs.length === 1 ? uniqueLocs[0] : null;
+    }
+    return null;
+  })() : null;
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.DestinationContent.create(data),
