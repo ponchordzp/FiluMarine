@@ -1,4 +1,6 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { loadOperatorFilterAccess } from '@/components/admin/RolePermissionsManager';
 import {
@@ -140,6 +142,13 @@ function loadOperators() {
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
   const allOperators = loadOperators();
+  const { data: dbLocations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list('sort_order'),
+  });
+  const locationOptions = dbLocations.length > 0
+    ? [{ id: 'all', label: 'All' }, ...dbLocations.map(l => ({ id: l.location_id, label: l.name }))]
+    : [{ id: 'all', label: 'All' }, { id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }];
   // SuperAdmin sees all operators and can switch freely.
   // All other roles are locked to their assigned operator — show only that one.
   const operators = isSuperAdmin
@@ -195,15 +204,15 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
             <MapPin className="h-3 w-3" /> Filter by Location:
           </span>
           <div className="flex gap-1 flex-wrap">
-            {['all', 'ixtapa_zihuatanejo', 'acapulco'].map(loc => (
+            {locationOptions.map(loc => (
               <button
-                key={loc}
-                onClick={() => onLocationFilterChange(loc)}
+                key={loc.id}
+                onClick={() => onLocationFilterChange(loc.id)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                  locationFilter === loc ? 'bg-teal-500/30 text-teal-200 border border-teal-500/40' : 'text-white/40 hover:text-white/70 hover:bg-white/10'
+                  locationFilter === loc.id ? 'bg-teal-500/30 text-teal-200 border border-teal-500/40' : 'text-white/40 hover:text-white/70 hover:bg-white/10'
                 }`}
               >
-                {loc === 'all' ? 'All' : loc === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : 'Acapulco'}
+                {loc.label}
               </button>
             ))}
           </div>

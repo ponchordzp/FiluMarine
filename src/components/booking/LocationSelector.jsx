@@ -127,7 +127,11 @@ export default function LocationSelector({ onSelectLocation }) {
         </div>
 
         {/* Location Cards */}
-        <div className="grid md:grid-cols-2 gap-10">
+        <div className={`grid gap-10 ${
+          locations.length === 3 ? 'grid-cols-1 sm:grid-cols-3' :
+          locations.length === 4 ? 'grid-cols-1 sm:grid-cols-2' :
+          'grid-cols-1 sm:grid-cols-2'
+        }`}>
           {locations.map((location, index) => (
             <div 
               key={location.location_id || location.id}
