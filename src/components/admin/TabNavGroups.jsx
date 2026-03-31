@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -134,17 +134,30 @@ function buildFamiliesForUser(isSuperAdmin, isOperatorAdmin) {
     });
 }
 
-const OPERATOR_STORAGE_KEY = 'filu_operators';
-function loadOperators() {
-  try { const raw = localStorage.getItem(OPERATOR_STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
-  return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
+// Load operators from database instead of localStorage
+async function loadOperatorsFromDB() {
+  try {
+    const operators = await base44.entities.Operator.list('name');
+    return operators.map(op => ({ id: op.id, name: op.name, color: op.color || '#f97316', locations: op.locations || [] }));
+  } catch {
+    return [{ id: 'filu', name: 'FILU', color: '#1e88e5', locations: [] }];
+  }
 }
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
-  const allOperators = loadOperators();
+  const [allOperators, setAllOperators] = useState([{ id: 'filu', name: 'FILU', color: '#1e88e5', locations: [] }]);
+
+  useEffect(() => {
+    loadOperatorsFromDB().then(setAllOperators);
+  }, []);
   const { data: dbLocations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list('sort_order'),
+  });
+
+  const { data: dbOperators = [] } = useQuery({
+    queryKey: ['operators'],
+    queryFn: () => base44.entities.Operator.list('name'),
   });
   
   // Build base location options from database
@@ -152,14 +165,19 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
     ? [{ id: 'all', label: 'All' }, ...dbLocations.map(l => ({ id: l.location_id, label: l.name }))]
     : [{ id: 'all', label: 'All' }, { id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }];
   
+  // Use database operators if available, fall back to local state
+  const operatorsToDisplay = dbOperators.length > 0
+    ? dbOperators.map(op => ({ id: op.id, name: op.name, color: op.color || '#f97316', locations: op.locations || [] }))
+    : allOperators;
+
   // SuperAdmin sees all operators and can switch freely.
   // All other roles are locked to their assigned operator — show only that one.
   const operators = isSuperAdmin
-    ? allOperators
+    ? operatorsToDisplay
     : currentUserOperator
-      ? allOperators.filter(op => op.name.toLowerCase() === currentUserOperator.toLowerCase())
-          .concat(allOperators.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }] : [])
-      : allOperators;
+      ? operatorsToDisplay.filter(op => op.name.toLowerCase() === currentUserOperator.toLowerCase())
+          .concat(operatorsToDisplay.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316', locations: [] }] : [])
+      : operatorsToDisplay;
   
   const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
   

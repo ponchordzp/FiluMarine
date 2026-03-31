@@ -329,7 +329,6 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
 }
 
 export default function OperatorsDashboard() {
-  const [operators, setOperators] = useState(loadOperators);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
@@ -341,6 +340,7 @@ export default function OperatorsDashboard() {
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
   const { data: bookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
   const { data: expenses = [] } = useQuery({ queryKey: ['booking-expenses'], queryFn: () => base44.entities.BookingExpense.list() });
+  const { data: operators = [] } = useQuery({ queryKey: ['operators'], queryFn: () => base44.entities.Operator.list('name') });
 
   // Sync paypal_username to all boats belonging to this operator
   const syncPaypalToBoats = async (opName, paypalUsername) => {
@@ -368,26 +368,30 @@ export default function OperatorsDashboard() {
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) return;
-    let updated;
-    if (editingOp) {
-      updated = operators.map(o => o.id === editingOp.id ? { ...o, ...form } : o);
-    } else {
-      updated = [...operators, { id: `op_${Date.now()}`, ...form }];
+    try {
+      if (editingOp) {
+        await base44.entities.Operator.update(editingOp.id, form);
+      } else {
+        await base44.entities.Operator.create(form);
+      }
+      queryClient.invalidateQueries({ queryKey: ['operators'] });
+      syncPaypalToBoats(form.name, form.paypal_username);
+      setDialogOpen(false);
+    } catch (error) {
+      console.error('Error saving operator:', error);
     }
-    saveOperators(updated);
-    setOperators(updated);
-    // Sync paypal_username directly onto all boats of this operator in the DB
-    syncPaypalToBoats(form.name, form.paypal_username);
-    setDialogOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Remove this operator?')) return;
-    const updated = operators.filter(o => o.id !== id);
-    saveOperators(updated);
-    setOperators(updated);
+    try {
+      await base44.entities.Operator.delete(id);
+      queryClient.invalidateQueries({ queryKey: ['operators'] });
+    } catch (error) {
+      console.error('Error deleting operator:', error);
+    }
   };
 
   return (
@@ -398,7 +402,7 @@ export default function OperatorsDashboard() {
           <p className="text-sm text-white/40 mt-0.5">Fleet, crew, and booking overview per operator</p>
         </div>
         <Button onClick={openAdd} className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
-          <Plus className="h-4 w-4" />Add Operator
+          <Plus className="h-4 w-4" /> Add Operator
         </Button>
       </div>
 
