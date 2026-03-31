@@ -48,6 +48,7 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
   const [locationFilter, setLocationFilter] = useState('all');
 
   // Get user's operator location if they're restricted
+  const isChartOperator = currentUser?.role === 'charter_operator';
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
   const userLocation = isUserRestricted ? (() => {
     // Find boat location for this user's operator
@@ -191,7 +192,19 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
         </Dialog>
       </div>
 
-
+      {/* Filter */}
+      {!isUserRestricted && !isChartOperator && (
+        <div className="flex items-center gap-3 mb-4">
+          <Label className="text-white/50 text-xs">Filter by Destination:</Label>
+          <Select value={locationFilter} onValueChange={setLocationFilter}>
+            <SelectTrigger className="w-52 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Destinations</SelectItem>
+              {LOCATIONS.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="grid gap-3">
         {filtered.length === 0 ? (
