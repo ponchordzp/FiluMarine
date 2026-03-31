@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import BoatImageCarousel from '@/components/booking/BoatImageCarousel';
 import { base44 } from '@/api/base44Client';
-import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, Waves, Sun, Clock, AlertTriangle, MapPin } from 'lucide-react';
+import { Anchor, Users, Gauge, Shield, Wifi, Video, Zap, Wrench, Droplet, Fish, Navigation, Waves, Sun, Clock, AlertTriangle, MapPin, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import BoatDetailModal from '@/components/booking/BoatDetailModal';
 
@@ -254,8 +254,16 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                         };
                         const defaults = defaultDurations[exp] || { hours: 5, time: '7:00 AM' };
                         const durationHours = pricing?.duration_hours || defaults.hours;
-                        const departureTime = pricing?.departure_time || defaults.time;
-                        const pickupLocation = pricing?.pickup_location || null;
+                        // Support array of pickup/departure entries (new) or legacy single string
+                        const pickupDeps = pricing?.pickup_departures;
+                        const departureTimes = pickupDeps && pickupDeps.length > 0
+                          ? pickupDeps.map(d => d.departure_time).filter(Boolean)
+                          : (pricing?.departure_time ? [pricing.departure_time] : [defaults.time]);
+                        const pickupLocations = pickupDeps && pickupDeps.length > 0
+                          ? [...new Set(pickupDeps.map(d => d.pickup_location).filter(Boolean))]
+                          : (pricing?.pickup_location ? [pricing.pickup_location] : []);
+                        const priceFromDB = pricing?.price_mxn;
+                        const pickupLocation = pickupLocations.length > 0 ? pickupLocations.join(', ') : null;
                         const expIcons = {
                           half_day_fishing: Fish,
                           full_day_fishing: Fish,
@@ -273,12 +281,13 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                               <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
                             </div>
                             <div className="flex flex-wrap gap-3 text-xs text-white/55 pl-5">
-                              <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{durationHours}h</span>
-                              <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{departureTime}</span>
-                              {pickupLocation && (
-                                <span className="flex items-center gap-1"><MapPin className="h-3 w-3 inline" />{pickupLocation}</span>
-                              )}
-                            </div>
+                               <span className="flex items-center gap-1"><Lock className="h-2.5 w-2.5 text-cyan-500/70" /><Clock className="h-3 w-3 inline" />{durationHours}h</span>
+                               {priceFromDB > 0 && <span className="flex items-center gap-1 text-cyan-300/80 font-semibold">${priceFromDB.toLocaleString()} MXN</span>}
+                               <span className="flex items-center gap-1"><Clock className="h-3 w-3 inline" />{departureTimes.join(', ')}</span>
+                               {pickupLocation && (
+                                 <span className="flex items-center gap-1"><MapPin className="h-3 w-3 inline" />{pickupLocation}</span>
+                               )}
+                             </div>
                           </div>
                         );
                       })}

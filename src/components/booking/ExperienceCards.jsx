@@ -118,10 +118,12 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       
       if (!baseExp) return null;
       
+      // Always use vessel-editor values — they are the authoritative locked source
+      const lockIcon = '🔒 ';
       return {
         ...baseExp,
         duration: pricing?.duration_hours ? `${pricing.duration_hours} hours` : baseExp.duration,
-        price: pricing?.price_mxn || baseExp.price,
+        price: pricing?.price_mxn > 0 ? pricing.price_mxn : baseExp.price,
         availableBoats: selectedBoat.name,
       };
     }).filter(Boolean);

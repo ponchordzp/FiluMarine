@@ -291,6 +291,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     setImageFile(null);
     setImagePreview('');
     setAdditionalImageFiles([]);
+    setExpeditionPickupDepartures({});
     setNewSupplier({ name: '', phone: '', email: '', specialty: '' });
     setNewRecurringCost({
       name: '', amount: 0, frequency_months: 1, next_payment_date: '', category: 'other', notes: ''
@@ -361,6 +362,17 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       custom_equipment_visibility: normalizedCustomVisibility
     });
     setImagePreview(boat.image || '');
+    // Populate expeditionPickupDepartures from saved data so edits don't lose existing entries
+    const pickupDeps = {};
+    (boat.expedition_pricing || []).forEach((p, idx) => {
+      if (p.pickup_departures && p.pickup_departures.length > 0) {
+        pickupDeps[p.expedition_type] = p.pickup_departures;
+      } else if (p.pickup_location || p.departure_time) {
+        // Migrate legacy single-entry to array format
+        pickupDeps[p.expedition_type] = [{ id: Date.now() + idx, pickup_location: p.pickup_location || '', departure_time: p.departure_time || '' }];
+      }
+    });
+    setExpeditionPickupDepartures(pickupDeps);
     setDialogOpen(true);
   };
 
@@ -393,6 +405,21 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const handleSubmit = async (e) => {
     e.preventDefault();
     let finalData = { ...formData };
+    // Sync expeditionPickupDepartures into expedition_pricing (protected vault: never overwrite with empty)
+    finalData.expedition_pricing = (finalData.expedition_pricing || []).map(p => {
+      const deps = expeditionPickupDepartures[p.expedition_type];
+      if (deps && deps.length > 0) {
+        return {
+          ...p,
+          pickup_departures: deps,
+          // Keep legacy single fields from first entry for backward compat
+          pickup_location: deps[0]?.pickup_location || p.pickup_location || '',
+          departure_time: deps[0]?.departure_time || p.departure_time || '',
+        };
+      }
+      // No new entries: preserve existing data untouched
+      return p;
+    });
     setUploading(true);
     if (imageFile) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
