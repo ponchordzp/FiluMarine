@@ -110,47 +110,28 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
     boat.boat_mode !== 'maintenance_only'
   );
 
-  const fleet = activeBoats.length > 0 ? activeBoats.map(boat => {
+  const fleet = activeBoats.map(boat => {
     const strengths = [];
-    
     if (boat.equipment) {
       Object.entries(boat.equipment).forEach(([key, value]) => {
         if (value) {
-          // Check visibility - default to true if not set
           const isVisible = boat.equipment_visibility?.[key] !== false;
           if (isVisible) {
             const Icon = equipmentIcons[key] || Shield;
-            strengths.push({
-              icon: Icon,
-              text: key.replace(/_/g, ' ')
-            });
+            strengths.push({ icon: Icon, text: key.replace(/_/g, ' ') });
           }
         }
       });
     }
-
-    // Add custom equipment that is visible
     if (boat.custom_equipment && Array.isArray(boat.custom_equipment)) {
       boat.custom_equipment.forEach((eq, idx) => {
         const isVisible = boat.custom_equipment_visibility?.[idx] !== false;
-        if (isVisible) {
-          strengths.push({
-            icon: Shield,
-            text: eq
-          });
-        }
+        if (isVisible) strengths.push({ icon: Shield, text: eq });
       });
     }
-
-    if (strengths.length === 0) {
-      strengths.push({ icon: Shield, text: 'Quality equipment' });
-    }
-
-    return {
-      ...boat,
-      strengths: strengths,
-    };
-  }) : (fleetByLocation[location] || fleetByLocation.ixtapa_zihuatanejo);
+    if (strengths.length === 0) strengths.push({ icon: Shield, text: 'Quality equipment' });
+    return { ...boat, strengths };
+  });
 
   const handleBoatClick = (boat) => {
     setSelectedBoatDetail(boat);
@@ -166,9 +147,9 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const tomorrowStr = tomorrow.toISOString().split('T')[0];
-    const tomorrowBookings = bookings.filter(b => 
-      b.boat_name === boatName && 
-      b.date === tomorrowStr && 
+    const tomorrowBookings = bookings.filter(b =>
+      b.boat_name === boatName &&
+      b.date === tomorrowStr &&
       b.status !== 'cancelled'
     );
     return tomorrowBookings.length === 0;
