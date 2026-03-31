@@ -340,7 +340,13 @@ export default function OperatorsDashboard() {
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
   const { data: bookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
   const { data: expenses = [] } = useQuery({ queryKey: ['booking-expenses'], queryFn: () => base44.entities.BookingExpense.list() });
-  const { data: operators = [] } = useQuery({ queryKey: ['operators'], queryFn: () => base44.entities.Operator.list('name') });
+  const { data: dbOperators = [] } = useQuery({ queryKey: ['operators'], queryFn: async () => {
+    const ops = await base44.entities.Operator.list('name');
+    // Merge vault data on top to restore protected fields if missing
+    return mergeProtectedData(ops);
+  } });
+  
+  const operators = dbOperators;
 
   // Sync paypal_username to all boats belonging to this operator
   const syncPaypalToBoats = async (opName, paypalUsername) => {
@@ -371,6 +377,9 @@ export default function OperatorsDashboard() {
   const handleSave = async () => {
     if (!form.name.trim()) return;
     try {
+      // Always save protected fields (including commission_pct) to vault first
+      saveProtectedData([form]);
+      
       if (editingOp) {
         await base44.entities.Operator.update(editingOp.id, form);
       } else {
