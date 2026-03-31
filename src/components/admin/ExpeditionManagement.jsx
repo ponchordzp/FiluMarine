@@ -81,7 +81,8 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
   // Use external filter if provided (from parent global filter), else local
   const locationFilter = externalLocationFilter || localLocationFilter;
 
-  // Get user's operator location if they're operator_admin, charter_operator, or admin/crew with operator
+  // Charter operators MUST be restricted to their operator's location only
+  const isChartOperator = currentUser?.role === 'charter_operator';
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
   const userLocation = isUserRestricted ? (() => {
     // Find boat location for this user's operator
@@ -92,6 +93,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     }
     return null;
   })() : null;
+  
+  // For charter operators, FORCE location to their operator's location, ignore externalLocationFilter
+  const effectiveLocationFilter = isChartOperator && userLocation ? userLocation : externalLocationFilter;
 
   const { data: allBoats = [] } = useQuery({
     queryKey: ['all-boats'],
@@ -185,12 +189,16 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
   };
 
   const filtered = expeditions.filter((exp) => {
-    // Restrict by user location if needed
+    // Charter operators: HARD restrict to their location
+    if (isChartOperator && userLocation && exp.location !== 'both' && exp.location !== userLocation) {
+      return false;
+    }
+    // Other restricted users
     if (isUserRestricted && userLocation && exp.location !== 'both' && exp.location !== userLocation) {
       return false;
     }
-    if (locationFilter === 'all') return true;
-    return exp.location === locationFilter || exp.location === 'both';
+    if (effectiveLocationFilter === 'all') return true;
+    return exp.location === effectiveLocationFilter || exp.location === 'both';
   });
 
   // Each location group shows its own records + any 'both' records

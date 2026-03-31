@@ -45,7 +45,8 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
 
-  // Get user's operator and location if they're restricted
+  // Charter operators MUST be restricted to their operator's location only
+  const isChartOperator = currentUser?.role === 'charter_operator';
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
   const userOperatorLocation = isUserRestricted ? (() => {
     // Determine location from boats belonging to user's operator
@@ -122,21 +123,24 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     }));
   };
 
-  // Filter boats based on location filter + operator restriction
-  let displayBoats = boats;
-  
-  // First apply location filter if provided
-  if (locationFilter && locationFilter !== 'all') {
-    displayBoats = boats.filter(b => b.location === locationFilter && b.status !== 'inactive');
-  } else if (isUserRestricted && userOperatorLocation) {
-    displayBoats = boats.filter(b => b.location === userOperatorLocation && b.status !== 'inactive');
-  } else {
-    displayBoats = boats.filter(b => b.status !== 'inactive');
-  }
+  // Charter operators: DO NOT show boats, show all extras without boat applicability info
+  // For other roles: apply location + operator filtering
+  const displayBoats = isChartOperator ? [] : (() => {
+    let boats_ = boats;
+    // Apply location filter if provided
+    if (locationFilter && locationFilter !== 'all') {
+      boats_ = boats_.filter(b => b.location === locationFilter && b.status !== 'inactive');
+    } else if (isUserRestricted && userOperatorLocation) {
+      boats_ = boats_.filter(b => b.location === userOperatorLocation && b.status !== 'inactive');
+    } else {
+      boats_ = boats_.filter(b => b.status !== 'inactive');
+    }
+    return boats_;
+  })();
   
   const boatNames = displayBoats.map(b => b.name);
 
-  // Filter extras: show all extras by default (boats filter will apply in the form)
+  // Filter extras: show all extras
   const filteredExtras = extras;
 
   return (
