@@ -389,7 +389,29 @@ export default function OperatorsDashboard() {
     // Restore from vault to ensure protected fields aren't lost
     const protected_ = loadProtectedData();
     const vaultData = protected_[(op.name || '').toUpperCase()] || {};
-    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || vaultData.contact_name || '', contact_email: op.contact_email || vaultData.contact_email || '', contact_phone: op.contact_phone || vaultData.contact_phone || '', paypal_username: op.paypal_username || vaultData.paypal_username || '', commission_pct: op.commission_pct ?? vaultData.commission_pct ?? 0, commission_pct_locked: op.commission_pct_locked ?? vaultData.commission_pct_locked ?? false, color: op.color || vaultData.color || '#1e88e5', bank_name: op.bank_name || vaultData.bank_name || '', bank_account_clabe: op.bank_account_clabe || vaultData.bank_account_clabe || '', bank_account_number: op.bank_account_number || vaultData.bank_account_number || '', bank_account_holder: op.bank_account_holder || vaultData.bank_account_holder || '', bank_notes: op.bank_notes || vaultData.bank_notes || '', locations: op.locations || vaultData.locations || [] });
+    // CRITICAL: Always ensure commission_pct is a valid number, never undefined or string
+    const commissionValue = op.commission_pct !== undefined && op.commission_pct !== null
+      ? parseFloat(op.commission_pct)
+      : (vaultData.commission_pct !== undefined && vaultData.commission_pct !== null
+          ? parseFloat(vaultData.commission_pct)
+          : 0);
+    setForm({
+      name: op.name,
+      description: op.description || '',
+      contact_name: op.contact_name || vaultData.contact_name || '',
+      contact_email: op.contact_email || vaultData.contact_email || '',
+      contact_phone: op.contact_phone || vaultData.contact_phone || '',
+      paypal_username: op.paypal_username || vaultData.paypal_username || '',
+      commission_pct: commissionValue,
+      commission_pct_locked: op.commission_pct_locked ?? vaultData.commission_pct_locked ?? false,
+      color: op.color || vaultData.color || '#1e88e5',
+      bank_name: op.bank_name || vaultData.bank_name || '',
+      bank_account_clabe: op.bank_account_clabe || vaultData.bank_account_clabe || '',
+      bank_account_number: op.bank_account_number || vaultData.bank_account_number || '',
+      bank_account_holder: op.bank_account_holder || vaultData.bank_account_holder || '',
+      bank_notes: op.bank_notes || vaultData.bank_notes || '',
+      locations: op.locations || vaultData.locations || []
+    });
     setDialogOpen(true);
   };
 
@@ -516,21 +538,25 @@ export default function OperatorsDashboard() {
             <div>
              <Label className="text-sm text-foreground flex items-center gap-2">FILU Fee % {editingOp?.commission_pct_locked && <Lock className="h-3 w-3 text-red-400" />}</Label>
              <div className="flex items-center mt-1">
-               <Input
-                 type="number"
-                 min="0"
-                 max="100"
-                 step="0.5"
-                 value={form.commission_pct}
-                 onChange={e => setForm(f => ({ ...f, commission_pct: parseFloat(e.target.value) || 0 }))}
-                 placeholder="0"
-                 disabled={editingOp?.commission_pct_locked}
-                 className="rounded-r-none"
-               />
-               <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted">%</span>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                step="0.1"
+                value={form.commission_pct}
+                onChange={e => {
+                  const val = e.target.value.trim();
+                  const num = val === '' ? 0 : parseFloat(val);
+                  setForm(f => ({ ...f, commission_pct: isNaN(num) ? 0 : num }));
+                }}
+                placeholder="0"
+                disabled={editingOp?.commission_pct_locked}
+                className="rounded-r-none"
+              />
+              <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted">%</span>
              </div>
              <p className="text-xs text-muted-foreground mt-1">{editingOp?.commission_pct_locked ? 'This field is locked and cannot be edited.' : 'FILU Fee % charged from each booking\'s revenue'}</p>
-            </div>
+             </div>
             <div>
               <Label className="text-sm text-foreground">PayPal Username</Label>
               <div className="flex items-center mt-1">
