@@ -605,7 +605,7 @@ function AdminBookingsInner() {
             <ChevronDown className={`h-3.5 w-3.5 text-amber-300/60 transition-transform ${expandedRows['financial-trends'] ? '' : '-rotate-90'}`} />
           </button>
           {expandedRows['financial-trends'] && (
-            <FinancialTrendChart financialFilteredBookings={financialFilteredBookings} />
+            <FinancialTrendChart financialFilteredBookings={financialFilteredBookings} financialExpenses={financialExpenses} getOperatorCommission={getOperatorCommission} />
           )}
         </div>
 
