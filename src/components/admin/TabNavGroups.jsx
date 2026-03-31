@@ -11,6 +11,7 @@ function loadPermissions() {
     const raw = localStorage.getItem(PERMISSIONS_KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
+  // Return exact DEFAULT_PERMISSIONS from RolePermissionsManager
   return {
     superadmin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'checklist-template', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'operators', 'join-applications', 'users', 'customers', 'affiliates'],
     operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
