@@ -114,19 +114,17 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
     const strengths = [];
     if (boat.equipment) {
       Object.entries(boat.equipment).forEach(([key, value]) => {
-        if (value) {
-          const isVisible = boat.equipment_visibility?.[key] !== false;
-          if (isVisible) {
-            const Icon = equipmentIcons[key] || Shield;
-            strengths.push({ icon: Icon, text: key.replace(/_/g, ' ') });
-          }
+        if (value && boat.equipment_visibility?.[key] !== false) {
+          const Icon = equipmentIcons[key] || Shield;
+          strengths.push({ icon: Icon, text: key.replace(/_/g, ' ') });
         }
       });
     }
     if (boat.custom_equipment && Array.isArray(boat.custom_equipment)) {
       boat.custom_equipment.forEach((eq, idx) => {
-        const isVisible = boat.custom_equipment_visibility?.[idx] !== false;
-        if (isVisible) strengths.push({ icon: Shield, text: eq });
+        if (boat.custom_equipment_visibility?.[idx] !== false) {
+          strengths.push({ icon: Shield, text: eq });
+        }
       });
     }
     if (strengths.length === 0) strengths.push({ icon: Shield, text: 'Quality equipment' });
