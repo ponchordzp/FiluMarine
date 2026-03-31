@@ -102,9 +102,10 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     setDialogOpen(false);
   };
 
-  const handleEdit = (exp) => {
+  const handleEdit = (exp, groupLocation) => {
     setEditingExp(exp);
-    setFormData({ ...exp });
+    // Lock the form to the group's location so edits only apply to this specific location
+    setFormData({ ...exp, location: groupLocation || exp.location });
     setImagePreview(exp.image || '');
     setDialogOpen(true);
   };
@@ -155,14 +156,14 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     setFormData((prev) => ({ ...prev, includes: prev.includes.filter((i) => i !== item) }));
   };
 
-  // Only show exact-location records in each group so edits are location-isolated
   const filtered = expeditions.filter((exp) => {
     if (locationFilter === 'all') return true;
-    return exp.location === locationFilter;
+    return exp.location === locationFilter || exp.location === 'both';
   });
 
+  // Each location group shows its own records + any 'both' records
   const grouped = Object.fromEntries(
-    ALL_LOCATIONS.map(loc => [loc, filtered.filter(e => e.location === loc)])
+    ALL_LOCATIONS.map(loc => [loc, filtered.filter(e => e.location === loc || e.location === 'both')])
   );
 
   return (
@@ -251,7 +252,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
               }
 
                     <div className="flex gap-2 pt-1">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(exp)} className="flex-1 h-8 text-xs">
+                      <Button variant="outline" size="sm" onClick={() => handleEdit(exp, loc)} className="flex-1 h-8 text-xs">
                         <Edit className="h-3 w-3 mr-1" /> Edit
                       </Button>
                       <Button
