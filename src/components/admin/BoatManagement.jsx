@@ -412,7 +412,6 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       }
     });
     // Merge vault/DB pickup_departures DIRECTLY into expedition_pricing entries
-    // This ensures next Save always writes all departure times to DB (not just localStorage)
     const mergedExpPricing = sourceExpPricing.map(p => {
       const deps = pickupDeps[p.expedition_type];
       if (deps && deps.length > 0) {
@@ -425,6 +424,19 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       }
       return p;
     });
+
+    // Auto-sync vault → DB if vault has richer pickup_departures data than what's in DB
+    const needsSync = mergedExpPricing.some((p, i) => {
+      const dbP = dbExpPricing[i];
+      return p.pickup_departures && p.pickup_departures.length > 1 &&
+        (!dbP?.pickup_departures || dbP.pickup_departures.length < p.pickup_departures.length);
+    });
+    if (needsSync && boat.id) {
+      base44.entities.BoatInventory.update(boat.id, { ...boat, expedition_pricing: mergedExpPricing })
+        .then(() => queryClient.invalidateQueries({ queryKey: ['boats'] }))
+        .catch(() => {}); // silent — user can still save manually
+    }
+
     setFormData(prev => ({ ...prev, expedition_pricing: mergedExpPricing }));
     setExpeditionPickupDepartures(pickupDeps);
     setDialogOpen(true);
