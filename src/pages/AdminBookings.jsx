@@ -546,11 +546,11 @@ function AdminBookingsInner() {
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
         {/* Financial Dashboard Dialog */}
-        <div className="mb-6">
-          <button onClick={() => setShowFinancialDialog(!showFinancialDialog)} className="w-full rounded-xl px-3 py-2 flex items-center justify-between hover:opacity-80 transition-opacity" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
-            <div className="flex items-center gap-2">
+        <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
+          <button onClick={() => setShowFinancialDialog(!showFinancialDialog)} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity">
+            <div className="flex items-center gap-1.5">
               <BarChart2 className="h-4 w-4 text-emerald-300" />
-              <span className="text-sm font-semibold text-emerald-300 uppercase tracking-wider">Financial Dashboard</span>
+              <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Financial Dashboard</span>
             </div>
             <ChevronDown className={`h-3.5 w-3.5 text-emerald-300/60 transition-transform ${showFinancialDialog ? '' : '-rotate-90'}`} />
           </button>
