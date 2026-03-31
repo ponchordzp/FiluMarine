@@ -14,7 +14,7 @@ const OPERATOR_STORAGE_KEY = 'filu_operators';
 const OPERATOR_PROTECTED_KEY = 'filu_operators_protected'; // stores sensitive fields separately so they survive code edits
 
 // Protected fields that must never be overwritten by default values or code changes
-const PROTECTED_FIELDS = ['commission_pct', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color'];
+const PROTECTED_FIELDS = ['commission_pct', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color', 'locations'];
 
 function loadProtectedData() {
   try {
@@ -272,6 +272,18 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
           </div>
         )}
 
+        {/* Locations */}
+        {operator.locations && operator.locations.length > 0 && (
+          <div className="pt-3 border-t border-white/8">
+            <p className="text-xs text-white/40 uppercase tracking-wider mb-2 flex items-center gap-1"><MapPin className="h-3 w-3" /> Assigned Locations</p>
+            <div className="flex flex-wrap gap-1.5">
+              {operator.locations.map(loc => (
+                <span key={loc} className="px-2.5 py-1 rounded-lg text-xs font-medium" style={{ background: 'rgba(20,184,166,0.15)', border: '1px solid rgba(20,184,166,0.3)', color: '#5eead4' }}>{loc}</span>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Contact */}
         {(operator.contact_email || operator.contact_phone || operator.contact_name) && (
           <div className="pt-3 border-t border-white/8 space-y-1">
@@ -321,9 +333,10 @@ export default function OperatorsDashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: '#1e88e5', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' });
+  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: '#1e88e5', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '', locations: [] });
 
   const queryClient = useQueryClient();
+  const { data: dbLocations = [] } = useQuery({ queryKey: ['locations'], queryFn: () => base44.entities.Location.list('sort_order') });
   const { data: boats = [] } = useQuery({ queryKey: ['all-boats'], queryFn: () => base44.entities.BoatInventory.list() });
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
   const { data: bookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
@@ -345,13 +358,13 @@ export default function OperatorsDashboard() {
 
   const openAdd = () => {
     setEditingOp(null);
-    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: COLORS[operators.length % COLORS.length], bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '' });
+    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: COLORS[operators.length % COLORS.length], bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '', locations: [] });
     setDialogOpen(true);
   };
 
   const openEdit = (op) => {
     setEditingOp(op);
-    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', commission_pct: op.commission_pct || 0, color: op.color || '#1e88e5', bank_name: op.bank_name || '', bank_account_clabe: op.bank_account_clabe || '', bank_account_number: op.bank_account_number || '', bank_account_holder: op.bank_account_holder || '', bank_notes: op.bank_notes || '' });
+    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || '', contact_email: op.contact_email || '', contact_phone: op.contact_phone || '', paypal_username: op.paypal_username || '', commission_pct: op.commission_pct || 0, color: op.color || '#1e88e5', bank_name: op.bank_name || '', bank_account_clabe: op.bank_account_clabe || '', bank_account_number: op.bank_account_number || '', bank_account_holder: op.bank_account_holder || '', bank_notes: op.bank_notes || '', locations: op.locations || [] });
     setDialogOpen(true);
   };
 
@@ -488,6 +501,33 @@ export default function OperatorsDashboard() {
                 <div><Label className="text-sm">Account Number (optional)</Label><Input value={form.bank_account_number} onChange={e => setForm(f => ({ ...f, bank_account_number: e.target.value }))} placeholder="Account number" className="mt-1" /></div>
                 <div><Label className="text-sm">Notes</Label><Input value={form.bank_notes} onChange={e => setForm(f => ({ ...f, bank_notes: e.target.value }))} placeholder="e.g., reference required" className="mt-1" /></div>
               </div>
+            </div>
+            <div className="border-t pt-3">
+              <p className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-2 flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" /> Assigned Locations</p>
+              <p className="text-xs text-white/30 mb-3">Select which locations this operator operates in. Non-SuperAdmin users will only see these locations in the global filter.</p>
+              {dbLocations.length === 0 ? (
+                <p className="text-xs text-white/30 italic">No locations found in database</p>
+              ) : (
+                <div className="space-y-2">
+                  {dbLocations.filter(l => l.visible !== false).map(loc => (
+                    <label key={loc.location_id} className="flex items-center gap-3 cursor-pointer group rounded-lg px-3 py-2 hover:bg-white/5 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={(form.locations || []).includes(loc.location_id)}
+                        onChange={e => {
+                          const locs = form.locations || [];
+                          setForm(f => ({ ...f, locations: e.target.checked ? [...locs, loc.location_id] : locs.filter(l => l !== loc.location_id) }));
+                        }}
+                        className="w-4 h-4 accent-teal-500 flex-shrink-0"
+                      />
+                      <div>
+                        <span className="text-sm text-white/80 group-hover:text-white transition-colors font-medium">{loc.name}</span>
+                        <span className="text-xs text-white/30 ml-2">{loc.location_id}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              )}
             </div>
             <div>
               <Label className="text-sm">Brand Color</Label>
