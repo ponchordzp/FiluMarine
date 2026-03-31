@@ -189,9 +189,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
   };
 
   const filtered = expeditions.filter((exp) => {
-    // Charter operators: HARD restrict to their location
-    if (isChartOperator && userLocation && exp.location !== 'both' && exp.location !== userLocation) {
-      return false;
+    // Charter operators: ONLY show expeditions that match their location (ignore 'both')
+    if (isChartOperator && userLocation) {
+      return exp.location === userLocation;
     }
     // Other restricted users
     if (isUserRestricted && userLocation && exp.location !== 'both' && exp.location !== userLocation) {
