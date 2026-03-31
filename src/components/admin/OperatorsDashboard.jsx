@@ -475,14 +475,17 @@ export default function OperatorsDashboard() {
       // Save to vault first (protected storage)
       saveProtectedData([dataToSave]);
       
-      // Send to database with explicit commission fields
+      // CRITICAL: Save to database FIRST with all fields including commission_pct
+      let operatorId = editingOp?.id;
       if (editingOp) {
-        await base44.entities.Operator.update(editingOp.id, dataToSave);
+        await base44.entities.Operator.update(operatorId, dataToSave);
       } else {
-        await base44.entities.Operator.create(dataToSave);
+        const created = await base44.entities.Operator.create(dataToSave);
+        operatorId = created?.id || created?.[0]?.id;
       }
       
-      queryClient.invalidateQueries({ queryKey: ['operators'] });
+      // Force immediate refetch to sync DB→vault
+      await queryClient.refetchQueries({ queryKey: ['operators'], type: 'active' });
       syncPaypalToBoats(form.name, form.paypal_username);
       setDialogOpen(false);
     } catch (error) {
