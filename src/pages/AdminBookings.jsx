@@ -595,6 +595,98 @@ function AdminBookingsInner() {
           })()}
         </div>
 
+          {/* Booking KPIs - Collapsible Row 2 */}
+          <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', backdropFilter: 'blur(16px)' }}>
+            <button onClick={() => toggleRowExpansion('bookings')} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity" style={{ marginBottom: expandedRows.bookings ? '8px' : '0' }}>
+              <div className="flex items-center gap-1.5">
+                <CalendarIcon className="h-4 w-4 text-blue-300" />
+                <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">Bookings</span>
+              </div>
+              <ChevronDown className={`h-3.5 w-3.5 text-blue-300/60 transition-transform ${expandedRows.bookings ? '' : '-rotate-90'}`} />
+            </button>
+            {expandedRows.bookings && (
+              <>
+                <div className="grid md:grid-cols-3 gap-2 mb-3">
+                  <div>
+                    <Label className="text-blue-200 text-xs font-semibold">Time Range</Label>
+                    <Select value={bookingTimeFilter} onValueChange={(val) => { setBookingTimeFilter(val); if (val !== 'custom') setShowCustomDatePickerBooking(false); }}>
+                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Time</SelectItem>
+                        <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
+                        <SelectItem value="last-month">Last Month</SelectItem>
+                        <SelectItem value="last-3-months">Last 3 Months</SelectItem>
+                        <SelectItem value="this-year">This Year</SelectItem>
+                        <SelectItem value="custom">Custom Range</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {bookingTimeFilter === 'custom' && (
+                    <Dialog open={showCustomDatePickerBooking} onOpenChange={setShowCustomDatePickerBooking}>
+                      <DialogTrigger asChild>
+                        <Button className="mt-6 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 flex items-center gap-1.5" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
+                          <CalendarIcon className="h-3.5 w-3.5" />{bookingCustomDateRange.from && bookingCustomDateRange.to ? `${format(bookingCustomDateRange.from, 'MMM d')} - ${format(bookingCustomDateRange.to, 'MMM d')}` : 'Select Dates'}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <Label className="text-xs text-white/50 mb-2 block">From</Label>
+                            <Calendar selected={bookingCustomDateRange.from} onSelect={(date) => setBookingCustomDateRange(prev => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-white/50 mb-2 block">To</Label>
+                            <Calendar selected={bookingCustomDateRange.to} onSelect={(date) => setBookingCustomDateRange(prev => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
+                          </div>
+                        </div>
+                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerBooking(false)} disabled={!bookingCustomDateRange.from || !bookingCustomDateRange.to}>
+                          Apply Range
+                        </Button>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                  <div>
+                    <Label className="text-blue-200 text-xs font-semibold">Boat</Label>
+                    <Select value={bookingBoatFilter} onValueChange={setBookingBoatFilter}>
+                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Boats</SelectItem>
+                        {bookingFilteredBoats.map(boat => (
+                          <SelectItem key={boat} value={boat}>{boat}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-5 gap-2 mb-4">
+                  {[
+                    { label: 'Total', value: bookingStats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', Icon: LayoutGrid },
+                    { label: 'Pending', value: bookingStats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', Icon: Hourglass },
+                    { label: 'Confirmed', value: bookingStats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', Icon: CheckCircle2 },
+                    { label: 'Completed', value: bookingStats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', Icon: Target },
+                    { label: 'Cancelled', value: bookingStats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', Icon: XCircle },
+                  ].map(s => (
+                    <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
+                      <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
+                        <s.Icon className={`h-3.5 w-3.5 shrink-0 ${s.text}`} />
+                        <p className={`text-[10px] text-white/70 font-medium whitespace-nowrap`}>{s.label}</p>
+                      </div>
+                      <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
+                        textShadow: s.label === 'Total' ? '0 0 10px rgba(255,255,255,0.5)' :
+                                   s.label === 'Pending' ? '0 0 10px rgba(245,158,11,0.7)' :
+                                   s.label === 'Confirmed' ? '0 0 10px rgba(16,185,129,0.7)' :
+                                   s.label === 'Completed' ? '0 0 10px rgba(59,130,246,0.7)' :
+                                   '0 0 10px rgba(239,68,68,0.7)'
+                      }}>{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+                <BookingTrendChart bookingFilteredBookings={bookingFilteredBookings} />
+              </>
+            )}
+          </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} currentUserOperator={currentUserOperator} currentUserRole={currentUser?.role} operatorFilter={effectiveOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} locationFilter={globalLocationFilter} onLocationFilterChange={setGlobalLocationFilter} />
 
