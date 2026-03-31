@@ -138,20 +138,17 @@ const destinationsByLocation = {
 export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
   const { data: dbDestinations = [] } = useQuery({
     queryKey: ['destinations', location],
-    queryFn: () => base44.entities.DestinationContent.list(),
-    refetchInterval: 5000,
+    queryFn: () => base44.entities.DestinationContent.filter({ region: location }),
   });
 
-  const filteredDbDests = dbDestinations.filter(d => d.region === location);
-  
-  const destinations = filteredDbDests.length > 0 
-    ? filteredDbDests.map(d => ({
+  const destinations = dbDestinations.length > 0
+    ? dbDestinations.map(d => ({
         id: d.destination_id,
         name: d.name,
-        description: d.summary?.substring(0, 100) + '...' || '',
+        description: d.summary?.substring(0, 120) + '...' || '',
         image: d.images?.[0] || 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800'
       }))
-    : (destinationsByLocation[location] || destinationsByLocation.ixtapa_zihuatanejo);
+    : (destinationsByLocation[location] || []);
 
   return (
     <section className="relative py-6 md:py-10 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#050f1e' }}>
