@@ -138,7 +138,7 @@ function loadOperators() {
   return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
 }
 
-export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange }) {
+export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
   const allOperators = loadOperators();
   // SuperAdmin sees all operators and can switch freely.
   // All other roles are locked to their assigned operator — show only that one.
@@ -188,6 +188,27 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
           ))}
         </div>
       </div>
+
+      {onLocationFilterChange && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-white/40 flex items-center gap-1">
+            <MapPin className="h-3 w-3" /> Filter by Location:
+          </span>
+          <div className="flex gap-1 flex-wrap">
+            {['all', 'ixtapa_zihuatanejo', 'acapulco'].map(loc => (
+              <button
+                key={loc}
+                onClick={() => onLocationFilterChange(loc)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+                  locationFilter === loc ? 'bg-teal-500/30 text-teal-200 border border-teal-500/40' : 'text-white/40 hover:text-white/70 hover:bg-white/10'
+                }`}
+              >
+                {loc === 'all' ? 'All' : loc === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : 'Acapulco'}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

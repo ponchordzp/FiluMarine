@@ -198,6 +198,12 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       };
     }).filter(Boolean);
 
+    const colClass = boatExperiences.length === 1
+      ? 'grid-cols-1 max-w-sm mx-auto'
+      : boatExperiences.length === 2
+      ? 'sm:grid-cols-2'
+      : 'md:grid-cols-3';
+
     return (
       <section className="relative py-8 md:py-12">
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
@@ -216,7 +222,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
               </p>
             </motion.div>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-6">
+            <div className={`grid gap-6 mb-6 ${colClass}`}>
               {boatExperiences.map((exp, i) => (
                 <motion.div
                   key={exp.id}
@@ -288,6 +294,12 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   const filteredRegular = regularExperiences.filter(e => isExpeditionVisible(e.id));
   const filteredFullDay = fullDayExperiences.filter(e => isExpeditionVisible(e.id));
   const showExtended = isExpeditionVisible(extendedExperience.id);
+  const totalGeneric = filteredRegular.length + filteredFullDay.length + (showExtended ? 1 : 0);
+  const genericColClass = totalGeneric === 1
+    ? 'grid-cols-1 max-w-sm mx-auto'
+    : totalGeneric === 2
+    ? 'sm:grid-cols-2'
+    : 'md:grid-cols-3';
 
   // Helper to render live DB boat names (no pickup info)
   const renderExpMeta = (expId) => {
@@ -319,7 +331,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-3 gap-6 mb-6">
+        <div className={`grid gap-6 mb-6 ${genericColClass}`}>
           {filteredRegular.map((exp, i) => (
             <motion.div
               key={exp.id}

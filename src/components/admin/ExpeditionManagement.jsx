@@ -54,7 +54,7 @@ const emptyForm = {
   sort_order: 0
 };
 
-export default function ExpeditionManagement({ operatorFilter = 'all' }) {
+export default function ExpeditionManagement({ operatorFilter = 'all', locationFilter: externalLocationFilter }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
@@ -63,7 +63,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [customInclude, setCustomInclude] = useState('');
-  const [locationFilter, setLocationFilter] = useState('all');
+  const [localLocationFilter, setLocalLocationFilter] = useState('all');
+  // Use external filter if provided (from parent global filter), else local
+  const locationFilter = externalLocationFilter || localLocationFilter;
 
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
@@ -121,7 +123,12 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
       setUploading(false);
     }
     if (editingExp) {
+      // Editing: always update only this specific record (no location splitting)
       updateMutation.mutate({ id: editingExp.id, data: finalData });
+    } else if (finalData.location === 'both') {
+      // Creating with 'both': create two separate records — one per location
+      createMutation.mutate({ ...finalData, location: 'ixtapa_zihuatanejo' });
+      createMutation.mutate({ ...finalData, location: 'acapulco' });
     } else {
       createMutation.mutate(finalData);
     }
@@ -164,7 +171,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
           {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
         </div>
         <div className="flex items-center gap-3">
-          <Select value={locationFilter} onValueChange={setLocationFilter}>
+          <Select value={localLocationFilter} onValueChange={setLocalLocationFilter}>
             <SelectTrigger className="w-44">
               <SelectValue />
             </SelectTrigger>

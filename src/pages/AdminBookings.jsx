@@ -93,6 +93,7 @@ function AdminBookingsInner() {
   const [unlockDialogOpen, setUnlockDialogOpen] = useState(false);
   const [selectedBlockedDate, setSelectedBlockedDate] = useState(null);
   const [globalOperatorFilter, setGlobalOperatorFilter] = useState('all');
+  const [globalLocationFilter, setGlobalLocationFilter] = useState('all');
   // ALL non-superadmin roles are LOCKED to their assigned operator. Only superadmin can freely switch.
   const effectiveOperatorFilter = isSuperAdmin ? globalOperatorFilter : (currentUserOperator || 'all');
   const [financialTimeFilter, setFinancialTimeFilter] = useState('all');
@@ -756,7 +757,7 @@ function AdminBookingsInner() {
           </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} currentUserOperator={currentUserOperator} currentUserRole={currentUser?.role} operatorFilter={effectiveOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} />
+          <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} currentUserOperator={currentUserOperator} currentUserRole={currentUser?.role} operatorFilter={effectiveOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} locationFilter={globalLocationFilter} onLocationFilterChange={setGlobalLocationFilter} />
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">
@@ -1214,7 +1215,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="expeditions">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
-                <ExpeditionManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
+                <ExpeditionManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} locationFilter={globalLocationFilter} />
               </div>
             </TabsContent>
           )}
