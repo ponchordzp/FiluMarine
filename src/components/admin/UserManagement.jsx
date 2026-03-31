@@ -256,29 +256,31 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
             key={tab.value}
             onClick={() => setRoleTab(tab.value)}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${roleTab === tab.value ? 'bg-purple-600 text-white' : 'text-white/50 hover:text-white/80 hover:bg-white/8'}`}>
-            
+
               {tab.label}
               {tab.value !== 'all' && <span className="ml-1.5 opacity-60">({countByRole(tab.value)})</span>}
-              {tab.value === 'all' && <span className="ml-1.5 opacity-60">({appUsers.length})</span>}
-            </button>
-          )}
+              {tab.value === 'all' && <span className="ml-1.5 opacity-60">({scopedUsers.length})</span>}
+              </button>
+              )}
         </div>
 
-        {/* Operator filter */}
-        <div className="flex items-center gap-2">
-          <Building2 className="h-3.5 w-3.5 text-white/40" />
-          <select
-            value={localOperatorFilter}
-            onChange={(e) => setLocalOperatorFilter(e.target.value)}
-            className="text-xs rounded-lg px-2.5 py-1.5 text-white/70 border"
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}>
-            
-            <option value="all">All Operators</option>
-            {operators.map((op) =>
-            <option key={op.id} value={op.name}>{op.name}</option>
-            )}
-          </select>
-        </div>
+        {/* Operator filter — SuperAdmin only */}
+        {isSuperAdmin && (
+          <div className="flex items-center gap-2">
+            <Building2 className="h-3.5 w-3.5 text-white/40" />
+            <select
+              value={localOperatorFilter}
+              onChange={(e) => setLocalOperatorFilter(e.target.value)}
+              className="text-xs rounded-lg px-2.5 py-1.5 text-white/70 border"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}>
+              
+              <option value="all">All Operators</option>
+              {operators.map((op) =>
+              <option key={op.id} value={op.name}>{op.name}</option>
+              )}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Users list */}
