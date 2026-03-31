@@ -244,7 +244,7 @@ export default function RolePermissionsManager() {
   const handleAddRole = () => {
     if (!newRoleName.trim()) return;
     const key = newRoleName.trim().toLowerCase().replace(/\s+/g, '_');
-    const newRole = { key, label: newRoleName.trim(), icon: Users, iconColor: 'text-slate-600', color: 'bg-slate-100 text-slate-800', locked: false, colorClass: 'bg-slate-100' };
+    const newRole = { key, label: newRoleName.trim(), icon: Users, iconColor: 'text-slate-600', color: 'bg-slate-100 text-slate-800', locked: false };
     const updatedRoles = [...customRoles, newRole];
     saveCustomRoles(updatedRoles);
     setCustomRoles(updatedRoles);
@@ -298,22 +298,25 @@ export default function RolePermissionsManager() {
       )}
 
       <div className="space-y-2">
-        {allRoles.map((role) => (
-          <RoleRow
-            key={role.key}
-            roleKey={role.key}
-            roleLabel={role.label}
-            icon={role.icon || Users}
-            iconColor={role.iconColor}
-            colorClass={role.color}
-            locked={role.locked}
-            permissions={permissions}
-            onChange={handleChange}
-            onDelete={role.locked ? null : handleDeleteCustomRole}
-            operatorFilterAccess={operatorFilterAccess}
-            onToggleOperatorFilter={handleToggleOperatorFilter}
-          />
-        ))}
+        {allRoles.map((role) => {
+          const iconComponent = typeof role.icon === 'function' ? role.icon : Users;
+          return (
+            <RoleRow
+              key={role.key}
+              roleKey={role.key}
+              roleLabel={role.label}
+              icon={iconComponent}
+              iconColor={role.iconColor}
+              colorClass={role.color}
+              locked={role.locked}
+              permissions={permissions}
+              onChange={handleChange}
+              onDelete={role.locked ? null : handleDeleteCustomRole}
+              operatorFilterAccess={operatorFilterAccess}
+              onToggleOperatorFilter={handleToggleOperatorFilter}
+            />
+          );
+        })
       </div>
     </div>
   );
