@@ -15,7 +15,7 @@ function loadPermissions() {
   return {
     superadmin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'checklist-template', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'operators', 'join-applications', 'users', 'customers', 'affiliates'],
     operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
-    charter_operator: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
+    charter_operator: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users', 'customers'],
     admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'engine-databases'],
     crew: ['bookings', 'booked-dates', 'dashboard', 'boats', 'engine-databases']
   };
