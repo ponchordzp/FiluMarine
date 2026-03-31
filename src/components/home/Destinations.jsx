@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MapPin } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import DestinationDetailModal from './DestinationDetailModal';
 
 // Fallback hardcoded data per region (used only if DB has no records for a region)
 const fallbackDestinations = {
@@ -33,6 +34,7 @@ const fallbackDestinations = {
 };
 
 export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
+  const [selectedDestination, setSelectedDestination] = useState(null);
   const normalizedLocation = (location || '').toLowerCase();
 
   const { data: dbDestinations = [] } = useQuery({
@@ -48,6 +50,10 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
         name: d.name,
         description: d.summary || '',
         image: (d.images && d.images[0]) || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800',
+        summary: d.summary,
+        coordinates: d.coordinates,
+        activities: d.activities || [],
+        images: d.images || [],
       }))
     : (fallbackDestinations[normalizedLocation] || []);
 
@@ -75,7 +81,10 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
             >
-              <div className="group relative rounded-3xl overflow-hidden aspect-[4/3] cursor-pointer border border-white/20 hover:border-cyan-400/40 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]">
+              <div 
+                className="group relative rounded-3xl overflow-hidden aspect-[4/3] cursor-pointer border border-white/20 hover:border-cyan-400/40 transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(34,211,238,0.2)]"
+                onClick={() => setSelectedDestination(dest)}
+              >
                 <img
                   src={dest.image}
                   alt={dest.name}
@@ -94,6 +103,12 @@ export default function Destinations({ location = 'ixtapa_zihuatanejo' }) {
           ))}
         </div>
       </div>
+
+      <DestinationDetailModal 
+        destination={selectedDestination} 
+        isOpen={!!selectedDestination} 
+        onClose={() => setSelectedDestination(null)} 
+      />
     </section>
   );
 }
