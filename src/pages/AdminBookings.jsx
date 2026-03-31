@@ -436,7 +436,7 @@ function AdminBookingsInner() {
     })(),
   };
 
-  // Helper function to get expenses for a booking
+  // Helper function to get expenses for a booking (excludes fees_cost)
   const getBookingExpenses = (bookingId) => {
     const exp = expenses.find(e => e.booking_id === bookingId);
     if (!exp) return 0;
@@ -446,8 +446,8 @@ function AdminBookingsInner() {
   // Helper function to calculate booking profit margin
   const getBookingProfitMargin = (booking) => {
     const revenue = booking.total_price || 0;
-    const expenses = getBookingExpenses(booking.id);
-    return revenue > 0 ? Math.min(100, Math.round(((revenue - expenses) / revenue) * 100)) : 0;
+    const exp = getBookingExpenses(booking.id);
+    return revenue > 0 ? Math.min(100, Math.round(((revenue - exp) / revenue) * 100)) : 0;
   };
 
   // Earnings = Revenue - Expenses - Commission
