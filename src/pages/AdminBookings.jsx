@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Trash2, Filter, ArrowLeft, Unlock, ChevronDown, TrendingUp, TrendingDown, CreditCard, BarChart2, Percent, LayoutGrid, Hourglass, Target, Circle } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign, Ban, CheckCircle2, XCircle, Info, Trash2, Filter, ArrowLeft, Unlock, ChevronDown, TrendingUp, TrendingDown, CreditCard, BarChart2, Percent, LayoutGrid, Hourglass, Target, Circle, LineChart } from 'lucide-react';
 import { format, parseISO, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays } from 'date-fns';
 import { motion } from 'framer-motion';
 import AdminAuth, { useAuth } from '@/components/AdminAuth';
@@ -593,6 +593,20 @@ function AdminBookingsInner() {
               </div>
             );
           })()}
+        </div>
+
+        {/* Financial Trends Over Time */}
+        <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)', backdropFilter: 'blur(16px)' }}>
+          <button onClick={() => toggleRowExpansion('financial-trends')} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity" style={{ marginBottom: expandedRows['financial-trends'] ? '8px' : '0' }}>
+            <div className="flex items-center gap-1.5">
+              <LineChart className="h-4 w-4 text-amber-300" />
+              <span className="text-xs font-semibold text-amber-300 uppercase tracking-wider">Financial Trends</span>
+            </div>
+            <ChevronDown className={`h-3.5 w-3.5 text-amber-300/60 transition-transform ${expandedRows['financial-trends'] ? '' : '-rotate-90'}`} />
+          </button>
+          {expandedRows['financial-trends'] && (
+            <FinancialTrendChart financialFilteredBookings={financialFilteredBookings} />
+          )}
         </div>
 
           {/* Booking KPIs - Collapsible Row 2 */}
