@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { X, Users, Anchor, Wifi, Video, Zap, Droplet, Fish, Navigation } from 'lucide-react';
+import { X, Users, Anchor, Wifi, Video, Zap, Droplet, Fish, Navigation, DollarSign } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 const equipmentIcons = {
   bathroom: Droplet,
@@ -15,6 +17,13 @@ const equipmentIcons = {
 };
 
 export default function BoatDetailModal({ boat, isOpen, onClose }) {
+  const { data: operators = [] } = useQuery({
+    queryKey: ['operators'],
+    queryFn: () => base44.entities.Operator.list('name'),
+  });
+
+  const operatorData = boat?.operator ? operators.find(op => op.name?.toLowerCase() === boat.operator.toLowerCase()) : null;
+
   if (!boat) return null;
 
   return (
@@ -136,7 +145,26 @@ export default function BoatDetailModal({ boat, isOpen, onClose }) {
               <p className="text-white/80">{boat.crew_members} crew member{boat.crew_members > 1 ? 's' : ''}</p>
             </div>
           )}
-        </div>
+
+          {/* Operator & Fee */}
+          {operatorData && (
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
+              <h3 className="text-lg font-semibold text-cyan-400">Operator</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/90 font-medium">{operatorData.name}</p>
+                  {operatorData.contact_name && <p className="text-white/60 text-sm">{operatorData.contact_name}</p>}
+                </div>
+                {operatorData.commission_pct > 0 && (
+                  <div className="flex items-center gap-2 bg-cyan-500/20 border border-cyan-400/30 rounded-lg px-3 py-2">
+                    <DollarSign className="h-4 w-4 text-emerald-400" />
+                    <span className="text-sm font-semibold text-emerald-400">{operatorData.commission_pct}% Fee</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          </div>
       </DialogContent>
     </Dialog>
   );

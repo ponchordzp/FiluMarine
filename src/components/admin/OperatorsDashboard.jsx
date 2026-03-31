@@ -340,11 +340,18 @@ export default function OperatorsDashboard() {
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
   const { data: bookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
   const { data: expenses = [] } = useQuery({ queryKey: ['booking-expenses'], queryFn: () => base44.entities.BookingExpense.list() });
-  const { data: dbOperators = [] } = useQuery({ queryKey: ['operators'], queryFn: async () => {
-    const ops = await base44.entities.Operator.list('name');
-    // Merge vault data on top to restore protected fields if missing
-    return mergeProtectedData(ops);
-  } });
+  const { data: dbOperators = [] } = useQuery({ 
+    queryKey: ['operators'], 
+    queryFn: async () => {
+      const ops = await base44.entities.Operator.list('name');
+      // Sync vault to DB if any protected fields are missing
+      const mergedOps = mergeProtectedData(ops);
+      // Save merged data back to vault to keep it in sync
+      saveProtectedData(mergedOps);
+      return mergedOps;
+    },
+    refetchInterval: 5000, // Sync vault every 5 seconds
+  });
   
   const operators = dbOperators;
 
