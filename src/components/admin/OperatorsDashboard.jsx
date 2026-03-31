@@ -554,7 +554,23 @@ export default function OperatorsDashboard() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingOp ? 'Edit Operator' : 'Add New Operator'}</DialogTitle>
+            <div className="flex items-center justify-between gap-2">
+              <DialogTitle>{editingOp ? 'Edit Operator' : 'Add New Operator'}</DialogTitle>
+              {editingOp && (
+                <button
+                  onClick={async () => {
+                    const newLocked = !editingOp.commission_pct_locked;
+                    await base44.entities.Operator.update(editingOp.id, { commission_pct_locked: newLocked });
+                    await queryClient.refetchQueries({ queryKey: ['operators'], type: 'active' });
+                    setEditingOp(prev => ({ ...prev, commission_pct_locked: newLocked }));
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                  title={editingOp.commission_pct_locked ? 'Unlock to edit' : 'Lock to prevent changes'}
+                >
+                  {editingOp.commission_pct_locked ? <Lock className="h-4 w-4 text-red-400" /> : <Unlock className="h-4 w-4 text-white/40" />}
+                </button>
+              )}
+            </div>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -679,8 +695,14 @@ export default function OperatorsDashboard() {
                 ))}
               </div>
             </div>
+            {editingOp?.commission_pct_locked && (
+              <div className="rounded-lg p-3 bg-orange-500/10 border border-orange-500/30 flex items-center gap-2">
+                <Lock className="h-4 w-4 text-orange-400 flex-shrink-0" />
+                <p className="text-xs text-orange-300"><span className="font-semibold">Locked.</span> Click the lock icon in the header to unlock for editing.</p>
+              </div>
+            )}
             <div className="flex gap-2 pt-2">
-              <Button onClick={handleSave} disabled={!form.name.trim()} className="flex-1">{editingOp ? 'Save Changes' : 'Add Operator'}</Button>
+              <Button onClick={handleSave} disabled={!form.name.trim() || editingOp?.commission_pct_locked} className="flex-1">{editingOp ? 'Save Changes' : 'Add Operator'}</Button>
               <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
             </div>
           </div>
