@@ -411,7 +411,21 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
         pickupDeps[p.expedition_type] = [{ id: Date.now() + idx, pickup_location: p.pickup_location || '', departure_time: p.departure_time || '' }];
       }
     });
-    setFormData(prev => ({ ...prev, expedition_pricing: sourceExpPricing }));
+    // Merge vault/DB pickup_departures DIRECTLY into expedition_pricing entries
+    // This ensures next Save always writes all departure times to DB (not just localStorage)
+    const mergedExpPricing = sourceExpPricing.map(p => {
+      const deps = pickupDeps[p.expedition_type];
+      if (deps && deps.length > 0) {
+        return {
+          ...p,
+          pickup_departures: deps,
+          pickup_location: deps[0]?.pickup_location || p.pickup_location || '',
+          departure_time: deps[0]?.departure_time || p.departure_time || '',
+        };
+      }
+      return p;
+    });
+    setFormData(prev => ({ ...prev, expedition_pricing: mergedExpPricing }));
     setExpeditionPickupDepartures(pickupDeps);
     setDialogOpen(true);
   };
