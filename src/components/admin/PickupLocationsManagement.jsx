@@ -18,12 +18,14 @@ const LOCATIONS = [
 
 const emptyForm = { name: '', address: '', location: 'ixtapa_zihuatanejo', applicable_boats: [], notes: '', visible: true, sort_order: 0 };
 
-export default function PickupLocationsManagement() {
+export default function PickupLocationsManagement({ locationFilter: externalLocationFilter }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [locationFilter, setLocationFilter] = useState('all');
+  // Sync with global filter from admin panel
+  const effectiveLocationFilter = externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : locationFilter;
 
   const { data: pickupLocations = [] } = useQuery({
     queryKey: ['pickup-locations'],
@@ -83,7 +85,7 @@ export default function PickupLocationsManagement() {
     }));
   };
 
-  const filtered = locationFilter === 'all' ? pickupLocations : pickupLocations.filter(p => p.location === locationFilter);
+  const filtered = effectiveLocationFilter === 'all' ? pickupLocations : pickupLocations.filter(p => p.location === effectiveLocationFilter);
 
   return (
     <div>

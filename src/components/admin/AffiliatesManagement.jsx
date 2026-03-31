@@ -53,12 +53,14 @@ function generateCode(name, type) {
 
 const emptyForm = { name: '', type: 'other', location: 'ixtapa_zihuatanejo', contact_name: '', email: '', phone: '', code: '', commission_pct: 0, notes: '', is_active: true };
 
-export default function AffiliatesManagement() {
+export default function AffiliatesManagement({ locationFilter: externalLocationFilter }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [filterLocation, setFilterLocation] = useState('all');
+  // Global location filter wins when set
+  const effectiveFilterLocation = externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : filterLocation;
   const [copiedId, setCopiedId] = useState(null);
   const [reviewingAff, setReviewingAff] = useState(null);
 
@@ -156,7 +158,7 @@ export default function AffiliatesManagement() {
             <Building2 className="h-12 w-12 text-white/20 mx-auto mb-3" />
             <p className="text-white/40">No affiliates yet. Add your first partner.</p>
           </div>
-        ) : affiliates.filter(a => filterLocation === 'all' || a.location === filterLocation).map(aff => {
+        ) : affiliates.filter(a => effectiveFilterLocation === 'all' || a.location === effectiveFilterLocation).map(aff => {
           const cfg = TYPE_CONFIG[aff.type] || TYPE_CONFIG.other;
           const Icon = cfg.Icon;
           const actions = getReviewActions(aff);

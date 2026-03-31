@@ -758,7 +758,7 @@ function getOperatorCommission(boatName, allBoats) {
 }
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
-export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }) {
+export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', locationFilter = 'all' }) {
   const { data: boats = [], isLoading: loadingBoats } = useQuery({
     queryKey: ['boats'],
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
@@ -781,11 +781,14 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all' }
   });
 
   const filteredBoats = boats.filter(boat => {
-    if (operatorFilter === 'all') return true;
-    const bOp = (boat.operator || '').toLowerCase();
-    const fOp = operatorFilter.toLowerCase();
-    // Strict exact match — no FILU fallback for non-'all' filters
-    return bOp === fOp;
+    if (operatorFilter !== 'all') {
+      const bOp = (boat.operator || '').toLowerCase();
+      if (bOp !== operatorFilter.toLowerCase()) return false;
+    }
+    if (locationFilter !== 'all') {
+      if ((boat.location || '') !== locationFilter) return false;
+    }
+    return true;
   });
 
   if (loadingBoats) return <div className="text-white/40 text-center py-20">Loading financial data...</div>;

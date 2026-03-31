@@ -671,7 +671,7 @@ function BoatMechanicCard({ boat, currentUser, allBookings, personalTrips }) {
 
 // ── Main Component ────────────────────────────────────────────────────────────
 
-export default function MechanicPortal({ currentUser, operatorFilter = 'all' }) {
+export default function MechanicPortal({ currentUser, operatorFilter = 'all', locationFilter = 'all' }) {
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const isAdmin = currentUser?.role === 'admin';
   const isOperatorAdmin = currentUser?.role === 'operator_admin';
@@ -694,9 +694,11 @@ export default function MechanicPortal({ currentUser, operatorFilter = 'all' }) 
 
   const visibleBoats = boats.filter(boat => {
     if (isAdmin || currentUser?.role === 'crew') return assignedBoat ? boat.name === assignedBoat : true;
-    // Filter by operatorFilter (always pre-set correctly for operator_admin)
     if (operatorFilter && operatorFilter !== 'all') {
-      return (boat.operator || '').toLowerCase() === operatorFilter.toLowerCase();
+      if ((boat.operator || '').toLowerCase() !== operatorFilter.toLowerCase()) return false;
+    }
+    if (locationFilter && locationFilter !== 'all') {
+      if ((boat.location || '') !== locationFilter) return false;
     }
     return true;
   });

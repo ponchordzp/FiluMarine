@@ -1198,7 +1198,7 @@ function AdminBookingsInner() {
           {/* ── MAINTENANCE FINANCE TAB ── */}
           <TabsContent value="maintenance-finance">
             <div className="rounded-2xl p-6" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)', backdropFilter: 'blur(16px)' }}>
-              <MaintenanceFinancialDashboard operatorFilter={effectiveOperatorFilter} />
+              <MaintenanceFinancialDashboard operatorFilter={effectiveOperatorFilter} locationFilter={globalLocationFilter} />
             </div>
           </TabsContent>
 
@@ -1212,7 +1212,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="destinations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
-                <DestinationManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} />
+                <DestinationManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} locationFilter={globalLocationFilter} />
               </div>
             </TabsContent>
           )}
@@ -1228,7 +1228,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="pickup-locations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
-                <PickupLocationsManagement />
+                <PickupLocationsManagement locationFilter={globalLocationFilter} />
               </div>
             </TabsContent>
           )}
@@ -1252,7 +1252,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin) && (
             <TabsContent value="mechanic">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)', backdropFilter: 'blur(16px)' }}>
-                <MechanicPortal currentUser={currentUser} operatorFilter={effectiveOperatorFilter} />
+                <MechanicPortal currentUser={currentUser} operatorFilter={effectiveOperatorFilter} locationFilter={globalLocationFilter} />
               </div>
             </TabsContent>
           )}
@@ -1276,7 +1276,7 @@ function AdminBookingsInner() {
           {isSuperAdmin && (
             <TabsContent value="affiliates">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
-                <AffiliatesManagement />
+                <AffiliatesManagement locationFilter={globalLocationFilter} />
               </div>
             </TabsContent>
           )}

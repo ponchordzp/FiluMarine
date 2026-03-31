@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, MapPin, Image as ImageIcon, X } from 'lucide-react';
 
-export default function DestinationManagement({ operatorFilter = 'all' }) {
+export default function DestinationManagement({ operatorFilter = 'all', locationFilter = 'all' }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDest, setEditingDest] = useState(null);
@@ -260,7 +260,7 @@ export default function DestinationManagement({ operatorFilter = 'all' }) {
 
       {/* Destination List */}
       <div className="grid md:grid-cols-2 gap-4">
-        {destinations.map((dest) =>
+        {destinations.filter(dest => locationFilter === 'all' || dest.region === locationFilter).map((dest) =>
         <Card key={dest.id}>
             <CardContent className="p-4">
               <div className="flex gap-4">
