@@ -776,6 +776,11 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     queryKey: ['daily-logs-all'],
     queryFn: () => base44.entities.DailyLog.list('-log_date'),
   });
+  const { data: operators = [] } = useQuery({
+    queryKey: ['operators'],
+    queryFn: () => base44.entities.Operator.list('name'),
+    staleTime: 2000,
+  });
 
   const filteredBoats = boats.filter(boat => {
     if (operatorFilter !== 'all') {
@@ -798,7 +803,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
     // Expenses (ex-fees)
     const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.other_cost||0), 0);
-    // Fees = commission % of each booking's revenue (same as global KPI)
+    // Fees = commission % of each booking's revenue (same as global KPI) — using live operators data from DB
     const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats, operators) / 100, 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     const recurringCosts = boat.recurring_costs || [];
@@ -1036,6 +1041,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
               personalTrips={personalTrips}
               allBoats={boats}
               dailyLogs={dailyLogs}
+              operators={operators}
             />
           ))}
         </div>

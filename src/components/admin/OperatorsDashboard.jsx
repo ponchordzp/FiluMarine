@@ -341,7 +341,7 @@ export default function OperatorsDashboard() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: '#1e88e5', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '', locations: [] });
+  const [form, setForm] = useState({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, commission_pct_locked: false, color: '#1e88e5', bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '', locations: [] });
 
   const queryClient = useQueryClient();
   const { data: dbLocations = [] } = useQuery({ queryKey: ['locations'], queryFn: () => base44.entities.Location.list('sort_order') });
@@ -380,7 +380,7 @@ export default function OperatorsDashboard() {
 
   const openAdd = () => {
     setEditingOp(null);
-    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, color: COLORS[operators.length % COLORS.length], bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '', locations: [] });
+    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, commission_pct_locked: false, color: COLORS[operators.length % COLORS.length], bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '', locations: [] });
     setDialogOpen(true);
   };
 
@@ -389,20 +389,33 @@ export default function OperatorsDashboard() {
     // Restore from vault to ensure protected fields aren't lost
     const protected_ = loadProtectedData();
     const vaultData = protected_[(op.name || '').toUpperCase()] || {};
-    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || vaultData.contact_name || '', contact_email: op.contact_email || vaultData.contact_email || '', contact_phone: op.contact_phone || vaultData.contact_phone || '', paypal_username: op.paypal_username || vaultData.paypal_username || '', commission_pct: op.commission_pct ?? vaultData.commission_pct ?? 0, color: op.color || vaultData.color || '#1e88e5', bank_name: op.bank_name || vaultData.bank_name || '', bank_account_clabe: op.bank_account_clabe || vaultData.bank_account_clabe || '', bank_account_number: op.bank_account_number || vaultData.bank_account_number || '', bank_account_holder: op.bank_account_holder || vaultData.bank_account_holder || '', bank_notes: op.bank_notes || vaultData.bank_notes || '', locations: op.locations || vaultData.locations || [] });
+    setForm({ name: op.name, description: op.description || '', contact_name: op.contact_name || vaultData.contact_name || '', contact_email: op.contact_email || vaultData.contact_email || '', contact_phone: op.contact_phone || vaultData.contact_phone || '', paypal_username: op.paypal_username || vaultData.paypal_username || '', commission_pct: op.commission_pct ?? vaultData.commission_pct ?? 0, commission_pct_locked: op.commission_pct_locked ?? vaultData.commission_pct_locked ?? false, color: op.color || vaultData.color || '#1e88e5', bank_name: op.bank_name || vaultData.bank_name || '', bank_account_clabe: op.bank_account_clabe || vaultData.bank_account_clabe || '', bank_account_number: op.bank_account_number || vaultData.bank_account_number || '', bank_account_holder: op.bank_account_holder || vaultData.bank_account_holder || '', bank_notes: op.bank_notes || vaultData.bank_notes || '', locations: op.locations || vaultData.locations || [] });
     setDialogOpen(true);
   };
 
   const handleSave = async () => {
     if (!form.name.trim()) return;
     try {
-      // Always save protected fields (including commission_pct) to vault first
-      saveProtectedData([form]);
+      // CRITICAL: Preserve commission_pct on every save — merge with existing operator data
+      const dataToSave = { ...form };
+      if (editingOp) {
+        // When editing: merge form with existing to preserve commission_pct if locked
+        const existingCommissionPct = editingOp.commission_pct ?? form.commission_pct;
+        dataToSave.commission_pct = form.commission_pct ?? existingCommissionPct;
+        dataToSave.commission_pct_locked = form.commission_pct_locked ?? editingOp.commission_pct_locked;
+      } else {
+        // New operator: ensure commission_pct is set
+        dataToSave.commission_pct = form.commission_pct || 0;
+        dataToSave.commission_pct_locked = form.commission_pct_locked || false;
+      }
+      
+      // Always save protected fields to vault first
+      saveProtectedData([dataToSave]);
       
       if (editingOp) {
-        await base44.entities.Operator.update(editingOp.id, form);
+        await base44.entities.Operator.update(editingOp.id, dataToSave);
       } else {
-        await base44.entities.Operator.create(form);
+        await base44.entities.Operator.create(dataToSave);
       }
       queryClient.invalidateQueries({ queryKey: ['operators'] });
       syncPaypalToBoats(form.name, form.paypal_username);
