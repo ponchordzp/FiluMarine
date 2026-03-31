@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,17 @@ const emptyForm = {
 };
 
 export default function ExpeditionManagement({ operatorFilter = 'all', locationFilter: externalLocationFilter }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+      setIsSuperAdmin(user?.role === 'superadmin');
+    };
+    fetchUser();
+  }, []);
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
@@ -69,6 +80,10 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
   const [localLocationFilter, setLocalLocationFilter] = useState('all');
   // Use external filter if provided (from parent global filter), else local
   const locationFilter = externalLocationFilter || localLocationFilter;
+
+  // If user is not superadmin and has an assigned operator, only show their locations
+  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
+  const userLocation = isUserRestricted ? currentUser.location : null;
 
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
@@ -157,13 +172,19 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
   };
 
   const filtered = expeditions.filter((exp) => {
+    // Restrict by user location if needed
+    if (isUserRestricted && userLocation && exp.location !== 'both' && exp.location !== userLocation) {
+      return false;
+    }
     if (locationFilter === 'all') return true;
     return exp.location === locationFilter || exp.location === 'both';
   });
 
   // Each location group shows its own records + any 'both' records
+  // If user is restricted, only show their assigned location
+  const displayLocations = isUserRestricted && userLocation ? [userLocation] : ALL_LOCATIONS;
   const grouped = Object.fromEntries(
-    ALL_LOCATIONS.map(loc => [loc, filtered.filter(e => e.location === loc || e.location === 'both')])
+    displayLocations.map(loc => [loc, filtered.filter(e => e.location === loc || e.location === 'both')])
   );
 
   return (
@@ -174,17 +195,19 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
           {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
         </div>
         <div className="flex items-center gap-3">
-          <Select value={localLocationFilter} onValueChange={setLocalLocationFilter}>
-            <SelectTrigger className="w-44">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
-              <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
-              <SelectItem value="acapulco">Acapulco</SelectItem>
-              <SelectItem value="cancun">Cancún</SelectItem>
-            </SelectContent>
-          </Select>
+          {!isUserRestricted && (
+            <Select value={localLocationFilter} onValueChange={setLocalLocationFilter}>
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
+                <SelectItem value="acapulco">Acapulco</SelectItem>
+                <SelectItem value="cancun">Cancún</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
           <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}} className="bg-purple-600 text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
             <Plus className="h-4 w-4 mr-2" />
             Add Expedition

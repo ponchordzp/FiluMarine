@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
@@ -29,10 +29,24 @@ const emptyForm = {
 };
 
 export default function ExtrasManagement({ allBoats = [] }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+      setIsSuperAdmin(user?.role === 'superadmin');
+    };
+    fetchUser();
+  }, []);
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+
+  // If user is not superadmin and has an assigned operator, only show extras for their boats
+  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
 
   const { data: extras = [] } = useQuery({
     queryKey: ['extras'],
@@ -99,7 +113,16 @@ export default function ExtrasManagement({ allBoats = [] }) {
     }));
   };
 
-  const boatNames = boats.map(b => b.name);
+  // Filter boats based on operator restriction
+  const filteredBoats = isUserRestricted && currentUser?.assigned_boat
+    ? boats.filter(b => b.name === currentUser.assigned_boat)
+    : boats;
+  const boatNames = filteredBoats.filter(b => b.status !== 'inactive').map(b => b.name);
+
+  // Filter extras: if restricted, only show extras applicable to their boats
+  const filteredExtras = isUserRestricted && boatNames.length > 0
+    ? extras.filter(e => !e.applicable_boats || e.applicable_boats.length === 0 || e.applicable_boats.some(boat => boatNames.includes(boat)))
+    : extras;
 
   return (
     <div>
@@ -177,12 +200,12 @@ export default function ExtrasManagement({ allBoats = [] }) {
       </div>
 
       <div className="grid gap-3">
-        {extras.length === 0 ? (
+        {filteredExtras.length === 0 ? (
           <div className="text-center py-16 text-white/30">
             <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-20" />
             <p>No extras yet. Add one to get started.</p>
           </div>
-        ) : extras.map(extra => (
+        ) : filteredExtras.map(extra => (
           <div key={extra.id} className="flex items-start justify-between p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1 flex-wrap">

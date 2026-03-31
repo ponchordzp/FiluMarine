@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Plus, Edit, Trash2, MapPin, Image as ImageIcon, X } from 'lucide-react';
 
 export default function DestinationManagement({ operatorFilter = 'all', locationFilter = 'all' }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+      setIsSuperAdmin(user?.role === 'superadmin');
+    };
+    fetchUser();
+  }, []);
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingDest, setEditingDest] = useState(null);
@@ -25,6 +36,10 @@ export default function DestinationManagement({ operatorFilter = 'all', location
     region: 'ixtapa_zihuatanejo'
   });
   const [activityInput, setActivityInput] = useState('');
+
+  // If user is not superadmin and has an assigned operator, only show their location
+  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
+  const userLocation = isUserRestricted ? currentUser.location : null;
 
   const { data: destinations = [] } = useQuery({
     queryKey: ['destinations'],
@@ -261,7 +276,17 @@ export default function DestinationManagement({ operatorFilter = 'all', location
 
       {/* Destination List */}
       <div className="grid md:grid-cols-2 gap-4">
-        {destinations.filter(dest => locationFilter === 'all' || dest.region === locationFilter).map((dest) =>
+        {destinations.filter(dest => {
+          // Restrict by user location if needed
+          if (isUserRestricted && userLocation) {
+            // Map location to region for matching
+            const locationRegionMap = { ixtapa_zihuatanejo: 'ixtapa_zihuatanejo', acapulco: 'acapulco' };
+            const userRegion = locationRegionMap[userLocation];
+            if (dest.region !== userRegion) return false;
+          }
+          if (locationFilter === 'all') return true;
+          return dest.region === locationFilter;
+        }).map((dest) =>
         <Card key={dest.id}>
             <CardContent className="p-4">
               <div className="flex gap-4">

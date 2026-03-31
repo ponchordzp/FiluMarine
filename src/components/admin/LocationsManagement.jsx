@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
@@ -31,12 +31,26 @@ const emptyForm = {
 };
 
 export default function LocationsManagement({ operatorFilter = 'all' }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+      setIsSuperAdmin(user?.role === 'superadmin');
+    };
+    fetchUser();
+  }, []);
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingLoc, setEditingLoc] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
   const [imageFile, setImageFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+
+  // If user is not superadmin and has an assigned operator, only show their locations
+  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
 
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
@@ -135,7 +149,7 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
       }
 
       <div className="grid md:grid-cols-2 gap-5">
-        {locations.map((loc) =>
+        {locations.filter(loc => !isUserRestricted || operatorFilter === loc.location_id || operatorFilter === 'all').map((loc) =>
         <Card key={loc.id} className={`overflow-hidden transition-all ${!loc.visible ? 'opacity-60 border-dashed' : ''}`}>
             {loc.image &&
           <div className="relative h-40 overflow-hidden">

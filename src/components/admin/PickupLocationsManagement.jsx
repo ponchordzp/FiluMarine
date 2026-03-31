@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,17 @@ const LOCATIONS = [
 const emptyForm = { name: '', address: '', location: 'ixtapa_zihuatanejo', applicable_boats: [], notes: '', visible: true, sort_order: 0 };
 
 export default function PickupLocationsManagement({ locationFilter: externalLocationFilter }) {
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const user = await base44.auth.me();
+      setCurrentUser(user);
+      setIsSuperAdmin(user?.role === 'superadmin');
+    };
+    fetchUser();
+  }, []);
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
@@ -26,6 +37,10 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
   const [locationFilter, setLocationFilter] = useState('all');
   // Sync with global filter from admin panel
   const effectiveLocationFilter = externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : locationFilter;
+
+  // If user is not superadmin and has an assigned operator, only show their location
+  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
+  const userLocation = isUserRestricted ? currentUser.location : null;
 
   const { data: pickupLocations = [] } = useQuery({
     queryKey: ['pickup-locations'],
@@ -85,7 +100,14 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
     }));
   };
 
-  const filtered = effectiveLocationFilter === 'all' ? pickupLocations : pickupLocations.filter(p => p.location === effectiveLocationFilter);
+  const filtered = pickupLocations.filter(p => {
+    // Restrict by user location if needed
+    if (isUserRestricted && userLocation && p.location !== userLocation) {
+      return false;
+    }
+    if (effectiveLocationFilter === 'all') return true;
+    return p.location === effectiveLocationFilter;
+  });
 
   return (
     <div>
@@ -157,16 +179,18 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
       </div>
 
       {/* Filter */}
-      <div className="flex items-center gap-3 mb-4">
-        <Label className="text-white/50 text-xs">Filter by Destination:</Label>
-        <Select value={locationFilter} onValueChange={setLocationFilter}>
-          <SelectTrigger className="w-52 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Destinations</SelectItem>
-            {LOCATIONS.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
-          </SelectContent>
-        </Select>
-      </div>
+      {!isUserRestricted && (
+        <div className="flex items-center gap-3 mb-4">
+          <Label className="text-white/50 text-xs">Filter by Destination:</Label>
+          <Select value={locationFilter} onValueChange={setLocationFilter}>
+            <SelectTrigger className="w-52 bg-white/5 border-white/10 text-white text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Destinations</SelectItem>
+              {LOCATIONS.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       <div className="grid gap-3">
         {filtered.length === 0 ? (
