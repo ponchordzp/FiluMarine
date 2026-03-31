@@ -316,8 +316,8 @@ export default function RolePermissionsManager() {
               onToggleOperatorFilter={handleToggleOperatorFilter}
             />
           );
-        })
-      </div>
+          })}
+          </div>
     </div>
   );
 }
