@@ -110,8 +110,8 @@ export default function Home() {
   };
 
   const handleSelectLocation = (locationId) => {
-    setSelectedLocation(locationId);
-    setBookingData({ location: locationId });
+    setSelectedLocation(locationId.toLowerCase());
+    setBookingData({ location: locationId.toLowerCase() });
     setStep('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -281,7 +281,8 @@ export default function Home() {
     return <LocationSelector onSelectLocation={handleSelectLocation} />;
   }
 
-  const locationName = selectedLocation === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : 'Acapulco';
+  const locationRecord = dbLocations.find(l => l.location_id === selectedLocation);
+  const locationName = locationRecord?.name || (selectedLocation === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : selectedLocation === 'cancun' ? 'Cancún' : 'Acapulco');
 
   // Landing page view
   if (step === 'landing') {
@@ -294,6 +295,7 @@ export default function Home() {
           onChangeLocation={handleChangeLocation}
           backgroundImage={getLocationImage(selectedLocation)}
         />
+        <IntroSection />
         <BoatBenefits />
         <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
         <div ref={experiencesRef}>

@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 const LOCATION_COORDS = {
   ixtapa_zihuatanejo: { lat: 17.6617, lon: -101.5528, city: 'Zihuatanejo' },
   acapulco: { lat: 16.8531, lon: -99.8237, city: 'Acapulco' },
+  cancun: { lat: 21.1619, lon: -86.8515, city: 'Cancún' },
 };
 
 const weatherIcons = {

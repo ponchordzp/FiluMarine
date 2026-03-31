@@ -25,11 +25,10 @@ export default function IntroSection() {
 
           <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-white/10 mb-10">
             <h3 className="text-2xl md:text-3xl font-light text-white mb-4">
-              Our <span className="font-semibold">Mission</span>
+              Who <span className="font-semibold">Are We</span>
             </h3>
             <p className="text-lg md:text-xl text-white leading-relaxed max-w-3xl mx-auto">
-              To deliver world-class ocean experiences at the best locations within Ixtapa-Zihuatanejo for a great price, 
-              without compromising on safety, quality, or your peace of mind.
+              FILU connects you directly to Mexico's best boat operators and premium vessels across top destinations—Ixtapa-Zihuatanejo, Acapulco, and Cancún. We bring together exceptional operators with unmatched boat selection and competitive pricing, making world-class ocean experiences accessible to everyone. Whether you're seeking thrilling fishing adventures or serene coastal escapes, we've curated the best options so you get quality, value, and unforgettable memories.
             </p>
           </div>
 
