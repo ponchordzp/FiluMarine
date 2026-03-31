@@ -224,8 +224,9 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
             <button
               key={op.id || op.name}
               onClick={() => isSuperAdmin ? onOperatorFilterChange(op.name) : undefined}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase()) ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'} ${!isSuperAdmin ? 'cursor-default' : ''}`}
+              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase()) ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'} ${!isSuperAdmin ? 'cursor-default' : ''}`}
               style={(operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase())) ? { background: (op.color || '#f97316') + '55', border: `1px solid ${(op.color || '#f97316')}88` } : {}}
+              title={op.name}
             >
               {op.name}
             </button>
