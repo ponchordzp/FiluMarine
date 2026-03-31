@@ -334,7 +334,7 @@ function SectionRow({ label, icon, children, defaultOpen = false }) {
 }
 
 // ─── Per-boat card ────────────────────────────────────────────────────────────
-function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, dailyLogs }) {
+function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, dailyLogs, operators = [] }) {
   const [expanded, setExpanded] = useState(false);
 
   // Engine hours — use all non-cancelled bookings
@@ -373,7 +373,7 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
   const totalExpenses      = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
 
   // Fees = commission % of each booking's revenue (matches global KPI exactly)
-  const totalFeesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, allBoats) / 100, 0);
+  const totalFeesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, allBoats, operators) / 100, 0);
 
   // ── P&L ──────────────────────────────────────────────────────────────────
   // Gross Profit = Revenue − Expenses
@@ -739,18 +739,15 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
 }
 
 // ─── Commission helper (mirrors global KPI logic exactly) ────────────────────
-function getOperatorCommission(boatName, allBoats) {
+function getOperatorCommission(boatName, allBoats, operatorsFromDB = []) {
   try {
-    const raw = localStorage.getItem('filu_operators');
-    if (!raw) return 0;
-    const ops = JSON.parse(raw);
     const boat = allBoats.find(b => b.name === boatName);
     const boatOpName = (boat?.operator || '').toLowerCase().trim();
     let op = null;
     if (boatOpName && boatOpName !== 'filu') {
-      op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+      op = operatorsFromDB.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
     }
-    if (!op) op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
+    if (!op) op = operatorsFromDB.find(o => (o.name || '').toLowerCase().trim() === 'filu');
     return parseFloat(op?.commission_pct || 0);
   } catch {
     return 0;
@@ -802,7 +799,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     // Expenses (ex-fees)
     const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.other_cost||0), 0);
     // Fees = commission % of each booking's revenue (same as global KPI)
-    const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats) / 100, 0);
+    const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats, operators) / 100, 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     const recurringCosts = boat.recurring_costs || [];
     const annualRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0) * 12;

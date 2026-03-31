@@ -94,7 +94,7 @@ function FinancialSuggestions({ chartData }) {
   );
 }
 
-export default function FinancialTrendChart({ financialFilteredBookings, financialExpenses, getOperatorCommission }) {
+export default function FinancialTrendChart({ financialFilteredBookings, financialExpenses, getOperatorCommission, operators = [], boats = [] }) {
   const [chartOpen, setChartOpen] = useState(true);
   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
 
@@ -113,10 +113,10 @@ export default function FinancialTrendChart({ financialFilteredBookings, financi
       const monthBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled' && b.date?.startsWith(monthKey));
       const revenue = monthBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
       const monthExpenses = financialExpenses.filter(exp => monthBookings.some(b => b.id === exp.booking_id)).reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
-      const fees = monthBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+      const fees = monthBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats, operators) / 100, 0);
       return { label, revenue, expenses: monthExpenses, fees };
     });
-  }, [financialFilteredBookings, financialExpenses, getOperatorCommission]);
+  }, [financialFilteredBookings, financialExpenses, getOperatorCommission, operators, boats]);
 
   return (
     <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid rgba(16,185,129,0.15)' }}>
