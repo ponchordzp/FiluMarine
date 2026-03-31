@@ -254,15 +254,19 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                         };
                         const defaults = defaultDurations[exp] || { hours: 5, time: '7:00 AM' };
                         const durationHours = pricing?.duration_hours || defaults.hours;
-                        // Support array of pickup/departure entries (new) or legacy single string
                         const pickupDeps = pricing?.pickup_departures;
-                        const departureTimes = pickupDeps && pickupDeps.length > 0
+                        // Collect all departure times
+                        const departureTimes = (pickupDeps && pickupDeps.length > 0)
                           ? pickupDeps.map(d => d.departure_time).filter(Boolean)
                           : (pricing?.departure_time ? [pricing.departure_time] : [defaults.time]);
-                        const pickupLocations = pickupDeps && pickupDeps.length > 0
+                        // Format: "10:00, 11:00 and 12:00"
+                        const departureDisplay = departureTimes.length > 1
+                          ? departureTimes.slice(0, -1).join(', ') + ' and ' + departureTimes[departureTimes.length - 1]
+                          : (departureTimes[0] || '');
+                        // Collect all pickup locations
+                        const pickupLocations = (pickupDeps && pickupDeps.length > 0)
                           ? [...new Set(pickupDeps.map(d => d.pickup_location).filter(Boolean))]
                           : (pricing?.pickup_location ? [pricing.pickup_location] : []);
-                        const priceFromDB = pricing?.price_mxn;
                         const pickupLocation = pickupLocations.length > 0 ? pickupLocations.join(', ') : null;
                         const expIcons = {
                           half_day_fishing: Fish,

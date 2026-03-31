@@ -266,11 +266,9 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     const { boatNames } = getExpDataFromDB(expId);
     if (!boatNames.length) return null;
     return (
-      <div className="mt-2">
-        <div className="flex items-start gap-1.5 text-xs text-white/60">
-          <Anchor className="h-3 w-3 mt-0.5 flex-shrink-0 text-cyan-400" />
-          <span>{boatNames.join(', ')}</span>
-        </div>
+      <div className="flex items-center gap-1.5 text-xs text-white/60">
+        <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
+        <span>{boatNames.join(', ')}</span>
       </div>
     );
   };

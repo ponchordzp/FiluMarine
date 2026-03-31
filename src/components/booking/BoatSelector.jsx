@@ -40,7 +40,8 @@ export default function BoatSelector({ experience, onBack, onContinue, bookingDa
   const activeBoats = dbBoats.filter(b =>
     b.location === bookingData.location &&
     b.status === 'active' &&
-    b.boat_mode !== 'maintenance_only'
+    b.boat_mode !== 'maintenance_only' &&
+    (b.available_expeditions || []).includes(experience?.id)
   );
 
   // Fall back to static list only when no DB boats
