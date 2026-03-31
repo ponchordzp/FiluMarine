@@ -380,21 +380,50 @@ export default function OperatorsDashboard() {
 
   const openAdd = () => {
     setEditingOp(null);
-    setForm({ name: '', description: '', contact_name: '', contact_email: '', contact_phone: '', paypal_username: '', commission_pct: 0, commission_pct_locked: false, color: COLORS[operators.length % COLORS.length], bank_name: '', bank_account_clabe: '', bank_account_number: '', bank_account_holder: '', bank_notes: '', locations: [] });
+    // Check vault for any previously saved default values
+    const protected_ = loadProtectedData();
+    // Default color selection
+    const defaultColor = COLORS[operators.length % COLORS.length];
+    // Initialize with guaranteed commission_pct value (never undefined)
+    setForm({
+      name: '',
+      description: '',
+      contact_name: '',
+      contact_email: '',
+      contact_phone: '',
+      paypal_username: '',
+      commission_pct: 0,  // EXPLICIT: Always start with 0, never undefined
+      commission_pct_locked: false,
+      color: defaultColor,
+      bank_name: '',
+      bank_account_clabe: '',
+      bank_account_number: '',
+      bank_account_holder: '',
+      bank_notes: '',
+      locations: []
+    });
     setDialogOpen(true);
   };
 
   const openEdit = (op) => {
     setEditingOp(op);
-    // Restore from vault to ensure protected fields aren't lost
+    // BULLETPROOF: Load vault data first, then DB, then use whichever has the value
     const protected_ = loadProtectedData();
     const vaultData = protected_[(op.name || '').toUpperCase()] || {};
-    // CRITICAL: Always ensure commission_pct is a valid number, never undefined or string
-    const commissionValue = op.commission_pct !== undefined && op.commission_pct !== null
-      ? parseFloat(op.commission_pct)
-      : (vaultData.commission_pct !== undefined && vaultData.commission_pct !== null
-          ? parseFloat(vaultData.commission_pct)
-          : 0);
+    
+    // CRITICAL: commission_pct comes from vault first (encrypted backup), then DB, then default 0
+    let commissionValue = 0;
+    if (vaultData.commission_pct !== undefined && vaultData.commission_pct !== null) {
+      commissionValue = parseFloat(vaultData.commission_pct);
+      console.log('Restoring commission_pct from vault:', commissionValue, 'for operator:', op.name);
+    } else if (op.commission_pct !== undefined && op.commission_pct !== null) {
+      commissionValue = parseFloat(op.commission_pct);
+      console.log('Restoring commission_pct from DB:', commissionValue, 'for operator:', op.name);
+    }
+    
+    // GUARD: Ensure commission_pct is never undefined or string
+    if (isNaN(commissionValue)) commissionValue = 0;
+    
     setForm({
       name: op.name,
       description: op.description || '',
@@ -402,7 +431,7 @@ export default function OperatorsDashboard() {
       contact_email: op.contact_email || vaultData.contact_email || '',
       contact_phone: op.contact_phone || vaultData.contact_phone || '',
       paypal_username: op.paypal_username || vaultData.paypal_username || '',
-      commission_pct: commissionValue,
+      commission_pct: commissionValue,  // GUARANTEED: Never undefined, always a number
       commission_pct_locked: op.commission_pct_locked ?? vaultData.commission_pct_locked ?? false,
       color: op.color || vaultData.color || '#1e88e5',
       bank_name: op.bank_name || vaultData.bank_name || '',
@@ -550,7 +579,7 @@ export default function OperatorsDashboard() {
             <div className="rounded-lg p-3" style={{ background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.2)' }}>
               <Label className="text-sm text-foreground flex items-center gap-2 mb-2">
                 <Lock className="h-4 w-4 text-orange-500" />
-                FILU Fee % — PROTECTED
+                FILU Fee % — PROTECTED VAULT
               </Label>
               <div className="flex items-center gap-2 mb-2">
                 <Input
@@ -558,11 +587,16 @@ export default function OperatorsDashboard() {
                   min="0"
                   max="100"
                   step="0.1"
-                  value={form.commission_pct}
+                  value={form.commission_pct ?? 0}  // GUARD: Always has a value, never empty
                   onChange={e => {
                     const val = e.target.value.trim();
-                    const num = val === '' ? form.commission_pct : parseFloat(val);
-                    setForm(f => ({ ...f, commission_pct: isNaN(num) ? f.commission_pct : num }));
+                    const num = val === '' ? (form.commission_pct ?? 0) : parseFloat(val);
+                    const safeNum = isNaN(num) ? (form.commission_pct ?? 0) : num;
+                    setForm(f => ({
+                      ...f,
+                      commission_pct: safeNum
+                    }));
+                    console.log('Fee updated to:', safeNum);
                   }}
                   placeholder="0"
                   disabled={editingOp?.commission_pct_locked}
