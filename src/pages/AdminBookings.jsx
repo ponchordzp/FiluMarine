@@ -544,222 +544,49 @@ function AdminBookingsInner() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8 relative">
-        {/* Financial KPIs - Collapsible Row 1 */}
-        <div className="mb-2 rounded-xl px-3 py-2" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
-          <button onClick={() => toggleRowExpansion('financial')} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity" style={{ marginBottom: expandedRows.financial ? '8px' : '0' }}>
-            <div className="flex items-center gap-1.5">
-            <TrendingUp className="h-4 w-4 text-emerald-300" />
-            <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider">Financial</span>
-            </div>
-            <ChevronDown className={`h-3.5 w-3.5 text-emerald-300/60 transition-transform ${expandedRows.financial ? '' : '-rotate-90'}`} />
-          </button>
-          {expandedRows.financial && (
-            <>
-              <div className="grid md:grid-cols-3 gap-2 mb-3">
-                <div>
-                  <Label className="text-emerald-200 text-xs font-semibold">Time Range</Label>
-                  <Select value={financialTimeFilter} onValueChange={(val) => { setFinancialTimeFilter(val); if (val !== 'custom') setShowCustomDatePickerFinancial(false); }}>
-                    <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Time</SelectItem>
-                      <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
-                      <SelectItem value="last-month">Last Month</SelectItem>
-                      <SelectItem value="last-3-months">Last 3 Months</SelectItem>
-                      <SelectItem value="this-year">This Year</SelectItem>
-                      <SelectItem value="custom">Custom Range</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {financialTimeFilter === 'custom' && (
-                  <Dialog open={showCustomDatePickerFinancial} onOpenChange={setShowCustomDatePickerFinancial}>
-                    <DialogTrigger asChild>
-                      <Button className="mt-6 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 flex items-center gap-1.5" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
-                      <CalendarIcon className="h-3.5 w-3.5" />{customDateRangeFinancial.from && customDateRangeFinancial.to ? `${format(customDateRangeFinancial.from, 'MMM d')} - ${format(customDateRangeFinancial.to, 'MMM d')}` : 'Select Dates'}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                      <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                          <Label className="text-xs text-white/50 mb-2 block">From</Label>
-                          <Calendar selected={customDateRangeFinancial.from} onSelect={(date) => setCustomDateRangeFinancial(prev => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
-                        </div>
-                        <div>
-                          <Label className="text-xs text-white/50 mb-2 block">To</Label>
-                          <Calendar selected={customDateRangeFinancial.to} onSelect={(date) => setCustomDateRangeFinancial(prev => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
-                        </div>
-                      </div>
-                      <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerFinancial(false)} disabled={!customDateRangeFinancial.from || !customDateRangeFinancial.to}>
-                        Apply Range
-                      </Button>
-                    </DialogContent>
-                  </Dialog>
-                )}
-                <div>
-                  <Label className="text-emerald-200 text-xs font-semibold">Boat</Label>
-                  <Select value={financialBoatFilter} onValueChange={setFinancialBoatFilter}>
-                    <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Boats</SelectItem>
-                      {financialFilteredBoats.map(boat => (
-                        <SelectItem key={boat} value={boat}>{boat}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {isSuperAdmin && (
-                  <div>
-                    <Label className="text-emerald-200 text-xs font-semibold">Operator</Label>
-                    <Select value={globalOperatorFilter} onValueChange={setGlobalOperatorFilter}>
-                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Operators</SelectItem>
-                        {[...new Set(allBoats.map(b => b.operator?.trim() || 'FILU'))].map(op => (
-                          <SelectItem key={op} value={op}>{op}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-              </div>
-              <div className="grid grid-cols-5 gap-2">
-                {[
-                  { label: 'Revenue', value: `$${(stats.revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-200', Icon: TrendingUp },
-                  { label: 'Expenses', value: `$${(stats.totalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-200', Icon: TrendingDown },
-                  { label: 'Fees', value: `$${(stats.fees / 1000).toFixed(1)}k`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-200', Icon: CreditCard },
-                  { label: 'Net Profit', value: `$${(stats.netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', Icon: BarChart2 },
-                  { label: 'Margin', value: `${stats.roi}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', sub: 'text-purple-200', Icon: Percent },
-                ].map(s => (
-                  <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
-                    <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
-                      <s.Icon className={`h-3.5 w-3.5 shrink-0 ${s.text}`} />
-                      <p className={`text-[10px] ${s.sub} font-medium whitespace-nowrap`}>{s.label}</p>
-                    </div>
-                    <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
-                      textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
-                                 s.label === 'Expenses' ? '0 0 10px rgba(239,68,68,0.7)' :
-                                 s.label === 'Fees' ? '0 0 10px rgba(245,158,11,0.7)' :
-                                 s.label === 'Net Profit' ? '0 0 10px rgba(59,130,246,0.7)' :
-                                 '0 0 10px rgba(168,85,247,0.7)'
-                    }}>{s.value}</p>
-                  </div>
-                ))}
-              </div>
+        {/* Financial KPIs - NEW Calculation */}
+        <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.18)', backdropFilter: 'blur(16px)' }}>
+          {(() => {
+            // Explicit calculation: SUM ONLY operational costs (NO fees_cost)
+            const activeBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled');
+            const revenue = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+            const operationalExpenses = financialExpenses.reduce((sum, e) => sum + 
+              ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + 
+               (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
+            const fees = activeBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+            const netProfit = revenue - operationalExpenses - fees;
+            const margin = revenue > 0 ? Math.min(100, Math.round((netProfit / revenue) * 100)) : 0;
 
-              <FinancialTrendChart
-                financialFilteredBookings={financialFilteredBookings}
-                financialExpenses={financialExpenses}
-                getOperatorCommission={getOperatorCommission}
-              />
-            </>
-          )}
-        </div>
-
-          {/* Booking KPIs - Collapsible Row 2 */}
-          <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', backdropFilter: 'blur(16px)' }}>
-            <button onClick={() => toggleRowExpansion('bookings')} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity" style={{ marginBottom: expandedRows.bookings ? '8px' : '0' }}>
-              <div className="flex items-center gap-1.5">
-                <CalendarIcon className="h-4 w-4 text-blue-300" />
-                <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">Bookings</span>
-              </div>
-              <ChevronDown className={`h-3.5 w-3.5 text-blue-300/60 transition-transform ${expandedRows.bookings ? '' : '-rotate-90'}`} />
-            </button>
-            {expandedRows.bookings && (
-              <>
-                <div className="grid md:grid-cols-3 gap-2 mb-3">
-                  <div>
-                    <Label className="text-blue-200 text-xs font-semibold">Time Range</Label>
-                    <Select value={bookingTimeFilter} onValueChange={(val) => { setBookingTimeFilter(val); if (val !== 'custom') setShowCustomDatePickerBooking(false); }}>
-                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Time</SelectItem>
-                        <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
-                        <SelectItem value="last-month">Last Month</SelectItem>
-                        <SelectItem value="last-3-months">Last 3 Months</SelectItem>
-                        <SelectItem value="this-year">This Year</SelectItem>
-                        <SelectItem value="custom">Custom Range</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {bookingTimeFilter === 'custom' && (
-                    <Dialog open={showCustomDatePickerBooking} onOpenChange={setShowCustomDatePickerBooking}>
-                      <DialogTrigger asChild>
-                        <Button className="mt-6 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 flex items-center gap-1.5" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
-                          <CalendarIcon className="h-3.5 w-3.5" />{customDateRangeBooking.from && customDateRangeBooking.to ? `${format(customDateRangeBooking.from, 'MMM d')} - ${format(customDateRangeBooking.to, 'MMM d')}` : 'Select Dates'}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <div>
-                            <Label className="text-xs text-white/50 mb-2 block">From</Label>
-                            <Calendar selected={customDateRangeBooking.from} onSelect={(date) => setCustomDateRangeBooking(prev => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
-                          </div>
-                          <div>
-                            <Label className="text-xs text-white/50 mb-2 block">To</Label>
-                            <Calendar selected={customDateRangeBooking.to} onSelect={(date) => setCustomDateRangeBooking(prev => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
-                          </div>
-                        </div>
-                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerBooking(false)} disabled={!customDateRangeBooking.from || !customDateRangeBooking.to}>
-                          Apply Range
-                        </Button>
-                      </DialogContent>
-                    </Dialog>
-                  )}
-                  <div>
-                    <Label className="text-blue-200 text-xs font-semibold">Boat</Label>
-                    <Select value={bookingBoatFilter} onValueChange={setBookingBoatFilter}>
-                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Boats</SelectItem>
-                        {bookingFilteredBoats.map(boat => (
-                          <SelectItem key={boat} value={boat}>{boat}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {isSuperAdmin && (
-                    <div>
-                      <Label className="text-blue-200 text-xs font-semibold">Operator</Label>
-                      <Select value={globalOperatorFilter} onValueChange={setGlobalOperatorFilter}>
-                        <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All Operators</SelectItem>
-                          {[...new Set(allBoats.map(b => b.operator?.trim() || 'FILU'))].map(op => (
-                            <SelectItem key={op} value={op}>{op}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                </div>
+            return (
+              <div className="space-y-3">
                 <div className="grid grid-cols-5 gap-2">
                   {[
-                    { label: 'Total', value: bookingStats.total, color: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.12)', text: 'text-white', sub: 'text-white/80', Icon: LayoutGrid },
-                    { label: 'Pending', value: bookingStats.pending, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', sub: 'text-amber-200', Icon: Hourglass },
-                    { label: 'Confirmed', value: bookingStats.confirmed, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', sub: 'text-emerald-200', Icon: CheckCircle2 },
-                    { label: 'Completed', value: bookingStats.completed, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', sub: 'text-blue-200', Icon: Target },
-                    { label: 'Cancelled', value: bookingStats.cancelled, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', sub: 'text-red-200', Icon: XCircle },
+                    { label: 'Revenue', value: `$${(revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', Icon: TrendingUp },
+                    { label: 'Operations', value: `$${(operationalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', Icon: TrendingDown },
+                    { label: 'Fees', value: `$${(fees / 1000).toFixed(1)}k`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', Icon: CreditCard },
+                    { label: 'Net Profit', value: `$${(netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', Icon: BarChart2 },
+                    { label: 'Margin', value: `${margin}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', Icon: Percent },
                   ].map(s => (
                     <div key={s.label} className="rounded-lg px-2 py-2 flex items-center justify-between gap-2 min-w-0" style={{ background: s.color, border: `1px solid ${s.border}` }}>
                       <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0">
                         <s.Icon className={`h-3.5 w-3.5 shrink-0 ${s.text}`} />
-                        <p className={`text-[10px] ${s.sub} font-medium whitespace-nowrap`}>{s.label}</p>
+                        <p className={`text-[10px] text-white/70 font-medium whitespace-nowrap`}>{s.label}</p>
                       </div>
                       <p className={`text-base sm:text-lg md:text-xl lg:text-2xl font-bold leading-none ${s.text} relative flex-shrink-0`} style={{ 
-                        textShadow: s.label === 'Total' ? '0 0 10px rgba(255,255,255,0.5)' :
-                                   s.label === 'Pending' ? '0 0 10px rgba(245,158,11,0.7)' :
-                                   s.label === 'Confirmed' ? '0 0 10px rgba(16,185,129,0.7)' :
-                                   s.label === 'Completed' ? '0 0 10px rgba(59,130,246,0.7)' :
-                                   '0 0 10px rgba(239,68,68,0.7)'
+                        textShadow: s.label === 'Revenue' ? '0 0 10px rgba(16,185,129,0.7)' :
+                                   s.label === 'Operations' ? '0 0 10px rgba(239,68,68,0.7)' :
+                                   s.label === 'Fees' ? '0 0 10px rgba(245,158,11,0.7)' :
+                                   s.label === 'Net Profit' ? '0 0 10px rgba(59,130,246,0.7)' :
+                                   '0 0 10px rgba(168,85,247,0.7)'
                       }}>{s.value}</p>
                     </div>
                   ))}
                 </div>
-                <BookingTrendChart bookingFilteredBookings={bookingFilteredBookings} />
-              </>
-            )}
-          </div>
+                <p className="text-xs text-white/40 px-2 py-1">Operations = Fuel + Crew + Maintenance + Cleaning + Supplies + Other (EXCLUDES Fees)</p>
+              </div>
+            );
+          })()}
+        </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabNavGroups isSuperAdmin={isSuperAdmin} isOperatorAdmin={isOperatorAdmin} currentUserOperator={currentUserOperator} currentUserRole={currentUser?.role} operatorFilter={effectiveOperatorFilter} onOperatorFilterChange={setGlobalOperatorFilter} locationFilter={globalLocationFilter} onLocationFilterChange={setGlobalLocationFilter} />
