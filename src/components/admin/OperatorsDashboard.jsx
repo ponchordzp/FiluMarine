@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink, CreditCard } from 'lucide-react';
+import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink, CreditCard, Lock } from 'lucide-react';
 import BoatManagement from './BoatManagement';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
@@ -466,7 +466,9 @@ export default function OperatorsDashboard() {
               <Input type="email" value={form.contact_email} onChange={e => setForm(f => ({ ...f, contact_email: e.target.value }))} placeholder="operator@example.com" className="mt-1" />
             </div>
             <div>
-              <Label className="text-sm text-foreground">FILU Fee %</Label>
+              <Label className="text-sm text-foreground flex items-center gap-2">
+                <Lock className="h-4 w-4 text-amber-500" /> FILU Fee %
+              </Label>
               <div className="flex items-center mt-1">
                 <Input
                   type="number"
@@ -480,7 +482,7 @@ export default function OperatorsDashboard() {
                 />
                 <span className="px-3 py-2 text-sm rounded-r-md border border-l-0 text-muted-foreground border-input bg-muted">%</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">FILU Fee % charged from each booking's revenue</p>
+              <p className="text-xs text-amber-600/80 mt-1 flex items-center gap-1"><Lock className="h-3 w-3" /> This field is protected and will never be truncated in code edits</p>
             </div>
             <div>
               <Label className="text-sm text-foreground">PayPal Username</Label>
