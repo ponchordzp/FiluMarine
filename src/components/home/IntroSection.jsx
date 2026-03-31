@@ -25,12 +25,12 @@ export default function IntroSection() {
 
           <div className="bg-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-white/10 mb-10">
             <h3 className="text-2xl md:text-3xl font-light text-white mb-4">
-              Connecting Operators to <span className="font-semibold">Adventures</span>
+              Who <span className="font-semibold">Are We</span>
             </h3>
             <p className="text-lg md:text-xl text-white leading-relaxed max-w-3xl mx-auto">
-              FILU is your trusted bridge to Mexico's best boat operators. We connect you with premium vessels and expert crews across top Mexican destinations—Ixtapa-Zihuatanejo, Acapulco, and Cancún—delivering unmatched selection and pricing. From thrilling fishing expeditions to serene coastal escapes, discover exceptional ocean experiences without compromise.
+              FILU connects you directly to Mexico's best boat operators and premium vessels across top destinations—Ixtapa-Zihuatanejo, Acapulco, and Cancún. We bring together exceptional operators with unmatched boat selection and competitive pricing, making world-class ocean experiences accessible to everyone. Whether you're seeking thrilling fishing adventures or serene coastal escapes, we've curated the best options so you get quality, value, and unforgettable memories.
             </p>
-          </div>
+            </div>
 
           <div className="grid md:grid-cols-4 gap-6">
             <motion.div
