@@ -151,7 +151,11 @@ function buildFamiliesForUser(currentUserRole) {
     })
     .map(family => {
       const filteredTabs = family.tabs.filter(t => {
+        // Block any tab marked superAdminOnly unless user is superadmin
+        if (t.superAdminOnly && !isSuperAdmin) return false;
+        // For superadmin: always include (they have all tabs by default)
         if (isSuperAdmin) return true;
+        // For other roles: only include if tab is in their allowed list
         return allowedTabs.includes(t.value);
       });
       return { ...family, tabs: filteredTabs };
