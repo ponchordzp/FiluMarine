@@ -1205,7 +1205,7 @@ function AdminBookingsInner() {
           {/* ── BOATS TAB ── */}
           <TabsContent value="boats">
             <div className="rounded-2xl p-6" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', backdropFilter: 'blur(16px)' }}>
-              <BoatManagement restrictToBoat={!hasElevatedAccess ? assignedBoat : null} readOnlyMode={isCrew} isSuperAdmin={isSuperAdmin} operatorFilter={effectiveOperatorFilter} />
+              <BoatManagement restrictToBoat={!hasElevatedAccess ? assignedBoat : null} readOnlyMode={isCrew} isSuperAdmin={isSuperAdmin} operatorFilter={effectiveOperatorFilter} locationFilter={globalLocationFilter} />
             </div>
           </TabsContent>
 

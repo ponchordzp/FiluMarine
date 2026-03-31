@@ -62,7 +62,7 @@ function loadOperatorNames() {
   return ['FILU'];
 }
 
-export default function BoatManagement({ restrictToBoat = null, readOnlyMode = false, isSuperAdmin = false, defaultOperator = '', showAddBoatOnly = false, operatorFilter = 'all' }) {
+export default function BoatManagement({ restrictToBoat = null, readOnlyMode = false, isSuperAdmin = false, defaultOperator = '', showAddBoatOnly = false, operatorFilter = 'all', locationFilter = 'all' }) {
   const queryClient = useQueryClient();
   const operatorNames = loadOperatorNames();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -1385,8 +1385,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
           if (operatorFilter && operatorFilter !== 'all') {
             const bOp = (boat.operator || '').toLowerCase();
             const fOp = operatorFilter.toLowerCase();
-            // Strict match: operator must match exactly, no FILU fallback
             if (bOp !== fOp) return false;
+          }
+          if (locationFilter && locationFilter !== 'all') {
+            if (boat.location !== locationFilter) return false;
           }
           return true;
         }).map((boat) => {

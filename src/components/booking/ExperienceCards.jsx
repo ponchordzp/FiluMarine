@@ -259,33 +259,33 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
 
                     <p className="text-white/80 text-sm mb-3">{exp.description}</p>
 
-                    {/* Collapsible Includes */}
-                    {exp.includes && exp.includes.length > 0 && (
+                    {/* Collapsible Includes — DB first, then static */}
+                    {(() => { const items = getIncludes(exp.id, exp.includes); return items.length > 0 && (
                       <div className="mb-3">
-                        <button
-                          onClick={() => toggleIncludes(exp.id)}
-                          className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1"
-                        >
+                        <button onClick={() => toggleIncludes(exp.id)} className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1">
                           <span>What's Included</span>
                           <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedIncludes[exp.id] ? '' : '-rotate-90'}`} />
                         </button>
                         {expandedIncludes[exp.id] && (
                           <div className="flex flex-wrap gap-1.5 mt-1">
-                            {exp.includes.map((item, idx) => (
-                              <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">
-                                {item}
-                              </span>
-                            ))}
+                            {items.map((item, idx) => <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>)}
                           </div>
                         )}
                       </div>
-                    )}
+                    ); })()}
 
                     <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
                       <div className="flex items-center gap-2 text-sm text-white/70">
                         <Users className="h-4 w-4" />
                         <span>{exp.idealFor}</span>
                       </div>
+                      {/* All departure times from vessel editor */}
+                      {exp.departureTimes && exp.departureTimes.length > 0 && (
+                        <div className="flex items-start gap-1.5 text-xs text-cyan-300">
+                          <Clock className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                          <span>{exp.departureTimes.join(' · ')}</span>
+                        </div>
+                      )}
                     </div>
 
                     <Button 
@@ -310,25 +310,29 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   const filteredFullDay = fullDayExperiences.filter(e => isExpeditionVisible(e.id));
   const showExtended = isExpeditionVisible(extendedExperience.id);
   const totalGeneric = filteredRegular.length + filteredFullDay.length + (showExtended ? 1 : 0);
+  // 1 → centered, 2 or 4 → 2-col (fills evenly), everything else → 3-col
   const genericColClass = totalGeneric === 1
     ? 'grid-cols-1 max-w-md mx-auto'
-    : totalGeneric === 2
+    : totalGeneric === 2 || totalGeneric === 4
     ? 'grid-cols-1 sm:grid-cols-2'
     : 'grid-cols-1 md:grid-cols-3';
 
-  // Helper to render live DB boat names (no departure times per user request)
+  // Merge includes: DB expedition record wins, fall back to static
+  const getIncludes = (expId, staticIncludes) => {
+    const dbExp = dbExpeditions.find(e => e.expedition_id === expId);
+    if (dbExp?.includes && dbExp.includes.length > 0) return dbExp.includes;
+    return staticIncludes || [];
+  };
+
+  // Render live boat names from DB
   const renderExpMeta = (expId) => {
     const { boatNames } = getExpDataFromDB(expId);
-    return (
-      <>
-        {boatNames.length > 0 && (
-          <div className="flex items-center gap-1.5 text-xs text-white/60">
-            <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
-            <span>{boatNames.join(', ')}</span>
-          </div>
-        )}
-      </>
-    );
+    return boatNames.length > 0 ? (
+      <div className="flex items-center gap-1.5 text-xs text-white/60">
+        <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
+        <span>{boatNames.join(', ')}</span>
+      </div>
+    ) : null;
   };
 
   return (
@@ -382,27 +386,20 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
 
                 <p className="text-white/80 text-sm mb-3">{exp.description}</p>
 
-                {/* Collapsible Includes */}
-                {exp.includes && exp.includes.length > 0 && (
+                {/* Collapsible Includes — from DB if set, else static */}
+                {(() => { const items = getIncludes(exp.id, exp.includes); return items.length > 0 && (
                   <div className="mb-3">
-                    <button
-                      onClick={() => toggleIncludes(exp.id)}
-                      className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1"
-                    >
+                    <button onClick={() => toggleIncludes(exp.id)} className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1">
                       <span>What's Included</span>
                       <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedIncludes[exp.id] ? '' : '-rotate-90'}`} />
                     </button>
                     {expandedIncludes[exp.id] && (
                       <div className="flex flex-wrap gap-1.5 mt-1">
-                        {exp.includes.map((item, idx) => (
-                          <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">
-                            {item}
-                          </span>
-                        ))}
+                        {items.map((item, idx) => <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>)}
                       </div>
                     )}
                   </div>
-                )}
+                ); })()}
 
                 <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
                   <div className="flex items-center gap-2 text-sm text-white/70">
@@ -423,14 +420,14 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
             </motion.div>
           ))}
 
-          {/* Full Day Experiences */}
-          {filteredFullDay.map((exp, i) => (
+          {/* Full Day + Extended — same pattern with DB includes */}
+          {[...filteredFullDay, ...(showExtended ? [extendedExperience] : [])].map((exp, i) => (
             <motion.div
               key={exp.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: (regularExperiences.length + i) * 0.1 }}
+              transition={{ delay: (filteredRegular.length + i) * 0.1 }}
               className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
             >
               <div className="aspect-[16/9] relative overflow-hidden">
@@ -446,7 +443,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                   <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
                 </div>
                 <p className="text-white/80 text-sm mb-3">{exp.description}</p>
-                {exp.includes && exp.includes.length > 0 && (
+                {(() => { const items = getIncludes(exp.id, exp.includes); return items.length > 0 && (
                   <div className="mb-3">
                     <button onClick={() => toggleIncludes(exp.id)} className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1">
                       <span>What's Included</span>
@@ -454,68 +451,23 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                     </button>
                     {expandedIncludes[exp.id] && (
                       <div className="flex flex-wrap gap-1.5 mt-1">
-                        {exp.includes.map((item, idx) => <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>)}
+                        {items.map((item, idx) => <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>)}
                       </div>
                     )}
                   </div>
-                )}
+                ); })()}
                 <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
                   <div className="flex items-center gap-2 text-sm text-white/70"><Users className="h-4 w-4" /><span>{exp.idealFor}</span></div>
                   {exp.targetSpecies && <div className="flex items-start gap-2 text-xs text-white/70"><Fish className="h-3 w-3 mt-0.5 flex-shrink-0" /><span>Target: {exp.targetSpecies.join(', ')}</span></div>}
                   {renderExpMeta(exp.id)}
                 </div>
-                <Button onClick={() => onSelectExperience(exp)} className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-6 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] mt-auto">
-                  Select This Experience
-                </Button>
-              </div>
-            </motion.div>
-          ))}
-
-          {/* Extended Experience */}
-          {showExtended && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-              transition={{ delay: (regularExperiences.length + fullDayExperiences.length) * 0.1 }}
-              className="group bg-white/10 backdrop-blur-sm rounded-3xl overflow-hidden border border-white/20 hover:bg-white/15 transition-all duration-500 flex flex-col"
-            >
-              <div className="aspect-[16/9] relative overflow-hidden">
-                <img src={extendedExperience.image} alt={extendedExperience.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="text-white/80 text-sm flex items-center gap-1"><Clock className="h-4 w-4" />{extendedExperience.duration}</p>
-                </div>
-              </div>
-              <div className="p-4 sm:p-6 flex flex-col">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-semibold text-white">{extendedExperience.title}</h3>
-                  <extendedExperience.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
-                </div>
-                <p className="text-white/80 text-sm mb-3">{extendedExperience.description}</p>
-                {extendedExperience.includes && extendedExperience.includes.length > 0 && (
-                  <div className="mb-3">
-                    <button onClick={() => toggleIncludes(extendedExperience.id)} className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1">
-                      <span>What's Included</span>
-                      <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedIncludes[extendedExperience.id] ? '' : '-rotate-90'}`} />
-                    </button>
-                    {expandedIncludes[extendedExperience.id] && (
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {extendedExperience.includes.map((item, idx) => <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>)}
-                      </div>
-                    )}
-                  </div>
-                )}
-                <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
-                  <div className="flex items-center gap-2 text-sm text-white/70"><Users className="h-4 w-4" /><span>{extendedExperience.idealFor}</span></div>
-                  {extendedExperience.targetSpecies && <div className="flex items-start gap-2 text-xs text-white/70"><Fish className="h-3 w-3 mt-0.5 flex-shrink-0" /><span>Target: {extendedExperience.targetSpecies.join(', ')}</span></div>}
-                  {renderExpMeta(extendedExperience.id)}
-                </div>
-                <Button onClick={() => onSelectExperience(extendedExperience)} className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20">
+                <Button onClick={() => onSelectExperience(exp)} className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20">
                   <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                   <span className="relative">Select This Experience</span>
                 </Button>
               </div>
             </motion.div>
-          )}
+          ))}
         </div>
       </div>
     </section>
