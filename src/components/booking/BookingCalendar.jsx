@@ -63,13 +63,24 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const [blockedDates, setBlockedDates] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
 
-  // Derive time slot from the selected boat's vessel-editor expedition_pricing first
+  // Derive time slots from the selected boat's vessel-editor expedition_pricing
+  // pickup_departures is authoritative; departure_time is legacy fallback
   const getAvailableSlotsForBoat = (boatId) => {
     const boat = activeBoats.find(b => b.id === boatId);
     if (boat?.expedition_pricing) {
       const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
-      if (pricing?.departure_time) {
-        return [{ time: pricing.departure_time, label: 'Departure' }];
+      if (pricing) {
+        // pickup_departures is the authoritative source — may have multiple entries
+        if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
+          const times = [...new Set(
+            pricing.pickup_departures.map(d => d.departure_time).filter(Boolean)
+          )];
+          if (times.length > 0) return times.map(t => ({ time: t, label: 'Departure' }));
+        }
+        // Legacy single departure_time fallback
+        if (pricing.departure_time) {
+          return [{ time: pricing.departure_time, label: 'Departure' }];
+        }
       }
     }
     return fallbackTimeSlots[experience.id] || [];

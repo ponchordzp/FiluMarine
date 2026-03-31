@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Clock, Users, Fish, Waves, Sun, Anchor, Wifi, Video, Zap, Droplet, Navigation, MapPin } from 'lucide-react';
+import { Clock, Users, Fish, Waves, Sun, Anchor, Wifi, Video, Zap, Droplet, Navigation } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
@@ -118,6 +118,19 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     enabled: !selectedBoat,
   });
 
+  // Fetch visible expeditions to filter hidden ones
+  const { data: dbExpeditions = [] } = useQuery({
+    queryKey: ['expeditions'],
+    queryFn: () => base44.entities.Expedition.list('sort_order'),
+  });
+
+  // Returns true if the expedition is visible (or not in DB = show by default)
+  const isExpeditionVisible = (expId) => {
+    const dbExp = dbExpeditions.find(e => e.expedition_id === expId);
+    if (!dbExp) return true; // not configured = show
+    return dbExp.visible !== false;
+  };
+
   // For generic view: get active boats for this location that have each expedition
   const activeBoats = dbBoats.filter(b =>
     (!location || b.location === location) &&
@@ -167,9 +180,9 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     return { boatNames, duration, price, departureTimes: allDepartureTimes, pickupLocations: allPickupLocations };
   };
 
-  // If boat is selected, only show experiences configured for that boat
+  // If boat is selected, only show experiences configured for that boat (and visible)
   if (selectedBoat?.available_expeditions && selectedBoat?.expedition_pricing) {
-    const boatExperiences = selectedBoat.available_expeditions.map(expType => {
+    const boatExperiences = selectedBoat.available_expeditions.filter(isExpeditionVisible).map(expType => {
       const pricing = selectedBoat.expedition_pricing.find(p => p.expedition_type === expType);
       const baseExp = [...regularExperiences, ...fullDayExperiences, extendedExperience].find(e => e.id === expType);
       
@@ -271,27 +284,19 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     );
   }
 
-  // Generic view — augment each experience with live DB data
-  const filteredRegular = regularExperiences;
-  const filteredFullDay = fullDayExperiences;
-  const showExtended = true;
+  // Generic view — filter out non-visible expeditions
+  const filteredRegular = regularExperiences.filter(e => isExpeditionVisible(e.id));
+  const filteredFullDay = fullDayExperiences.filter(e => isExpeditionVisible(e.id));
+  const showExtended = isExpeditionVisible(extendedExperience.id);
 
-  // Helper to render live DB boat names + pickup locations
+  // Helper to render live DB boat names (no pickup info)
   const renderExpMeta = (expId) => {
-    const { boatNames, pickupLocations } = getExpDataFromDB(expId);
+    const { boatNames } = getExpDataFromDB(expId);
     if (!boatNames.length) return null;
     return (
-      <div className="space-y-1">
-        <div className="flex items-center gap-1.5 text-xs text-white/60">
-          <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
-          <span>{boatNames.join(', ')}</span>
-        </div>
-        {pickupLocations.length > 0 && (
-          <div className="flex items-start gap-1.5 text-xs text-white/55">
-            <MapPin className="h-3 w-3 flex-shrink-0 text-rose-400 mt-0.5" />
-            <span>{formatList(pickupLocations)}</span>
-          </div>
-        )}
+      <div className="flex items-center gap-1.5 text-xs text-white/60">
+        <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
+        <span>{boatNames.join(', ')}</span>
       </div>
     );
   };
