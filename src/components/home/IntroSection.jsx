@@ -30,7 +30,7 @@ export default function IntroSection() {
             <p className="text-lg md:text-xl text-white leading-relaxed max-w-3xl mx-auto">
               FILU connects you directly to Mexico's best boat operators and premium vessels across top destinations—Ixtapa-Zihuatanejo, Acapulco, and Cancún. We bring together exceptional operators with unmatched boat selection and competitive pricing, making world-class ocean experiences accessible to everyone. Whether you're seeking thrilling fishing adventures or serene coastal escapes, we've curated the best options so you get quality, value, and unforgettable memories.
             </p>
-            </div>
+          </div>
 
           <div className="grid md:grid-cols-4 gap-6">
             <motion.div
