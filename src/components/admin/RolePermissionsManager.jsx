@@ -91,8 +91,7 @@ function saveCustomRoles(roles) {
   localStorage.setItem('filu_custom_roles', JSON.stringify(roles));
 }
 
-function RoleRow({ roleKey, roleLabel, icon, iconColor, colorClass, locked, permissions, onChange, onDelete, operatorFilterAccess, onToggleOperatorFilter }) {
-  const Icon = icon;
+function RoleRow({ roleKey, roleLabel, icon: IconComponent, iconColor, colorClass, locked, permissions, onChange, onDelete, operatorFilterAccess, onToggleOperatorFilter }) {
   const [open, setOpen] = useState(false);
   const allowedTabs = permissions[roleKey] || [];
   const canFilter = operatorFilterAccess[roleKey] ?? false;
@@ -123,7 +122,7 @@ function RoleRow({ roleKey, roleLabel, icon, iconColor, colorClass, locked, perm
         className="w-full flex items-center gap-3 p-3 bg-white hover:bg-slate-50 transition-colors"
       >
         <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${colorClass ? colorClass.split(' ')[0] : 'bg-slate-100'}`}>
-          {Icon && <Icon className={`h-3.5 w-3.5 ${iconColor}`} />}
+          {IconComponent && <IconComponent className={`h-3.5 w-3.5 ${iconColor}`} />}
         </div>
         <div className="flex-1 text-left">
           <p className="text-sm font-semibold text-slate-800">{roleLabel}</p>
