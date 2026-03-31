@@ -3,6 +3,22 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { loadOperatorFilterAccess } from '@/components/admin/RolePermissionsManager';
+
+const PERMISSIONS_KEY = 'filu_role_permissions';
+
+function loadPermissions() {
+  try {
+    const raw = localStorage.getItem(PERMISSIONS_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return {
+    superadmin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'checklist-template', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'operators', 'join-applications', 'users', 'customers', 'affiliates'],
+    operator_admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
+    charter_operator: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'maintenance-finance', 'mechanic', 'engine-databases', 'locations', 'expeditions', 'pickup-locations', 'extras', 'destinations', 'users'],
+    admin: ['bookings', 'booked-dates', 'blocked-dates', 'dashboard', 'boats', 'engine-databases'],
+    crew: ['bookings', 'booked-dates', 'dashboard', 'boats', 'engine-databases']
+  };
+}
 import {
   CalendarDays, CalendarRange, Ban, BarChart2,
   Anchor, DollarSign, Wrench, CheckSquare, BookOpen,
@@ -121,17 +137,25 @@ function FamilyGroup({ family }) {
   );
 }
 
-function buildFamiliesForUser(isSuperAdmin, isOperatorAdmin) {
+function buildFamiliesForUser(currentUserRole) {
+  const permissions = loadPermissions();
+  const allowedTabs = permissions[currentUserRole] || [];
+  const isSuperAdmin = currentUserRole === 'superadmin';
+  
   return families
     .filter(f => {
       if (!f.adminOnly) return true;
       if (f.superAdminOnly) return isSuperAdmin;
-      return isSuperAdmin || isOperatorAdmin;
+      return true;
     })
     .map(family => {
-      if (isSuperAdmin) return family;
-      return { ...family, tabs: family.tabs.filter(t => !t.superAdminOnly) };
-    });
+      const filteredTabs = family.tabs.filter(t => {
+        if (isSuperAdmin) return true;
+        return allowedTabs.includes(t.value);
+      });
+      return { ...family, tabs: filteredTabs };
+    })
+    .filter(family => family.tabs.length > 0);
 }
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
@@ -161,7 +185,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
           .concat(allOperators.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }] : [])
       : allOperators;
   
-  const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
+  const visibleFamilies = buildFamiliesForUser(currentUserRole);
   
   // For non-SuperAdmin, filter locations to only show what their operator has assigned
   let locationOptions = allLocationOptions;
