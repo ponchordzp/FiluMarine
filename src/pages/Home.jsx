@@ -295,6 +295,7 @@ export default function Home() {
           onChangeLocation={handleChangeLocation}
           backgroundImage={getLocationImage(selectedLocation)}
         />
+        <IntroSection />
         <BoatBenefits />
         <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
         <div ref={experiencesRef}>
