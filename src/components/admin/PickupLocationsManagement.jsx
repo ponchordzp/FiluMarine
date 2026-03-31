@@ -41,16 +41,6 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
-  const { data: pickupLocations = [] } = useQuery({
-    queryKey: ['pickup-locations'],
-    queryFn: () => base44.entities.PickupLocation.list('sort_order'),
-  });
-
-  const { data: boats = [] } = useQuery({
-    queryKey: ['all-boats'],
-    queryFn: () => base44.entities.BoatInventory.list(),
-  });
-
   const isChartOperator = currentUser?.role === 'charter_operator';
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
   const userLocation = isUserRestricted ? (() => {
