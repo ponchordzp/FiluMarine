@@ -1,7 +1,7 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Clock, Users, Fish, Waves, Sun, Camera, Anchor, Wifi, Video, Zap, Droplet, Navigation, Lock } from 'lucide-react';
+import { Clock, Users, Fish, Waves, Sun, Anchor, Wifi, Video, Zap, Droplet, Navigation, MapPin } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
@@ -125,11 +125,34 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     b.boat_mode !== 'maintenance_only'
   );
 
+  // Helper: get ALL departure times from pickup_departures (authoritative) or legacy field
+  const getDepartureTimes = (p) => {
+    if (!p) return [];
+    if (p.pickup_departures && p.pickup_departures.length > 0)
+      return p.pickup_departures.map(d => d.departure_time).filter(Boolean);
+    if (p.departure_time) return [p.departure_time];
+    return [];
+  };
+
+  // Helper: get ALL pickup locations from pickup_departures (authoritative) or legacy field
+  const getPickupLocations = (p) => {
+    if (!p) return [];
+    if (p.pickup_departures && p.pickup_departures.length > 0)
+      return [...new Set(p.pickup_departures.map(d => d.pickup_location).filter(Boolean))];
+    if (p.pickup_location) return [p.pickup_location];
+    return [];
+  };
+
+  const formatList = (items) => {
+    if (!items.length) return '';
+    if (items.length === 1) return items[0];
+    return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+  };
+
   // Returns { boatNames, duration, price, departureTimes, pickupLocations } for an expedition type
   const getExpDataFromDB = (expId) => {
     const boatsWithExp = activeBoats.filter(b => (b.available_expeditions || []).includes(expId));
     const boatNames = boatsWithExp.map(b => b.name);
-    // Gather pricing from all boats — use first valid entry per field
     let duration = null, price = null;
     const allDepartureTimes = [];
     const allPickupLocations = [];
@@ -138,16 +161,8 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       if (!p) return;
       if (!duration && p.duration_hours) duration = p.duration_hours;
       if (!price && p.price_mxn > 0) price = p.price_mxn;
-      // Collect departure times from pickup_departures array or legacy single field
-      if (p.pickup_departures && p.pickup_departures.length > 0) {
-        p.pickup_departures.forEach(d => {
-          if (d.departure_time && !allDepartureTimes.includes(d.departure_time)) allDepartureTimes.push(d.departure_time);
-          if (d.pickup_location && !allPickupLocations.includes(d.pickup_location)) allPickupLocations.push(d.pickup_location);
-        });
-      } else {
-        if (p.departure_time && !allDepartureTimes.includes(p.departure_time)) allDepartureTimes.push(p.departure_time);
-        if (p.pickup_location && !allPickupLocations.includes(p.pickup_location)) allPickupLocations.push(p.pickup_location);
-      }
+      getDepartureTimes(p).forEach(t => { if (!allDepartureTimes.includes(t)) allDepartureTimes.push(t); });
+      getPickupLocations(p).forEach(l => { if (!allPickupLocations.includes(l)) allPickupLocations.push(l); });
     });
     return { boatNames, duration, price, departureTimes: allDepartureTimes, pickupLocations: allPickupLocations };
   };
@@ -261,14 +276,22 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   const filteredFullDay = fullDayExperiences;
   const showExtended = true;
 
-  // Helper to render live DB boat names only
+  // Helper to render live DB boat names + pickup locations
   const renderExpMeta = (expId) => {
-    const { boatNames } = getExpDataFromDB(expId);
+    const { boatNames, pickupLocations } = getExpDataFromDB(expId);
     if (!boatNames.length) return null;
     return (
-      <div className="flex items-center gap-1.5 text-xs text-white/60">
-        <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
-        <span>{boatNames.join(', ')}</span>
+      <div className="space-y-1">
+        <div className="flex items-center gap-1.5 text-xs text-white/60">
+          <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
+          <span>{boatNames.join(', ')}</span>
+        </div>
+        {pickupLocations.length > 0 && (
+          <div className="flex items-start gap-1.5 text-xs text-white/55">
+            <MapPin className="h-3 w-3 flex-shrink-0 text-rose-400 mt-0.5" />
+            <span>{formatList(pickupLocations)}</span>
+          </div>
+        )}
       </div>
     );
   };
