@@ -1149,23 +1149,23 @@ function AdminBookingsInner() {
             </div>
           </TabsContent>
 
-          {(isSuperAdmin || isOperatorAdmin) && (
+          {(isSuperAdmin || isOperatorAdmin || currentUser?.role === 'charter_operator') && (
             <TabsContent value="destinations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
-                <DestinationManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} locationFilter={globalLocationFilter} />
+                <DestinationManagement operatorFilter={isOperatorAdmin ? currentUserOperator : (currentUser?.role === 'charter_operator' ? currentUserOperator : globalOperatorFilter)} locationFilter={globalLocationFilter} />
               </div>
             </TabsContent>
           )}
 
-          {(isSuperAdmin || isOperatorAdmin) && (
+          {(isSuperAdmin || isOperatorAdmin || currentUser?.role === 'charter_operator') && (
             <TabsContent value="expeditions">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
-                <ExpeditionManagement operatorFilter={isOperatorAdmin ? currentUserOperator : globalOperatorFilter} locationFilter={globalLocationFilter} />
+                <ExpeditionManagement operatorFilter={isOperatorAdmin ? currentUserOperator : (currentUser?.role === 'charter_operator' ? currentUserOperator : globalOperatorFilter)} locationFilter={globalLocationFilter} />
               </div>
             </TabsContent>
           )}
 
-          {(isSuperAdmin || isOperatorAdmin) && (
+          {(isSuperAdmin || isOperatorAdmin || currentUser?.role === 'charter_operator') && (
             <TabsContent value="pickup-locations">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
                 <PickupLocationsManagement locationFilter={globalLocationFilter} />
@@ -1173,10 +1173,10 @@ function AdminBookingsInner() {
             </TabsContent>
           )}
 
-          {(isSuperAdmin || isOperatorAdmin) && (
+          {(isSuperAdmin || isOperatorAdmin || currentUser?.role === 'charter_operator') && (
             <TabsContent value="extras">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
-                <ExtrasManagement allBoats={allBoats} />
+                <ExtrasManagement allBoats={allBoats} locationFilter={globalLocationFilter} />
               </div>
             </TabsContent>
           )}

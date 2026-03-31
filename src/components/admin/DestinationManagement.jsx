@@ -42,7 +42,7 @@ export default function DestinationManagement({ operatorFilter = 'all', location
   const userLocation = isUserRestricted ? currentUser.location : null;
 
   const { data: destinations = [] } = useQuery({
-    queryKey: ['destinations'],
+    queryKey: ['destinations', locationFilter],
     queryFn: () => base44.entities.DestinationContent.list('-created_date')
   });
 
@@ -139,6 +139,7 @@ export default function DestinationManagement({ operatorFilter = 'all', location
         <div>
           <h2 className="text-slate-50 text-2xl font-semibold">Destination Content Management</h2>
           {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
+          {locationFilter && locationFilter !== 'all' && <p className="text-xs text-cyan-300 mt-1">Filtered to: <strong>{locationFilter === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : locationFilter === 'acapulco' ? 'Acapulco' : 'Cancún'}</strong></p>}
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
@@ -280,12 +281,12 @@ export default function DestinationManagement({ operatorFilter = 'all', location
           // Restrict by user location if needed
           if (isUserRestricted && userLocation) {
             // Map location to region for matching
-            const locationRegionMap = { ixtapa_zihuatanejo: 'ixtapa_zihuatanejo', acapulco: 'acapulco' };
+            const locationRegionMap = { ixtapa_zihuatanejo: 'ixtapa_zihuatanejo', acapulco: 'acapulco', cancun: 'cancun' };
             const userRegion = locationRegionMap[userLocation];
             if (dest.region !== userRegion) return false;
           }
-          if (locationFilter === 'all') return true;
-          return dest.region === locationFilter;
+          if (locationFilter && locationFilter !== 'all') return dest.region === locationFilter;
+          return true;
         }).map((dest) =>
         <Card key={dest.id}>
             <CardContent className="p-4">

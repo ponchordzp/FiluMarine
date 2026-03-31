@@ -28,7 +28,7 @@ const emptyForm = {
   sort_order: 0,
 };
 
-export default function ExtrasManagement({ allBoats = [] }) {
+export default function ExtrasManagement({ allBoats = [], locationFilter = 'all' }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
 
@@ -122,29 +122,32 @@ export default function ExtrasManagement({ allBoats = [] }) {
     }));
   };
 
-  // Filter boats based on operator restriction
-  // If restricted to an operator's location, show all boats for that location
-  // Otherwise filter to assigned boat if crew, else show all
-  const filteredBoats = isUserRestricted && userOperatorLocation
-    ? boats.filter(b => b.location === userOperatorLocation && b.status !== 'inactive')
-    : isUserRestricted && currentUser?.assigned_boat
-    ? boats.filter(b => b.name === currentUser.assigned_boat)
-    : boats;
-  const boatNames = filteredBoats.filter(b => b.status !== 'inactive').map(b => b.name);
+  // Filter boats based on location filter + operator restriction
+  let displayBoats = boats;
+  
+  // First apply location filter if provided
+  if (locationFilter && locationFilter !== 'all') {
+    displayBoats = boats.filter(b => b.location === locationFilter && b.status !== 'inactive');
+  } else if (isUserRestricted && userOperatorLocation) {
+    displayBoats = boats.filter(b => b.location === userOperatorLocation && b.status !== 'inactive');
+  } else {
+    displayBoats = boats.filter(b => b.status !== 'inactive');
+  }
+  
+  const boatNames = displayBoats.map(b => b.name);
 
-  // Filter extras: if restricted, only show extras applicable to their boats
-  const filteredExtras = boatNames.length > 0
-    ? extras.filter(e => !e.applicable_boats || e.applicable_boats.length === 0 || e.applicable_boats.some(boat => boatNames.includes(boat)))
-    : (isUserRestricted ? [] : extras);
+  // Filter extras: show all extras by default (boats filter will apply in the form)
+  const filteredExtras = extras;
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-xl font-bold text-white mb-1">Extras</h2>
-          <p className="text-sm text-white/50">Manage optional add-ons available to guests per boat and trip type.</p>
-          {isUserRestricted && userOperatorLocation && <p className="text-xs text-cyan-300 mt-1">Restricted to operator location and boats</p>}
-        </div>
+         <div>
+           <h2 className="text-xl font-bold text-white mb-1">Extras</h2>
+           <p className="text-sm text-white/50">Manage optional add-ons available to guests per boat and trip type.</p>
+           {locationFilter && locationFilter !== 'all' && <p className="text-xs text-cyan-300 mt-1">Filtered to location</p>}
+           {isUserRestricted && userOperatorLocation && <p className="text-xs text-cyan-300 mt-1">Restricted to operator location and boats</p>}
+         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
             <Button onClick={openNew} className="bg-purple-600 hover:bg-purple-700 text-white">
