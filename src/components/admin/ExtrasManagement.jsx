@@ -45,6 +45,16 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
 
+  const { data: extras = [] } = useQuery({
+    queryKey: ['extras'],
+    queryFn: () => base44.entities.Extra.list('sort_order'),
+  });
+
+  const { data: boats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
   // Charter operators MUST be restricted to their operator's location only
   const isChartOperator = currentUser?.role === 'charter_operator';
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
@@ -57,16 +67,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     }
     return null;
   })() : null;
-
-  const { data: extras = [] } = useQuery({
-    queryKey: ['extras'],
-    queryFn: () => base44.entities.Extra.list('sort_order'),
-  });
-
-  const { data: boats = [] } = useQuery({
-    queryKey: ['all-boats'],
-    queryFn: () => base44.entities.BoatInventory.list(),
-  });
 
   const saveMutation = useMutation({
     mutationFn: (data) => editing
@@ -123,9 +123,11 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     }));
   };
 
-  // Charter operators: DO NOT show boats, show all extras without boat applicability info
-  // For other roles: apply location + operator filtering
-  const displayBoats = isChartOperator ? [] : (() => {
+  // Charter operators: ONLY show their own boats, others: apply location + operator filtering
+  const displayBoats = isChartOperator ? (() => {
+    // Charter operators: ONLY show boats that belong to their operator
+    return boats.filter(b => (b.operator || '').toLowerCase() === (currentUser?.operator || '').toLowerCase() && b.status !== 'inactive');
+  })() : (() => {
     let boats_ = boats;
     // Apply location filter if provided
     if (locationFilter && locationFilter !== 'all') {
