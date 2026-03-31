@@ -152,6 +152,17 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
     ? [{ id: 'all', label: 'All' }, ...dbLocations.map(l => ({ id: l.location_id, label: l.name }))]
     : [{ id: 'all', label: 'All' }, { id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }];
   
+  // SuperAdmin sees all operators and can switch freely.
+  // All other roles are locked to their assigned operator — show only that one.
+  const operators = isSuperAdmin
+    ? allOperators
+    : currentUserOperator
+      ? allOperators.filter(op => op.name.toLowerCase() === currentUserOperator.toLowerCase())
+          .concat(allOperators.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }] : [])
+      : allOperators;
+  
+  const visibleFamilies = buildFamiliesForUser(isSuperAdmin, isOperatorAdmin);
+  
   // For non-SuperAdmin, filter locations to only show what their operator has assigned
   let locationOptions = allLocationOptions;
   if (!isSuperAdmin && currentUserOperator) {
