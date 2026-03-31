@@ -110,8 +110,8 @@ export default function Home() {
   };
 
   const handleSelectLocation = (locationId) => {
-    setSelectedLocation(locationId);
-    setBookingData({ location: locationId });
+    setSelectedLocation(locationId.toLowerCase());
+    setBookingData({ location: locationId.toLowerCase() });
     setStep('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -281,7 +281,8 @@ export default function Home() {
     return <LocationSelector onSelectLocation={handleSelectLocation} />;
   }
 
-  const locationName = selectedLocation === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : selectedLocation === 'cancun' ? 'Cancún' : 'Acapulco';
+  const locationRecord = dbLocations.find(l => l.location_id === selectedLocation);
+  const locationName = locationRecord?.name || (selectedLocation === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : selectedLocation === 'cancun' ? 'Cancún' : 'Acapulco');
 
   // Landing page view
   if (step === 'landing') {
