@@ -243,9 +243,16 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               </div>
               {extra.description && <p className="text-sm text-white/50 ml-6">{extra.description}</p>}
               <div className="flex flex-wrap gap-1 mt-2 ml-6">
-                {extra.applicable_boats?.length > 0
-                  ? extra.applicable_boats.map(b => <span key={b} className="text-xs px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/20">{b}</span>)
-                  : <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All boats</span>}
+                {(() => {
+                  const visibleBoats = extra.applicable_boats?.length > 0
+                    ? extra.applicable_boats.filter(b => boatNames.length === 0 || boatNames.includes(b))
+                    : [];
+                  if (extra.applicable_boats?.length > 0 && visibleBoats.length > 0)
+                    return visibleBoats.map(b => <span key={b} className="text-xs px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/20">{b}</span>);
+                  if (extra.applicable_boats?.length > 0 && visibleBoats.length === 0)
+                    return <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">Your boats</span>;
+                  return <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All boats</span>;
+                })()}
               </div>
               <div className="flex flex-wrap gap-1 mt-1 ml-6">
                 {extra.applicable_trips?.length > 0
