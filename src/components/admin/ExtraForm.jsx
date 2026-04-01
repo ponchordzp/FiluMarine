@@ -169,9 +169,9 @@ export default function ExtraForm({ allOperators, onSuccess }) {
           </div>
 
           <Button
-            onClick={handleCreate}
-            disabled={saveMutation.isPending || !currentUser}
-            className="w-full"
+           onClick={handleCreate}
+           disabled={saveMutation.isPending}
+           className="w-full"
           >
             {saveMutation.isPending ? 'Creating...' : 'Create Extra'}
           </Button>
