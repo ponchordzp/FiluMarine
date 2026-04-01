@@ -860,6 +860,35 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
 
 
 
+      {/* Next Service Budget */}
+      {(() => {
+        const nextServiceBreakdown = filteredBoats.map(boat => {
+          const qty = boat.engine_quantity || 1;
+          const type = boat.next_service_type === 'major' ? 'major' : 'minor';
+          const costField = type === 'major' ? 'major_maintenance_cost' : 'minor_maintenance_cost';
+          const costPerEngine = boat[costField] || 0;
+          const total = costPerEngine * qty;
+          return { name: boat.name, type, costPerEngine, qty, total, costField };
+        });
+        const totalNextServiceBudget = nextServiceBreakdown.reduce((s, b) => s + b.total, 0);
+        const overdueCount = filteredBoats.filter(boat => {
+          const bHrs = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled').reduce((s, b) => s + (b.engine_hours_used || 0), 0);
+          const pHrs = personalTrips.filter(t => t.boat_id === boat.id).reduce((s, t) => s + (t.engine_hours_used || 0), 0);
+          const tot = (boat.current_hours || 0) + bHrs + pHrs;
+          return tot > (boat.last_maintenance_hours || 0) + (boat.maintenance_interval_hours || 100);
+        }).length;
+        return (
+          <NextServiceBudgetPanel
+            breakdown={nextServiceBreakdown}
+            total={totalNextServiceBudget}
+            overdueCount={overdueCount}
+            boats={filteredBoats}
+            bookings={bookings}
+            personalTrips={personalTrips}
+          />
+        );
+      })()}
+
       {/* Alerts */}
       {alertBoats.length > 0 && (
         <div className="rounded-xl p-4 space-y-2" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
@@ -880,8 +909,6 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
       <SectionRow label="Operational Calendar — Services &amp; Payments" icon={<CalendarDays className="h-4 w-4 text-cyan-300" />} defaultOpen={true}>
         <OperationalCalendar boats={filteredBoats} />
       </SectionRow>
-
-
     </div>
   );
 }
