@@ -203,6 +203,7 @@ function AdminBookingsInner() {
       for (let i = 0; i < practiceCount; i++) {
         const today = new Date();
         today.setDate(today.getDate() + i);
+        const totalPrice = boat.minor_maintenance_cost || 1000;
         const booking = await base44.entities.Booking.create({
           location: boat.location || 'ixtapa_zihuatanejo',
           experience_type: 'half_day_fishing',
@@ -213,8 +214,8 @@ function AdminBookingsInner() {
           guest_email: 'practice@test.local',
           guest_phone: '0000000000',
           boat_name: boat.name,
-          total_price: boat.minor_maintenance_cost || 1000,
-          deposit_paid: Math.round((boat.minor_maintenance_cost || 1000) * 0.4),
+          total_price: totalPrice,
+          deposit_paid: Math.round(totalPrice * 0.4),
           payment_method: 'card',
           payment_status: 'payment_done',
           remaining_payment_status: 'collected_on_site',
@@ -222,6 +223,17 @@ function AdminBookingsInner() {
           status: 'completed',
           confirmation_code: `PRACTICE-${Date.now()}-${i}`,
           is_practice: true,
+        });
+        // Create expense record for payment display
+        await base44.entities.BookingExpense.create({
+          booking_id: booking.id,
+          fuel_cost: Math.round(totalPrice * 0.15),
+          crew_cost: Math.round(totalPrice * 0.25),
+          maintenance_cost: Math.round(totalPrice * 0.1),
+          cleaning_cost: Math.round(totalPrice * 0.05),
+          supplies_cost: Math.round(totalPrice * 0.05),
+          other_cost: 0,
+          notes: '[PRACTICE BOOKING] Auto-generated expenses',
         });
         bookings.push(booking);
       }
