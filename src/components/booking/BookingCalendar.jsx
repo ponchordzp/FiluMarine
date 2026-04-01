@@ -100,20 +100,22 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   
   // Filter boats to show ONLY those with this specific experience configured
+  // LOGIC: Check expedition_pricing first (authoritative), then available_expeditions fallback
   const availableBoats = boats.filter(boat => {
     const sourceBoat = activeBoats.find(b => b.id === boat.id);
     
-    // PRIMARY: Check expedition_pricing - boat must have this experience configured
+    // PRIMARY: expedition_pricing array - must contain this experience_type
     if (boat.expedition_pricing && boat.expedition_pricing.length > 0) {
-      return boat.expedition_pricing.some(p => p.expedition_type === experience.id);
+      const hasPricing = boat.expedition_pricing.some(p => p.expedition_type === experience.id);
+      if (hasPricing) return true;
     }
     
-    // FALLBACK: Check available_expeditions array
+    // FALLBACK: available_expeditions array on source boat
     if (sourceBoat?.available_expeditions && sourceBoat.available_expeditions.length > 0) {
-      return sourceBoat.available_expeditions.includes(experience.id);
+      if (sourceBoat.available_expeditions.includes(experience.id)) return true;
     }
     
-    // No config = don't show boat
+    // No config found - don't show
     return false;
   });
   const currentBoat = boats.find(b => b.id === selectedBoat);
@@ -211,9 +213,9 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
             {/* Calendar */}
             <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20">
               <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Date</h3>
-              {!selectedBoat && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4">
-                  <p className="text-sm text-amber-800">Please select a boat first before choosing a date</p>
+              {availableBoats.length === 0 && (
+                <div className="p-4 bg-red-500/30 border border-red-400/50 rounded-lg mb-4 backdrop-blur-sm">
+                  <p className="text-sm text-red-100"><span className="font-semibold">No boats available</span> for this experience in {location === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : location === 'acapulco' ? 'Acapulco' : 'Cancun'}. Please try another experience.</p>
                 </div>
               )}
               <Calendar
@@ -305,6 +307,12 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               {/* Boat Selection */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
                 <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Boat</h3>
+                {availableBoats.length === 0 ? (
+                  <div className="p-4 bg-red-500/30 border border-red-400/50 rounded-lg text-red-100 text-sm text-center backdrop-blur-sm">
+                    <p>No boats available for <span className="font-semibold">{experience.title}</span> in this location.</p>
+                    <p className="text-xs text-red-200 mt-2">Check that boats have this experience configured in the vessel editor.</p>
+                  </div>
+                ) : (
                 <div className="space-y-3">
                   {availableBoats.map((boat) => {
                     const boatPrice = getBoatPrice(boat);
@@ -335,10 +343,11 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                           </div>
                         )}
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
+                      );
+                      })}
+                      </div>
+                      )}
+                      </div>
               {/* Time Slots */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
                 <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Time</h3>
