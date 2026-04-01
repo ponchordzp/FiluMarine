@@ -335,8 +335,7 @@ export default function AdminBookingCard({
             <Dialog>
               <DialogTrigger asChild>
                 <button
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all hover:bg-blue-500/25"
-                  style={{ background: 'rgba(30,136,229,0.18)', border: '1px solid rgba(30,136,229,0.35)', color: 'rgb(147,197,253)' }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Info className="h-3 w-3" />Details
                 </button>

@@ -891,7 +891,7 @@ function AdminBookingsInner() {
                   mode="single"
                   selected={selectedCalendarDate}
                   onSelect={setSelectedCalendarDate}
-                  className="rounded-xl border-white/10 bg-transparent text-white"
+                  className="rounded-xl border-white/10 bg-transparent text-white [&_.rdp-button_selected]:bg-blue-600 hover:[&_.rdp-button_selected]:bg-blue-700"
                   modifiers={{ booked: (date) => visibleBookings.some((b) => b.date === format(date, 'yyyy-MM-dd') && b.status !== 'cancelled') }}
                   modifiersStyles={{ booked: { backgroundColor: 'rgba(30,136,229,0.35)', color: '#93c5fd', fontWeight: 'bold', borderRadius: '6px' } }} />
                 
@@ -942,7 +942,7 @@ function AdminBookingsInner() {
                             <div className="flex gap-2 mt-2">
                               <Dialog>
                                 <DialogTrigger asChild>
-                                  <Button size="sm" variant="outline" className="flex-1 text-xs border-white/10 text-white/60 hover:text-white hover:bg-white/10" onClick={() => setSelectedBooking(booking)}>
+                                  <Button size="sm" className="flex-1 text-xs bg-blue-600 hover:bg-blue-700 text-white border-none" onClick={() => setSelectedBooking(booking)}>
                                     <Info className="h-3 w-3 mr-1.5" />Details
                                   </Button>
                                 </DialogTrigger>
@@ -1124,7 +1124,7 @@ function AdminBookingsInner() {
                   mode="single"
                   selected={blockDate}
                   onSelect={setBlockDate}
-                  className="rounded-xl border-white/10 bg-transparent text-white w-full"
+                  className="rounded-xl border-white/10 bg-transparent text-white w-full [&_.rdp-button_selected]:bg-red-600 hover:[&_.rdp-button_selected]:bg-red-700"
                   modifiers={{ blocked: (date) => visibleBlocked.some((b) => b.date === format(date, 'yyyy-MM-dd')) }}
                   modifiersStyles={{ blocked: { backgroundColor: 'rgba(239,68,68,0.3)', color: '#fca5a5', fontWeight: 'bold', borderRadius: '6px' } }} />
                 
