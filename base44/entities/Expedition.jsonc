@@ -45,7 +45,15 @@
     "visible": {
       "type": "boolean",
       "default": true,
-      "description": "Whether this expedition is shown on the home page"
+      "description": "Global visibility \u2014 superadmin only. Use hidden_for_operators for per-operator control."
+    },
+    "hidden_for_operators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "List of operator names for whom this expedition is hidden. Allows per-operator visibility control."
     },
     "sort_order": {
       "type": "number",

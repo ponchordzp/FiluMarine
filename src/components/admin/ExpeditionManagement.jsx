@@ -85,8 +85,24 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['expeditions'] })
   });
 
+  const isHiddenForCurrentOperator = (exp) => {
+    if (!currentOperator) return !exp.visible; // superadmin: use global flag
+    return (exp.hidden_for_operators || []).includes(currentOperator);
+  };
+
   const toggleVisibility = (exp) => {
-    updateMutation.mutate({ id: exp.id, data: { ...exp, visible: !exp.visible } });
+    if (!currentOperator) {
+      // superadmin: toggle global visible
+      updateMutation.mutate({ id: exp.id, data: { visible: !exp.visible } });
+    } else {
+      // operator: toggle their name in hidden_for_operators
+      const hidden = exp.hidden_for_operators || [];
+      const isHidden = hidden.includes(currentOperator);
+      const updatedHidden = isHidden
+        ? hidden.filter(o => o !== currentOperator)
+        : [...hidden, currentOperator];
+      updateMutation.mutate({ id: exp.id, data: { hidden_for_operators: updatedHidden } });
+    }
   };
 
   const resetForm = () => {
@@ -171,7 +187,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
         {visibleExpeditions.map((exp) => (
-          <Card key={exp.id} className={`overflow-hidden transition-all ${!exp.visible ? 'opacity-60 border-dashed' : ''}`}>
+          <Card key={exp.id} className={`overflow-hidden transition-all ${isHiddenForCurrentOperator(exp) ? 'opacity-60 border-dashed' : ''}`}>
             {exp.image && (
               <div className="aspect-video relative overflow-hidden">
                 <img src={exp.image} alt={exp.title} className="w-full h-full object-cover" />
@@ -188,7 +204,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-slate-800 truncate">{exp.title}</h4>
                   <p className="text-xs text-slate-400 font-mono mt-0.5">{exp.expedition_id}</p>
-                  {!exp.visible && <Badge className="text-xs bg-slate-100 text-slate-600 mt-1">Hidden</Badge>}
+                  {isHiddenForCurrentOperator(exp) && <Badge className="text-xs bg-slate-100 text-slate-600 mt-1">Hidden</Badge>}
                 </div>
               </div>
               {exp.description && <p className="text-xs text-slate-600 line-clamp-2">{exp.description}</p>}
@@ -205,8 +221,8 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
                   <Edit className="h-3 w-3 mr-1" /> Edit
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => toggleVisibility(exp)}
-                  className={`h-8 px-2 ${exp.visible ? 'text-slate-600 hover:bg-slate-100' : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200'}`}>
-                  {exp.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  className={`h-8 px-2 ${!isHiddenForCurrentOperator(exp) ? 'text-slate-600 hover:bg-slate-100' : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200'}`}>
+                  {!isHiddenForCurrentOperator(exp) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
                 <Button variant="destructive" size="sm" className="h-8 px-2"
                   onClick={() => {if (window.confirm(`Delete "${exp.title}"?`)) deleteMutation.mutate(exp.id);}}>
