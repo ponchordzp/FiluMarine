@@ -40,19 +40,32 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     boat.boat_mode !== 'maintenance_only'
   );
 
-  // Map database boats to required format
-  const boats = activeBoats.map(boat => ({
-    id: boat.id,
-    name: boat.name,
-    type: `${boat.size} ${boat.type}`,
-    size: boat.size,
-    multiplier: 1, // Will use actual pricing from expedition_pricing
-    forLeisure: boat.available_expeditions?.some(exp => 
-      ['snorkeling', 'coastal_leisure', 'sunset_tour', 'extended_fishing'].includes(exp)
-    ) || false,
-    maxGuests: getMaxGuests(boat.capacity),
-    expedition_pricing: boat.expedition_pricing || [],
-  }));
+  // Map database boats to required format with ALL vessel editor data
+  const boats = activeBoats.map(boat => {
+    // Load all vessel editor data
+    const expeditionPricing = boat.expedition_pricing || [];
+    const availableExps = boat.available_expeditions || [];
+    const hasThisExperience = 
+      expeditionPricing.some(p => p.expedition_type === experience.id) ||
+      availableExps.includes(experience.id);
+    
+    return {
+      id: boat.id,
+      name: boat.name,
+      type: `${boat.size} ${boat.type}`,
+      size: boat.size,
+      capacity: boat.capacity,
+      multiplier: 1,
+      forLeisure: availableExps.some(exp => 
+        ['snorkeling', 'coastal_leisure', 'sunset_tour', 'extended_fishing'].includes(exp)
+      ) || false,
+      maxGuests: getMaxGuests(boat.capacity),
+      expedition_pricing: expeditionPricing,
+      available_expeditions: availableExps,
+      price_per_additional_hour: boat.price_per_additional_hour || 0,
+      hasExperience: hasThisExperience,
+    };
+  });
 
   const defaultBoat = boats.length > 0 ? boats[0].id : null;
   
@@ -99,33 +112,21 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   
-  // Filter boats to show ONLY those with this specific experience configured
-  // LOGIC: Check expedition_pricing first (authoritative), then available_expeditions fallback
-  const availableBoats = boats.filter(boat => {
-    const sourceBoat = activeBoats.find(b => b.id === boat.id);
-    
-    // PRIMARY: expedition_pricing array - must contain this experience_type
-    if (boat.expedition_pricing && boat.expedition_pricing.length > 0) {
-      const hasPricing = boat.expedition_pricing.some(p => p.expedition_type === experience.id);
-      if (hasPricing) return true;
-    }
-    
-    // FALLBACK: available_expeditions array on source boat
-    if (sourceBoat?.available_expeditions && sourceBoat.available_expeditions.length > 0) {
-      if (sourceBoat.available_expeditions.includes(experience.id)) return true;
-    }
-    
-    // No config found - don't show
-    return false;
-  });
+  // Filter boats to show ONLY those with this specific experience configured in vessel editor
+  const availableBoats = boats.filter(boat => boat.hasExperience);
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 
-  // Get actual price from boat's expedition pricing
+  // Get actual price from boat's expedition pricing (from vessel editor)
   const getBoatPrice = (boat) => {
-    if (!boat || !boat.expedition_pricing) return experience.price;
-    const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
-    return pricing ? pricing.price_mxn : experience.price;
+    if (!boat) return experience.price;
+    // Check expedition_pricing array first
+    if (boat.expedition_pricing && boat.expedition_pricing.length > 0) {
+      const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
+      if (pricing && pricing.price_mxn) return pricing.price_mxn;
+    }
+    // Fallback to experience default price
+    return experience.price || 0;
   };
 
   React.useEffect(() => {
@@ -308,11 +309,12 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
                 <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Boat</h3>
                 {availableBoats.length === 0 ? (
-                  <div className="p-4 bg-red-500/30 border border-red-400/50 rounded-lg text-red-100 text-sm text-center backdrop-blur-sm">
-                    <p>No boats available for <span className="font-semibold">{experience.title}</span> in this location.</p>
-                    <p className="text-xs text-red-200 mt-2">Check that boats have this experience configured in the vessel editor.</p>
-                  </div>
-                ) : (
+                    <div className="p-4 bg-red-500/30 border border-red-400/50 rounded-lg text-red-100 text-sm text-center backdrop-blur-sm">
+                      <p className="font-semibold">No boats available</p>
+                      <p className="text-xs text-red-200 mt-1">No boats in {location === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : location === 'acapulco' ? 'Acapulco' : 'Cancún'} offer <span className="font-semibold">{experience.title}</span>.</p>
+                      <p className="text-xs text-red-200 mt-2">Configure this experience in the vessel editor for eligible boats.</p>
+                    </div>
+                  ) : (
                 <div className="space-y-3">
                   {availableBoats.map((boat) => {
                     const boatPrice = getBoatPrice(boat);
