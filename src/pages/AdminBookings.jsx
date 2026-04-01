@@ -750,7 +750,6 @@ function AdminBookingsInner() {
                     </div>
                   ))}
                 </div>
-                <BookingTrendChart bookingFilteredBookings={bookingFilteredBookings} />
                 <FinancialTrendChart 
                   financialFilteredBookings={financialFilteredBookings}
                   expenses={expenses}
