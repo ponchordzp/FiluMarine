@@ -854,7 +854,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2"><DollarSign className="h-5 w-5 text-emerald-400" />Maintenance Financial Dashboard</h2>
-          <p className="text-sm text-white/40 mt-0.5">Full financial transparency per boat — maintenance, costs, revenue & engine data. Hover <Info className="inline h-3 w-3" /> icons for how each number is calculated.</p>
+          <p className="text-sm text-white/40 mt-0.5">Fleet overview of upcoming maintenance budgets, service schedules, payment alerts, and operational timeline. Boat mode pill shows usage type (maintenance + rental, maintenance only, or rental only).</p>
         </div>
         <span className="text-xs text-white/30">{filteredBoats.length} boat{filteredBoats.length !== 1 ? 's' : ''} in view</span>
       </div>
