@@ -8,16 +8,11 @@ export default function UserHeader() {
 
   return (
     <div className="flex items-center gap-3 px-6 py-3 border-b border-white/10 bg-white/5">
-      <div className="flex items-center gap-2">
-        {user.operator && (
-          <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30">
-            {user.operator}
-          </span>
-        )}
-        <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-          {user.role}
+      {user.operator && (
+        <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-300 border border-green-500/30">
+          {user.operator}
         </span>
-      </div>
+      )}
     </div>
   );
 }
