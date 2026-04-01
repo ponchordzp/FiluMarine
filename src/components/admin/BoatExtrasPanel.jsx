@@ -20,6 +20,9 @@ export default function BoatExtrasPanel({ boat, inline = false, formData, onChan
   // In inline mode, read from formData; otherwise read from boat
   const boatExtras = inline ? (formData?.boat_extras || []) : (boat?.boat_extras || []);
 
+  // Extras not yet added to this boat
+  const availableExtras = allExtras.filter(e => !boatExtras.some(be => be.extra_id === e.id));
+
   const saveMutation = useMutation({
     mutationFn: (updatedExtras) =>
       base44.entities.BoatInventory.update(boat.id, { boat_extras: updatedExtras }),
