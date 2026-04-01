@@ -71,12 +71,13 @@ function AdminBookingsInner() {
   const { currentUser, handleLogout } = useAuth();
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const isOperatorAdmin = currentUser?.role === 'operator_admin';
+  const isCharterOperator = currentUser?.role === 'charter_operator';
   const isAdmin = currentUser?.role === 'admin';
   const isCrew = currentUser?.role === 'crew';
   const assignedBoat = currentUser?.assigned_boat || '';
   const currentUserOperator = currentUser?.operator || '';
-  // Operator admin has elevated access (like superadmin) but scoped to their operator
-  const hasElevatedAccess = isSuperAdmin || isOperatorAdmin;
+  // Operator admin and charter operators have elevated access scoped to their operator
+  const hasElevatedAccess = isSuperAdmin || isOperatorAdmin || isCharterOperator;
 
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
@@ -530,7 +531,6 @@ function AdminBookingsInner() {
 
   }
 
-  const isCharterOperator = currentUser?.role === 'charter_operator';
   const roleBadge = isSuperAdmin ?
   { label: 'Super Admin', cls: 'bg-purple-500' } :
   isOperatorAdmin ?
@@ -1135,7 +1135,7 @@ function AdminBookingsInner() {
                   <Label className="text-red-200 text-xs font-semibold">Select Boat</Label>
                   {hasElevatedAccess ?
                   <Select value={blockBoat} onValueChange={setBlockBoat}>
-                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
+                      <SelectTrigger className="mt-1 bg-white/5 border-white/10 text-white"><SelectValue placeholder="Select boat..." /></SelectTrigger>
                       <SelectContent>
                         {isSuperAdmin && <SelectItem value="both">All Boats</SelectItem>}
                         {(isSuperAdmin ? allBoats : allBoats.filter((b) => (filteredOperatorBoats || []).includes(b.name))).map((boat) =>
@@ -1153,7 +1153,7 @@ function AdminBookingsInner() {
                   <Label className="text-red-200 text-xs font-semibold">Reason (Optional)</Label>
                   <Textarea placeholder="e.g., Weather, maintenance, private event..." value={blockReason} onChange={(e) => setBlockReason(e.target.value)} rows={3} className="mt-1 text-white placeholder:text-white/40" style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)' }} />
                 </div>
-                <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending || !hasElevatedAccess && !assignedBoat} className="w-full bg-red-600/80 hover:bg-red-600 border-red-500/50 text-white" style={{ border: '1px solid rgba(239,68,68,0.4)' }}>
+                <Button onClick={handleBlockDate} disabled={!blockDate || blockDateMutation.isPending || (hasElevatedAccess ? !blockBoat : !assignedBoat)} className="w-full bg-red-600/80 hover:bg-red-600 border-red-500/50 text-white" style={{ border: '1px solid rgba(239,68,68,0.4)' }}>
                   <Ban className="h-4 w-4 mr-2" />
                   {blockDateMutation.isPending ? 'Blocking...' : 'Block Date'}
                 </Button>
