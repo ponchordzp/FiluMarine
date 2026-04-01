@@ -754,6 +754,7 @@ function AdminBookingsInner() {
                     </div>
                   ))}
                 </div>
+                <BookingTrendChart bookingFilteredBookings={bookingFilteredBookings} />
               </>
             )}
           </div>
