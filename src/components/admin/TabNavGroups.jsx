@@ -160,7 +160,13 @@ function buildFamiliesForUser(currentUserRole) {
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
 function loadOperators() {
-  try { const raw = localStorage.getItem(OPERATOR_STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
+  try {
+    const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return parsed && parsed.length > 0 ? parsed : [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
+    }
+  } catch {}
   return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
 }
 
