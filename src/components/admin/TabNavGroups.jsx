@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -165,48 +165,65 @@ function loadOperators() {
 }
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, currentUserId, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
-  const filterPerms = currentUserId ? loadUserFilterPerms(currentUserId) : { operator_filter: true, location_filter: true };
+  const filterPerms = currentUserId ? loadUserFilterPerms(currentUserId) : { allowed_operators: ['all'], allowed_locations: ['all'] };
+  const allowedOperators = filterPerms.allowed_operators ?? ['all'];
+  const allowedLocations = filterPerms.allowed_locations ?? ['all'];
   const allOperators = loadOperators();
+
   const { data: dbLocations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list('sort_order'),
   });
-  
-  // Build base location options from database
+
   const allLocationOptions = dbLocations.length > 0
-    ? [{ id: 'all', label: 'All' }, ...dbLocations.map(l => ({ id: l.location_id, label: l.name }))]
-    : [{ id: 'all', label: 'All' }, { id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }];
-  
-  // SuperAdmin sees all operators and can switch freely.
-  // All other roles are locked to their assigned operator — show only that one.
-  const operators = isSuperAdmin
+    ? dbLocations.map(l => ({ id: l.location_id, label: l.name }))
+    : [{ id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }];
+
+  // Operators scoped by role
+  const baseOperators = isSuperAdmin
     ? allOperators
     : currentUserOperator
       ? allOperators.filter(op => op.name.toLowerCase() === currentUserOperator.toLowerCase())
-          .concat(allOperators.length === 0 ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }] : [])
       : allOperators;
-  
-  const visibleFamilies = buildFamiliesForUser(currentUserRole);
-  
-  // For non-SuperAdmin, filter locations to only show what their operator has assigned
-  let locationOptions = allLocationOptions;
-  if (!isSuperAdmin && currentUserOperator) {
-    const currentOperator = allOperators.find(op => op.name?.toLowerCase() === currentUserOperator.toLowerCase());
-    if (currentOperator?.locations && currentOperator.locations.length > 0) {
-      locationOptions = [{ id: 'all', label: 'All' }, ...allLocationOptions.filter(loc => loc.id === 'all' || currentOperator.locations.includes(loc.id))];
-      // Remove duplicate 'All'
-      if (locationOptions.filter(l => l.id === 'all').length > 1) {
-        locationOptions = [locationOptions[0], ...locationOptions.slice(2)];
-      }
-    }
-  }
 
-  // If no match found in stored operators, create a placeholder
-  const displayOperators = operators.length > 0
-    ? operators
-    : currentUserOperator
-      ? [{ id: currentUserOperator, name: currentUserOperator, color: '#f97316' }]
-      : allOperators;
+  // Apply per-user allowed_operators filter (SuperAdmin only perk)
+  const displayOperators = isSuperAdmin && !allowedOperators.includes('all')
+    ? baseOperators.filter(op => allowedOperators.includes(op.name))
+    : baseOperators;
+
+  // Apply per-user allowed_locations filter
+  const displayLocations = allowedLocations.includes('all')
+    ? allLocationOptions
+    : allLocationOptions.filter(l => allowedLocations.includes(l.id));
+
+  // Auto-lock: if only 1 operator visible, always force it selected
+  const singleOperatorLock = displayOperators.length === 1 ? displayOperators[0].name : null;
+  // Auto-lock: if only 1 location visible, always force it selected
+  const singleLocationLock = displayLocations.length === 1 ? displayLocations[0].id : null;
+
+  // Effective filter values (considering single-item lock)
+  const effectiveOperatorFilter = singleOperatorLock ?? operatorFilter;
+  const effectiveLocationFilter = singleLocationLock ?? locationFilter;
+
+  // If locked, propagate up so parent state stays consistent
+  React.useEffect(() => {
+    if (singleOperatorLock && operatorFilter !== singleOperatorLock && onOperatorFilterChange) {
+      onOperatorFilterChange(singleOperatorLock);
+    }
+  }, [singleOperatorLock]);
+
+  React.useEffect(() => {
+    if (singleLocationLock && locationFilter !== singleLocationLock && onLocationFilterChange) {
+      onLocationFilterChange(singleLocationLock);
+    }
+  }, [singleLocationLock]);
+
+  const visibleFamilies = buildFamiliesForUser(currentUserRole);
+
+  // Show operator filter only if more than 1 option
+  const showOperatorFilter = displayOperators.length > 1;
+  // Show location filter only if more than 1 option
+  const showLocationFilter = displayLocations.length > 1;
 
   return (
     <div className="flex flex-col gap-2 items-start">
@@ -214,46 +231,46 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
         <FamilyGroup key={family.id} family={family} />
       ))}
 
-      {filterPerms.operator_filter && (
-      <div className="flex items-center gap-2 mt-1">
-        <span className="text-xs text-white/40 flex items-center gap-1">
-          <Ship className="h-3 w-3" /> Filter by Operator:
-        </span>
-        <div className="flex gap-1 flex-wrap">
-          {isSuperAdmin && (
-            <button
-              onClick={() => onOperatorFilterChange('all')}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === 'all' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
-            >
-              All
-            </button>
-          )}
-          {displayOperators.map(op => (
-            <button
-              key={op.id || op.name}
-              onClick={() => isSuperAdmin ? onOperatorFilterChange(op.name) : undefined}
-              className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase()) ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'} ${!isSuperAdmin ? 'cursor-default' : ''}`}
-              style={(operatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase())) ? { background: (op.color || '#f97316') + '55', border: `1px solid ${(op.color || '#f97316')}88` } : {}}
-            >
-              {op.name}
-            </button>
-          ))}
+      {showOperatorFilter && (
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs text-white/40 flex items-center gap-1">
+            <Ship className="h-3 w-3" /> Filter by Operator:
+          </span>
+          <div className="flex gap-1 flex-wrap">
+            {isSuperAdmin && (
+              <button
+                onClick={() => onOperatorFilterChange('all')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${effectiveOperatorFilter === 'all' ? 'bg-white/20 text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'}`}
+              >
+                All
+              </button>
+            )}
+            {displayOperators.map(op => (
+              <button
+                key={op.id || op.name}
+                onClick={() => isSuperAdmin ? onOperatorFilterChange(op.name) : undefined}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${effectiveOperatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase()) ? 'text-white' : 'text-white/40 hover:text-white/70 hover:bg-white/10'} ${!isSuperAdmin ? 'cursor-default' : ''}`}
+                style={(effectiveOperatorFilter === op.name || (!isSuperAdmin && currentUserOperator?.toLowerCase() === op.name?.toLowerCase())) ? { background: (op.color || '#f97316') + '55', border: `1px solid ${(op.color || '#f97316')}88` } : {}}
+              >
+                {op.name}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
       )}
 
-      {onLocationFilterChange && filterPerms.location_filter && (
+      {onLocationFilterChange && showLocationFilter && (
         <div className="flex items-center gap-2">
           <span className="text-xs text-white/40 flex items-center gap-1">
             <MapPin className="h-3 w-3" /> Filter by Location:
           </span>
           <div className="flex gap-1 flex-wrap">
-            {locationOptions.map(loc => (
+            {[{ id: 'all', label: 'All' }, ...displayLocations].map(loc => (
               <button
                 key={loc.id}
                 onClick={() => onLocationFilterChange(loc.id)}
                 className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
-                  locationFilter === loc.id ? 'bg-teal-500/30 text-teal-200 border border-teal-500/40' : 'text-white/40 hover:text-white/70 hover:bg-white/10'
+                  effectiveLocationFilter === loc.id ? 'bg-teal-500/30 text-teal-200 border border-teal-500/40' : 'text-white/40 hover:text-white/70 hover:bg-white/10'
                 }`}
               >
                 {loc.label}
