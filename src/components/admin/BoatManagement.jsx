@@ -39,11 +39,18 @@ const expeditionTypes = [
 const OPERATOR_STORAGE_KEY = 'filu_operators';
 const EXPEDITION_VAULT_KEY = 'filu_expedition_pricing_vault';
 
-function saveExpeditionVault(boatId, expeditionPricing, pickupDepartures) {
+function saveExpeditionVault(boatId, expeditionPricing, pickupDepartures, boatExtras) {
   try {
     const raw = localStorage.getItem(EXPEDITION_VAULT_KEY);
     const vault = raw ? JSON.parse(raw) : {};
-    vault[boatId] = { expedition_pricing: expeditionPricing, pickup_departures: pickupDepartures, saved_at: Date.now() };
+    // Merge with existing vault data so we don't overwrite with undefined
+    vault[boatId] = { 
+      ...vault[boatId],
+      expedition_pricing: expeditionPricing || vault[boatId]?.expedition_pricing || [], 
+      pickup_departures: pickupDepartures || vault[boatId]?.pickup_departures || {},
+      boat_extras: boatExtras || vault[boatId]?.boat_extras || [],
+      saved_at: Date.now() 
+    };
     localStorage.setItem(EXPEDITION_VAULT_KEY, JSON.stringify(vault));
   } catch {}
 }
@@ -264,13 +271,18 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     }
   });
 
-  // Safe update: NEVER wipe expedition_pricing — always restore from vault if update would clear it
+  // Safe update: NEVER wipe expedition_pricing or boat_extras — always restore from vault if update would clear it
   const safeUpdateBoat = async (id, updateData) => {
     let data = { ...updateData };
+    const vault = loadExpeditionVault(id);
     if (!data.expedition_pricing || data.expedition_pricing.length === 0) {
-      const vault = loadExpeditionVault(id);
       if (vault?.expedition_pricing?.length > 0) {
         data.expedition_pricing = vault.expedition_pricing;
+      }
+    }
+    if (!data.boat_extras || data.boat_extras.length === 0) {
+      if (vault?.boat_extras?.length > 0) {
+        data.boat_extras = vault.boat_extras;
       }
     }
     return updateMutation.mutateAsync({ id, data });
@@ -368,10 +380,16 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     typeof customVisibility[idx] === 'boolean' ? customVisibility[idx] : true
     );
 
+    const vaultData = loadExpeditionVault(boat.id);
+    const dbExtras = boat.boat_extras || [];
+    const vaultExtras = vaultData?.boat_extras || [];
+    const mergedExtras = dbExtras.length > 0 ? dbExtras : vaultExtras;
+
     setFormData({
       ...boat,
       dock_location: boat.dock_location || '',
       expedition_pricing: boat.expedition_pricing || [],
+      boat_extras: mergedExtras,
       next_service_type: boat.next_service_type || 'minor',
       mechanic_name: boat.mechanic_name || '',
       mechanic_phone: boat.mechanic_phone || '',
@@ -411,7 +429,6 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     });
     setImagePreview(boat.image || '');
     // Always merge vault + DB — take whichever has richer expedition data
-    const vaultData = loadExpeditionVault(boat.id);
     const dbExpPricing = boat.expedition_pricing || [];
     const vaultExpPricing = vaultData?.expedition_pricing || [];
     // Prefer DB if it has entries, otherwise fall back to vault
@@ -505,7 +522,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     });
     // Save to protected vault BEFORE upload so data is never lost
     const boatId = editingBoat?.id;
-    if (boatId) saveExpeditionVault(boatId, finalData.expedition_pricing, expeditionPickupDepartures);
+    if (boatId) saveExpeditionVault(boatId, finalData.expedition_pricing, expeditionPickupDepartures, finalData.boat_extras);
     setUploading(true);
     if (imageFile) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });

@@ -44,6 +44,20 @@ export default function BoatExtrasPanel({ boat, inline = false, formData, onChan
       onChange(updatedExtras);
     } else {
       saveMutation.mutate(updatedExtras);
+      // Also update vault if not inline
+      try {
+        const vaultKey = 'filu_expedition_pricing_vault';
+        const raw = localStorage.getItem(vaultKey);
+        const vault = raw ? JSON.parse(raw) : {};
+        if (boat?.id) {
+          vault[boat.id] = {
+            ...vault[boat.id],
+            boat_extras: updatedExtras,
+            saved_at: Date.now()
+          };
+          localStorage.setItem(vaultKey, JSON.stringify(vault));
+        }
+      } catch (e) {}
     }
   };
 
