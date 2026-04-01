@@ -100,21 +100,24 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   
   // Filter boats based on experience availability
+  // Show all boats for this location - pricing fallback (line 124) handles missing configs
   const availableBoats = boats.filter(boat => {
     const sourceBoat = activeBoats.find(b => b.id === boat.id);
     
     // Check expedition_pricing first - if configured, use it as primary source
     if (boat.expedition_pricing && boat.expedition_pricing.length > 0) {
-      return boat.expedition_pricing.some(p => p.expedition_type === experience.id);
+      const hasPricing = boat.expedition_pricing.some(p => p.expedition_type === experience.id);
+      if (hasPricing) return true;
     }
     
     // Check available_expeditions field as fallback
     if (sourceBoat?.available_expeditions && sourceBoat.available_expeditions.length > 0) {
-      return sourceBoat.available_expeditions.includes(experience.id);
+      if (sourceBoat.available_expeditions.includes(experience.id)) return true;
     }
     
-    // If no expeditions are configured at all, don't show the boat
-    return false;
+    // FALLBACK: Show all boats for the location even if not explicitly configured
+    // This prevents empty boat lists while configs are being set up
+    return true;
   });
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
