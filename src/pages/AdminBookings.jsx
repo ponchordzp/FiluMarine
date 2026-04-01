@@ -1263,7 +1263,7 @@ function AdminBookingsInner() {
             </TabsContent>
           }
 
-          {(isSuperAdmin || isOperatorAdmin) &&
+          {(hasElevatedAccess) &&
           <TabsContent value="users">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', backdropFilter: 'blur(16px)' }}>
                 <UserManagement currentUser={currentUser} operatorFilter={effectiveOperatorFilter} />
