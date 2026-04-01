@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -105,7 +105,7 @@ function AdminBookingsInner() {
   const [showCustomDatePickerBooking, setShowCustomDatePickerBooking] = useState(false);
   const [activeTab, setActiveTab] = useState('bookings');
   const [showPracticeGenerator, setShowPracticeGenerator] = useState(false);
-  const [practiceBoatFilter, setPracticeBoatFilter] = useState(allBoats.length > 0 ? allBoats[0].name : '');
+  const [practiceBoatFilter, setPracticeBoatFilter] = useState('');
   const [practiceCount, setPracticeCount] = useState(1);
 
   const queryClient = useQueryClient();
@@ -124,6 +124,13 @@ function AdminBookingsInner() {
     queryKey: ['all-boats'],
     queryFn: () => base44.entities.BoatInventory.list(),
   });
+
+  // Set default boat when allBoats loads
+  React.useEffect(() => {
+    if (allBoats.length > 0 && !practiceBoatFilter) {
+      setPracticeBoatFilter(allBoats[0].name);
+    }
+  }, [allBoats, practiceBoatFilter]);
 
   const { data: expenses = [] } = useQuery({
     queryKey: ['booking-expenses'],
