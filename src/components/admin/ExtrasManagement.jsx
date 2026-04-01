@@ -74,6 +74,9 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
+      if (!data.name || !data.name.trim()) {
+        throw new Error('Extra name is required');
+      }
       let saveData = { ...data };
       saveData.price = typeof saveData.price === 'string' ? parseFloat(saveData.price) || 0 : saveData.price;
       
@@ -175,7 +178,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
            {locationFilter && locationFilter !== 'all' && <p className="text-xs text-cyan-300 mt-1">Filtered to location</p>}
            {isUserRestricted && userOperatorLocation && <p className="text-xs text-cyan-300 mt-1">Restricted to operator location and boats</p>}
          </div>
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
+        <Dialog open={open} onOpenChange={(v) => { if (!v) { setEditing(null); setForm(emptyForm); } setOpen(v); }}>
           <DialogTrigger asChild>
             <Button onClick={openNew} className="bg-purple-600 hover:bg-purple-700 text-white" disabled={!currentUser}>
               <Plus className="h-4 w-4 mr-2" />Add Extra
@@ -220,11 +223,15 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
 
               <Button className="w-full" onClick={() => {
-                if (!form.name) {
+                if (!form.name || !form.name.trim()) {
                   alert('Please enter a name for the extra');
                   return;
                 }
-                saveMutation.mutate(form);
+                const submitData = {
+                  ...form,
+                  name: form.name.trim(),
+                };
+                saveMutation.mutate(submitData);
               }} disabled={saveMutation.isPending || !currentUser || (!isSuperAdmin && !currentUser.operator)}>
                 {saveMutation.isPending ? 'Saving...' : editing ? 'Save Changes' : 'Create'}
               </Button>
