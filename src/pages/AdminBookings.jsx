@@ -848,8 +848,6 @@ function AdminBookingsInner() {
               </Button>
             </div>
 
-            <BookingTrendChart bookingFilteredBookings={bookingFilteredBookings} />
-
             {filteredBookings.length === 0 ? (
                 <div className="rounded-2xl p-12 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                   <p className="text-white/40">No bookings found</p>
