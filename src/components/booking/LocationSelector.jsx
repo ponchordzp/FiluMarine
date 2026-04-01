@@ -155,14 +155,13 @@ export default function LocationSelector({ onSelectLocation }) {
               </div>
 
               {/* Location Info */}
-              <div className="p-6 flex flex-col flex-1">
+              <div className="p-4 flex flex-col flex-1">
                 <h3 className="text-2xl font-light text-white mb-1">
                   <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{location.name}</span>
                 </h3>
                 <p className="text-cyan-300/60 text-sm mb-1 font-mono">{location.coordinates}</p>
                 <WeatherWidget locationId={location.location_id} />
-                <p className="text-white/80 mt-3 mb-4 text-base leading-relaxed line-clamp-3">{location.description}</p>
-                
+                <p className="text-white/80 mt-2 mb-3 text-base leading-relaxed line-clamp-3" style={{ minHeight: '4.5rem' }}>{location.description}</p>
                 <Button 
                   onClick={() => onSelectLocation(location.location_id || location.id)}
                   className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-5 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] text-base mt-auto"
