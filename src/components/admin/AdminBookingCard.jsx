@@ -157,6 +157,11 @@ export default function AdminBookingCard({
               {/* Name + status badges */}
               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <h3 className="font-semibold text-base text-white">{booking.guest_name}</h3>
+                {booking.guest_name?.startsWith('Practice Guest') && (
+                  <span className="text-xs px-2 py-0.5 rounded-full font-bold bg-violet-500/20 text-violet-300 border border-violet-500/40" title="Auto-generated test booking">
+                    PRACTICE
+                  </span>
+                )}
                 {opName && (
                   <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
                     style={{ background: 'rgba(251,146,60,0.2)', border: '1px solid rgba(251,146,60,0.35)', color: '#fdba74' }}>
