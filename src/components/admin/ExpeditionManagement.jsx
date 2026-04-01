@@ -51,9 +51,11 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
   // Determine current operator context
   const currentOperator = operatorFilter === 'all' ? '' : operatorFilter;
 
+  const isSuperAdmin = operatorFilter === 'all';
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
+  const [isForking, setIsForking] = useState(false); // forking = creating operator copy of a global expedition
   const [formData, setFormData] = useState(emptyForm);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -65,10 +67,20 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
     queryFn: () => base44.entities.Expedition.list('sort_order')
   });
 
-  // Filter: superadmin (all) sees everything; operator sees only their own
-  const visibleExpeditions = operatorFilter === 'all'
-    ? expeditions
-    : expeditions.filter(e => !e.operator || e.operator.toLowerCase() === operatorFilter.toLowerCase());
+  // Filter: superadmin sees everything; operator sees global + their own copies
+  // If an operator has their own copy of an expedition_id, prefer that over the global one
+  const visibleExpeditions = (() => {
+    if (isSuperAdmin) return expeditions;
+    // Collect operator's own expeditions
+    const ownExps = expeditions.filter(e => e.operator && e.operator.toLowerCase() === currentOperator.toLowerCase());
+    const ownIds = new Set(ownExps.map(e => e.expedition_id));
+    // Include global expeditions that don't have an operator-specific override
+    const globalExps = expeditions.filter(e => !e.operator && !ownIds.has(e.expedition_id));
+    return [...globalExps, ...ownExps].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  })();
+
+  // Check if an expedition is "owned" by current operator (can be directly edited/deleted)
+  const isOwned = (exp) => isSuperAdmin || (exp.operator && exp.operator.toLowerCase() === currentOperator.toLowerCase());
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Expedition.create(data),
@@ -110,12 +122,21 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
     setImageFile(null);
     setImagePreview('');
     setEditingExp(null);
+    setIsForking(false);
     setDialogOpen(false);
   };
 
   const handleEdit = (exp) => {
-    setEditingExp(exp);
-    setFormData({ ...exp });
+    if (!isOwned(exp) && currentOperator) {
+      // Fork: editing a global expedition creates an operator-specific copy
+      setIsForking(true);
+      setEditingExp(null); // treat as new
+      setFormData({ ...exp, operator: currentOperator, id: undefined });
+    } else {
+      setIsForking(false);
+      setEditingExp(exp);
+      setFormData({ ...exp });
+    }
     setImagePreview(exp.image || '');
     setDialogOpen(true);
   };
@@ -129,14 +150,15 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let finalData = { ...formData, operator: currentOperator };
+    let finalData = { ...formData, operator: isSuperAdmin ? (formData.operator || '') : currentOperator };
+    delete finalData.id;
     if (imageFile) {
       setUploading(true);
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
       finalData.image = file_url;
       setUploading(false);
     }
-    if (editingExp) {
+    if (editingExp && !isForking) {
       updateMutation.mutate({ id: editingExp.id, data: finalData });
     } else {
       createMutation.mutate(finalData);
@@ -203,7 +225,8 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-slate-800 truncate">{exp.title}</h4>
-                  <p className="text-xs text-slate-400 font-mono mt-0.5">{exp.expedition_id}</p>
+                  {isSuperAdmin && <p className="text-xs text-slate-400 font-mono mt-0.5">{exp.expedition_id}</p>}
+                  {isOwned(exp) && !isSuperAdmin && <Badge className="text-xs bg-blue-100 text-blue-600 mt-1">Your copy</Badge>}
                   {isHiddenForCurrentOperator(exp) && <Badge className="text-xs bg-slate-100 text-slate-600 mt-1">Hidden</Badge>}
                 </div>
               </div>
@@ -225,7 +248,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
                   {!isHiddenForCurrentOperator(exp) ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </Button>
                 <Button variant="destructive" size="sm" className="h-8 px-2"
-                  onClick={() => {if (window.confirm(`Delete "${exp.title}"?`)) deleteMutation.mutate(exp.id);}}>
+                  disabled={!isOwned(exp)}
+                  title={!isOwned(exp) ? 'Cannot delete a global expedition' : ''}
+                  onClick={() => {if (isOwned(exp) && window.confirm(`Delete "${exp.title}"?`)) deleteMutation.mutate(exp.id);}}>
                   <Trash2 className="h-3 w-3" />
                 </Button>
               </div>
@@ -238,7 +263,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
       <Dialog open={dialogOpen} onOpenChange={(open) => {if (!open) resetForm();setDialogOpen(open);}}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingExp ? 'Edit Expedition' : 'Add New Expedition'}</DialogTitle>
+            <DialogTitle>{editingExp && !isForking ? 'Edit Expedition' : isForking ? 'Customize Expedition (Your Copy)' : 'Add New Expedition'}</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid md:grid-cols-2 gap-4">
@@ -248,8 +273,8 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
               </div>
               <div>
                 <Label>Expedition ID *</Label>
-                <Input required value={formData.expedition_id} onChange={(e) => setFormData({ ...formData, expedition_id: e.target.value })} placeholder="e.g. half_day_fishing" />
-                <p className="text-xs text-slate-500 mt-1">Lowercase, underscores only. Shown to guests &amp; used by boats.</p>
+                <Input required value={formData.expedition_id} onChange={(e) => setFormData({ ...formData, expedition_id: e.target.value })} placeholder="e.g. half_day_fishing" disabled={isForking} />
+                <p className="text-xs text-slate-500 mt-1">{isForking ? 'ID is locked to match the original for boat compatibility.' : 'Lowercase, underscores only. Used by boats.'}</p>
               </div>
               <div>
                 <button
@@ -345,7 +370,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
 
             <div className="flex gap-2 pt-2">
               <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || uploading} className="flex-1">
-                {uploading ? 'Uploading...' : editingExp ? 'Save Changes' : 'Create Expedition'}
+                {uploading ? 'Uploading...' : (editingExp && !isForking) ? 'Save Changes' : isForking ? 'Save My Copy' : 'Create Expedition'}
               </Button>
               <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
             </div>
