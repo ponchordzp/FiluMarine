@@ -148,8 +148,8 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   };
 
   // ── BOAT-SELECTED VIEW ──────────────────────────────────────────────────
-  if (selectedBoat?.available_expeditions?.length > 0) {
-    const boatExperiences = selectedBoat.available_expeditions.map(expType => {
+  if (selectedBoat) {
+    const boatExperiences = (selectedBoat.available_expeditions || []).map(expType => {
       const catalog = dbExpeditions.find(e => e.expedition_id === expType);
       if (isHiddenForOperator(catalog, selectedBoat.operator)) return null;
       const pricing = (selectedBoat.expedition_pricing || []).find(p => p.expedition_type === expType);
@@ -162,7 +162,18 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       };
     }).filter(Boolean);
 
-    if (boatExperiences.length === 0) return null;
+    if (boatExperiences.length === 0) {
+      return (
+        <section className="relative py-8 md:py-12">
+          <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
+            <div className="rounded-3xl overflow-hidden border border-white/20 bg-white/5 backdrop-blur-md p-8 md:p-10 text-center">
+              <h2 className="text-3xl font-light text-white mb-4">No Experiences Available</h2>
+              <p className="text-white/60 text-lg">This boat does not have any experiences configured yet.</p>
+            </div>
+          </div>
+        </section>
+      );
+    }
 
     const colClass = boatExperiences.length === 1
       ? 'grid-cols-1 max-w-md mx-auto'
