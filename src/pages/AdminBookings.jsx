@@ -750,12 +750,6 @@ function AdminBookingsInner() {
                     </div>
                   ))}
                 </div>
-                <FinancialTrendChart 
-                  financialFilteredBookings={financialFilteredBookings}
-                  expenses={expenses}
-                  getOperatorCommission={getOperatorCommission}
-                  allBoats={allBoats}
-                />
               </>
             )}
           </div>
@@ -1205,10 +1199,16 @@ function AdminBookingsInner() {
           </TabsContent>
 
           {/* ── MAINTENANCE FINANCE TAB ── */}
-          <TabsContent value="maintenance-finance">
+          <TabsContent value="maintenance-finance" className="space-y-6">
             <div className="rounded-2xl p-6" style={{ background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)', backdropFilter: 'blur(16px)' }}>
               <MaintenanceFinancialDashboard operatorFilter={effectiveOperatorFilter} locationFilter={globalLocationFilter} />
             </div>
+            <FinancialTrendChart 
+              financialFilteredBookings={financialFilteredBookings}
+              expenses={expenses}
+              getOperatorCommission={getOperatorCommission}
+              allBoats={allBoats}
+            />
           </TabsContent>
 
           {/* ── BOATS TAB ── */}
