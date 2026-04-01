@@ -102,11 +102,11 @@ export default function ExtraForm({ allOperators = [], onSuccess }) {
           Add Extra
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-lg">
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Extra</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-4 px-1 pb-1">
           {isSuperAdmin && (
             <div>
               <Label>Operator *</Label>
