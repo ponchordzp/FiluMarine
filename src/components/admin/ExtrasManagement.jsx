@@ -75,10 +75,16 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
   const saveMutation = useMutation({
     mutationFn: (data) => {
       let saveData = { ...data };
+      saveData.price = typeof saveData.price === 'string' ? parseFloat(saveData.price) || 0 : saveData.price;
+      
       // Non-superadmins ALWAYS lock extras to ONLY their operator (strict isolation)
-      if (!isSuperAdmin && currentUser?.operator) {
+      if (!isSuperAdmin) {
+        // Require currentUser to have operator before allowing save
+        if (!currentUser?.operator) {
+          throw new Error('User must have an operator assigned to create extras');
+        }
         const op = currentUser.operator;
-        saveData.allowed_operators = [op]; // Force ONLY their operator, no shared extras
+        saveData.allowed_operators = [op];
         // Generate unique operator tag on create
         if (!editing) {
           const timestamp = Date.now();
@@ -95,6 +101,10 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
       setOpen(false);
       setEditing(null);
       setForm(emptyForm);
+    },
+    onError: (error) => {
+      console.error('Error saving extra:', error?.message || error);
+      alert('Error: ' + (error?.message || 'Failed to save extra'));
     },
   });
 
@@ -205,7 +215,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               )}
 
 
-              <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending}>
+              <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending || (!isSuperAdmin && !currentUser?.operator)}>
                 {saveMutation.isPending ? 'Saving...' : editing ? 'Save Changes' : 'Create'}
               </Button>
             </div>
