@@ -70,7 +70,7 @@ const statusIcons = {
 function AdminBookingsInner() {
   const { currentUser, handleLogout } = useAuth();
   const isSuperAdmin = currentUser?.role === 'superadmin';
-  const isOperatorAdmin = currentUser?.role === 'operator_admin';
+  const isOperatorAdmin = currentUser?.role === 'operator_admin' || currentUser?.role === 'charter_operator';
   const isAdmin = currentUser?.role === 'admin';
   const isCrew = currentUser?.role === 'crew';
   const assignedBoat = currentUser?.assigned_boat || '';
@@ -95,7 +95,7 @@ function AdminBookingsInner() {
   const [globalOperatorFilter, setGlobalOperatorFilter] = useState('all');
   const [globalLocationFilter, setGlobalLocationFilter] = useState('all');
   // ALL non-superadmin roles are LOCKED to their assigned operator. Only superadmin can freely switch.
-  const effectiveOperatorFilter = isSuperAdmin ? globalOperatorFilter : (currentUserOperator || 'all');
+  const effectiveOperatorFilter = isSuperAdmin ? globalOperatorFilter : (currentUserOperator || 'FILU');
   const [financialTimeFilter, setFinancialTimeFilter] = useState('all');
   const [financialBoatFilter, setFinancialBoatFilter] = useState('all');
   const [bookingTimeFilter, setBookingTimeFilter] = useState('all');

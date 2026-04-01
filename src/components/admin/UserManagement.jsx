@@ -137,7 +137,7 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     if (existing) {setError('Username already exists');return;}
     setSaving(true);
     // Operator admins always assign their own operator to new users
-    const operatorValue = isOperatorAdmin ? currentUserOperator : form.operator.trim();
+    const operatorValue = isOperatorAdmin ? (currentUserOperator || 'FILU') : form.operator.trim();
     const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: operatorValue, is_active: form.is_active };
     if (!editingUser || form.password) payload.password_hash = await hashPassword(form.password || '');
     if (editingUser) {
@@ -180,11 +180,13 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   const allowedRolesToCreate = ROLE_HIERARCHY[currentUser?.role] || [];
 
   // Operator admins only see users from their own operator.
-  // Strict match — no fallback to FILU.
+  // Fallback to FILU if operator is empty.
   const scopedUsers = isOperatorAdmin
-    ? (currentUserOperator
-        ? appUsers.filter((u) => (u.operator || '').toLowerCase() === currentUserOperator.toLowerCase())
-        : [])
+    ? appUsers.filter((u) => {
+        const currentOp = (currentUserOperator || 'FILU').toLowerCase();
+        const userOp = (u.operator || 'FILU').toLowerCase();
+        return userOp === currentOp;
+      })
     : appUsers;
 
   // Filtered users
@@ -192,8 +194,8 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     const roleMatch = roleTab === 'all' || u.role === roleTab;
     let opMatch = true;
     if (operatorFilter !== 'all') {
-      const op = getOperatorForUser(u, operators);
-      opMatch = op?.name?.toLowerCase() === operatorFilter.toLowerCase();
+      const userOp = (u.operator || 'FILU').toLowerCase();
+      opMatch = userOp === operatorFilter.toLowerCase();
     }
     return roleMatch && opMatch;
   });
