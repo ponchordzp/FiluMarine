@@ -208,6 +208,11 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     if (!permissionsOpen) setCustomRoles(loadCustomRoles());
   }, [permissionsOpen]);
 
+  const filteredBoats = boats.filter(b => {
+    const targetOp = isSuperAdmin ? (form.operator || 'FILU').toLowerCase() : (currentUserOperator || 'FILU').toLowerCase();
+    return (b.operator || 'FILU').toLowerCase() === targetOp;
+  });
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -391,14 +396,14 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                 <Label>Assigned Boat</Label>
                 <Select value={form.assigned_boat} onValueChange={(v) => setForm({ ...form, assigned_boat: v })}>
                   <SelectTrigger><SelectValue placeholder="Select a boat..." /></SelectTrigger>
-                  <SelectContent>{boats.map((b) => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}</SelectContent>
+                  <SelectContent>{filteredBoats.map((b) => <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               }
             {isSuperAdmin &&
               <div>
                 <Label>Operator</Label>
-                <Select value={form.operator || '__filu__'} onValueChange={(v) => setForm({ ...form, operator: v === '__filu__' ? '' : v })}>
+                <Select value={form.operator || '__filu__'} onValueChange={(v) => setForm({ ...form, operator: v === '__filu__' ? '' : v, assigned_boat: '' })}>
                   <SelectTrigger><SelectValue placeholder="Select operator..." /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="__filu__">FILU (default)</SelectItem>
