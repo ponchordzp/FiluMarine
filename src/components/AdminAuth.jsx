@@ -33,23 +33,71 @@ export default function AdminAuth({ children }) {
   const [loading, setLoading] = useState(false);
   const [checkingSession, setCheckingSession] = useState(true);
 
+  // Re-fetch live user data from DB to pick up role/operator changes made by superadmin
+  const refreshUserFromDB = async (userId) => {
+    if (!userId || userId === 'legacy') return;
+    try {
+      const users = await base44.entities.AppUser.list();
+      const fresh = users.find(u => u.id === userId);
+      if (!fresh) return;
+      if (fresh.is_active === false) {
+        // Account was deactivated — force logout
+        sessionStorage.removeItem('app_user');
+        setIsAuthenticated(false);
+        setCurrentUser(null);
+        return;
+      }
+      const updated = {
+        id: fresh.id,
+        username: fresh.username,
+        full_name: fresh.full_name || fresh.username,
+        role: fresh.role,
+        assigned_boat: fresh.assigned_boat || '',
+        operator: fresh.operator || '',
+      };
+      sessionStorage.setItem('app_user', JSON.stringify(updated));
+      setCurrentUser(updated);
+    } catch {}
+  };
+
   useEffect(() => {
     const savedUser = sessionStorage.getItem('app_user');
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
-        // Invalidate old sessions for operator_admin that don't have the operator field saved
-        // This forces a re-login so the operator scope is correctly established
         if (parsed.role === 'operator_admin' && !parsed.operator) {
           sessionStorage.removeItem('app_user');
         } else {
           setCurrentUser(parsed);
           setIsAuthenticated(true);
+          // Immediately sync fresh role/operator from DB
+          refreshUserFromDB(parsed.id);
         }
       } catch {}
     }
     setCheckingSession(false);
   }, []);
+
+  // Poll DB every 30 seconds to catch role/operator changes made by superadmin
+  useEffect(() => {
+    if (!isAuthenticated || !currentUser?.id || currentUser.id === 'legacy') return;
+    const interval = setInterval(() => refreshUserFromDB(currentUser.id), 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated, currentUser?.id]);
+
+  // Listen for immediate role-change signals from UserManagement
+  useEffect(() => {
+    if (!isAuthenticated || !currentUser?.id || currentUser.id === 'legacy') return;
+    const handler = (e) => {
+      if (e.key !== 'filu_user_refresh') return;
+      try {
+        const { userId } = JSON.parse(e.newValue || '{}');
+        if (userId === currentUser.id) refreshUserFromDB(userId);
+      } catch {}
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, [isAuthenticated, currentUser?.id]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

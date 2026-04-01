@@ -140,8 +140,13 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     const operatorValue = isOperatorAdmin ? currentUserOperator : form.operator.trim();
     const payload = { username: form.username.trim(), full_name: form.full_name.trim(), email: form.email.trim(), role: form.role, assigned_boat: form.role === 'admin' || form.role === 'crew' ? form.assigned_boat : '', operator: operatorValue, is_active: form.is_active };
     if (!editingUser || form.password) payload.password_hash = await hashPassword(form.password || '');
-    if (editingUser) {await updateMutation.mutateAsync({ id: editingUser.id, data: payload });} else
-    {await createMutation.mutateAsync(payload);}
+    if (editingUser) {
+      await updateMutation.mutateAsync({ id: editingUser.id, data: payload });
+      // Signal the affected user's session to refresh role/permissions immediately
+      localStorage.setItem('filu_user_refresh', JSON.stringify({ userId: editingUser.id, ts: Date.now() }));
+    } else {
+      await createMutation.mutateAsync(payload);
+    }
     setSaving(false);setDialogOpen(false);
   };
 
