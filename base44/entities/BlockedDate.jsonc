@@ -1,0 +1,23 @@
+{
+  "name": "BlockedDate",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Blocked date (unavailable for bookings)"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for blocking this date"
+    },
+    "boat_name": {
+      "type": "string",
+      "default": "both",
+      "description": "Which boat(s) to block"
+    }
+  },
+  "required": [
+    "date"
+  ]
+}

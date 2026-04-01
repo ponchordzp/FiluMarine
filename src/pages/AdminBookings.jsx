@@ -305,7 +305,7 @@ function AdminBookingsInner() {
 
   const handleBlockDate = () => {
     if (!blockDate) return;
-    const boatToBlock = isSuperAdmin ? blockBoat : assignedBoat;
+    const boatToBlock = hasElevatedAccess ? blockBoat : assignedBoat;
     blockDateMutation.mutate({
       date: format(blockDate, 'yyyy-MM-dd'),
       reason: blockReason || 'Blocked by admin',
@@ -1394,30 +1394,15 @@ function AdminBookingsInner() {
                 </div>
                 <div className="flex items-center gap-2">
                   <p className="text-sm text-slate-600">Currently blocked for:</p>
-                  <Badge className={selectedBlockedDate.boat_name === 'both' ? 'bg-slate-600 text-white' : selectedBlockedDate.boat_name === 'FILU' ? 'bg-[#1e88e5] text-white' : 'bg-purple-600 text-white'}>
-                    {selectedBlockedDate.boat_name || 'both'}
+                  <Badge className={selectedBlockedDate.boat_name === 'both' ? 'bg-slate-600 text-white' : 'bg-purple-600 text-white'}>
+                    {selectedBlockedDate.boat_name === 'both' ? 'All Boats' : selectedBlockedDate.boat_name}
                   </Badge>
                 </div>
               </div>
               <div className="space-y-3">
-                <p className="text-sm font-medium text-slate-700">Select unlock option:</p>
-                {selectedBlockedDate.boat_name === 'both' ?
-              <>
-                    <Button variant="outline" className="w-full justify-start hover:bg-green-50 border-green-200" onClick={() => partialUnblockMutation.mutate({ id: selectedBlockedDate.id, newBoat: 'TYCOON' })} disabled={partialUnblockMutation.isPending}>
-                      <Unlock className="h-4 w-4 mr-2 text-green-600" />Unlock FILU only (keep TYCOON blocked)
-                    </Button>
-                    <Button variant="outline" className="w-full justify-start hover:bg-green-50 border-green-200" onClick={() => partialUnblockMutation.mutate({ id: selectedBlockedDate.id, newBoat: 'FILU' })} disabled={partialUnblockMutation.isPending}>
-                      <Unlock className="h-4 w-4 mr-2 text-green-600" />Unlock TYCOON only (keep FILU blocked)
-                    </Button>
-                  </> :
-
-              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
-                    Only one boat is blocked. Use "Unlock Both Boats" below to fully unblock this date.
-                  </div>
-              }
                 <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => unblockDateMutation.mutate(selectedBlockedDate.id)} disabled={unblockDateMutation.isPending}>
                   <Unlock className="h-4 w-4 mr-2" />
-                  {unblockDateMutation.isPending ? 'Unlocking...' : 'Unlock Both Boats'}
+                  {unblockDateMutation.isPending ? 'Unlocking...' : 'Unlock Date'}
                 </Button>
               </div>
             </div>
