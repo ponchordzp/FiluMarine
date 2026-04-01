@@ -153,13 +153,13 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const allOperators = loadOperators();
 
-  // Strict operator isolation: non-superadmins ONLY see extras with their operator in allowed_operators
+  // Strict operator isolation: non-superadmins see extras where their operator is listed OR where allowed_operators is empty (global)
   const filteredExtras = extras.filter(extra => {
     if (isSuperAdmin) return true; // Superadmin sees all
     if (!currentUser?.operator) return false; // Non-operator users see nothing
     const allowed = extra.allowed_operators || [];
-    // Strict: must have their operator in the list (no "visible to all" fallback)
-    return allowed.length > 0 && allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
+    // Show if: (1) allowed list is empty (global extra), OR (2) their operator is in the list
+    return allowed.length === 0 || allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
   });
 
   return (
