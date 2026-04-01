@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 
-export default function BoatExtrasPanel({ boat }) {
+// boat = boat record (for card mode), inline = true means controlled via formData/onChange (no direct DB save)
+export default function BoatExtrasPanel({ boat, inline = false, formData, onChange }) {
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
   const [selectedExtraId, setSelectedExtraId] = useState('');
@@ -16,18 +17,22 @@ export default function BoatExtrasPanel({ boat }) {
     queryFn: () => base44.entities.Extra.list('sort_order'),
   });
 
-  const boatExtras = boat.boat_extras || [];
-
-  // Only show extras not already added to this boat
-  const availableExtras = allExtras.filter(e =>
-    e.visible && !boatExtras.some(be => be.extra_id === e.id)
-  );
+  // In inline mode, read from formData; otherwise read from boat
+  const boatExtras = inline ? (formData?.boat_extras || []) : (boat?.boat_extras || []);
 
   const saveMutation = useMutation({
     mutationFn: (updatedExtras) =>
       base44.entities.BoatInventory.update(boat.id, { boat_extras: updatedExtras }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['boats'] }),
   });
+
+  const commit = (updatedExtras) => {
+    if (inline) {
+      onChange(updatedExtras);
+    } else {
+      saveMutation.mutate(updatedExtras);
+    }
+  };
 
   const addExtra = () => {
     const extra = allExtras.find(e => e.id === selectedExtraId);
@@ -41,20 +46,20 @@ export default function BoatExtrasPanel({ boat }) {
         price: parseFloat(customPrice) || extra.price || 0,
       },
     ];
-    saveMutation.mutate(updated);
+    commit(updated);
     setSelectedExtraId('');
     setCustomPrice('');
   };
 
   const removeExtra = (extraId) => {
-    saveMutation.mutate(boatExtras.filter(e => e.extra_id !== extraId));
+    commit(boatExtras.filter(e => e.extra_id !== extraId));
   };
 
   const updatePrice = (extraId, newPrice) => {
     const updated = boatExtras.map(e =>
       e.extra_id === extraId ? { ...e, price: parseFloat(newPrice) || 0 } : e
     );
-    saveMutation.mutate(updated);
+    commit(updated);
   };
 
   return (

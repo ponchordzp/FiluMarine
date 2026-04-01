@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, EyeOff, X, Check, MapPin, Clock } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Check, Clock } from 'lucide-react';
 
 const COMMON_INCLUDES = [
 'Fishing equipment',
@@ -34,21 +34,10 @@ const COMMON_INCLUDES = [
 'Captain & crew included'];
 
 
-const LOCATION_LABELS = {
-  ixtapa_zihuatanejo: 'Ixtapa-Zihuatanejo',
-  acapulco: 'Acapulco',
-  cancun: 'Cancún',
-  both: 'All Locations'
-};
-
-const ALL_LOCATIONS = ['ixtapa_zihuatanejo', 'acapulco', 'cancun'];
-
 const emptyForm = {
   expedition_id: '',
   title: '',
   description: '',
-  location: 'both',
-
   duration: '',
   image: '',
   includes: [],
@@ -57,23 +46,7 @@ const emptyForm = {
   sort_order: 0
 };
 
-export default function ExpeditionManagement({ operatorFilter = 'all', locationFilter: externalLocationFilter }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const user = await base44.auth.me();
-      setCurrentUser(user);
-      setIsSuperAdmin(user?.role === 'superadmin');
-    };
-    fetchUser();
-  }, []);
-  const { data: allBoats = [] } = useQuery({
-    queryKey: ['all-boats'],
-    queryFn: () => base44.entities.BoatInventory.list(),
-  });
-
+export default function ExpeditionManagement({ operatorFilter = 'all' }) {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingExp, setEditingExp] = useState(null);
@@ -82,25 +55,6 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
   const [imagePreview, setImagePreview] = useState('');
   const [uploading, setUploading] = useState(false);
   const [customInclude, setCustomInclude] = useState('');
-  const [localLocationFilter, setLocalLocationFilter] = useState('all');
-  // Use external filter if provided (from parent global filter), else local
-  const locationFilter = externalLocationFilter || localLocationFilter;
-
-  // Charter operators MUST be restricted to their operator's location only
-  const isChartOperator = currentUser?.role === 'charter_operator';
-  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
-  const userLocation = isUserRestricted ? (() => {
-    // Find boat location for this user's operator
-    const userBoats = allBoats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
-    if (userBoats.length > 0) {
-      const uniqueLocs = [...new Set(userBoats.map(b => b.location))];
-      return uniqueLocs.length === 1 ? uniqueLocs[0] : null;
-    }
-    return null;
-  })() : null;
-
-  // For charter operators, FORCE location to their operator's location, ignore all filters
-  const effectiveLocationFilter = isChartOperator && userLocation ? userLocation : (externalLocationFilter || localLocationFilter);
 
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
@@ -134,10 +88,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     setDialogOpen(false);
   };
 
-  const handleEdit = (exp, groupLocation) => {
+  const handleEdit = (exp) => {
     setEditingExp(exp);
-    // Lock the form to the group's location so edits only apply to this specific location
-    setFormData({ ...exp, location: groupLocation || exp.location });
+    setFormData({ ...exp });
     setImagePreview(exp.image || '');
     setDialogOpen(true);
   };
@@ -159,11 +112,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
       setUploading(false);
     }
     if (editingExp) {
-      // Editing: always update only this specific record (no location splitting)
       updateMutation.mutate({ id: editingExp.id, data: finalData });
-    } else if (finalData.location === 'both') {
-      // Creating with 'both': create one separate record per location
-      ALL_LOCATIONS.forEach(loc => createMutation.mutate({ ...finalData, location: loc }));
     } else {
       createMutation.mutate(finalData);
     }
@@ -188,145 +137,77 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
     setFormData((prev) => ({ ...prev, includes: prev.includes.filter((i) => i !== item) }));
   };
 
-  const filtered = expeditions.filter((exp) => {
-    // Charter operators: ONLY show expeditions that match their location (ignore 'both', ignore filters)
-    if (isChartOperator && userLocation) {
-      return exp.location === userLocation;
-    }
-    // Other restricted users
-    if (isUserRestricted && userLocation && exp.location !== 'both' && exp.location !== userLocation) {
-      return false;
-    }
-    const filterToUse = isChartOperator ? userLocation : effectiveLocationFilter;
-    if (filterToUse === 'all' || !filterToUse) return true;
-    return exp.location === filterToUse || exp.location === 'both';
-  });
 
-  // Each location group shows its own records + any 'both' records
-  // If user is restricted, only show their assigned location
-  // Show all locations for superadmin/operator_admin, only user's location for restricted roles
-  const displayLocations = isUserRestricted && userLocation ? [userLocation] : ALL_LOCATIONS;
-  const grouped = Object.fromEntries(
-    displayLocations.map(loc => [loc, filtered.filter(e => e.location === loc || e.location === 'both')])
-  );
 
   return (
     <div className="space-y-6">
       <div className="text-slate-50 flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="text-slate-50 text-2xl font-semibold">Expedition Management</h2>
-          {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
-          {isUserRestricted && userLocation && <p className="text-xs text-cyan-300 mt-0.5">Restricted to: <strong>{LOCATION_LABELS[userLocation]}</strong></p>}
+          <h2 className="text-slate-50 text-2xl font-semibold">Expedition Catalog</h2>
+          <p className="text-xs text-slate-400 mt-0.5">Define expedition types. Assign them to individual boats in the Vessel Editor.</p>
         </div>
-        <div className="flex items-center gap-3">
-          {!isUserRestricted && !isChartOperator && (
-            <Select value={localLocationFilter} onValueChange={setLocalLocationFilter}>
-              <SelectTrigger className="w-44">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Locations</SelectItem>
-                <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
-                <SelectItem value="acapulco">Acapulco</SelectItem>
-                <SelectItem value="cancun">Cancún</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
-          <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}} className="bg-purple-600 text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Expedition
-          </Button>
-        </div>
+        <Button onClick={() => {setFormData(emptyForm);setDialogOpen(true);}} className="bg-purple-600 hover:bg-purple-700 h-9">
+          <Plus className="h-4 w-4 mr-2" /> Add Expedition
+        </Button>
       </div>
 
-      {expeditions.length === 0 &&
-      <Card className="bg-amber-50 border-amber-200">
+      {expeditions.length === 0 && (
+        <Card className="bg-amber-50 border-amber-200">
           <CardContent className="py-8 text-center text-amber-800">
-            <p className="font-medium">No expeditions found.</p>
-            <p className="text-sm mt-1">The initial expedition data hasn't been loaded yet. Add expeditions manually or they will sync from the home page data.</p>
+            <p className="font-medium">No expeditions in catalog yet.</p>
+            <p className="text-sm mt-1">Add expedition types here, then assign them to boats in the Vessel Editor.</p>
           </CardContent>
         </Card>
-      }
-
-      {/* Grouped by location */}
-      {Object.entries(grouped).map(([loc, exps]) =>
-      exps.length === 0 ? null :
-      <div key={loc}>
-            <div className="flex items-center gap-2 mb-3">
-              <MapPin className="h-4 w-4 text-blue-600" />
-              <h3 className="text-slate-50 font-semibold">{LOCATION_LABELS[loc]}</h3>
-              <Badge variant="outline" className="text-slate-50 px-2.5 py-0.5 text-xs font-semibold rounded-md inline-flex items-center border transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">{exps.length} expeditions</Badge>
-            </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {exps.map((exp) =>
-          <Card key={exp.id} className={`overflow-hidden transition-all ${!exp.visible ? 'opacity-60 border-dashed' : ''}`}>
-                  {exp.image &&
-            <div className="aspect-video relative overflow-hidden">
-                      <img src={exp.image} alt={exp.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                      <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between">
-                        <span className="text-white text-xs font-medium flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> {exp.duration}
-                        </span>
-
-                      </div>
-                    </div>
-            }
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-slate-800 truncate">{exp.title}</h4>
-                        <div className="flex gap-1 mt-1 flex-wrap">
-                          <Badge className="text-xs bg-blue-100 text-blue-800">{LOCATION_LABELS[exp.location]}</Badge>
-                          {!exp.visible && <Badge className="text-xs bg-slate-100 text-slate-600">Hidden</Badge>}
-                        </div>
-                      </div>
-                    </div>
-
-                    {exp.description &&
-              <p className="text-xs text-slate-600 line-clamp-2">{exp.description}</p>
-              }
-
-                    {exp.includes?.length > 0 &&
-              <div className="flex flex-wrap gap-1">
-                        {exp.includes.slice(0, 4).map((inc, i) =>
-                <span key={i} className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">{inc}</span>
-                )}
-                        {exp.includes.length > 4 &&
-                <span className="text-xs text-slate-500">+{exp.includes.length - 4} more</span>
-                }
-                      </div>
-              }
-
-                    <div className="flex gap-2 pt-1">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(exp, loc)} className="flex-1 h-8 text-xs">
-                        <Edit className="h-3 w-3 mr-1" /> Edit
-                      </Button>
-                      <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => toggleVisibility(exp)}
-                  className={`h-8 px-2 ${exp.visible ? 'text-slate-600 hover:bg-slate-100' : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200'}`}
-                  title={exp.visible ? 'Hide expedition' : 'Show expedition'}>
-
-                        {exp.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </Button>
-                      <Button
-                  variant="destructive"
-                  size="sm"
-                  className="h-8 px-2"
-                  onClick={() => {if (window.confirm(`Delete "${exp.title}"?`)) deleteMutation.mutate(exp.id);}}>
-
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-          )}
-            </div>
-          </div>
-
       )}
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {expeditions.map((exp) => (
+          <Card key={exp.id} className={`overflow-hidden transition-all ${!exp.visible ? 'opacity-60 border-dashed' : ''}`}>
+            {exp.image && (
+              <div className="aspect-video relative overflow-hidden">
+                <img src={exp.image} alt={exp.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                <div className="absolute bottom-2 left-3">
+                  <span className="text-white text-xs font-medium flex items-center gap-1">
+                    <Clock className="h-3 w-3" /> {exp.duration}
+                  </span>
+                </div>
+              </div>
+            )}
+            <CardContent className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-slate-800 truncate">{exp.title}</h4>
+                  <p className="text-xs text-slate-400 font-mono mt-0.5">{exp.expedition_id}</p>
+                  {!exp.visible && <Badge className="text-xs bg-slate-100 text-slate-600 mt-1">Hidden</Badge>}
+                </div>
+              </div>
+              {exp.description && <p className="text-xs text-slate-600 line-clamp-2">{exp.description}</p>}
+              {exp.includes?.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {exp.includes.slice(0, 3).map((inc, i) => (
+                    <span key={i} className="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">{inc}</span>
+                  ))}
+                  {exp.includes.length > 3 && <span className="text-xs text-slate-500">+{exp.includes.length - 3} more</span>}
+                </div>
+              )}
+              <div className="flex gap-2 pt-1">
+                <Button variant="outline" size="sm" onClick={() => handleEdit(exp)} className="flex-1 h-8 text-xs">
+                  <Edit className="h-3 w-3 mr-1" /> Edit
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => toggleVisibility(exp)}
+                  className={`h-8 px-2 ${exp.visible ? 'text-slate-600 hover:bg-slate-100' : 'text-emerald-600 hover:bg-emerald-50 border-emerald-200'}`}>
+                  {exp.visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+                <Button variant="destructive" size="sm" className="h-8 px-2"
+                  onClick={() => {if (window.confirm(`Delete "${exp.title}"?`)) deleteMutation.mutate(exp.id);}}>
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(open) => {if (!open) resetForm();setDialogOpen(open);}}>
@@ -343,34 +224,9 @@ export default function ExpeditionManagement({ operatorFilter = 'all', locationF
               <div>
                 <Label>Expedition ID *</Label>
                 <Input required value={formData.expedition_id} onChange={(e) => setFormData({ ...formData, expedition_id: e.target.value })} placeholder="e.g. half_day_fishing" />
-                <p className="text-xs text-slate-500 mt-1">Lowercase, underscores only. Used internally.</p>
+                <p className="text-xs text-slate-500 mt-1">Lowercase, underscores only. Shown to guests &amp; used by boats.</p>
               </div>
               <div>
-                <Label>Location *</Label>
-                <Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="both">All Locations (creates one per location)</SelectItem>
-                    <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
-                    <SelectItem value="acapulco">Acapulco</SelectItem>
-                    <SelectItem value="cancun">Cancún</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label>Duration</Label>
-                <Input value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="e.g. 5 hours" />
-              </div>
-              <div>
-                <Label>Ideal For</Label>
-                <Input value={formData.ideal_for} onChange={(e) => setFormData({ ...formData, ideal_for: e.target.value })} placeholder="e.g. First-timers & families" />
-              </div>
-              <div>
-                <Label>Sort Order</Label>
-                <Input type="number" value={formData.sort_order} onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })} />
-              </div>
-              <div className="flex items-center gap-3 pt-6">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, visible: !formData.visible })}

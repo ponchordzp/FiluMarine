@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin, Navigation, History, ClipboardList, AlertTriangle, Images } from 'lucide-react';
+import { Plus, Edit, Trash2, Check, X, Gauge, Package, ChevronDown, ChevronUp, Calendar, Wrench, MapPin, Navigation, History, ClipboardList, AlertTriangle, Images, Fish, Sparkles } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { Badge } from "@/components/ui/badge";
 import PersonalTripDialog from './PersonalTripDialog';
@@ -23,6 +23,7 @@ import MaintenanceLogView from './MaintenanceLogView';
 import CustomFieldsManager from './CustomFieldsManager';
 import LowStockMonitor from './LowStockMonitor';
 import BoatExtrasPanel from './BoatExtrasPanel';
+import BoatExpeditionsPanel from './BoatExpeditionsPanel';
 import VesselCompleteness from './VesselCompleteness';
 import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from './SectionLock';
 
@@ -760,6 +761,30 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <DialogTitle className="text-xl">{editingBoat ? `Editing: ${editingBoat.name}` : 'Add New Boat'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-0">
+              {/* Two-panel layout: left = Expeditions & Extras, right = all other sections */}
+              <div className="flex gap-4 items-start">
+
+              {/* ── LEFT PANEL: Expeditions & Extras ── */}
+              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') && (
+                <div className="w-80 flex-shrink-0 space-y-4">
+                  <div className="sticky top-0">
+                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-indigo-200">
+                      <Fish className="h-4 w-4 text-indigo-600" />
+                      <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Expeditions &amp; Extras</h3>
+                    </div>
+                    <BoatExpeditionsPanel
+                      availableExpeditions={formData.available_expeditions || []}
+                      onChange={(exps) => setFormData(prev => ({ ...prev, available_expeditions: exps }))}
+                    />
+                    <div className="mt-4">
+                      <BoatExtrasPanel boat={editingBoat} inline formData={formData} onChange={(boat_extras) => setFormData(prev => ({ ...prev, boat_extras }))} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── RIGHT PANEL: All existing sections ── */}
+              <div className="flex-1 min-w-0">
 
               {/* ── SECTION 1: General Info ── sky blue */}
               <div className="rounded-xl overflow-hidden border border-sky-200 mb-4">
@@ -795,30 +820,22 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <div>
                     <InfoLabel info="Photo album shown to guests on the fleet page and booking flow. Up to 20 photos total.">Photo Album (up to 20 photos)</InfoLabel>
                     <div className="space-y-2 mt-1">
-                      {/* Existing saved images */}
                       {(formData.images || []).length > 0 && (
                         <div className="grid grid-cols-4 gap-2">
                           {(formData.images || []).map((url, idx) => (
                             <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-sky-200">
                               <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
-                              {isSuperAdmin && <button type="button" onClick={() => removeAdditionalImage(idx)}
-                                className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors">
-                                 <Trash2 className="h-3 w-3" />
-                               </button>}
+                              {isSuperAdmin && <button type="button" onClick={() => removeAdditionalImage(idx)} className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors"><Trash2 className="h-3 w-3" /></button>}
                             </div>
                           ))}
                         </div>
                       )}
-                      {/* Pending new files */}
                       {additionalImageFiles.length > 0 && (
                         <div className="grid grid-cols-4 gap-2">
                           {additionalImageFiles.map((file, idx) => (
                             <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
                               <img src={URL.createObjectURL(file)} alt={`New ${idx + 1}`} className="w-full h-full object-cover" />
-                              {isSuperAdmin && <button type="button" onClick={() => removeAdditionalPendingFile(idx)}
-                                className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors">
-                                <Trash2 className="h-3 w-3" />
-                              </button>}
+                              {isSuperAdmin && <button type="button" onClick={() => removeAdditionalPendingFile(idx)} className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors"><Trash2 className="h-3 w-3" /></button>}
                             </div>
                           ))}
                         </div>
@@ -829,21 +846,16 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                       <p className="text-xs text-sky-600">{(formData.images || []).length + additionalImageFiles.length}/20 photos</p>
                     </div>
                   </div>
-                  <CustomFieldsManager
-                    sectionKey="general"
-                    customFields={formData.custom_fields_general || []}
-                    onChange={(fields) => setFormData((prev) => ({ ...prev, custom_fields_general: fields }))} />
-
+                  <CustomFieldsManager sectionKey="general" customFields={formData.custom_fields_general || []} onChange={(fields) => setFormData((prev) => ({ ...prev, custom_fields_general: fields }))} />
                 </div>}
               </div>
 
-              {/* ── SECTION 2: Expeditions & Pricing ── indigo */}
-              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') &&
+              {formData.available_expeditions?.length > 0 &&
               <div className="rounded-xl overflow-hidden border border-indigo-200 mb-4">
                 <button type="button" onClick={() => toggleSection('expeditions')} className="w-full bg-indigo-600 px-5 py-3 flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-white" />
                   <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Expeditions &amp; Pricing</h3>
-                  {(() => {const n = formData.available_expeditions?.length || 0; const t = expeditionTypes.length; return <><span className="text-xs text-white/80 mr-1">{n}/{t}</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: `${Math.round(n/t*100)}%` }} /></div></>;})()}
+                  <span className="text-xs text-white/70 mr-1">{formData.available_expeditions.length} expeditions</span>
                   <SectionLockButton sectionKey="expeditions" locks={locks} toggle={toggleLock} isComplete={isExpeditionsComplete} />
                   {collapsedSections['expeditions'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
                 </button>
@@ -852,32 +864,24 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <div>
                     <InfoLabel info="Cost charged for every additional hour beyond the scheduled expedition duration." example="2500">Price Per Additional Hour (MXN)</InfoLabel>
                     <Input type="number" min="0" disabled={locks['expeditions']} value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
-                    <p className="text-xs text-indigo-700 mt-1">Cost per extra hour beyond scheduled expedition duration</p>
                   </div>
                   <div className="space-y-3">
-                    {expeditionTypes.map((exp) => {
-                      const isSelected = formData.available_expeditions.includes(exp);
+                    {formData.available_expeditions.map((exp) => {
                       const pricing = formData.expedition_pricing.find((p) => p.expedition_type === exp);
                       return (
-                        <div key={exp} className={`p-4 rounded-lg border-2 transition-all ${isSelected ? 'border-indigo-400 bg-white shadow-sm' : 'border-indigo-100 bg-indigo-50/50'}`}>
-                          <button type="button" disabled={locks['expeditions']} onClick={() => !locks['expeditions'] && toggleExpedition(exp)} className="w-full flex items-center gap-3 mb-2">
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-indigo-600' : 'bg-white border-2 border-indigo-300'}`}>{isSelected && <Check className="h-3 w-3 text-white" />}</div>
-                            <span className="text-sm font-semibold capitalize text-left text-indigo-900">{exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ')}</span>
-                          </button>
-                          {isSelected &&
-                          <div className="space-y-4 mt-3 pl-8">
-                              <div className="grid grid-cols-2 gap-3">
-                                <div><InfoLabel className="text-xs" info="Scheduled duration of this expedition in hours." example="4">Duration (hours)</InfoLabel><Input type="number" min="0" step="0.5" disabled={locks['expeditions']} value={pricing?.duration_hours || ''} onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)} placeholder="e.g., 4" className="text-sm" /></div>
-                                <div><InfoLabel className="text-xs" info="Base price in Mexican Pesos (MXN) for this expedition on this boat." example="8000">Price (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['expeditions']} value={pricing?.price_mxn || ''} onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)} placeholder="e.g., 8000" className="text-sm" /></div>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-semibold mb-2 block">Pickup Locations &amp; Departure Times</Label>
-                                <PickupAndDeparture pickupAndDepartures={expeditionPickupDepartures[exp] || []} onUpdate={(items) => setExpeditionPickupDepartures({ ...expeditionPickupDepartures, [exp]: items })} expeditionType={exp} location={formData.location} />
-                              </div>
+                        <div key={exp} className="p-4 rounded-lg border-2 border-indigo-400 bg-white shadow-sm">
+                          <p className="text-sm font-semibold capitalize text-indigo-900 mb-3">{exp.replace(/_/g, ' ')}</p>
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-2 gap-3">
+                              <div><InfoLabel className="text-xs" info="Scheduled duration of this expedition in hours." example="4">Duration (hours)</InfoLabel><Input type="number" min="0" step="0.5" disabled={locks['expeditions']} value={pricing?.duration_hours || ''} onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)} placeholder="e.g., 4" className="text-sm" /></div>
+                              <div><InfoLabel className="text-xs" info="Base price in Mexican Pesos (MXN) for this expedition on this boat." example="8000">Price (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['expeditions']} value={pricing?.price_mxn || ''} onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)} placeholder="e.g., 8000" className="text-sm" /></div>
                             </div>
-                          }
+                            <div>
+                              <Label className="text-xs font-semibold mb-2 block">Pickup Locations &amp; Departure Times</Label>
+                              <PickupAndDeparture pickupAndDepartures={expeditionPickupDepartures[exp] || []} onUpdate={(items) => setExpeditionPickupDepartures({ ...expeditionPickupDepartures, [exp]: items })} expeditionType={exp} location={formData.location} />
+                            </div>
+                          </div>
                         </div>);
-
                     })}
                   </div>
                 </div>}
@@ -1401,6 +1405,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || uploading}>{uploading ? 'Uploading Image...' : editingBoat ? 'Update Boat' : 'Create Boat'}</Button>
                 <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
               </div>
+              </div>{/* end right panel */}
+              </div>{/* end two-panel flex */}
             </form>
           </DialogContent>
         </Dialog>
