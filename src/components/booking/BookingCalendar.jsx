@@ -40,32 +40,22 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     boat.boat_mode !== 'maintenance_only'
   );
 
-  // Map database boats to required format with ALL vessel editor data
-  const boats = activeBoats.map(boat => {
-    // Load all vessel editor data
-    const expeditionPricing = boat.expedition_pricing || [];
-    const availableExps = boat.available_expeditions || [];
-    const hasThisExperience = 
-      expeditionPricing.some(p => p.expedition_type === experience.id) ||
-      availableExps.includes(experience.id);
-    
-    return {
-      id: boat.id,
-      name: boat.name,
-      type: `${boat.size} ${boat.type}`,
-      size: boat.size,
-      capacity: boat.capacity,
-      multiplier: 1,
-      forLeisure: availableExps.some(exp => 
-        ['snorkeling', 'coastal_leisure', 'sunset_tour', 'extended_fishing'].includes(exp)
-      ) || false,
-      maxGuests: getMaxGuests(boat.capacity),
-      expedition_pricing: expeditionPricing,
-      available_expeditions: availableExps,
-      price_per_additional_hour: boat.price_per_additional_hour || 0,
-      hasExperience: hasThisExperience,
-    };
-  });
+  // Map database boats to required format - load ALL vessel editor data
+  const boats = activeBoats.map(boat => ({
+    id: boat.id,
+    name: boat.name,
+    type: `${boat.size} ${boat.type}`,
+    size: boat.size,
+    capacity: boat.capacity,
+    multiplier: 1,
+    forLeisure: (boat.available_expeditions || []).some(exp => 
+      ['snorkeling', 'coastal_leisure', 'sunset_tour', 'extended_fishing'].includes(exp)
+    ) || false,
+    maxGuests: getMaxGuests(boat.capacity),
+    expedition_pricing: boat.expedition_pricing || [],
+    available_expeditions: boat.available_expeditions || [],
+    price_per_additional_hour: boat.price_per_additional_hour || 0,
+  }));
 
   const defaultBoat = boats.length > 0 ? boats[0].id : null;
   
@@ -112,8 +102,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   
-  // Filter boats to show ONLY those with this specific experience configured in vessel editor
-  const availableBoats = boats.filter(boat => boat.hasExperience);
+  // Show ALL boats for this location - vessel editor data will populate their pricing/times
+  const availableBoats = boats;
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 
@@ -213,12 +203,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full overflow-hidden">
             {/* Calendar */}
             <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20">
-              <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Date</h3>
-              {availableBoats.length === 0 && (
-                <div className="p-4 bg-red-500/30 border border-red-400/50 rounded-lg mb-4 backdrop-blur-sm">
-                  <p className="text-sm text-red-100"><span className="font-semibold">No boats available</span> for this experience in {location === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : location === 'acapulco' ? 'Acapulco' : 'Cancun'}. Please try another experience.</p>
-                </div>
-              )}
+             <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Date</h3>
               <Calendar
                 mode="single"
                 selected={selectedDate}
@@ -308,14 +293,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               {/* Boat Selection */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
                 <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Boat</h3>
-                {availableBoats.length === 0 ? (
-                    <div className="p-4 bg-red-500/30 border border-red-400/50 rounded-lg text-red-100 text-sm text-center backdrop-blur-sm">
-                      <p className="font-semibold">No boats available</p>
-                      <p className="text-xs text-red-200 mt-1">No boats in {location === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : location === 'acapulco' ? 'Acapulco' : 'Cancún'} offer <span className="font-semibold">{experience.title}</span>.</p>
-                      <p className="text-xs text-red-200 mt-2">Configure this experience in the vessel editor for eligible boats.</p>
-                    </div>
-                  ) : (
-                <div className="space-y-3">
+                  <div className="space-y-3">
                   {availableBoats.map((boat) => {
                     const boatPrice = getBoatPrice(boat);
                     return (
@@ -348,7 +326,6 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                       );
                       })}
                       </div>
-                      )}
                       </div>
               {/* Time Slots */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
