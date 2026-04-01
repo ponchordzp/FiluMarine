@@ -63,9 +63,9 @@ function loadCustomRoles() {
 // Hierarchy: which roles a given role can create
 const ROLE_HIERARCHY = {
   superadmin: ['superadmin', 'operator_admin', 'charter_operator', 'admin', 'crew'],
-  operator_admin: ['admin', 'crew'],
-  charter_operator: ['admin', 'crew'],
-  admin: ['crew'],
+  operator_admin: ['operator_admin', 'charter_operator', 'admin', 'crew'],
+  charter_operator: ['charter_operator', 'admin', 'crew'],
+  admin: ['admin', 'crew'],
   crew: []
 };
 
@@ -78,7 +78,7 @@ function getOperatorForUser(user, operators) {
 }
 
 export default function UserManagement({ currentUser, operatorFilter: externalOperatorFilter = 'all' }) {
-  const isOperatorAdmin = currentUser?.role === 'operator_admin';
+  const isOperatorAdmin = currentUser?.role === 'operator_admin' || currentUser?.role === 'charter_operator';
   const isSuperAdmin = currentUser?.role === 'superadmin';
   const currentUserOperator = currentUser?.operator || '';
   const queryClient = useQueryClient();
