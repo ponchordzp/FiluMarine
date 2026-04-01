@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from 'lucide-react';
 
-export default function ExtraForm({ currentUser, isSuperAdmin, allOperators, onSuccess }) {
+export default function ExtraForm({ allOperators, onSuccess }) {
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.role === 'superadmin';
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
@@ -29,8 +32,6 @@ export default function ExtraForm({ currentUser, isSuperAdmin, allOperators, onS
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
-      if (!currentUser) throw new Error('User not loaded');
-
       let saveData = {
         name: data.name.trim(),
         description: data.description.trim(),
@@ -41,13 +42,14 @@ export default function ExtraForm({ currentUser, isSuperAdmin, allOperators, onS
 
       if (!isSuperAdmin) {
         // Non-superadmins: locked to their operator
-        if (!currentUser.operator) {
-          throw new Error('Your user account does not have an operator assigned. Contact an administrator.');
+        const userOperator = currentUser?.operator || data.operator;
+        if (!userOperator) {
+          throw new Error('No operator assigned to your account.');
         }
-        saveData.allowed_operators = [currentUser.operator];
+        saveData.allowed_operators = [userOperator];
         const timestamp = Date.now();
         const random = Math.random().toString(36).substring(2, 9);
-        saveData.operator_tag = `${currentUser.operator}_${timestamp}_${random}`;
+        saveData.operator_tag = `${userOperator}_${timestamp}_${random}`;
       } else {
         // Superadmins: use selected operator or empty for global
         if (data.operator) {
@@ -95,7 +97,7 @@ export default function ExtraForm({ currentUser, isSuperAdmin, allOperators, onS
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-purple-600 hover:bg-purple-700 text-white" disabled={!currentUser}>
+        <Button className="bg-purple-600 hover:bg-purple-700 text-white">
           <Plus className="h-4 w-4 mr-2" />
           Add Extra
         </Button>

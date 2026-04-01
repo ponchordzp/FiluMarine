@@ -1,0 +1,21 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "superadmin",
+        "operator_admin",
+        "admin",
+        "crew"
+      ],
+      "default": "crew",
+      "description": "User role in the system"
+    },
+    "operator": {
+      "type": "string",
+      "description": "Operator name this user belongs to (e.g. FILU, SEASTHEDAY)"
+    }
+  }
+}

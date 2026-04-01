@@ -1,0 +1,23 @@
+import React from 'react';
+import { useAuth } from '@/lib/AuthContext';
+
+export default function UserHeader() {
+  const { user } = useAuth();
+
+  if (!user) return null;
+
+  return (
+    <div className="flex items-center gap-3 px-6 py-3 border-b border-white/10 bg-white/5">
+      <div className="flex items-center gap-3">
+        {user.operator && (
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300 border border-blue-500/30">
+            {user.operator}
+          </span>
+        )}
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-300 border border-purple-500/30">
+          {user.role}
+        </span>
+      </div>
+    </div>
+  );
+}

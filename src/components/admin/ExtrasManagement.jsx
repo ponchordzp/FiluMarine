@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,17 +25,8 @@ const emptyForm = {
 };
 
 export default function ExtrasManagement({ allBoats = [], locationFilter = 'all' }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      const user = await base44.auth.me();
-      setCurrentUser(user);
-      setIsSuperAdmin(user?.role === 'superadmin');
-    };
-    fetchUser();
-  }, []);
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.role === 'superadmin';
 
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState(null);
@@ -140,8 +132,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
           {isUserRestricted && userOperatorLocation && <p className="text-xs text-cyan-300 mt-1">Restricted to operator location and boats</p>}
         </div>
         <ExtraForm
-          currentUser={currentUser}
-          isSuperAdmin={isSuperAdmin}
           allOperators={allOperators}
           onSuccess={() => queryClient.invalidateQueries({ queryKey: ['extras'] })}
         />
