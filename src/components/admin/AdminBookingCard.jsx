@@ -275,26 +275,26 @@ export default function AdminBookingCard({
               )}
 
               {/* Operator payment */}
-              {paypalUser && (
+              {commission > 0 && (
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <span className="text-xs font-semibold uppercase tracking-wider text-white/75 flex items-center gap-1">
                     <Landmark className="h-3.5 w-3.5" /> Operator Payment
-                    {commission > 0 && (
-                      <span className={`ml-2 normal-case font-semibold ${isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
-                        → ${((booking.total_price || 0) - (booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN
-                      </span>
-                    )}
+                    <span className={`ml-2 normal-case font-semibold ${isPaid ? 'text-emerald-400' : 'text-amber-400'}`}>
+                      → ${((booking.total_price || 0) - (booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN
+                    </span>
                   </span>
                   <div className="flex items-center gap-2 ml-auto">
-                    <a
-                      href={`https://www.paypal.com/paypalme/${paypalUser}`}
-                      target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
-                      style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
-                    >
-                      <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
-                      Pay via PayPal
-                    </a>
+                    {paypalUser && (
+                      <a
+                        href={`https://www.paypal.com/paypalme/${paypalUser}`}
+                        target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all hover:opacity-90"
+                        style={{ background: 'rgba(0,100,204,0.25)', border: '1px solid rgba(0,100,204,0.45)', color: '#93c5fd' }}
+                      >
+                        <img src="https://www.paypalobjects.com/webstatic/icon/pp258.png" alt="PayPal" className="h-3.5 w-3.5 rounded-sm" />
+                        Pay via PayPal
+                      </a>
+                    )}
                     <Select
                       value={booking.payment_status || 'pending_payment'}
                       onValueChange={(val) => updatePaymentStatusMutation.mutate({ id: booking.id, payment_status: val })}
