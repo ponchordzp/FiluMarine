@@ -104,11 +104,15 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   
   // Filter boats to show ONLY those with selected experience configured in vessel editor
   const availableBoats = boats.filter(boat => {
-    // Check if experience is in expedition_pricing (has pricing configured)
-    const hasInPricing = boat.expedition_pricing && boat.expedition_pricing.some(p => p.expedition_type === experience.id);
-    // Check if experience is in available_expeditions
-    const hasInAvailable = boat.available_expeditions && boat.available_expeditions.includes(experience.id);
-    return hasInPricing || hasInAvailable;
+    if (!boat.expedition_pricing && !boat.available_expeditions) return false;
+    // Check if experience is in expedition_pricing array (primary source)
+    const inPricing = boat.expedition_pricing && boat.expedition_pricing.some(p => 
+      p && p.expedition_type && p.expedition_type === experience.id
+    );
+    // Check if experience is in available_expeditions list
+    const inAvailable = boat.available_expeditions && boat.available_expeditions.includes(experience.id);
+    // Show boat only if experience is configured either way
+    return inPricing || inAvailable;
   });
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
@@ -298,8 +302,9 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               {/* Boat Selection */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
                 <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Boat</h3>
-                  <div className="space-y-3">
-                  {availableBoats.map((boat) => {
+                  {availableBoats.length > 0 ? (
+                    <div className="space-y-3">
+                    {availableBoats.map((boat) => {
                     const boatPrice = getBoatPrice(boat);
                     return (
                       <button
@@ -331,6 +336,11 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                       );
                       })}
                       </div>
+                      ) : (
+                      <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-white/50 text-sm text-center">
+                      Select a date first
+                      </div>
+                      )}
                       </div>
               {/* Time Slots */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
