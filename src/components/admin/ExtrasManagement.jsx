@@ -219,6 +219,8 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                       </div>
                     ))}
                   </div>
+                ) : boatNames.length === 0 ? (
+                  <p className="text-xs text-slate-400 italic">No boats assigned to your fleet yet.</p>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
                     {boatNames.map(name => (
@@ -305,13 +307,19 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               {extra.description && <p className="text-sm text-white/50 ml-6">{extra.description}</p>}
               <div className="flex flex-wrap gap-1 mt-2 ml-6">
                 {(() => {
-                  const visibleBoats = extra.applicable_boats?.length > 0
-                    ? extra.applicable_boats.filter(b => boatNames.length === 0 || boatNames.includes(b))
-                    : [];
-                  if (extra.applicable_boats?.length > 0 && visibleBoats.length > 0)
-                    return visibleBoats.map(b => <span key={b} className="text-xs px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/20">{b}</span>);
-                  if (extra.applicable_boats?.length > 0 && visibleBoats.length === 0)
-                    return <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">Your boats</span>;
+                  if (!isSuperAdmin) {
+                    // Non-superadmin: only show boats from their own fleet
+                    if (boatNames.length === 0) return null; // operator has no boats yet
+                    const myBoats = (extra.applicable_boats || []).filter(b => boatNames.includes(b));
+                    if (myBoats.length > 0)
+                      return myBoats.map(b => <span key={b} className="text-xs px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/20">{b}</span>);
+                    if (extra.applicable_boats?.length > 0)
+                      return null; // extra is for other operators' boats, hide entirely
+                    return <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All your boats</span>;
+                  }
+                  // Superadmin: show all boat tags
+                  if (extra.applicable_boats?.length > 0)
+                    return extra.applicable_boats.map(b => <span key={b} className="text-xs px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/20">{b}</span>);
                   return <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All boats</span>;
                 })()}
               </div>
