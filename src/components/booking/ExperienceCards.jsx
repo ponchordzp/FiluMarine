@@ -1,215 +1,160 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Clock, Users, Fish, Waves, Sun, Anchor, Wifi, Video, Zap, Droplet, Navigation, ChevronDown } from 'lucide-react';
+import { Clock, Users, Fish, Waves, Sun, Anchor, ChevronDown } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { motion } from 'framer-motion';
 
-const regularExperiences = [
-  {
-    id: 'half_day_fishing',
-    title: 'Half-Day Sport Fishing',
-    duration: '5 hours',
-    price: 9999,
-    image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
-    includes: ['Fishing equipment', 'Bait & tackle', 'Ice & cooler', 'Gas included'],
-    idealFor: 'First-timers & families',
-    description: 'Morning trip targeting Mahi-Mahi, Roosterfish, and Jack Crevalle.',
-    targetSpecies: ['Dorado', 'Roosterfish', 'Snapper'],
-    icon: Fish,
-    availableBoats: 'FILU, WAHOO, La Güera, Pirula',
-  },
-  {
-    id: 'snorkeling',
-    title: 'Snorkeling Expedition',
-    duration: '5 hours',
-    price: 9599,
-    image: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&q=80',
-    includes: ['Snorkel equipment', 'Life vests', 'Drinks', 'Gas included'],
-    idealFor: 'Couples & families',
-    description: 'Explore Playa Las Gatas and hidden coves with vibrant marine life.',
-    icon: Waves,
-    availableBoats: 'FILU, La Güera, Pirula',
-  },
-  {
-    id: 'coastal_leisure',
-    title: 'Coastal Leisure Tour',
-    duration: '5 hours',
-    price: 9599,
-    image: 'https://images.unsplash.com/photo-1476673160081-cf065607f449?w=800&q=80',
-    includes: ['Drinks & snacks', 'Music system', 'Seating', 'Gas included', 'Restaurant stops available'],
-    idealFor: 'Relaxation & celebrations',
-    description: 'Scenic coastal cruise with optional restaurant visits via panga delivery from select locations.',
-    icon: Sun,
-    availableBoats: 'FILU, TYCOON, La Güera',
-  },
-  {
-    id: 'sunset_tour',
-    title: 'Sunset Tour',
-    duration: '5 hours',
-    price: 9599,
-    image: 'https://images.unsplash.com/photo-1495954484750-af469f2f9be5?w=800&q=80',
-    includes: ['Drinks & snacks', 'Music system', 'Seating', 'Gas included', 'Restaurant stops available'],
-    idealFor: 'Romantic & celebrations',
-    description: 'Evening cruise with stunning Pacific sunset views. Restaurant visits available via panga delivery.',
-    icon: Sun,
-    availableBoats: 'FILU, TYCOON',
-  },
-];
-
-const fullDayExperiences = [
-  {
-    id: 'full_day_fishing',
-    title: 'Full-Day Sport Fishing',
-    duration: '8 hours',
-    price: 15999,
-    image: 'https://images.unsplash.com/photo-1559494007-9f5847c49d94?w=800&q=80',
-    includes: ['Premium gear', 'Bait & tackle', 'Lunch & drinks', 'Gas included'],
-    idealFor: 'Serious anglers',
-    description: 'Offshore adventure for Sailfish, Marlin, Tuna. Reach the best fishing grounds.',
-    targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado'],
-    icon: Fish,
-    availableBoats: 'FILU, WAHOO, Pirula',
-  },
-];
-
-const extendedExperience = {
-  id: 'extended_fishing',
-  title: 'Full Day Expedition',
-  duration: '10 hours',
-  price: 20000,
-  image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80',
-  includes: ['Premium gear', 'All equipment', 'Full meals & drinks', 'Gas included', 'Starlink & CCTV', 'Restaurant stops available'],
-  idealFor: 'All adventures',
-  description: 'Ultimate 10-hour expedition for fishing or leisure. Choose your activity when scheduling - deep-sea fishing for trophy catches or extended coastal exploration with restaurant visits.',
-  targetSpecies: ['Sailfish', 'Marlin', 'Tuna', 'Dorado', 'Roosterfish'],
-  icon: Fish,
-  availableBoats: 'FILU, TYCOON',
+// Icon mapping by expedition_id keywords
+const getExpIcon = (expId = '') => {
+  if (expId.includes('snorkel')) return Waves;
+  if (expId.includes('sunset') || expId.includes('leisure') || expId.includes('coastal')) return Sun;
+  return Fish;
 };
 
-// Location-specific boat availability
-const boatsByLocation = {
-  ixtapa_zihuatanejo: ['FILU', 'TYCOON', 'WAHOO'],
-  acapulco: ['La Güera', 'Pirula']
+const getDepartureTimes = (p) => {
+  if (!p) return [];
+  if (p.pickup_departures?.length > 0) {
+    const times = [...new Set(p.pickup_departures.map(d => d.departure_time).filter(Boolean))];
+    if (times.length > 0) return times;
+  }
+  if (p.departure_time) return [p.departure_time];
+  return [];
 };
 
-const getAvailableBoatsForLocation = (boatList, location) => {
-  if (!location) return boatList;
-  const locationBoats = boatsByLocation[location] || [];
-  return boatList.split(', ').filter(boat => locationBoats.includes(boat)).join(', ');
+const getPickupLocations = (p) => {
+  if (!p) return [];
+  if (p.pickup_departures?.length > 0)
+    return [...new Set(p.pickup_departures.map(d => d.pickup_location).filter(Boolean))];
+  if (p.pickup_location) return [p.pickup_location];
+  return [];
 };
 
-const equipmentIcons = {
-  bathroom: Droplet,
-  live_well: Fish,
-  starlink: Wifi,
-  cctv: Video,
-  audio_system: Zap,
-  gps: Navigation,
-  fishing_gear: Fish,
-  snorkeling_gear: Droplet,
-};
+// Card component shared between both views
+function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) {
+  const [expanded, setExpanded] = useState(false);
+  const Icon = getExpIcon(exp.expedition_id);
+  const includes = exp.includes || [];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.1 }}
+      className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
+    >
+      <div className="aspect-[16/9] relative overflow-hidden">
+        <img
+          src={exp.image || 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80'}
+          alt={exp.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
+        {exp.duration && (
+          <div className="absolute bottom-4 left-4 right-4">
+            <p className="text-white/80 text-sm flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              {exp.duration}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="p-6 flex flex-col flex-grow">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
+          <Icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
+        </div>
+
+        {exp.description && <p className="text-white/80 text-sm mb-3">{exp.description}</p>}
+
+        {includes.length > 0 && (
+          <div className="mb-3">
+            <button
+              onClick={() => setExpanded(v => !v)}
+              className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1"
+            >
+              <span>What's Included</span>
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expanded ? '' : '-rotate-90'}`} />
+            </button>
+            {expanded && (
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {includes.map((item, idx) => (
+                  <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
+          {exp.ideal_for && (
+            <div className="flex items-center gap-2 text-sm text-white/70">
+              <Users className="h-4 w-4" />
+              <span>{exp.ideal_for}</span>
+            </div>
+          )}
+          {boatNames.length > 0 && (
+            <div className="flex items-center gap-1.5 text-xs text-white/60">
+              <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
+              <span>{boatNames.join(', ')}</span>
+            </div>
+          )}
+          {departureTimes.length > 0 && (
+            <div className="flex items-start gap-1.5 text-xs text-cyan-300">
+              <Clock className="h-3 w-3 flex-shrink-0 mt-0.5" />
+              <span>{departureTimes.join(' · ')}</span>
+            </div>
+          )}
+        </div>
+
+        <Button
+          onClick={() => onSelect(exp)}
+          className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
+        >
+          <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+          <span className="relative">Select This Experience</span>
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
 
 export default function ExperienceCards({ onSelectExperience, selectedBoat, location }) {
-  const [expandedIncludes, setExpandedIncludes] = useState({});
-  const toggleIncludes = (id) => setExpandedIncludes(prev => ({ ...prev, [id]: !prev[id] }));
   const { data: dbBoats = [] } = useQuery({
     queryKey: ['boats-for-exp', location],
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
     enabled: !selectedBoat,
   });
 
-  // Fetch visible expeditions to filter hidden ones
   const { data: dbExpeditions = [] } = useQuery({
     queryKey: ['expeditions'],
     queryFn: () => base44.entities.Expedition.list('sort_order'),
   });
 
-  // Returns true if the expedition is visible (or not in DB = show by default)
-  const isExpeditionVisible = (expId) => {
-    const dbExp = dbExpeditions.find(e => e.expedition_id === expId);
-    if (!dbExp) return true; // not configured = show
-    return dbExp.visible !== false;
-  };
-
-  // For generic view: get active boats for this location that have each expedition
-  const activeBoats = dbBoats.filter(b =>
+  const activeBoats = useMemo(() => dbBoats.filter(b =>
     (!location || b.location === location) &&
     b.status === 'active' &&
     b.boat_mode !== 'maintenance_only'
-  );
+  ), [dbBoats, location]);
 
-  // Helper: get ALL unique departure times from pickup_departures (authoritative) or legacy field
-  const getDepartureTimes = (p) => {
-    if (!p) return [];
-    if (p.pickup_departures && p.pickup_departures.length > 0) {
-      const times = [...new Set(p.pickup_departures.map(d => d.departure_time).filter(Boolean))];
-      if (times.length > 0) return times;
-    }
-    if (p.departure_time) return [p.departure_time];
-    return [];
-  };
-
-  // Helper: get ALL pickup locations from pickup_departures (authoritative) or legacy field
-  const getPickupLocations = (p) => {
-    if (!p) return [];
-    if (p.pickup_departures && p.pickup_departures.length > 0)
-      return [...new Set(p.pickup_departures.map(d => d.pickup_location).filter(Boolean))];
-    if (p.pickup_location) return [p.pickup_location];
-    return [];
-  };
-
-  const formatList = (items) => {
-    if (!items.length) return '';
-    if (items.length === 1) return items[0];
-    return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
-  };
-
-  // Merge includes: DB expedition record wins, fall back to static
-  const getIncludes = (expId, staticIncludes) => {
-    const dbExp = dbExpeditions.find(e => e.expedition_id === expId);
-    if (dbExp?.includes && dbExp.includes.length > 0) return dbExp.includes;
-    return staticIncludes || [];
-  };
-
-  // Returns { boatNames, duration, price, departureTimes, pickupLocations } for an expedition type
-  const getExpDataFromDB = (expId) => {
-    const boatsWithExp = activeBoats.filter(b => (b.available_expeditions || []).includes(expId));
-    const boatNames = boatsWithExp.map(b => b.name);
-    let duration = null, price = null;
-    const allDepartureTimes = [];
-    const allPickupLocations = [];
-    boatsWithExp.forEach(b => {
-      const p = (b.expedition_pricing || []).find(ep => ep.expedition_type === expId);
-      if (!p) return;
-      if (!duration && p.duration_hours) duration = p.duration_hours;
-      if (!price && p.price_mxn > 0) price = p.price_mxn;
-      getDepartureTimes(p).forEach(t => { if (!allDepartureTimes.includes(t)) allDepartureTimes.push(t); });
-      getPickupLocations(p).forEach(l => { if (!allPickupLocations.includes(l)) allPickupLocations.push(l); });
-    });
-    return { boatNames, duration, price, departureTimes: allDepartureTimes, pickupLocations: allPickupLocations };
-  };
-
-  // If boat is selected, only show experiences configured for that boat (and visible)
-  if (selectedBoat?.available_expeditions && selectedBoat?.expedition_pricing) {
-    const boatExperiences = selectedBoat.available_expeditions.filter(isExpeditionVisible).map(expType => {
-      const pricing = selectedBoat.expedition_pricing.find(p => p.expedition_type === expType);
-      const baseExp = [...regularExperiences, ...fullDayExperiences, extendedExperience].find(e => e.id === expType);
-      
-      if (!baseExp) return null;
-      
-      // Always use vessel-editor values — they are the authoritative locked source
-      const lockIcon = '🔒 ';
+  // ── BOAT-SELECTED VIEW ──────────────────────────────────────────────────
+  if (selectedBoat?.available_expeditions?.length > 0) {
+    const boatExperiences = selectedBoat.available_expeditions.map(expType => {
+      const catalog = dbExpeditions.find(e => e.expedition_id === expType);
+      if (!catalog || catalog.visible === false) return null;
+      const pricing = (selectedBoat.expedition_pricing || []).find(p => p.expedition_type === expType);
       const departureTimes = getDepartureTimes(pricing);
       return {
-        ...baseExp,
-        duration: pricing?.duration_hours ? `${pricing.duration_hours} hours` : baseExp.duration,
-        price: pricing?.price_mxn > 0 ? pricing.price_mxn : baseExp.price,
-        availableBoats: selectedBoat.name,
+        ...catalog,
+        duration: pricing?.duration_hours ? `${pricing.duration_hours} hours` : catalog.duration,
+        price: pricing?.price_mxn > 0 ? pricing.price_mxn : catalog.price,
         departureTimes,
       };
     }).filter(Boolean);
+
+    if (boatExperiences.length === 0) return null;
 
     const colClass = boatExperiences.length === 1
       ? 'grid-cols-1 max-w-md mx-auto'
@@ -221,10 +166,9 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       <section className="relative py-8 md:py-12">
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
           <div className="rounded-3xl overflow-hidden border border-white/20 bg-white/5 backdrop-blur-md p-8 md:p-10">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, y: 0 }}
               className="text-center mb-10"
             >
               <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
@@ -234,78 +178,16 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
                 Select the perfect adventure for your group
               </p>
             </motion.div>
-
-            <div className={`grid gap-6 mb-6 ${colClass}`}>
+            <div className={`grid gap-6 ${colClass}`}>
               {boatExperiences.map((exp, i) => (
-                <motion.div
-                  key={exp.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
-                >
-                  <div className="aspect-[16/9] relative overflow-hidden">
-                    <img 
-                      src={exp.image} 
-                      alt={exp.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4">
-                      <p className="text-white/80 text-sm flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        {exp.duration}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="p-6 flex flex-col flex-grow">
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
-                      <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
-                    </div>
-
-                    <p className="text-white/80 text-sm mb-3">{exp.description}</p>
-
-                    {/* Collapsible Includes — DB first, then static */}
-                    {(() => { const items = getIncludes(exp.id, exp.includes); return items.length > 0 && (
-                      <div className="mb-3">
-                        <button onClick={() => toggleIncludes(exp.id)} className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1">
-                          <span>What's Included</span>
-                          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedIncludes[exp.id] ? '' : '-rotate-90'}`} />
-                        </button>
-                        {expandedIncludes[exp.id] && (
-                          <div className="flex flex-wrap gap-1.5 mt-1">
-                            {items.map((item, idx) => <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>)}
-                          </div>
-                        )}
-                      </div>
-                    ); })()}
-
-                    <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
-                      <div className="flex items-center gap-2 text-sm text-white/70">
-                        <Users className="h-4 w-4" />
-                        <span>{exp.idealFor}</span>
-                      </div>
-                      {/* All departure times from vessel editor */}
-                      {exp.departureTimes && exp.departureTimes.length > 0 && (
-                        <div className="flex items-start gap-1.5 text-xs text-cyan-300">
-                          <Clock className="h-3 w-3 flex-shrink-0 mt-0.5" />
-                          <span>{exp.departureTimes.join(' · ')}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <Button 
-                      onClick={() => onSelectExperience(exp)}
-                      className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
-                    >
-                      <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                      <span className="relative">Select This Experience</span>
-                    </Button>
-                  </div>
-                </motion.div>
+                <ExpCard
+                  key={exp.expedition_id}
+                  exp={exp}
+                  onSelect={onSelectExperience}
+                  index={i}
+                  departureTimes={exp.departureTimes}
+                  boatNames={[selectedBoat.name]}
+                />
               ))}
             </div>
           </div>
@@ -314,45 +196,48 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     );
   }
 
-  // Generic view — filter out non-visible expeditions
-  const filteredRegular = regularExperiences.filter(e => isExpeditionVisible(e.id));
-  const filteredFullDay = fullDayExperiences.filter(e => isExpeditionVisible(e.id));
-  const showExtended = isExpeditionVisible(extendedExperience.id);
-  const totalGeneric = filteredRegular.length + filteredFullDay.length + (showExtended ? 1 : 0);
-  // 1 → centered, 2 or 4 → 2-col (fills evenly), everything else → 3-col
-  const genericColClass = totalGeneric === 1
+  // ── GENERIC LOCATION VIEW ───────────────────────────────────────────────
+  // Collect all unique expedition_ids offered by active boats at this location
+  const locationExpeditions = useMemo(() => {
+    const expMap = new Map();
+    activeBoats.forEach(boat => {
+      (boat.available_expeditions || []).forEach(expId => {
+        if (!expMap.has(expId)) {
+          const catalog = dbExpeditions.find(e => e.expedition_id === expId);
+          if (catalog && catalog.visible !== false) {
+            expMap.set(expId, catalog);
+          }
+        }
+      });
+    });
+    return Array.from(expMap.values()).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+  }, [activeBoats, dbExpeditions]);
+
+  // For each expedition, gather boat names + departure times from all offering boats
+  const getExpMeta = (expId) => {
+    const boatsWithExp = activeBoats.filter(b => (b.available_expeditions || []).includes(expId));
+    const boatNames = boatsWithExp.map(b => b.name);
+    const allDepartureTimes = [];
+    boatsWithExp.forEach(b => {
+      const p = (b.expedition_pricing || []).find(ep => ep.expedition_type === expId);
+      getDepartureTimes(p).forEach(t => { if (!allDepartureTimes.includes(t)) allDepartureTimes.push(t); });
+    });
+    return { boatNames, departureTimes: allDepartureTimes };
+  };
+
+  if (locationExpeditions.length === 0) return null;
+
+  const colClass = locationExpeditions.length === 1
     ? 'grid-cols-1 max-w-md mx-auto'
-    : totalGeneric === 2 || totalGeneric === 4
+    : locationExpeditions.length === 2 || locationExpeditions.length === 4
     ? 'grid-cols-1 sm:grid-cols-2'
     : 'grid-cols-1 md:grid-cols-3';
-
-  // Render live boat names + departure times from DB
-  const renderExpMeta = (expId) => {
-    const { boatNames, departureTimes } = getExpDataFromDB(expId);
-    if (boatNames.length === 0 && departureTimes.length === 0) return null;
-    return (
-      <div className="flex flex-col gap-1">
-        {boatNames.length > 0 && (
-          <div className="flex items-center gap-1.5 text-xs text-white/60">
-            <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
-            <span>{boatNames.join(', ')}</span>
-          </div>
-        )}
-        {departureTimes.length > 0 && (
-          <div className="flex items-start gap-1.5 text-xs text-cyan-300">
-            <Clock className="h-3 w-3 flex-shrink-0 mt-0.5" />
-            <span>{departureTimes.join(' · ')}</span>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   return (
     <section className="relative py-8 md:py-12 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/c6ed2e8cf_FILUMarine2.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#081830' }}>
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #081830cc, #050f1ecc)' }} />
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -366,121 +251,20 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
           </p>
         </motion.div>
 
-        <div className={`grid gap-6 mb-6 ${genericColClass}`}>
-          {filteredRegular.map((exp, i) => (
-            <motion.div
-              key={exp.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
-              className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
-            >
-              <div className="aspect-[16/9] relative overflow-hidden">
-                <img 
-                  src={exp.image} 
-                  alt={exp.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="text-white/80 text-sm flex items-center gap-1">
-                    <Clock className="h-4 w-4" />
-                    {exp.duration}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
-                  <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
-                </div>
-
-                <p className="text-white/80 text-sm mb-3">{exp.description}</p>
-
-                {/* Collapsible Includes — from DB if set, else static */}
-                {(() => { const items = getIncludes(exp.id, exp.includes); return items.length > 0 && (
-                  <div className="mb-3">
-                    <button onClick={() => toggleIncludes(exp.id)} className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1">
-                      <span>What's Included</span>
-                      <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedIncludes[exp.id] ? '' : '-rotate-90'}`} />
-                    </button>
-                    {expandedIncludes[exp.id] && (
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {items.map((item, idx) => <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>)}
-                      </div>
-                    )}
-                  </div>
-                ); })()}
-
-                <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
-                  <div className="flex items-center gap-2 text-sm text-white/70">
-                    <Users className="h-4 w-4" />
-                    <span>{exp.idealFor}</span>
-                  </div>
-                  {renderExpMeta(exp.id)}
-                </div>
-
-                <Button 
-                  onClick={() => onSelectExperience(exp)}
-                  className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
-                >
-                  <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                  <span className="relative">Select This Experience</span>
-                </Button>
-              </div>
-            </motion.div>
-          ))}
-
-          {/* Full Day + Extended — same pattern with DB includes */}
-          {[...filteredFullDay, ...(showExtended ? [extendedExperience] : [])].map((exp, i) => (
-            <motion.div
-              key={exp.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: (filteredRegular.length + i) * 0.1 }}
-              className="group bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl overflow-hidden border border-white/30 hover:border-cyan-400/60 hover:bg-white/20 transition-all duration-700 flex flex-col hover:scale-[1.05] hover:shadow-[0_0_50px_rgba(34,211,238,0.4)] hover:-translate-y-2"
-            >
-              <div className="aspect-[16/9] relative overflow-hidden">
-                <img src={exp.image} alt={exp.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4">
-                  <p className="text-white/80 text-sm flex items-center gap-1"><Clock className="h-4 w-4" />{exp.duration}</p>
-                </div>
-              </div>
-              <div className="p-4 sm:p-6 flex flex-col flex-grow">
-                <div className="flex items-start justify-between mb-2">
-                  <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
-                  <exp.icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
-                </div>
-                <p className="text-white/80 text-sm mb-3">{exp.description}</p>
-                {(() => { const items = getIncludes(exp.id, exp.includes); return items.length > 0 && (
-                  <div className="mb-3">
-                    <button onClick={() => toggleIncludes(exp.id)} className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1">
-                      <span>What's Included</span>
-                      <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedIncludes[exp.id] ? '' : '-rotate-90'}`} />
-                    </button>
-                    {expandedIncludes[exp.id] && (
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {items.map((item, idx) => <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>)}
-                      </div>
-                    )}
-                  </div>
-                ); })()}
-                <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
-                  <div className="flex items-center gap-2 text-sm text-white/70"><Users className="h-4 w-4" /><span>{exp.idealFor}</span></div>
-                  {exp.targetSpecies && <div className="flex items-start gap-2 text-xs text-white/70"><Fish className="h-3 w-3 mt-0.5 flex-shrink-0" /><span>Target: {exp.targetSpecies.join(', ')}</span></div>}
-                  {renderExpMeta(exp.id)}
-                </div>
-                <Button onClick={() => onSelectExperience(exp)} className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20">
-                  <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                  <span className="relative">Select This Experience</span>
-                </Button>
-              </div>
-            </motion.div>
-          ))}
+        <div className={`grid gap-6 mb-6 ${colClass}`}>
+          {locationExpeditions.map((exp, i) => {
+            const { boatNames, departureTimes } = getExpMeta(exp.expedition_id);
+            return (
+              <ExpCard
+                key={exp.expedition_id}
+                exp={exp}
+                onSelect={onSelectExperience}
+                index={i}
+                boatNames={boatNames}
+                departureTimes={departureTimes}
+              />
+            );
+          })}
         </div>
       </div>
     </section>

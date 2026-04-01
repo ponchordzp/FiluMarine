@@ -139,8 +139,10 @@ export default function Home() {
       status: 'pending',
     };
     
-    // Send confirmation email
-    const experience = experiences[data.experience_type];
+    // Send confirmation email — use DB expedition title if available, else fallback
+    const dbExpTitle = await base44.entities.Expedition.filter({ expedition_id: data.experience_type })
+      .then(list => list[0]?.title).catch(() => null);
+    const experience = experiences[data.experience_type] || { title: dbExpTitle || data.experience_type };
     const emailBody = `
       <h2>Booking Confirmed - Filu Marine</h2>
       <p>Thank you for booking with Filu Marine! Your adventure awaits.</p>

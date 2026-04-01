@@ -43,23 +43,23 @@ const emptyForm = {
   includes: [],
   ideal_for: '',
   visible: true,
-  sort_order: 0
+  sort_order: 0,
+  operator: ''
 };
 
 export default function ExpeditionManagement({ operatorFilter = 'all' }) {
-  const queryClient = useQueryClient();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingExp, setEditingExp] = useState(null);
-  const [formData, setFormData] = useState(emptyForm);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [customInclude, setCustomInclude] = useState('');
+  // Determine current operator context
+  const currentOperator = operatorFilter === 'all' ? '' : operatorFilter;
 
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
     queryFn: () => base44.entities.Expedition.list('sort_order')
   });
+
+  // Filter: superadmin (all) sees everything; operator sees only their own
+  const visibleExpeditions = operatorFilter === 'all'
+    ? expeditions
+    : expeditions.filter(e => !e.operator || e.operator.toLowerCase() === operatorFilter.toLowerCase());
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Expedition.create(data),
@@ -104,7 +104,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    let finalData = { ...formData };
+    let finalData = { ...formData, operator: currentOperator };
     if (imageFile) {
       setUploading(true);
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
@@ -151,7 +151,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
         </Button>
       </div>
 
-      {expeditions.length === 0 && (
+      {visibleExpeditions.length === 0 && (
         <Card className="bg-amber-50 border-amber-200">
           <CardContent className="py-8 text-center text-amber-800">
             <p className="font-medium">No expeditions in catalog yet.</p>
@@ -161,7 +161,7 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
       )}
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {expeditions.map((exp) => (
+        {visibleExpeditions.map((exp) => (
           <Card key={exp.id} className={`overflow-hidden transition-all ${!exp.visible ? 'opacity-60 border-dashed' : ''}`}>
             {exp.image && (
               <div className="aspect-video relative overflow-hidden">

@@ -775,6 +775,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <BoatExpeditionsPanel
                       availableExpeditions={formData.available_expeditions || []}
                       onChange={(exps) => setFormData(prev => ({ ...prev, available_expeditions: exps }))}
+                      operator={formData.operator || ''}
                     />
                     <div className="mt-4">
                       <BoatExtrasPanel boat={editingBoat} inline formData={formData} onChange={(boat_extras) => setFormData(prev => ({ ...prev, boat_extras }))} />

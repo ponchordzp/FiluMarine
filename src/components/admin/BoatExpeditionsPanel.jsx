@@ -4,11 +4,16 @@ import { base44 } from '@/api/base44Client';
 import { Check, Fish, Plus, X } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 
-export default function BoatExpeditionsPanel({ availableExpeditions = [], onChange }) {
+export default function BoatExpeditionsPanel({ availableExpeditions = [], onChange, operator = '' }) {
   const { data: allExpeditions = [] } = useQuery({
     queryKey: ['expeditions'],
     queryFn: () => base44.entities.Expedition.list('sort_order'),
   });
+
+  // Show expeditions that belong to this operator OR have no operator (shared catalog)
+  const filteredExpeditions = operator
+    ? allExpeditions.filter(e => !e.operator || e.operator.toLowerCase() === operator.toLowerCase())
+    : allExpeditions;
 
   const toggle = (expeditionId) => {
     if (availableExpeditions.includes(expeditionId)) {
@@ -18,7 +23,7 @@ export default function BoatExpeditionsPanel({ availableExpeditions = [], onChan
     }
   };
 
-  if (allExpeditions.length === 0) {
+  if (filteredExpeditions.length === 0) {
     return (
       <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-6 text-center text-indigo-700">
         <Fish className="h-8 w-8 mx-auto mb-2 text-indigo-400" />
@@ -38,7 +43,7 @@ export default function BoatExpeditionsPanel({ availableExpeditions = [], onChan
       <div className="bg-indigo-50 p-4 space-y-2">
         <p className="text-xs text-indigo-700 mb-3">Select the expeditions this boat can offer. Pricing is configured in the <strong>Vessel Details → Expeditions & Pricing</strong> tab.</p>
         <div className="space-y-2">
-          {allExpeditions.map((exp) => {
+          {filteredExpeditions.map((exp) => {
             const isSelected = availableExpeditions.includes(exp.expedition_id);
             return (
               <button
