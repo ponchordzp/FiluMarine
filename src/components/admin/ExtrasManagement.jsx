@@ -107,6 +107,18 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['extras'] }),
   });
 
+  const generateTagMutation = useMutation({
+    mutationFn: (id) => {
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 9);
+      const tag = currentUser?.operator
+        ? `${currentUser.operator}_${timestamp}_${random}`
+        : `TAG_${timestamp}_${random}`;
+      return base44.entities.Extra.update(id, { operator_tag: tag });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['extras'] }),
+  });
+
   const openEdit = (extra) => {
     setEditing(extra);
     setForm({
@@ -223,16 +235,32 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
           <div key={extra.id} className="flex items-start justify-between p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <Sparkles className="h-4 w-4 text-purple-400" />
-                <span className="font-semibold text-white">{extra.name}</span>
-                {!extra.visible && <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/40">Hidden</span>}
-                {extra.price > 0 && (
-                  <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(168,85,247,0.15)', color: '#d8b4fe', border: '1px solid rgba(168,85,247,0.3)' }}>
-                    ${extra.price?.toLocaleString()} MXN
+                  <Sparkles className="h-4 w-4 text-purple-400" />
+                  <span className="font-semibold text-white">{extra.name}</span>
+                  {!extra.visible && <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/40">Hidden</span>}
+                  {extra.price > 0 && (
+                    <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(168,85,247,0.15)', color: '#d8b4fe', border: '1px solid rgba(168,85,247,0.3)' }}>
+                      ${extra.price?.toLocaleString()} MXN
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 ml-6 mb-2 flex-wrap">
+                  <span className="text-xs text-white/40 font-mono bg-white/5 px-2 py-1 rounded border border-white/10">
+                    ID: {extra.operator_tag || extra.id}
                   </span>
-                )}
+                  {!extra.operator_tag && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-6 text-xs text-cyan-400 border-cyan-400/30 hover:bg-cyan-400/10"
+                      onClick={() => generateTagMutation.mutate(extra.id)}
+                      disabled={generateTagMutation.isPending}
+                    >
+                      {generateTagMutation.isPending ? 'Generating...' : 'Generate Tag'}
+                    </Button>
+                  )}
               </div>
-              {extra.description && <p className="text-sm text-white/50 ml-6">{extra.description}</p>}
+              {extra.description && <p className="text-sm text-white/50 ml-6 mt-1">{extra.description}</p>}
 
               {isSuperAdmin && extra.allowed_operators?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1 ml-6">
