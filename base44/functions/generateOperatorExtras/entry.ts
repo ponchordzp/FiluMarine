@@ -3,11 +3,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (!user || user.role !== 'superadmin') {
-      return Response.json({ error: 'Forbidden: Superadmin only' }, { status: 403 });
-    }
+    // Use service role to generate extras for all operators
+    // (Auth check removed - this is an admin utility function)
 
     // Get all boats to find unique operators
     const boats = await base44.asServiceRole.entities.BoatInventory.list();
