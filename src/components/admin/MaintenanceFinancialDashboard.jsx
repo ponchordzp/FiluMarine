@@ -799,8 +799,11 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     const boatIds = boatBookings.map(b => b.id);
     const boatExpenses = expenses.filter(e => boatIds.includes(e.booking_id));
     const revenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
-    // Expenses (ex-fees) — ONLY sum from BookingExpense records
-    const expAmt = boatExpenses.reduce((s, e) => s + (e.fuel_cost||0)+(e.crew_cost||0)+(e.maintenance_cost||0)+(e.cleaning_cost||0)+(e.supplies_cost||0)+(e.other_cost||0), 0);
+    // Expenses (ex-fees) — ONLY sum from BookingExpense records, ensuring all records exist and have valid data
+    const expAmt = boatExpenses.reduce((s, e) => {
+      if (!e) return s; // Skip if expense record is null/undefined
+      return s + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0));
+    }, 0);
     // Fees — The 'fees_cost' from BookingExpense records should NOT be included in 'expAmt' for the Expenses KPI.
     // The FILU fee (or similar platform/operator fees) is handled separately in 'feesAmt' as a commission.
     // To ensure 'Expenses' KPI excludes fees, we keep 'fees_cost' out of 'expAmt' sum.
@@ -889,9 +892,9 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
         const avgCostPerBooking = totalActiveBookings > 0 ? totals.expAmt / totalActiveBookings : 0;
 
         const totalFuelFleet = filteredBoats.reduce((s, boat) => {
-           const bIds = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled').map(b => b.id);
-           return s + expenses.filter(e => bIds.includes(e.booking_id)).reduce((x, e) => x + (e.fuel_cost || 0), 0);
-         }, 0);
+          const bIds = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled').map(b => b.id);
+          return s + expenses.filter(e => bIds.includes(e.booking_id) && e).reduce((x, e) => x + (e.fuel_cost || 0), 0);
+        }, 0);
          window.totalFuelFleet = totalFuelFleet; // Expose for CSV export
          const fuelRatio = totals.expAmt > 0 ? ((totalFuelFleet / totals.expAmt) * 100).toFixed(1) : '—';
 
