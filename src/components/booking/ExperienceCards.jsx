@@ -139,11 +139,19 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     b.boat_mode !== 'maintenance_only'
   ), [dbBoats, location]);
 
+  // helper: is expedition hidden for a given operator?
+  const isHiddenForOperator = (catalog, operator) => {
+    if (!catalog) return true;
+    if (catalog.visible === false) return true;
+    if (operator && (catalog.hidden_for_operators || []).includes(operator)) return true;
+    return false;
+  };
+
   // ── BOAT-SELECTED VIEW ──────────────────────────────────────────────────
   if (selectedBoat?.available_expeditions?.length > 0) {
     const boatExperiences = selectedBoat.available_expeditions.map(expType => {
       const catalog = dbExpeditions.find(e => e.expedition_id === expType);
-      if (!catalog || catalog.visible === false) return null;
+      if (isHiddenForOperator(catalog, selectedBoat.operator)) return null;
       const pricing = (selectedBoat.expedition_pricing || []).find(p => p.expedition_type === expType);
       const departureTimes = getDepartureTimes(pricing);
       return {
@@ -204,7 +212,7 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       (boat.available_expeditions || []).forEach(expId => {
         if (!expMap.has(expId)) {
           const catalog = dbExpeditions.find(e => e.expedition_id === expId);
-          if (catalog && catalog.visible !== false) {
+          if (catalog && !isHiddenForOperator(catalog, boat.operator)) {
             expMap.set(expId, catalog);
           }
         }
