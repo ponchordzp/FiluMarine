@@ -161,7 +161,7 @@ export default function LocationSelector({ onSelectLocation }) {
                 </h3>
                 <p className="text-cyan-300/60 text-sm mb-1 font-mono">{location.coordinates}</p>
                 <WeatherWidget locationId={location.location_id} />
-                <p className="text-white/80 mt-3 mb-4 text-base leading-relaxed flex-1">{location.description}</p>
+                <p className="text-white/80 mt-3 mb-4 text-base leading-relaxed line-clamp-3">{location.description}</p>
                 
                 <Button 
                   onClick={() => onSelectLocation(location.location_id || location.id)}
