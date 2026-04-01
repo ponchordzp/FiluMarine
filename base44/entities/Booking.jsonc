@@ -1,0 +1,160 @@
+{
+  "name": "Booking",
+  "type": "object",
+  "properties": {
+    "location": {
+      "type": "string",
+      "enum": [
+        "ixtapa_zihuatanejo",
+        "acapulco",
+        "cancun"
+      ],
+      "description": "Booking location"
+    },
+    "experience_type": {
+      "type": "string",
+      "enum": [
+        "half_day_fishing",
+        "full_day_fishing",
+        "extended_fishing",
+        "snorkeling",
+        "coastal_leisure"
+      ],
+      "description": "Type of experience booked"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Booking date"
+    },
+    "time_slot": {
+      "type": "string",
+      "enum": [
+        "6:00 AM",
+        "7:00 AM",
+        "2:00 PM",
+        "4:00 PM"
+      ],
+      "description": "Selected time slot"
+    },
+    "guests": {
+      "type": "number",
+      "default": 2,
+      "description": "Number of guests"
+    },
+    "add_ons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Selected add-ons"
+    },
+    "special_requests": {
+      "type": "string",
+      "description": "Special requests or notes"
+    },
+    "guest_name": {
+      "type": "string",
+      "description": "Primary guest name"
+    },
+    "guest_email": {
+      "type": "string",
+      "description": "Guest email"
+    },
+    "guest_phone": {
+      "type": "string",
+      "description": "Guest phone/WhatsApp"
+    },
+    "boat_name": {
+      "type": "string",
+      "description": "Name of the boat booked"
+    },
+    "pickup_location": {
+      "type": "string",
+      "description": "Selected pickup location ID"
+    },
+    "total_price": {
+      "type": "number",
+      "description": "Total booking price in MXN"
+    },
+    "deposit_paid": {
+      "type": "number",
+      "description": "Deposit amount paid (approx. 40%)"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "card",
+        "bank_transfer",
+        "paypal",
+        "whatsapp"
+      ],
+      "description": "Payment method selected"
+    },
+    "payment_screenshot": {
+      "type": "string",
+      "description": "URL to payment screenshot (for bank_transfer and paypal)"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "pending_payment",
+        "payment_done"
+      ],
+      "default": "pending_payment",
+      "description": "Operator PayPal payment status"
+    },
+    "remaining_payment_status": {
+      "type": "string",
+      "enum": [
+        "pending_collection",
+        "collected_on_site"
+      ],
+      "default": "pending_collection",
+      "description": "On-site remaining balance collection status (approx. 60%)"
+    },
+    "remaining_payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "card",
+        "bank_transfer",
+        "paypal"
+      ],
+      "description": "Payment method used to collect the on-site remaining balance"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "cancelled",
+        "completed"
+      ],
+      "default": "pending"
+    },
+    "confirmation_code": {
+      "type": "string",
+      "description": "Unique confirmation code"
+    },
+    "engine_hours_used": {
+      "type": "number",
+      "default": 0,
+      "description": "Engine hours consumed during this trip"
+    },
+    "is_practice": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a practice/test booking for admin purposes"
+    }
+  },
+  "required": [
+    "location",
+    "experience_type",
+    "date",
+    "time_slot",
+    "guest_name",
+    "guest_email",
+    "guest_phone"
+  ]
+}

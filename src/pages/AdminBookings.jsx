@@ -104,6 +104,9 @@ function AdminBookingsInner() {
   const [showCustomDatePickerFinancial, setShowCustomDatePickerFinancial] = useState(false);
   const [showCustomDatePickerBooking, setShowCustomDatePickerBooking] = useState(false);
   const [activeTab, setActiveTab] = useState('bookings');
+  const [showPracticeGenerator, setShowPracticeGenerator] = useState(false);
+  const [practiceBoatFilter, setPracticeBoatFilter] = useState(allBoats.length > 0 ? allBoats[0].name : '');
+  const [practiceCount, setPracticeCount] = useState(1);
 
   const queryClient = useQueryClient();
 
@@ -183,6 +186,42 @@ function AdminBookingsInner() {
   const updateRemainingMethodMutation = useMutation({
     mutationFn: ({ id, remaining_payment_method }) => base44.entities.Booking.update(id, { remaining_payment_method }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] }),
+  });
+
+  const createPracticeBookingMutation = useMutation({
+    mutationFn: async () => {
+      const boat = allBoats.find(b => b.name === practiceBoatFilter);
+      if (!boat) throw new Error('Boat not found');
+      const bookings = [];
+      for (let i = 0; i < practiceCount; i++) {
+        const today = new Date();
+        today.setDate(today.getDate() + i);
+        const booking = await base44.entities.Booking.create({
+          location: boat.location || 'ixtapa_zihuatanejo',
+          experience_type: 'half_day_fishing',
+          date: format(today, 'yyyy-MM-dd'),
+          time_slot: '6:00 AM',
+          guests: 2,
+          guest_name: `[PRACTICE] ${boat.name} Test`,
+          guest_email: 'practice@test.local',
+          guest_phone: '0000000000',
+          boat_name: boat.name,
+          total_price: boat.minor_maintenance_cost || 1000,
+          deposit_paid: Math.round((boat.minor_maintenance_cost || 1000) * 0.4),
+          payment_method: 'card',
+          status: 'completed',
+          confirmation_code: `PRACTICE-${Date.now()}-${i}`,
+          is_practice: true,
+        });
+        bookings.push(booking);
+      }
+      return bookings;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      setShowPracticeGenerator(false);
+      setPracticeCount(1);
+    },
   });
 
   // Compute operator-filtered boat names using effectiveOperatorFilter
@@ -776,7 +815,14 @@ function AdminBookingsInner() {
             </div>
 
             <div className="space-y-3">
-              {filteredBookings.length === 0 ? (
+              {/* Practice Booking Generator Button */}
+            <div className="mb-4 flex justify-end">
+              <Button onClick={() => setShowPracticeGenerator(true)} className="text-xs bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30">
+                + Practice Booking
+              </Button>
+            </div>
+
+            {filteredBookings.length === 0 ? (
                 <div className="rounded-2xl p-12 text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                   <p className="text-white/40">No bookings found</p>
                 </div>
@@ -1260,6 +1306,48 @@ function AdminBookingsInner() {
           onClose={() => { setExpenseDialogOpen(false); setExpenseBooking(null); }}
         />
       )}
+
+      {/* Practice Booking Generator Dialog */}
+      <Dialog open={showPracticeGenerator} onOpenChange={setShowPracticeGenerator}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Generate Practice Bookings</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-xs font-semibold text-slate-700">Boat</Label>
+              <Select value={practiceBoatFilter} onValueChange={setPracticeBoatFilter}>
+                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {allBoats.map(boat => (
+                    <SelectItem key={boat.id} value={boat.name}>{boat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs font-semibold text-slate-700">Number of Bookings</Label>
+              <Input
+                type="number"
+                min="1"
+                max="10"
+                value={practiceCount}
+                onChange={(e) => setPracticeCount(Math.max(1, parseInt(e.target.value) || 1))}
+                className="mt-1"
+              />
+            </div>
+            <p className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-200">
+              Practice bookings will be marked [PRACTICE] and created for consecutive days starting today.
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowPracticeGenerator(false)} className="flex-1">Cancel</Button>
+              <Button onClick={() => createPracticeBookingMutation.mutate()} disabled={createPracticeBookingMutation.isPending} className="flex-1 bg-purple-600 hover:bg-purple-700">
+                {createPracticeBookingMutation.isPending ? 'Creating...' : 'Create'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Unlock Date Dialog */}
       <Dialog open={unlockDialogOpen} onOpenChange={setUnlockDialogOpen}>
