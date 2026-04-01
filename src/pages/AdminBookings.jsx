@@ -37,6 +37,7 @@ import JoinFiluApplications from '@/components/admin/JoinFiluApplications';
 import AffiliatesManagement from '@/components/admin/AffiliatesManagement';
 import MaintenanceFinancialDashboard from '@/components/admin/MaintenanceFinancialDashboard';
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
+import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
@@ -652,15 +653,19 @@ function AdminBookingsInner() {
                           </div>
                         ))}
                       </div>
-                    </>
-                  );
-                })()}
-              </div>
 
-
-            </div>
-          )}
-        </div>
+                      {/* Financial Trend Chart */}
+                      <FinancialTrendChart
+                        bookings={financialFilteredBookings}
+                        expenses={financialExpenses}
+                        allBoats={allBoats}
+                        getOperatorCommission={getOperatorCommission}
+                      />
+                      </>
+                      )}
+                      </div>
+                      </div>
+                      </div>
 
           {/* Booking KPIs - Collapsible Row 2 */}
           <div className="mb-6 rounded-xl px-3 py-2" style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.18)', backdropFilter: 'blur(16px)' }}>
