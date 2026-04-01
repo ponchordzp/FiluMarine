@@ -862,7 +862,8 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
 
       {/* Next Service Budget */}
       {(() => {
-        const nextServiceBreakdown = filteredBoats.map(boat => {
+        const maintenanceBoats = filteredBoats.filter(boat => boat.boat_mode !== 'rental_only');
+        const nextServiceBreakdown = maintenanceBoats.map(boat => {
           const qty = boat.engine_quantity || 1;
           const type = boat.next_service_type === 'major' ? 'major' : 'minor';
           const costField = type === 'major' ? 'major_maintenance_cost' : 'minor_maintenance_cost';
@@ -871,7 +872,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
           return { name: boat.name, type, costPerEngine, qty, total, costField };
         });
         const totalNextServiceBudget = nextServiceBreakdown.reduce((s, b) => s + b.total, 0);
-        const overdueCount = filteredBoats.filter(boat => {
+        const overdueCount = maintenanceBoats.filter(boat => {
           const bHrs = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled').reduce((s, b) => s + (b.engine_hours_used || 0), 0);
           const pHrs = personalTrips.filter(t => t.boat_id === boat.id).reduce((s, t) => s + (t.engine_hours_used || 0), 0);
           const tot = (boat.current_hours || 0) + bHrs + pHrs;
