@@ -176,6 +176,20 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     queryFn: () => base44.entities.BoatInventory.list('-created_date')
   });
 
+  const { data: dbLocations = [] } = useQuery({
+    queryKey: ['locations-all'],
+    queryFn: () => base44.entities.Location.list('sort_order'),
+  });
+  // Build location options: use DB locations if available, fallback to defaults
+  const locationOptions = dbLocations.length > 0
+    ? dbLocations.filter(l => l.visible !== false).map(l => ({ value: l.location_id, label: l.name }))
+    : [
+        { value: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' },
+        { value: 'acapulco', label: 'Acapulco' },
+        { value: 'cancun', label: 'Cancún' },
+      ];
+  const getLocationLabel = (val) => locationOptions.find(l => l.value === val)?.label ?? val;
+
   const { data: bookings = [] } = useQuery({
     queryKey: ['bookings-stats'],
     queryFn: () => base44.entities.Booking.list()
@@ -722,7 +736,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <div><Label>Type *</Label><Input required value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console" className="mt-1" /></div>
               <div><Label>Size *</Label><Input required value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} placeholder="e.g., 25ft" className="mt-1" /></div>
               <div><Label>Capacity *</Label><Input required value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" className="mt-1" /></div>
-              <div><Label>Location *</Label><Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem><SelectItem value="acapulco">Acapulco</SelectItem></SelectContent></Select></div>
+              <div><Label>Location *</Label><Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent>{locationOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
               <div className="md:col-span-2"><Label>Operator</Label><Select value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
             </div>
@@ -780,7 +794,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><InfoLabel info="Total length of the boat including the unit." example="25ft, 55ft, 8m">Size *</InfoLabel><Input required disabled={locks['general']} value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} placeholder="e.g., 25ft" /></div>
                     <div><InfoLabel info="Maximum number of passengers allowed on board." example="Up to 6 guests, Up to 12 guests">Capacity *</InfoLabel><Input required disabled={locks['general']} value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" /></div>
                     <div><InfoLabel info="Number of crew members typically assigned to this boat (not counting captain)." example="2">Crew Members</InfoLabel><Input type="number" min="0" disabled={locks['general']} value={formData.crew_members} onChange={(e) => setFormData({ ...formData, crew_members: parseInt(e.target.value) || 0 })} placeholder="e.g., 2" /></div>
-                    <div><InfoLabel info="The city/port where this boat operates and takes bookings." example="Ixtapa-Zihuatanejo">Location *</InfoLabel><Select disabled={locks['general']} value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem><SelectItem value="acapulco">Acapulco</SelectItem></SelectContent></Select></div>
+                    <div><InfoLabel info="The city/port where this boat operates and takes bookings." example="Ixtapa-Zihuatanejo">Location *</InfoLabel><Select disabled={locks['general']} value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{locationOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select></div>
                     <div><InfoLabel info="Exact dock slip or marina name where the boat is currently moored." example="Marina Paradise Slip 14, Dry Dock 3">Dock Location</InfoLabel><Input disabled={locks['general']} value={formData.dock_location} onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })} placeholder="e.g., Marina Paradise, Dry Dock 3" /></div>
                     <div><InfoLabel info="Current operational status. 'Maintenance' hides the boat from bookings." example="active">Status</InfoLabel><Select disabled={locks['general']} value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
                     <div className="md:col-span-2"><InfoLabel info="The operator this boat belongs to. Used to group boats by fleet." example="FILU, NAUTIKA">Operator</InfoLabel><Select disabled={locks['general']} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
@@ -1418,7 +1432,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
             <div className="aspect-video relative">
               <img src={boat.image} alt={boat.name} className="w-full h-full object-cover" />
               <div className="absolute top-2 right-2 flex gap-2">
-                <Badge className="bg-white/90 text-slate-800">{boat.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</Badge>
+                <Badge className="bg-white/90 text-slate-800">{getLocationLabel(boat.location)}</Badge>
                 <Badge className={boat.boat_mode === 'rental_and_maintenance' ? 'bg-blue-500 text-white' : boat.boat_mode === 'rental_only' ? 'bg-green-500 text-white' : 'bg-slate-500 text-white'}>{boat.boat_mode === 'rental_and_maintenance' ? 'Rental + Maintenance' : boat.boat_mode === 'rental_only' ? 'Rental Only' : 'Maintenance Only'}</Badge>
               </div>
               {maintenanceOverdue && <Badge className="absolute top-2 left-2 bg-red-600 text-white animate-pulse">Maintenance OVERDUE</Badge>}
