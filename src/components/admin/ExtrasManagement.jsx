@@ -30,8 +30,6 @@ const emptyForm = {
   description: '',
   price: 0,
   allowed_operators: [],
-  visible: true,
-  sort_order: 0,
 };
 
 export default function ExtrasManagement({ allBoats = [], locationFilter = 'all' }) {
@@ -124,8 +122,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
       description: extra.description || '',
       price: extra.price ?? 0,
       allowed_operators: extra.allowed_operators || [],
-      visible: extra.visible ?? true,
-      sort_order: extra.sort_order ?? 0,
     });
     setOpen(true);
   };
@@ -208,14 +204,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                 </div>
               )}
 
-              <div>
-                <Label>Sort Order</Label>
-                <Input className="mt-1" type="number" value={form.sort_order} onChange={e => setForm(f => ({ ...f, sort_order: parseInt(e.target.value) || 0 }))} />
-              </div>
-              <div className="flex items-center gap-3">
-                <Switch checked={form.visible} onCheckedChange={v => setForm(f => ({ ...f, visible: v }))} />
-                <Label>Visible in booking flow</Label>
-              </div>
+
               <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending}>
                 {saveMutation.isPending ? 'Saving...' : editing ? 'Save Changes' : 'Create'}
               </Button>
