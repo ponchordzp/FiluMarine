@@ -123,23 +123,18 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     }));
   };
 
-  // Charter operators: ONLY show their own boats, others: apply location + operator filtering
-  const displayBoats = isChartOperator ? (() => {
-    // Charter operators: ONLY show boats that belong to their operator
-    return boats.filter(b => (b.operator || '').toLowerCase() === (currentUser?.operator || '').toLowerCase() && b.status !== 'inactive');
-  })() : (() => {
-    let boats_ = boats;
-    // Apply location filter if provided
-    if (locationFilter && locationFilter !== 'all') {
-      boats_ = boats_.filter(b => b.location === locationFilter && b.status !== 'inactive');
-    } else if (isUserRestricted && userOperatorLocation) {
-      boats_ = boats_.filter(b => b.location === userOperatorLocation && b.status !== 'inactive');
-    } else {
-      boats_ = boats_.filter(b => b.status !== 'inactive');
+  // For any user with an operator set (non-superadmin), always restrict to their operator's boats only
+  const displayBoats = (() => {
+    let boats_ = boats.filter(b => b.status !== 'inactive');
+    // Operator-scoped users: ALWAYS filter to their operator only
+    if (!isSuperAdmin && currentUser?.operator) {
+      boats_ = boats_.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
+    } else if (locationFilter && locationFilter !== 'all') {
+      boats_ = boats_.filter(b => b.location === locationFilter);
     }
     return boats_;
   })();
-  
+
   const boatNames = displayBoats.map(b => b.name);
 
   // Filter extras: show all extras
