@@ -36,7 +36,6 @@ import EngineDatabases from '@/components/admin/EngineDatabases';
 import JoinFiluApplications from '@/components/admin/JoinFiluApplications';
 import AffiliatesManagement from '@/components/admin/AffiliatesManagement';
 import MaintenanceFinancialDashboard from '@/components/admin/MaintenanceFinancialDashboard';
-import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
 
 const statusColors = {
@@ -597,13 +596,7 @@ function AdminBookingsInner() {
                 })()}
               </div>
 
-              {/* Trends Section */}
-              <div className="border-t border-white/10 pt-3">
-                <h4 className="text-[10px] font-semibold text-amber-300 uppercase tracking-wider mb-2 flex items-center gap-1">
-                  <LineChart className="h-3 w-3" /> Trends
-                </h4>
-                <FinancialTrendChart financialFilteredBookings={financialFilteredBookings} financialExpenses={financialExpenses} getOperatorCommission={getOperatorCommission} />
-              </div>
+
             </div>
           )}
         </div>

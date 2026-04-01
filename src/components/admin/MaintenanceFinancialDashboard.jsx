@@ -3,9 +3,8 @@ import { createPortal } from 'react-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { format, parseISO, differenceInDays } from 'date-fns';
-import { Wrench, DollarSign, AlertTriangle, Clock, ChevronDown, ChevronUp, Ship, Info, Lightbulb, TrendingUp, TrendingDown, BarChart2, CreditCard, Banknote, Receipt, Fuel, Percent, RefreshCw, Settings, CheckCircle2, XCircle, Phone, ListChecks, CalendarDays } from 'lucide-react';
+import { Wrench, DollarSign, AlertTriangle, Clock, ChevronDown, ChevronUp, Ship, Info, Lightbulb, TrendingUp, TrendingDown, BarChart2, CreditCard, Banknote, Receipt, Fuel, Percent, RefreshCw, Settings, CheckCircle2, XCircle, Phone, ListChecks, CalendarDays, Download } from 'lucide-react';
 import OperationalCalendar from './OperationalCalendar';
-import FinancialTrendChart from './FinancialTrendChart';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const fmt = (n) => `$${Number(n || 0).toLocaleString('es-MX')} MXN`;
@@ -851,6 +850,34 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
         <span className="text-xs text-white/30">{filteredBoats.length} boat{filteredBoats.length !== 1 ? 's' : ''} in view</span>
       </div>
 
+      {/* Export KPIs to CSV */}
+      {(() => {
+        const exportKPIsToCSV = () => {
+          const headers = ['Metric', 'Value'];
+          const rows = [
+            ['Fleet Revenue', `$${totals.revenue.toLocaleString('es-MX')}`],
+            ['Expenses (ex-fees)', `$${totals.expAmt.toLocaleString('es-MX')}`],
+            ['Fees', `$${totals.feesAmt.toLocaleString('es-MX')}`],
+            ['Gross Profit', `$${totals.grossProfit.toLocaleString('es-MX')}`],
+            ['Net Profit', `$${totals.netProfit.toLocaleString('es-MX')}`],
+            ['Maintenance Logged', `$${totals.maintenanceSpent.toLocaleString('es-MX')}`],
+            ['Avg Cost per Booking', `$${(totals.expAmt / Math.max(filteredBoats.reduce((s, b) => s + bookings.filter(x => x.boat_name === b.name && x.status !== 'cancelled').length, 0), 1)).toLocaleString('es-MX')}`],
+            ['Fuel Share', `${((totalFuelFleet / totals.expAmt) * 100).toFixed(1)}%`],
+            ['Expense Ratio', `${((totals.expAmt / totals.revenue) * 100).toFixed(1)}%`],
+            ['Recurring/year', `$${Math.round(totals.annualRecurring).toLocaleString('es-MX')}`],
+            ['Gross Margin %', `${(totals.revenue > 0 ? ((totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—')}%`],
+            ['Net Margin %', `${(totals.revenue > 0 ? ((totals.netProfit / totals.revenue) * 100).toFixed(1) : '—')}%`],
+          ];
+          const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url; a.download = `kpis_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+          URL.revokeObjectURL(url);
+        };
+        return <button onClick={exportKPIsToCSV} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-300 transition-colors" style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.25)' }}><Download className="h-3.5 w-3.5" /> Export KPIs</button>;
+      })()}
+
       {/* Fleet KPIs */}
       {(() => {
         const fleetGrossMargin = totals.revenue > 0 ? ((totals.grossProfit / totals.revenue) * 100).toFixed(1) : '—';
@@ -862,10 +889,11 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
         const avgCostPerBooking = totalActiveBookings > 0 ? totals.expAmt / totalActiveBookings : 0;
 
         const totalFuelFleet = filteredBoats.reduce((s, boat) => {
-          const bIds = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled').map(b => b.id);
-          return s + expenses.filter(e => bIds.includes(e.booking_id)).reduce((x, e) => x + (e.fuel_cost || 0), 0);
-        }, 0);
-        const fuelRatio = totals.expAmt > 0 ? ((totalFuelFleet / totals.expAmt) * 100).toFixed(1) : '—';
+           const bIds = bookings.filter(b => b.boat_name === boat.name && b.status !== 'cancelled').map(b => b.id);
+           return s + expenses.filter(e => bIds.includes(e.booking_id)).reduce((x, e) => x + (e.fuel_cost || 0), 0);
+         }, 0);
+         window.totalFuelFleet = totalFuelFleet; // Expose for CSV export
+         const fuelRatio = totals.expAmt > 0 ? ((totalFuelFleet / totals.expAmt) * 100).toFixed(1) : '—';
 
         const nextServiceBreakdown = filteredBoats.map(boat => {
           const qty = boat.engine_quantity || 1;
@@ -990,23 +1018,6 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
 
             {/* Smart Suggestions — collapsible */}
             <SmartSuggestions suggestions={suggestions} />
-
-            {/* Revenue vs Expenses Trend Chart */}
-            <FinancialTrendChart
-              filteredBookings={bookings.filter(b => {
-                if (operatorFilter !== 'all') {
-                  const boat = filteredBoats.find(boat => boat.name === b.boat_name);
-                  if (!boat || (boat.operator || '').toLowerCase() !== operatorFilter.toLowerCase()) return false;
-                }
-                if (locationFilter !== 'all') {
-                  const boat = filteredBoats.find(boat => boat.name === b.boat_name);
-                  if (!boat || (boat.location || '') !== locationFilter) return false;
-                }
-                return true;
-              })}
-              allExpenses={expenses}
-              getOperatorCommission={getOperatorCommission}
-            />
 
             {/* Next Service Budget — collapsible detailed breakdown */}
             <NextServiceBudgetPanel
