@@ -20,8 +20,18 @@ export default function BoatExtrasPanel({ boat, inline = false, formData, onChan
   // In inline mode, read from formData; otherwise read from boat
   const boatExtras = inline ? (formData?.boat_extras || []) : (boat?.boat_extras || []);
 
+  // Only show extras that belong to this boat's operator (match allowed_operators)
+  const boatOperator = (boat?.operator || formData?.operator || '').toLowerCase();
+  const operatorExtras = boatOperator
+    ? allExtras.filter(e => {
+        const allowed = e.allowed_operators || [];
+        if (allowed.length === 0) return true; // global extras visible to all
+        return allowed.some(o => o.toLowerCase() === boatOperator);
+      })
+    : allExtras;
+
   // Extras not yet added to this boat
-  const availableExtras = allExtras.filter(e => !boatExtras.some(be => be.extra_id === e.id));
+  const availableExtras = operatorExtras.filter(e => !boatExtras.some(be => be.extra_id === e.id));
 
   const saveMutation = useMutation({
     mutationFn: (updatedExtras) =>

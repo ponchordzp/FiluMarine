@@ -75,9 +75,19 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
   })() : null;
 
   const saveMutation = useMutation({
-    mutationFn: (data) => editing
-      ? base44.entities.Extra.update(editing.id, data)
-      : base44.entities.Extra.create(data),
+    mutationFn: (data) => {
+      // Non-superadmins always tag their extras with their own operator name
+      let saveData = { ...data };
+      if (!isSuperAdmin && currentUser?.operator) {
+        const op = currentUser.operator;
+        if (!saveData.allowed_operators.includes(op)) {
+          saveData.allowed_operators = [op];
+        }
+      }
+      return editing
+        ? base44.entities.Extra.update(editing.id, saveData)
+        : base44.entities.Extra.create(saveData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['extras'] });
       setOpen(false);
@@ -121,12 +131,11 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const allOperators = loadOperators();
 
-  // Filter extras: non-superadmin operators only see extras allowed for them (empty allowed_operators = visible to all)
+  // Operators strictly see only their own tagged extras; superadmin sees all
   const filteredExtras = extras.filter(extra => {
     if (isSuperAdmin) return true;
     if (!currentUser?.operator) return true;
     const allowed = extra.allowed_operators || [];
-    if (allowed.length === 0) return true;
     return allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
   });
 
