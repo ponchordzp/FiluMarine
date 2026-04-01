@@ -91,6 +91,7 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['booking-expense', booking?.id] });
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['booking-expenses'] });
       queryClient.invalidateQueries({ queryKey: ['boats'] });
       queryClient.invalidateQueries({ queryKey: ['expenses-stats'] });
       onClose();
@@ -105,8 +106,9 @@ export default function ExpenseDataEntry({ booking, isOpen, onClose }) {
     saveExpenseMutation.mutate(expenseData);
   };
 
-  const totalExpenses = ['fuel_cost','crew_cost','maintenance_cost','cleaning_cost','supplies_cost','fees_cost','other_cost']
-    .reduce((sum, key) => sum + (parseFloat(expenseData[key]) || 0), 0);
+  // Expenses (ex-fees) — matching dashboard logic exactly: fuel + crew + maintenance + cleaning + supplies + other
+  const totalExpenses = ['fuel_cost','crew_cost','maintenance_cost','cleaning_cost','supplies_cost','other_cost']
+   .reduce((sum, key) => sum + (parseFloat(expenseData[key]) || 0), 0);
 
   const revenue = booking?.total_price || 0;
   const profit = revenue - totalExpenses;
