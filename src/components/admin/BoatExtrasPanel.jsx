@@ -4,9 +4,11 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 
 // boat = boat record (for card mode), inline = true means controlled via formData/onChange (no direct DB save)
 export default function BoatExtrasPanel({ boat, inline = false, formData, onChange, disabled = false }) {
+  const { user: currentUser } = useAuth();
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
   const [selectedExtraId, setSelectedExtraId] = useState('');
@@ -20,15 +22,16 @@ export default function BoatExtrasPanel({ boat, inline = false, formData, onChan
   // In inline mode, read from formData; otherwise read from boat
   const boatExtras = inline ? (formData?.boat_extras || []) : (boat?.boat_extras || []);
 
-  // Strict operator isolation: only show extras explicitly tagged for this boat's operator OR global ones
-  const boatOperator = (boat?.operator || formData?.operator || '').toLowerCase();
-  const operatorExtras = boatOperator
-    ? allExtras.filter(e => {
+  // Fetch from the user's extras list located in the extras tab
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+  const operatorExtras = isSuperAdmin
+    ? allExtras
+    : allExtras.filter(e => {
+        const userOp = currentUser?.operator || 'FILU';
         const allowed = e.allowed_operators || [];
-        // Must have at least the boat's operator OR be global (empty allowed_operators)
-        return allowed.length === 0 || allowed.some(o => o.toLowerCase() === boatOperator);
-      })
-    : allExtras;
+        // Show extras that are either explicitly allowed for this operator, or global (empty allowed_operators)
+        return allowed.length === 0 || allowed.some(o => o.toLowerCase() === userOp.toLowerCase());
+      });
 
   // Extras not yet added to this boat
   const availableExtras = operatorExtras.filter(e => !boatExtras.some(be => be.extra_id === e.id));
