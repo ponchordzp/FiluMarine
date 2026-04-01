@@ -155,7 +155,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
   const toggleSection = (key) => setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
-  const { locks, toggle: toggleLock } = useSectionLocks(['general', 'expeditions', 'equipment', 'engine', 'checklist', 'maintenance', 'supplies', 'sellers', 'recurring']);
+  const { locks, toggle: toggleLock } = useSectionLocks(['general', 'expeditions', 'extras', 'equipment', 'engine', 'checklist', 'maintenance', 'supplies', 'sellers', 'recurring']);
   const [newCustomMaintenanceComponent, setNewCustomMaintenanceComponent] = useState({ name: '', interval: '', notes: '' });
   const [showCustomMaintenanceForm, setShowCustomMaintenanceForm] = useState(false);
 
@@ -163,6 +163,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const isEngineComplete = !!(formData.engine_config && formData.engine_name && formData.engine_quantity);
   const isMaintenanceComplete = !!(formData.last_service_date && formData.mechanic_name && formData.mechanic_phone);
   const isExpeditionsComplete = formData.available_expeditions?.length > 0;
+  const isExtrasComplete = (formData.boat_extras || []).length > 0;
   const isSellersComplete = !!(formData.owner_phone);
   const isEquipmentComplete = Object.values(formData.equipment || {}).some(Boolean) || (formData.custom_equipment || []).length > 0;
   const isSuppliesComplete = (formData.supplies_inventory || []).length > 0;
@@ -840,10 +841,29 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     operator={formData.operator || ''}
                     location={formData.location || ''}
                     disabled={locks['expeditions']}
+                    locks={locks}
+                    toggleLock={toggleLock}
+                    sectionKey="expeditions"
                   />
-                  <div className="mt-4">
-                    <BoatExtrasPanel boat={editingBoat} inline formData={formData} onChange={(boat_extras) => setFormData(prev => ({ ...prev, boat_extras }))} />
-                  </div>
+                </div>
+              )}
+
+              {/* ── SECTION 2b: Extras ── purple */}
+              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') && (
+                <div className="rounded-xl overflow-hidden border border-purple-200 mb-4">
+                  <button type="button" onClick={() => toggleSection('extras')} className="w-full bg-purple-600 px-5 py-3 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-white" />
+                    <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Extras / Add-ons</h3>
+                    {(() => { const n = (formData.boat_extras || []).length; return <><span className="text-xs text-white/80 mr-1">{n} extras</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: n > 0 ? '100%' : '0%' }} /></div></>; })()}
+                    <SectionLockButton sectionKey="extras" locks={locks} toggle={toggleLock} isComplete={isExtrasComplete} />
+                    {collapsedSections['extras'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                  </button>
+                  {!collapsedSections['extras'] && (
+                    <div className="bg-purple-50 p-4">
+                      {locks['extras'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5 mb-3"><span>Section locked — unlock to edit.</span></div>}
+                      <BoatExtrasPanel boat={editingBoat} inline formData={formData} onChange={(boat_extras) => setFormData(prev => ({ ...prev, boat_extras }))} disabled={locks['extras']} />
+                    </div>
+                  )}
                 </div>
               )}
 

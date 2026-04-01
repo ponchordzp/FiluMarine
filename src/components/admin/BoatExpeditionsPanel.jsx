@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Check, Fish, ChevronDown, ChevronUp, Clock, DollarSign, MapPin } from 'lucide-react';
+import { SectionLockButton } from './SectionLock';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
@@ -19,8 +20,13 @@ export default function BoatExpeditionsPanel({
   operator = '',
   location = '',
   disabled = false,
+  locks = {},
+  toggleLock = () => {},
+  sectionKey = 'expeditions',
 }) {
   const [expandedPickup, setExpandedPickup] = useState({});
+  const [collapsed, setCollapsed] = useState(false);
+  const isComplete = availableExpeditions.length > 0;
 
   const { data: allExpeditions = [] } = useQuery({
     queryKey: ['expeditions'],
@@ -71,13 +77,19 @@ export default function BoatExpeditionsPanel({
 
   return (
     <div className="rounded-xl border border-indigo-200 overflow-hidden">
-      <div className="bg-indigo-600 px-5 py-3 flex items-center gap-2">
+      <button type="button" onClick={() => setCollapsed(p => !p)} className="w-full bg-indigo-600 px-5 py-3 flex items-center gap-2">
         <Fish className="h-4 w-4 text-white" />
-        <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1">Available Expeditions</h3>
-        <span className="text-xs text-white/70">{availableExpeditions.length} selected</span>
-      </div>
+        <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Available Expeditions</h3>
+        <span className="text-xs text-white/80 mr-1">{availableExpeditions.length} selected</span>
+        <div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2">
+          <div className="h-full bg-white transition-all rounded-full" style={{ width: availableExpeditions.length > 0 ? '100%' : '0%' }} />
+        </div>
+        <SectionLockButton sectionKey={sectionKey} locks={locks} toggle={toggleLock} isComplete={isComplete} />
+        {collapsed ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+      </button>
 
-      <div className="bg-indigo-50 p-4 space-y-3">
+      {!collapsed && <div className="bg-indigo-50 p-4 space-y-3">
+        {disabled && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
         {/* Price per additional hour */}
         {onPricePerHourChange && (
           <div className="bg-white border border-indigo-200 rounded-lg p-3">
@@ -172,6 +184,7 @@ export default function BoatExpeditionsPanel({
                       <div>
                         <button
                           type="button"
+                          disabled={disabled}
                           onClick={() => setExpandedPickup(prev => ({ ...prev, [exp.expedition_id]: !prev[exp.expedition_id] }))}
                           className="flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-medium"
                         >
@@ -197,7 +210,7 @@ export default function BoatExpeditionsPanel({
             );
           })}
         </div>
-      </div>
+      </div>}
     </div>
   );
 }

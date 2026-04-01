@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 
 // boat = boat record (for card mode), inline = true means controlled via formData/onChange (no direct DB save)
-export default function BoatExtrasPanel({ boat, inline = false, formData, onChange }) {
+export default function BoatExtrasPanel({ boat, inline = false, formData, onChange, disabled = false }) {
   const queryClient = useQueryClient();
   const [expanded, setExpanded] = useState(false);
   const [selectedExtraId, setSelectedExtraId] = useState('');
@@ -65,6 +65,88 @@ export default function BoatExtrasPanel({ boat, inline = false, formData, onChan
     commit(updated);
   };
 
+  const extrasList = (
+    <>
+      {boatExtras.length === 0 && (
+        <p className="text-xs text-slate-400 italic">No extras added yet.</p>
+      )}
+      {boatExtras.map(be => (
+        <div key={be.extra_id} className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
+          <Sparkles className="h-3 w-3 text-purple-500 flex-shrink-0" />
+          <span className="text-sm font-medium text-slate-700 flex-1 truncate">{be.extra_name}</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-slate-500">$</span>
+            <Input
+              type="number"
+              min="0"
+              disabled={disabled}
+              value={be.price}
+              onChange={e => !disabled && updatePrice(be.extra_id, e.target.value)}
+              className="h-6 w-20 text-xs px-1"
+            />
+            <span className="text-xs text-slate-400">MXN</span>
+          </div>
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => !disabled && removeExtra(be.extra_id)}
+            className={`text-red-400 hover:text-red-600 flex-shrink-0 ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ))}
+      {availableExtras.length > 0 && !disabled && (
+        <div className="flex items-center gap-2 pt-1">
+          <select
+            value={selectedExtraId}
+            onChange={e => {
+              setSelectedExtraId(e.target.value);
+              const ex = allExtras.find(x => x.id === e.target.value);
+              setCustomPrice(ex?.price?.toString() || '0');
+            }}
+            className="flex-1 h-7 text-xs rounded-md border border-input bg-background px-2 focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option value="">Select extra...</option>
+            {availableExtras.map(e => (
+              <option key={e.id} value={e.id}>{e.name}</option>
+            ))}
+          </select>
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-slate-500">$</span>
+            <Input
+              type="number"
+              min="0"
+              value={customPrice}
+              onChange={e => setCustomPrice(e.target.value)}
+              placeholder="Price"
+              className="h-7 w-20 text-xs px-1"
+            />
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            onClick={addExtra}
+            disabled={!selectedExtraId || saveMutation.isPending}
+            className="h-7 text-xs bg-purple-600 hover:bg-purple-700 text-white px-2"
+          >
+            <Plus className="h-3 w-3" />
+          </Button>
+        </div>
+      )}
+    </>
+  );
+
+  // In inline (form) mode, render content directly without the card-style expand toggle
+  if (inline) {
+    return (
+      <div className="space-y-2">
+        {disabled && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700">Section locked — unlock to edit.</div>}
+        {extrasList}
+      </div>
+    );
+  }
+
   return (
     <div className="mt-3 pt-3 border-t">
       <button
@@ -81,73 +163,7 @@ export default function BoatExtrasPanel({ boat, inline = false, formData, onChan
 
       {expanded && (
         <div className="space-y-2">
-          {boatExtras.length === 0 && (
-            <p className="text-xs text-slate-400 italic">No extras added yet.</p>
-          )}
-          {boatExtras.map(be => (
-            <div key={be.extra_id} className="flex items-center gap-2 bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
-              <Sparkles className="h-3 w-3 text-purple-500 flex-shrink-0" />
-              <span className="text-sm font-medium text-slate-700 flex-1 truncate">{be.extra_name}</span>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-slate-500">$</span>
-                <Input
-                  type="number"
-                  min="0"
-                  value={be.price}
-                  onChange={e => updatePrice(be.extra_id, e.target.value)}
-                  onBlur={e => updatePrice(be.extra_id, e.target.value)}
-                  className="h-6 w-20 text-xs px-1"
-                />
-                <span className="text-xs text-slate-400">MXN</span>
-              </div>
-              <button
-                type="button"
-                onClick={() => removeExtra(be.extra_id)}
-                className="text-red-400 hover:text-red-600 flex-shrink-0"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          ))}
-
-          {availableExtras.length > 0 && (
-            <div className="flex items-center gap-2 pt-1">
-              <select
-                value={selectedExtraId}
-                onChange={e => {
-                  setSelectedExtraId(e.target.value);
-                  const ex = allExtras.find(x => x.id === e.target.value);
-                  setCustomPrice(ex?.price?.toString() || '0');
-                }}
-                className="flex-1 h-7 text-xs rounded-md border border-input bg-background px-2 focus:outline-none focus:ring-1 focus:ring-ring"
-              >
-                <option value="">Select extra...</option>
-                {availableExtras.map(e => (
-                  <option key={e.id} value={e.id}>{e.name}</option>
-                ))}
-              </select>
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-slate-500">$</span>
-                <Input
-                  type="number"
-                  min="0"
-                  value={customPrice}
-                  onChange={e => setCustomPrice(e.target.value)}
-                  placeholder="Price"
-                  className="h-7 w-20 text-xs px-1"
-                />
-              </div>
-              <Button
-                type="button"
-                size="sm"
-                onClick={addExtra}
-                disabled={!selectedExtraId || saveMutation.isPending}
-                className="h-7 text-xs bg-purple-600 hover:bg-purple-700 text-white px-2"
-              >
-                <Plus className="h-3 w-3" />
-              </Button>
-            </div>
-          )}
+          {extrasList}
         </div>
       )}
     </div>
