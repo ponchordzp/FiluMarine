@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { format, parseISO, startOfMonth, eachMonthOfInterval, subMonths } from 'date-fns';
+import { format, parseISO, startOfWeek, eachWeekOfInterval, subWeeks } from 'date-fns';
 import { ChevronDown, Download, Lightbulb } from 'lucide-react';
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -20,7 +20,7 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 function exportToExcel(data, filename) {
-  const headers = ['Month', 'Total', 'Confirmed', 'Completed', 'Pending', 'Cancelled'];
+  const headers = ['Week', 'Total', 'Confirmed', 'Completed', 'Pending', 'Cancelled'];
   const rows = data.map(d => [d.label, d.total, d.confirmed, d.completed, d.pending, d.cancelled]);
   const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -39,8 +39,8 @@ function BookingSuggestions({ chartData }) {
 
     if (last && prev && last.total > 0 && prev.total > 0) {
       const growthPct = ((last.total - prev.total) / prev.total) * 100;
-      if (growthPct > 20) tips.push({ type: 'success', text: `Bookings grew ${growthPct.toFixed(0)}% this month — strong demand!` });
-      else if (growthPct < -20) tips.push({ type: 'warning', text: `Bookings dropped ${Math.abs(growthPct).toFixed(0)}% vs last month. Boost marketing.` });
+      if (growthPct > 20) tips.push({ type: 'success', text: `Bookings grew ${growthPct.toFixed(0)}% this week — strong demand!` });
+      else if (growthPct < -20) tips.push({ type: 'warning', text: `Bookings dropped ${Math.abs(growthPct).toFixed(0)}% vs last week. Boost marketing.` });
     }
 
     const totalBookings = chartData.reduce((sum, d) => sum + d.total, 0);
@@ -51,10 +51,10 @@ function BookingSuggestions({ chartData }) {
       else tips.push({ type: 'success', text: `Low cancellation rate (${cancelRate.toFixed(0)}%) — solid booking quality.` });
     }
 
-    const bestMonth = chartData.reduce((best, d) => d.total > best.total ? d : best, chartData[0]);
-    if (bestMonth) tips.push({ type: 'info', text: `Busiest month: ${bestMonth.label} (${bestMonth.total} bookings)` });
+    const bestWeek = chartData.reduce((best, d) => d.total > best.total ? d : best, chartData[0]);
+    if (bestWeek) tips.push({ type: 'info', text: `Busiest week: ${bestWeek.label} (${bestWeek.total} bookings)` });
 
-    const avgCompletion = chartData.filter(d => d.total > 0).reduce((sum, d) => sum + d.completed / d.total, 0) / (chartData.filter(d => d.total > 0).length || 1);
+    const avgCompletion = chartData.filter(d => d.total > 0).reduce((sum, d) => sum + (d.total > 0 ? d.completed / d.total : 0), 0) / (chartData.filter(d => d.total > 0).length || 1);
     if (avgCompletion > 0) tips.push({ type: 'info', text: `Avg trip completion rate: ${(avgCompletion * 100).toFixed(0)}%` });
 
     return tips;
@@ -89,23 +89,27 @@ export default function BookingTrendChart({ bookingFilteredBookings }) {
   const chartData = useMemo(() => {
     if (!bookingFilteredBookings?.length) return [];
     const now = new Date();
-    const sixMonthsAgo = subMonths(startOfMonth(now), 5);
+    const threeMonthsAgo = subWeeks(startOfWeek(now, { weekStartsOn: 0 }), 12);
     const allDates = bookingFilteredBookings.filter(b => b.date).map(b => parseISO(b.date));
     if (!allDates.length) return [];
     const minDate = allDates.reduce((min, d) => d < min ? d : min, allDates[0]);
-    const rangeStart = minDate < sixMonthsAgo ? sixMonthsAgo : startOfMonth(minDate);
-    const months = eachMonthOfInterval({ start: rangeStart, end: now });
-    return months.map(monthStart => {
-      const monthKey = format(monthStart, 'yyyy-MM');
-      const label = format(monthStart, 'MMM yy');
-      const mb = bookingFilteredBookings.filter(b => b.date?.startsWith(monthKey));
+    const rangeStart = minDate < threeMonthsAgo ? threeMonthsAgo : startOfWeek(minDate, { weekStartsOn: 0 });
+    const weeks = eachWeekOfInterval({ start: rangeStart, end: now }, { weekStartsOn: 0 });
+    return weeks.map(weekStart => {
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+      const label = `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d')}`;
+      const wb = bookingFilteredBookings.filter(b => {
+        const bDate = parseISO(b.date);
+        return bDate >= weekStart && bDate <= weekEnd;
+      });
       return {
         label,
-        total: mb.length,
-        confirmed: mb.filter(b => b.status === 'confirmed').length,
-        completed: mb.filter(b => b.status === 'completed').length,
-        pending: mb.filter(b => b.status === 'pending').length,
-        cancelled: mb.filter(b => b.status === 'cancelled').length,
+        total: wb.length,
+        confirmed: wb.filter(b => b.status === 'confirmed').length,
+        completed: wb.filter(b => b.status === 'completed').length,
+        pending: wb.filter(b => b.status === 'pending').length,
+        cancelled: wb.filter(b => b.status === 'cancelled').length,
       };
     });
   }, [bookingFilteredBookings]);
