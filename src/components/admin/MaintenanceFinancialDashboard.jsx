@@ -993,7 +993,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
 
             {/* Revenue vs Expenses Trend Chart */}
             <FinancialTrendChart
-              financialFilteredBookings={bookings.filter(b => {
+              filteredBookings={bookings.filter(b => {
                 if (operatorFilter !== 'all') {
                   const boat = filteredBoats.find(boat => boat.name === b.boat_name);
                   if (!boat || (boat.operator || '').toLowerCase() !== operatorFilter.toLowerCase()) return false;
@@ -1004,7 +1004,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
                 }
                 return true;
               })}
-              financialExpenses={expenses}
+              allExpenses={expenses}
               getOperatorCommission={getOperatorCommission}
             />
 

@@ -94,30 +94,44 @@ function FinancialSuggestions({ chartData }) {
   );
 }
 
-export default function FinancialTrendChart({ financialFilteredBookings, financialExpenses, getOperatorCommission }) {
-   const [chartOpen, setChartOpen] = useState(true);
-   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
+export default function FinancialTrendChart({ filteredBookings, allExpenses, getOperatorCommission }) {
+  const [chartOpen, setChartOpen] = useState(true);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(true);
 
-   const chartData = useMemo(() => {
-     if (!financialFilteredBookings?.length) return [];
-     const now = new Date();
-     const sixMonthsAgo = subMonths(startOfMonth(now), 5);
-     const allDates = financialFilteredBookings.filter(b => b.status !== 'cancelled' && b.date).map(b => parseISO(b.date));
-     if (!allDates.length) return [];
-     const minDate = allDates.reduce((min, d) => d < min ? d : min, allDates[0]);
-     const rangeStart = minDate < sixMonthsAgo ? sixMonthsAgo : startOfMonth(minDate);
-     const months = eachMonthOfInterval({ start: rangeStart, end: now });
-     return months.map(monthStart => {
-       const monthKey = format(monthStart, 'yyyy-MM');
-       const label = format(monthStart, 'MMM yy');
-       const monthBookings = financialFilteredBookings.filter(b => b.status !== 'cancelled' && b.date?.startsWith(monthKey));
-       const revenue = monthBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
-       // Use EXACTLY same expense calculation as KPI: only sum fuel+crew+maintenance+cleaning+supplies+other (exclude fees_cost)
-       const monthExpenses = financialExpenses.filter(exp => monthBookings.some(b => b.id === exp.booking_id)).reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
-       const fees = monthBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
-       return { label, revenue, expenses: monthExpenses, fees };
-     });
-   }, [financialFilteredBookings, financialExpenses, getOperatorCommission]);
+  const chartData = useMemo(() => {
+    if (!filteredBookings?.length) return [];
+    
+    const now = new Date();
+    const sixMonthsAgo = subMonths(startOfMonth(now), 5);
+    const allDates = filteredBookings.filter(b => b.status !== 'cancelled' && b.date).map(b => parseISO(b.date));
+    if (!allDates.length) return [];
+    
+    const minDate = allDates.reduce((min, d) => d < min ? d : min, allDates[0]);
+    const rangeStart = minDate < sixMonthsAgo ? sixMonthsAgo : startOfMonth(minDate);
+    const months = eachMonthOfInterval({ start: rangeStart, end: now });
+    
+    return months.map(monthStart => {
+      const monthKey = format(monthStart, 'yyyy-MM');
+      const label = format(monthStart, 'MMM yy');
+      
+      // Get bookings for this month
+      const monthBookings = filteredBookings.filter(b => b.status !== 'cancelled' && b.date?.startsWith(monthKey));
+      const bookingIds = monthBookings.map(b => b.id);
+      
+      // Revenue from these bookings
+      const revenue = monthBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+      
+      // Expenses: ONLY sum BookingExpense records for these specific bookings
+      const monthExpenses = allExpenses
+        .filter(exp => bookingIds.includes(exp.booking_id))
+        .reduce((sum, e) => sum + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
+      
+      // Fees from these bookings
+      const fees = monthBookings.reduce((sum, b) => sum + (b.total_price || 0) * getOperatorCommission(b.boat_name) / 100, 0);
+      
+      return { label, revenue, expenses: monthExpenses, fees };
+    });
+  }, [filteredBookings, allExpenses, getOperatorCommission]);
 
   return (
     <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid rgba(16,185,129,0.15)' }}>
