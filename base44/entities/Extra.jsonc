@@ -10,6 +10,10 @@
       "type": "string",
       "description": "Short description shown to guests"
     },
+    "image": {
+      "type": "string",
+      "description": "Image URL for the extra"
+    },
     "price": {
       "type": "number",
       "default": 0,

@@ -9,6 +9,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from 'lucide-react';
 
+import { ImagePlus, Loader2 } from 'lucide-react';
+
 export default function ExtraForm({ allOperators = [], onSuccess }) {
   const { user: currentUser } = useAuth();
   const isSuperAdmin = currentUser?.role === 'superadmin';
@@ -16,9 +18,25 @@ export default function ExtraForm({ allOperators = [], onSuccess }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState(0);
   const [tag, setTag] = useState('');
-  const [selectedOperator, setSelectedOperator] = useState('');
+  const [selectedOperator, setSelectedOperator] = useState(isSuperAdmin ? '' : (currentUser?.operator || ''));
+  const [image, setImage] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploading(true);
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setImage(file_url);
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Image upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
@@ -31,14 +49,14 @@ export default function ExtraForm({ allOperators = [], onSuccess }) {
       let saveData = {
         name: data.name.trim(),
         description: data.description.trim(),
-        price: parseFloat(data.price) || 0,
+        image: data.image,
         operator_tag: data.tag.trim(),
         visible: true,
         sort_order: 0,
+        allowed_operators: data.operator ? [data.operator] : [] // Explicitly set the operator for everyone (either superadmin choice, or the user's operator)
       };
-      if (isSuperAdmin && data.operator) {
-        saveData.allowed_operators = [data.operator];
-      }
+      // Explicitly remove price since we no longer track it on the Extra entity itself
+
       return base44.entities.Extra.create(saveData);
     },
     onSuccess: () => {
@@ -46,7 +64,7 @@ export default function ExtraForm({ allOperators = [], onSuccess }) {
       setOpen(false);
       setName('');
       setDescription('');
-      setPrice(0);
+      setImage('');
       setTag('');
       if (onSuccess) onSuccess();
     },
@@ -61,7 +79,8 @@ export default function ExtraForm({ allOperators = [], onSuccess }) {
       alert('Please enter a name');
       return;
     }
-    saveMutation.mutate({ name, description, price, tag, operator: selectedOperator });
+    const finalOp = isSuperAdmin ? selectedOperator : (currentUser?.operator || 'FILU');
+    saveMutation.mutate({ name, description, image, tag, operator: finalOp });
   };
 
   const handleOpenChange = (newOpen) => {
@@ -69,9 +88,9 @@ export default function ExtraForm({ allOperators = [], onSuccess }) {
     if (!newOpen) {
       setName('');
       setDescription('');
-      setPrice(0);
+      setImage('');
       setTag('');
-      setSelectedOperator('');
+      setSelectedOperator(isSuperAdmin ? '' : (currentUser?.operator || ''));
     }
   };
 
@@ -140,17 +159,40 @@ export default function ExtraForm({ allOperators = [], onSuccess }) {
               disabled={saveMutation.isPending}
             />
           </div>
-
+          
           <div>
-            <Label>Price (MXN)</Label>
-            <Input
-              type="number"
-              min="0"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="mt-1"
-              disabled={saveMutation.isPending}
-            />
+            <Label>Image</Label>
+            <div className="mt-1 border-2 border-dashed border-input rounded-xl p-4 flex flex-col items-center justify-center relative hover:bg-muted/50 transition-colors">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                disabled={isUploading || saveMutation.isPending}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+              {isUploading ? (
+                <div className="flex flex-col items-center py-4">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary mb-2" />
+                  <p className="text-sm text-muted-foreground">Uploading...</p>
+                </div>
+              ) : image ? (
+                <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden group">
+                  <img src={image} alt="Extra" className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ImagePlus className="h-6 w-6 text-white mb-2" />
+                    <p className="text-sm font-medium text-white">Click to change</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center py-6 text-center px-4">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <ImagePlus className="h-5 w-5 text-primary" />
+                  </div>
+                  <p className="font-medium text-sm">Click or drag image to upload</p>
+                  <p className="text-xs text-muted-foreground mt-1">PNG, JPG, WebP up to 5MB</p>
+                </div>
+              )}
+            </div>
           </div>
 
           <Button
