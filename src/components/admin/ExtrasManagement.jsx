@@ -142,18 +142,24 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const allOperators = loadOperators();
 
-  // For any user with an operator set (non-superadmin), always restrict to their operator's boats only
+  // Build list of active boats, filtered by operator for non-superadmin
   const displayBoats = (() => {
     let boats_ = boats.filter(b => b.status !== 'inactive');
     if (!isSuperAdmin && currentUser?.operator) {
       boats_ = boats_.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
-    } else if (locationFilter && locationFilter !== 'all') {
-      boats_ = boats_.filter(b => b.location === locationFilter);
     }
     return boats_;
   })();
 
   const boatNames = displayBoats.map(b => b.name);
+
+  // Group boats by operator (for superadmin grouped display)
+  const boatsByOperator = displayBoats.reduce((acc, boat) => {
+    const op = boat.operator || 'No Operator';
+    if (!acc[op]) acc[op] = [];
+    acc[op].push(boat.name);
+    return acc;
+  }, {});
 
   // Filter extras: non-superadmin operators only see extras allowed for them (empty allowed_operators = visible to all)
   const filteredExtras = extras.filter(extra => {
@@ -197,17 +203,32 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
               <div>
                 <Label className="mb-2 block">Applicable Boats <span className="text-slate-400 font-normal">(empty = all boats)</span></Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {boatNames.map(name => (
-                    <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
-                      <Checkbox
-                        checked={form.applicable_boats.includes(name)}
-                        onCheckedChange={() => toggleBoat(name)}
-                      />
-                      {name}
-                    </label>
-                  ))}
-                </div>
+                {isSuperAdmin ? (
+                  <div className="space-y-3">
+                    {Object.entries(boatsByOperator).map(([opName, opBoats]) => (
+                      <div key={opName}>
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">{opName}</p>
+                        <div className="grid grid-cols-2 gap-2 pl-2">
+                          {opBoats.map(name => (
+                            <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
+                              <Checkbox checked={form.applicable_boats.includes(name)} onCheckedChange={() => toggleBoat(name)} />
+                              {name}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    {boatNames.map(name => (
+                      <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
+                        <Checkbox checked={form.applicable_boats.includes(name)} onCheckedChange={() => toggleBoat(name)} />
+                        {name}
+                      </label>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {isSuperAdmin && (

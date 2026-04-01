@@ -18,9 +18,22 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
     queryFn: () => base44.entities.Extra.list('sort_order'),
   });
 
-  // Filter extras: visible + applicable to this boat + applicable to this trip type
+  const { data: boats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
+  // Find the operator of the selected boat
+  const selectedBoat = boats.find(b => b.name === boatName);
+  const boatOperator = selectedBoat?.operator || null;
+
+  // Filter extras: visible + operator match + applicable to this boat + applicable to this trip type
   const addOnOptions = allExtras.filter(extra => {
     if (!extra.visible) return false;
+    // Operator visibility: if allowed_operators is set, only show if boat's operator is in the list
+    if (extra.allowed_operators?.length > 0 && boatOperator) {
+      if (!extra.allowed_operators.some(o => o.toLowerCase() === boatOperator.toLowerCase())) return false;
+    }
     if (extra.applicable_boats?.length > 0 && boatName && !extra.applicable_boats.includes(boatName)) return false;
     if (extra.applicable_trips?.length > 0 && experienceId && !extra.applicable_trips.includes(experienceId)) return false;
     return true;
