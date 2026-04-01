@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Edit, Trash2, Eye, EyeOff, Shield, Anchor, Users, CheckCircle, XCircle, Key, Building2, Settings, Mail } from 'lucide-react';
 import RolePermissionsManager from './RolePermissionsManager';
+import UserFilterSelector from './UserFilterSelector';
 import { format, parseISO } from 'date-fns';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
@@ -310,7 +311,6 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                         <p className="font-semibold text-slate-800">{user.full_name || user.username}</p>
                         <Badge className={cfg.color || 'bg-slate-100 text-slate-800'}>{cfg.label || user.role}</Badge>
                         {user.is_active === false && <Badge className="bg-slate-100 text-slate-600">Inactive</Badge>}
-                        {/* Operator badge */}
                         {opForUser &&
                       <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${opForUser.color}22`, border: `1px solid ${opForUser.color}55`, color: opForUser.color }}>
                             {opForUser.name}
@@ -323,7 +323,6 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                          {user.assigned_boat && <p className="text-xs text-blue-600 font-medium flex items-center gap-1"><Anchor className="h-3 w-3" /> {user.assigned_boat}</p>}
                          {user.last_login && <p className="text-xs text-slate-400">Last login: {format(parseISO(user.last_login), 'MMM d, yyyy')}</p>}
                        </div>
-
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <Button variant="ghost" size="sm" onClick={() => toggleActive(user)} title={user.is_active === false ? 'Activate' : 'Deactivate'} className={user.is_active === false ? 'text-slate-400 hover:text-emerald-600' : 'text-emerald-600 hover:text-slate-400'}>
@@ -334,11 +333,14 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                       <Button variant="ghost" size="sm" onClick={() => {if (window.confirm(`Delete user "${user.username}"?`)) deleteMutation.mutate(user.id);}} className="text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </div>
+                  {isSuperAdmin && (
+                    <UserFilterSelector userId={user.id} username={user.username} />
+                  )}
                 </CardContent>
               </Card>);
 
-        })
-        }
+          })
+          }
       </div>
 
       {/* Create/Edit Dialog */}

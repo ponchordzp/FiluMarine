@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { loadOperatorFilterAccess, DEFAULT_PERMISSIONS_EXPORT } from '@/components/admin/RolePermissionsManager';
+import { loadUserFilterPerms } from '@/components/admin/UserFilterSelector';
 
 const PERMISSIONS_KEY = 'filu_role_permissions';
 
@@ -163,7 +164,8 @@ function loadOperators() {
   return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
 }
 
-export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
+export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, currentUserId, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
+  const filterPerms = currentUserId ? loadUserFilterPerms(currentUserId) : { operator_filter: true, location_filter: true };
   const allOperators = loadOperators();
   const { data: dbLocations = [] } = useQuery({
     queryKey: ['locations'],
@@ -212,6 +214,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
         <FamilyGroup key={family.id} family={family} />
       ))}
 
+      {filterPerms.operator_filter && (
       <div className="flex items-center gap-2 mt-1">
         <span className="text-xs text-white/40 flex items-center gap-1">
           <Ship className="h-3 w-3" /> Filter by Operator:
@@ -237,8 +240,9 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
           ))}
         </div>
       </div>
+      )}
 
-      {onLocationFilterChange && (
+      {onLocationFilterChange && filterPerms.location_filter && (
         <div className="flex items-center gap-2">
           <span className="text-xs text-white/40 flex items-center gap-1">
             <MapPin className="h-3 w-3" /> Filter by Location:
