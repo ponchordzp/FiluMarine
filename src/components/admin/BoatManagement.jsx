@@ -761,32 +761,6 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <DialogTitle className="text-xl">{editingBoat ? `Editing: ${editingBoat.name}` : 'Add New Boat'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-0">
-              {/* Two-panel layout: left = Expeditions & Extras, right = all other sections */}
-              <div className="flex gap-4 items-start">
-
-              {/* ── LEFT PANEL: Expeditions & Extras ── */}
-              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') && (
-                <div className="w-80 flex-shrink-0 space-y-4">
-                  <div className="sticky top-0">
-                    <div className="flex items-center gap-2 mb-3 pb-2 border-b border-indigo-200">
-                      <Fish className="h-4 w-4 text-indigo-600" />
-                      <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Expeditions &amp; Extras</h3>
-                    </div>
-                    <BoatExpeditionsPanel
-                      availableExpeditions={formData.available_expeditions || []}
-                      onChange={(exps) => setFormData(prev => ({ ...prev, available_expeditions: exps }))}
-                      operator={formData.operator || ''}
-                    />
-                    <div className="mt-4">
-                      <BoatExtrasPanel boat={editingBoat} inline formData={formData} onChange={(boat_extras) => setFormData(prev => ({ ...prev, boat_extras }))} />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* ── RIGHT PANEL: All existing sections ── */}
-              <div className="flex-1 min-w-0">
-
               {/* ── SECTION 1: General Info ── sky blue */}
               <div className="rounded-xl overflow-hidden border border-sky-200 mb-4">
                 <button type="button" onClick={() => toggleSection('general')} className="w-full bg-sky-600 px-5 py-3 flex items-center gap-2">
@@ -851,43 +825,27 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 </div>}
               </div>
 
-              {formData.available_expeditions?.length > 0 &&
-              <div className="rounded-xl overflow-hidden border border-indigo-200 mb-4">
-                <button type="button" onClick={() => toggleSection('expeditions')} className="w-full bg-indigo-600 px-5 py-3 flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-white" />
-                  <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Expeditions &amp; Pricing</h3>
-                  <span className="text-xs text-white/70 mr-1">{formData.available_expeditions.length} expeditions</span>
-                  <SectionLockButton sectionKey="expeditions" locks={locks} toggle={toggleLock} isComplete={isExpeditionsComplete} />
-                  {collapsedSections['expeditions'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
-                </button>
-                {!collapsedSections['expeditions'] && <div className="bg-indigo-50 p-5 space-y-4">
-                  {locks['expeditions'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5"><span>Section locked — unlock to edit.</span></div>}
-                  <div>
-                    <InfoLabel info="Cost charged for every additional hour beyond the scheduled expedition duration." example="2500">Price Per Additional Hour (MXN)</InfoLabel>
-                    <Input type="number" min="0" disabled={locks['expeditions']} value={formData.price_per_additional_hour || 0} onChange={(e) => setFormData({ ...formData, price_per_additional_hour: parseFloat(e.target.value) || 0 })} placeholder="e.g., 2500" className="text-sm mt-1" />
+              {/* ── SECTION 2: Available Expeditions (with inline pricing) ── */}
+              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') && (
+                <div className="mb-4">
+                  <BoatExpeditionsPanel
+                    availableExpeditions={formData.available_expeditions || []}
+                    onChange={(exps) => setFormData(prev => ({ ...prev, available_expeditions: exps }))}
+                    expeditionPricing={formData.expedition_pricing || []}
+                    onPricingChange={(pricing) => setFormData(prev => ({ ...prev, expedition_pricing: pricing }))}
+                    pricePerAdditionalHour={formData.price_per_additional_hour || 0}
+                    onPricePerHourChange={(val) => setFormData(prev => ({ ...prev, price_per_additional_hour: val }))}
+                    expeditionPickupDepartures={expeditionPickupDepartures}
+                    onPickupDepartureChange={setExpeditionPickupDepartures}
+                    operator={formData.operator || ''}
+                    location={formData.location || ''}
+                    disabled={locks['expeditions']}
+                  />
+                  <div className="mt-4">
+                    <BoatExtrasPanel boat={editingBoat} inline formData={formData} onChange={(boat_extras) => setFormData(prev => ({ ...prev, boat_extras }))} />
                   </div>
-                  <div className="space-y-3">
-                    {formData.available_expeditions.map((exp) => {
-                      const pricing = formData.expedition_pricing.find((p) => p.expedition_type === exp);
-                      return (
-                        <div key={exp} className="p-4 rounded-lg border-2 border-indigo-400 bg-white shadow-sm">
-                          <p className="text-sm font-semibold capitalize text-indigo-900 mb-3">{exp.replace(/_/g, ' ')}</p>
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-2 gap-3">
-                              <div><InfoLabel className="text-xs" info="Scheduled duration of this expedition in hours." example="4">Duration (hours)</InfoLabel><Input type="number" min="0" step="0.5" disabled={locks['expeditions']} value={pricing?.duration_hours || ''} onChange={(e) => updateExpeditionPrice(exp, 'duration_hours', e.target.value)} placeholder="e.g., 4" className="text-sm" /></div>
-                              <div><InfoLabel className="text-xs" info="Base price in Mexican Pesos (MXN) for this expedition on this boat." example="8000">Price (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['expeditions']} value={pricing?.price_mxn || ''} onChange={(e) => updateExpeditionPrice(exp, 'price_mxn', e.target.value)} placeholder="e.g., 8000" className="text-sm" /></div>
-                            </div>
-                            <div>
-                              <Label className="text-xs font-semibold mb-2 block">Pickup Locations &amp; Departure Times</Label>
-                              <PickupAndDeparture pickupAndDepartures={expeditionPickupDepartures[exp] || []} onUpdate={(items) => setExpeditionPickupDepartures({ ...expeditionPickupDepartures, [exp]: items })} expeditionType={exp} location={formData.location} />
-                            </div>
-                          </div>
-                        </div>);
-                    })}
-                  </div>
-                </div>}
-              </div>
-              }
+                </div>
+              )}
 
               {/* ── SECTION 3: Equipment ── teal */}
               {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') &&
@@ -1406,8 +1364,6 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending || uploading}>{uploading ? 'Uploading Image...' : editingBoat ? 'Update Boat' : 'Create Boat'}</Button>
                 <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
               </div>
-              </div>{/* end right panel */}
-              </div>{/* end two-panel flex */}
             </form>
           </DialogContent>
         </Dialog>
