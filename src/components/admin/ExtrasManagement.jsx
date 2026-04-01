@@ -10,6 +10,12 @@ import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Pencil, Trash2, Sparkles } from 'lucide-react';
 
+const OPERATOR_STORAGE_KEY = 'filu_operators';
+function loadOperators() {
+  try { const raw = localStorage.getItem(OPERATOR_STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
+  return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
+}
+
 const EXPERIENCE_TYPES = [
   { value: 'half_day_fishing', label: 'Half Day Fishing' },
   { value: 'full_day_fishing', label: 'Full Day Fishing' },
