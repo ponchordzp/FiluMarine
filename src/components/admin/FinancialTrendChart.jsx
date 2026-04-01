@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { format, parseISO, startOfWeek, eachWeekOfInterval, subWeeks } from 'date-fns';
+import { format, parseISO, startOfWeek, eachWeekOfInterval, subWeeks, subDays, subMonths, subYears, addMonths, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
 import { ChevronDown, Download, Lightbulb } from 'lucide-react';
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -39,8 +39,8 @@ function FinancialSuggestions({ chartData }) {
 
     if (last && prev && last.revenue > 0 && prev.revenue > 0) {
       const revGrowth = ((last.revenue - prev.revenue) / prev.revenue) * 100;
-      if (revGrowth > 20) tips.push({ type: 'success', text: `Revenue grew ${revGrowth.toFixed(0)}% this week — excellent performance!` });
-      else if (revGrowth < -20) tips.push({ type: 'warning', text: `Revenue dropped ${Math.abs(revGrowth).toFixed(0)}% vs last week. Review pricing.` });
+      if (revGrowth > 20) tips.push({ type: 'success', text: `Revenue grew ${revGrowth.toFixed(0)}% in the latest period — excellent performance!` });
+      else if (revGrowth < -20) tips.push({ type: 'warning', text: `Revenue dropped ${Math.abs(revGrowth).toFixed(0)}% vs previous period. Review pricing.` });
     }
 
     const totalRevenue = chartData.reduce((sum, d) => sum + d.revenue, 0);
@@ -53,8 +53,8 @@ function FinancialSuggestions({ chartData }) {
       else if (profitMargin < 10) tips.push({ type: 'warning', text: `Profit margin is ${profitMargin.toFixed(0)}%. Review expense control.` });
     }
 
-    const bestWeek = chartData.reduce((best, d) => d.netProfit > best.netProfit ? d : best, chartData[0]);
-    if (bestWeek) tips.push({ type: 'info', text: `Most profitable week: ${bestWeek.label} ($${bestWeek.netProfit.toLocaleString('es-MX')} MXN)` });
+    const bestPeriod = chartData.reduce((best, d) => d.netProfit > best.netProfit ? d : best, chartData[0]);
+    if (bestPeriod) tips.push({ type: 'info', text: `Most profitable period: ${bestPeriod.label} ($${bestPeriod.netProfit.toLocaleString('es-MX')} MXN)` });
 
     return tips;
   }, [chartData]);
@@ -84,25 +84,77 @@ function FinancialSuggestions({ chartData }) {
 export default function FinancialTrendChart({ financialFilteredBookings, expenses, getOperatorCommission, allBoats }) {
   const [chartOpen, setChartOpen] = useState(true);
   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
+  const [timeRange, setTimeRange] = useState('3M');
 
   const chartData = useMemo(() => {
     if (!financialFilteredBookings?.length) return [];
     const now = new Date();
-    const threeMonthsAgo = subWeeks(startOfWeek(now, { weekStartsOn: 0 }), 12);
-    const allDates = financialFilteredBookings.filter(b => b.date).map(b => parseISO(b.date));
-    if (!allDates.length) return [];
-    const minDate = allDates.reduce((min, d) => d < min ? d : min, allDates[0]);
-    const rangeStart = minDate < threeMonthsAgo ? threeMonthsAgo : startOfWeek(minDate, { weekStartsOn: 0 });
-    const weeks = eachWeekOfInterval({ start: rangeStart, end: now }, { weekStartsOn: 0 });
+    // X-axis displays one month into the future
+    const futureEnd = addMonths(now, 1);
+
+    let rangeStart;
+    let intervalType = 'week';
+
+    switch (timeRange) {
+      case '7D':
+        rangeStart = subDays(now, 7);
+        intervalType = 'day';
+        break;
+      case '1M':
+        rangeStart = subMonths(now, 1);
+        intervalType = 'day';
+        break;
+      case '3M':
+        rangeStart = subMonths(now, 3);
+        intervalType = 'week';
+        break;
+      case '1Y':
+        rangeStart = subYears(now, 1);
+        intervalType = 'month';
+        break;
+      case '5Y':
+        rangeStart = subYears(now, 5);
+        intervalType = 'month';
+        break;
+      default:
+        rangeStart = subMonths(now, 3);
+        intervalType = 'week';
+    }
+
+    let intervals = [];
+    try {
+      if (intervalType === 'day') {
+        intervals = eachDayOfInterval({ start: rangeStart, end: futureEnd });
+      } else if (intervalType === 'week') {
+        intervals = eachWeekOfInterval({ start: startOfWeek(rangeStart, { weekStartsOn: 0 }), end: futureEnd }, { weekStartsOn: 0 });
+      } else if (intervalType === 'month') {
+        intervals = eachMonthOfInterval({ start: rangeStart, end: futureEnd });
+      }
+    } catch (e) {
+      return [];
+    }
     
-    return weeks.map(weekStart => {
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      const label = `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d')}`;
+    return intervals.map(start => {
+      let end = new Date(start);
+      let label = '';
+      if (intervalType === 'day') {
+        end.setDate(start.getDate() + 1);
+        end.setMilliseconds(end.getMilliseconds() - 1);
+        label = format(start, 'MMM d');
+      } else if (intervalType === 'week') {
+        end.setDate(start.getDate() + 7);
+        end.setMilliseconds(end.getMilliseconds() - 1);
+        label = `${format(start, 'MMM d')} - ${format(end, 'MMM d')}`;
+      } else if (intervalType === 'month') {
+        end.setMonth(start.getMonth() + 1);
+        end.setMilliseconds(end.getMilliseconds() - 1);
+        label = format(start, 'MMM yyyy');
+      }
       
       const wb = financialFilteredBookings.filter(b => {
+        if (!b.date) return false;
         const bDate = parseISO(b.date);
-        return bDate >= weekStart && bDate <= weekEnd && b.status !== 'cancelled';
+        return bDate >= start && bDate <= end && b.status !== 'cancelled';
       });
       
       const revenue = wb.reduce((s, b) => s + (b.total_price || 0), 0);
@@ -123,18 +175,39 @@ export default function FinancialTrendChart({ financialFilteredBookings, expense
         netProfit,
       };
     });
-  }, [financialFilteredBookings, expenses, getOperatorCommission, allBoats]);
+  }, [financialFilteredBookings, expenses, getOperatorCommission, allBoats, timeRange]);
+
+  const ranges = [
+    { label: '7D', value: '7D' },
+    { label: '1M', value: '1M' },
+    { label: '3M', value: '3M' },
+    { label: '1Y', value: '1Y' },
+    { label: '5Y', value: '5Y' },
+  ];
 
   return (
     <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid rgba(245,158,11,0.15)' }}>
       {/* Chart section */}
       <div>
-        <button onClick={() => setChartOpen(v => !v)} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity mb-2">
-          <div className="flex items-center gap-2">
+        <div className="w-full flex items-center justify-between mb-2">
+          <button onClick={() => setChartOpen(v => !v)} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <span className="text-xs">📈</span>
             <span className="text-xs font-semibold text-amber-300 uppercase tracking-wider">Financial Trends Over Time</span>
-          </div>
+            <ChevronDown className={`h-3.5 w-3.5 text-amber-300/60 transition-transform ${chartOpen ? '' : '-rotate-90'}`} />
+          </button>
+          
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+              {ranges.map(r => (
+                <button
+                  key={r.value}
+                  onClick={(e) => { e.stopPropagation(); setTimeRange(r.value); setChartOpen(true); }}
+                  className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${timeRange === r.value ? 'bg-amber-500/20 text-amber-300' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
             {chartData.length > 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); exportToExcel(chartData, 'financial_trend.csv'); }}
@@ -144,9 +217,8 @@ export default function FinancialTrendChart({ financialFilteredBookings, expense
                 <Download className="h-3 w-3" /> Export CSV
               </button>
             )}
-            <ChevronDown className={`h-3.5 w-3.5 text-amber-300/60 transition-transform ${chartOpen ? '' : '-rotate-90'}`} />
           </div>
-        </button>
+        </div>
         {chartOpen && (
           chartData.length === 0 || chartData.every(d => d.revenue === 0)
             ? <div className="flex items-center justify-center h-32 text-white/30 text-sm">No financial data available for the selected period</div>

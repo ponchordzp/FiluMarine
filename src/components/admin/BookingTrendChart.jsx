@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { format, parseISO, startOfWeek, eachWeekOfInterval, subWeeks } from 'date-fns';
+import { format, parseISO, startOfWeek, eachWeekOfInterval, subWeeks, subDays, subMonths, subYears, addMonths, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
 import { ChevronDown, Download, Lightbulb } from 'lucide-react';
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -39,8 +39,8 @@ function BookingSuggestions({ chartData }) {
 
     if (last && prev && last.total > 0 && prev.total > 0) {
       const growthPct = ((last.total - prev.total) / prev.total) * 100;
-      if (growthPct > 20) tips.push({ type: 'success', text: `Bookings grew ${growthPct.toFixed(0)}% this week — strong demand!` });
-      else if (growthPct < -20) tips.push({ type: 'warning', text: `Bookings dropped ${Math.abs(growthPct).toFixed(0)}% vs last week. Boost marketing.` });
+      if (growthPct > 20) tips.push({ type: 'success', text: `Bookings grew ${growthPct.toFixed(0)}% in the latest period — strong demand!` });
+      else if (growthPct < -20) tips.push({ type: 'warning', text: `Bookings dropped ${Math.abs(growthPct).toFixed(0)}% vs previous period. Boost marketing.` });
     }
 
     const totalBookings = chartData.reduce((sum, d) => sum + d.total, 0);
@@ -51,8 +51,8 @@ function BookingSuggestions({ chartData }) {
       else tips.push({ type: 'success', text: `Low cancellation rate (${cancelRate.toFixed(0)}%) — solid booking quality.` });
     }
 
-    const bestWeek = chartData.reduce((best, d) => d.total > best.total ? d : best, chartData[0]);
-    if (bestWeek) tips.push({ type: 'info', text: `Busiest week: ${bestWeek.label} (${bestWeek.total} bookings)` });
+    const bestPeriod = chartData.reduce((best, d) => d.total > best.total ? d : best, chartData[0]);
+    if (bestPeriod) tips.push({ type: 'info', text: `Busiest period: ${bestPeriod.label} (${bestPeriod.total} bookings)` });
 
     const avgCompletion = chartData.filter(d => d.total > 0).reduce((sum, d) => sum + (d.total > 0 ? d.completed / d.total : 0), 0) / (chartData.filter(d => d.total > 0).length || 1);
     if (avgCompletion > 0) tips.push({ type: 'info', text: `Avg trip completion rate: ${(avgCompletion * 100).toFixed(0)}%` });
@@ -85,24 +85,79 @@ function BookingSuggestions({ chartData }) {
 export default function BookingTrendChart({ bookingFilteredBookings }) {
   const [chartOpen, setChartOpen] = useState(true);
   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
+  const [timeRange, setTimeRange] = useState('3M');
 
   const chartData = useMemo(() => {
     if (!bookingFilteredBookings?.length) return [];
     const now = new Date();
-    const threeMonthsAgo = subWeeks(startOfWeek(now, { weekStartsOn: 0 }), 12);
-    const allDates = bookingFilteredBookings.filter(b => b.date).map(b => parseISO(b.date));
-    if (!allDates.length) return [];
-    const minDate = allDates.reduce((min, d) => d < min ? d : min, allDates[0]);
-    const rangeStart = minDate < threeMonthsAgo ? threeMonthsAgo : startOfWeek(minDate, { weekStartsOn: 0 });
-    const weeks = eachWeekOfInterval({ start: rangeStart, end: now }, { weekStartsOn: 0 });
-    return weeks.map(weekStart => {
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekStart.getDate() + 6);
-      const label = `${format(weekStart, 'MMM d')} - ${format(weekEnd, 'MMM d')}`;
+    // X-axis displays one month into the future
+    const futureEnd = addMonths(now, 1);
+
+    let rangeStart;
+    let intervalType = 'week';
+
+    switch (timeRange) {
+      case '7D':
+        rangeStart = subDays(now, 7);
+        intervalType = 'day';
+        break;
+      case '1M':
+        rangeStart = subMonths(now, 1);
+        intervalType = 'day';
+        break;
+      case '3M':
+        rangeStart = subMonths(now, 3);
+        intervalType = 'week';
+        break;
+      case '1Y':
+        rangeStart = subYears(now, 1);
+        intervalType = 'month';
+        break;
+      case '5Y':
+        rangeStart = subYears(now, 5);
+        intervalType = 'month';
+        break;
+      default:
+        rangeStart = subMonths(now, 3);
+        intervalType = 'week';
+    }
+
+    let intervals = [];
+    try {
+      if (intervalType === 'day') {
+        intervals = eachDayOfInterval({ start: rangeStart, end: futureEnd });
+      } else if (intervalType === 'week') {
+        intervals = eachWeekOfInterval({ start: startOfWeek(rangeStart, { weekStartsOn: 0 }), end: futureEnd }, { weekStartsOn: 0 });
+      } else if (intervalType === 'month') {
+        intervals = eachMonthOfInterval({ start: rangeStart, end: futureEnd });
+      }
+    } catch (e) {
+      return [];
+    }
+
+    return intervals.map(start => {
+      let end = new Date(start);
+      let label = '';
+      if (intervalType === 'day') {
+        end.setDate(start.getDate() + 1);
+        end.setMilliseconds(end.getMilliseconds() - 1);
+        label = format(start, 'MMM d');
+      } else if (intervalType === 'week') {
+        end.setDate(start.getDate() + 7);
+        end.setMilliseconds(end.getMilliseconds() - 1);
+        label = `${format(start, 'MMM d')} - ${format(end, 'MMM d')}`;
+      } else if (intervalType === 'month') {
+        end.setMonth(start.getMonth() + 1);
+        end.setMilliseconds(end.getMilliseconds() - 1);
+        label = format(start, 'MMM yyyy');
+      }
+
       const wb = bookingFilteredBookings.filter(b => {
+        if (!b.date) return false;
         const bDate = parseISO(b.date);
-        return bDate >= weekStart && bDate <= weekEnd;
+        return bDate >= start && bDate <= end;
       });
+
       return {
         label,
         total: wb.length,
@@ -112,18 +167,39 @@ export default function BookingTrendChart({ bookingFilteredBookings }) {
         cancelled: wb.filter(b => b.status === 'cancelled').length,
       };
     });
-  }, [bookingFilteredBookings]);
+  }, [bookingFilteredBookings, timeRange]);
+
+  const ranges = [
+    { label: '7D', value: '7D' },
+    { label: '1M', value: '1M' },
+    { label: '3M', value: '3M' },
+    { label: '1Y', value: '1Y' },
+    { label: '5Y', value: '5Y' },
+  ];
 
   return (
     <div className="mt-3 pt-3 space-y-2" style={{ borderTop: '1px solid rgba(59,130,246,0.15)' }}>
       {/* Chart section */}
       <div>
-        <button onClick={() => setChartOpen(v => !v)} className="w-full flex items-center justify-between hover:opacity-80 transition-opacity mb-2">
-          <div className="flex items-center gap-2">
+        <div className="w-full flex items-center justify-between mb-2">
+          <button onClick={() => setChartOpen(v => !v)} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <span className="text-xs">📊</span>
             <span className="text-xs font-semibold text-blue-300 uppercase tracking-wider">Booking Trends Over Time</span>
-          </div>
+            <ChevronDown className={`h-3.5 w-3.5 text-blue-300/60 transition-transform ${chartOpen ? '' : '-rotate-90'}`} />
+          </button>
+          
           <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+              {ranges.map(r => (
+                <button
+                  key={r.value}
+                  onClick={(e) => { e.stopPropagation(); setTimeRange(r.value); setChartOpen(true); }}
+                  className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${timeRange === r.value ? 'bg-blue-500/20 text-blue-300' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
+                >
+                  {r.label}
+                </button>
+              ))}
+            </div>
             {chartData.length > 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); exportToExcel(chartData, 'booking_trend.csv'); }}
@@ -133,9 +209,8 @@ export default function BookingTrendChart({ bookingFilteredBookings }) {
                 <Download className="h-3 w-3" /> Export CSV
               </button>
             )}
-            <ChevronDown className={`h-3.5 w-3.5 text-blue-300/60 transition-transform ${chartOpen ? '' : '-rotate-90'}`} />
           </div>
-        </button>
+        </div>
         {chartOpen && (
           chartData.length === 0 || chartData.every(d => d.total === 0)
             ? <div className="flex items-center justify-center h-32 text-white/30 text-sm">No booking data available for the selected period</div>
