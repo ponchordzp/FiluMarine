@@ -190,7 +190,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               </div>
               <div>
                 <Label>Price (MXN)</Label>
-                <Input className="mt-1" type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: parseFloat(e.target.value) || 0 }))} />
+                <Input className="mt-1" type="number" min="0" value={form.price} onChange={e => setForm(f => ({ ...f, price: parseFloat(e.target.value) || 0 }))} />
               </div>
 
               {isSuperAdmin && (
@@ -215,7 +215,13 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               )}
 
 
-              <Button className="w-full" onClick={() => saveMutation.mutate(form)} disabled={!form.name || saveMutation.isPending || (!isSuperAdmin && !currentUser?.operator)}>
+              <Button className="w-full" onClick={() => {
+                if (!form.name) {
+                  alert('Please enter a name for the extra');
+                  return;
+                }
+                saveMutation.mutate(form);
+              }} disabled={saveMutation.isPending || (!isSuperAdmin && !currentUser?.operator)}>
                 {saveMutation.isPending ? 'Saving...' : editing ? 'Save Changes' : 'Create'}
               </Button>
             </div>
