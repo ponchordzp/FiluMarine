@@ -190,6 +190,7 @@ function NextServiceBudgetPanel({ breakdown, total, overdueCount, boats, booking
                       <div>
                         <div className="flex items-center gap-2">
                           <span className="font-bold text-white">{item.name}</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-semibold text-green-300 bg-green-500/20 border border-green-500/30 capitalize">{item.boat?.boat_mode?.replace(/_/g, ' ')}</span>
                           <span className={`text-xs px-2 py-0.5 rounded-full font-semibold capitalize ${item.type === 'major' ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'}`}>
                             {item.type} service
                           </span>
