@@ -123,9 +123,8 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     : extras.filter(extra => {
         if (!currentUser?.operator) return false;
         const allowed = extra.allowed_operators || [];
-        // If they have allowed operators specified, it MUST include the current user's operator.
-        // If it doesn't have allowed operators, it's considered a global FILU extra, which we hide from individual operators now so they only see their own.
-        return allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
+        // Show extras that are either explicitly allowed for this operator, or global (empty allowed_operators)
+        return allowed.length === 0 || allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
       });
 
   return (
