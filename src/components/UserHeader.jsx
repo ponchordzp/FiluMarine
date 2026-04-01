@@ -14,7 +14,7 @@ export default function UserHeader() {
         </span>
       )}
       <span className="px-3 py-1.5 rounded-full text-xs font-semibold bg-purple-500/20 text-purple-300 border border-purple-500/30">
-        {user.role}
+        {user.role?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
       </span>
     </div>
   );
