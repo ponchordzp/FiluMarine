@@ -224,7 +224,25 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     const totalExpenses = boatExpenses.reduce((sum, e) => {
       return sum + (e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0);
     }, 0);
-    const netProfit = totalRevenue - totalExpenses;
+    
+    let commissionPct = 0;
+    try {
+      const raw = localStorage.getItem('filu_operators');
+      if (raw) {
+        const ops = JSON.parse(raw);
+        const boatObj = boats.find(b => b.id === boatId);
+        let boatOpName = (boatObj?.operator || '').toLowerCase().trim();
+        let op = null;
+        if (boatOpName && boatOpName !== 'filu') {
+          op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+        }
+        if (!op) op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
+        commissionPct = parseFloat(op?.commission_pct || 0);
+      }
+    } catch {}
+
+    const totalFees = totalRevenue * (commissionPct / 100);
+    const netProfit = totalRevenue - totalExpenses - totalFees;
     const roi = totalRevenue > 0 ? (netProfit / totalRevenue * 100).toFixed(1) : 0;
     const expeditionCounts = {};
     boatBookings.forEach((b) => {
@@ -251,7 +269,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       lastTrip: lastTrip,
       totalEngineHoursFromBookings: totalEngineHoursFromBookings,
       personalTripsCount: boatPersonalTrips.length,
-      personalTripsEngineHours: personalTripsEngineHours
+      personalTripsEngineHours: personalTripsEngineHours,
+      commissionPct: commissionPct
     };
   };
 
@@ -1602,7 +1621,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                           const expense = expenses.find((e) => e.booking_id === b.id);
                           const totalExpenses = expense ? (expense.fuel_cost || 0) + (expense.crew_cost || 0) + (expense.maintenance_cost || 0) + (expense.cleaning_cost || 0) + (expense.supplies_cost || 0) + (expense.other_cost || 0) : 0;
                           const revenue = b.total_price || 0;
-                          const profit = revenue - totalExpenses;
+                          const fee = revenue * (stats.commissionPct / 100);
+                          const profit = revenue - totalExpenses - fee;
                           const roi = revenue > 0 ? profit / revenue * 100 : 0;
                           return { type: 'rental', date: b.date, title: b.experience_type?.replace(/_/g, ' ') || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi };
                         }),
@@ -1669,7 +1689,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg border border-blue-400"><p className="text-white text-xs font-medium mb-1">Profit</p><p className="font-bold text-xl text-white">${(stats.profit / 1000).toFixed(1)}k</p></div>
                     <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-3 rounded-xl shadow-lg border border-purple-400"><p className="text-white text-xs font-medium mb-1">Avg ROI</p><p className="font-bold text-xl text-white">{stats.roi}%</p></div>
                   </div>
-                  <div className="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r-lg"><p className="text-xs text-amber-800"><span className="font-semibold">Note:</span> FILU charges 15% of the total booking price set by the owner.</p></div>
+                  <div className="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r-lg"><p className="text-xs text-amber-800"><span className="font-semibold">Note:</span> FILU fee is {stats.commissionPct}% of the total booking revenue.</p></div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div><p className="text-slate-500 text-xs">Total Bookings</p><p className="font-semibold text-lg">{stats.total}</p></div>
                     <div><p className="text-slate-500 text-xs">Future / Past</p><p className="font-semibold text-lg">{stats.future} / {stats.past}</p></div>

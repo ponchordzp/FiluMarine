@@ -447,7 +447,12 @@ function AdminBookingsInner() {
       if (!raw) return 0;
       const ops = JSON.parse(raw);
       const boat = allBoats.find(b => b.name === boatName);
-      const boatOpName = (boat?.operator || '').toLowerCase().trim();
+      let boatOpName = (boat?.operator || '').toLowerCase().trim();
+      
+      if (!boatOpName && currentUserOperator && currentUserOperator !== 'all') {
+        boatOpName = currentUserOperator.toLowerCase().trim();
+      }
+
       let op = null;
       if (boatOpName && boatOpName !== 'filu') {
         op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
