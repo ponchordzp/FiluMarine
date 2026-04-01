@@ -76,13 +76,11 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const saveMutation = useMutation({
     mutationFn: (data) => {
-      // Non-superadmins always tag their extras with their own operator name
       let saveData = { ...data };
+      // Non-superadmins ALWAYS lock extras to ONLY their operator (strict isolation)
       if (!isSuperAdmin && currentUser?.operator) {
         const op = currentUser.operator;
-        if (!saveData.allowed_operators.includes(op)) {
-          saveData.allowed_operators = [op];
-        }
+        saveData.allowed_operators = [op]; // Force ONLY their operator, no shared extras
         // Generate unique operator tag on create
         if (!editing) {
           const timestamp = Date.now();
@@ -149,12 +147,13 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const allOperators = loadOperators();
 
-  // Operators strictly see only their own tagged extras; superadmin sees all
+  // Strict operator isolation: non-superadmins ONLY see extras with their operator in allowed_operators
   const filteredExtras = extras.filter(extra => {
-    if (isSuperAdmin) return true;
-    if (!currentUser?.operator) return true;
+    if (isSuperAdmin) return true; // Superadmin sees all
+    if (!currentUser?.operator) return false; // Non-operator users see nothing
     const allowed = extra.allowed_operators || [];
-    return allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
+    // Strict: must have their operator in the list (no "visible to all" fallback)
+    return allowed.length > 0 && allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
   });
 
   return (
