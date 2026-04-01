@@ -37,6 +37,7 @@ import JoinFiluApplications from '@/components/admin/JoinFiluApplications';
 import AffiliatesManagement from '@/components/admin/AffiliatesManagement';
 import MaintenanceFinancialDashboard from '@/components/admin/MaintenanceFinancialDashboard';
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
+import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
@@ -750,6 +751,12 @@ function AdminBookingsInner() {
                   ))}
                 </div>
                 <BookingTrendChart bookingFilteredBookings={bookingFilteredBookings} />
+                <FinancialTrendChart 
+                  financialFilteredBookings={financialFilteredBookings}
+                  expenses={expenses}
+                  getOperatorCommission={getOperatorCommission}
+                  allBoats={allBoats}
+                />
               </>
             )}
           </div>
