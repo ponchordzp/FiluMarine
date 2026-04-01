@@ -51,6 +51,15 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
   // Determine current operator context
   const currentOperator = operatorFilter === 'all' ? '' : operatorFilter;
 
+  const queryClient = useQueryClient();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingExp, setEditingExp] = useState(null);
+  const [formData, setFormData] = useState(emptyForm);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [customInclude, setCustomInclude] = useState('');
+
   const { data: expeditions = [] } = useQuery({
     queryKey: ['expeditions'],
     queryFn: () => base44.entities.Expedition.list('sort_order')
