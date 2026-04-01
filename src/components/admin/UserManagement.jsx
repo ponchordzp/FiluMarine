@@ -325,22 +325,22 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
                        </div>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      <Button variant="ghost" size="sm" onClick={() => toggleActive(user)} title={user.is_active === false ? 'Activate' : 'Deactivate'} className={user.is_active === false ? 'text-slate-400 hover:text-emerald-600' : 'text-emerald-600 hover:text-slate-400'}>
-                        {user.is_active === false ? <XCircle className="h-4 w-4" /> : <CheckCircle className="h-4 w-4" />}
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => {setResetPasswordUser(user);setNewPassword('');}} className="text-amber-600 hover:text-amber-700"><Key className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(user)} className="text-slate-600 hover:text-slate-800"><Edit className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="sm" onClick={() => {if (window.confirm(`Delete user "${user.username}"?`)) deleteMutation.mutate(user.id);}} className="text-red-500 hover:text-red-700"><Trash2 className="h-4 w-4" /></Button>
+                      <Button size="sm" variant="outline" onClick={() => openEdit(user)} className="gap-1"><Edit className="h-3.5 w-3.5" />Edit</Button>
+                      <Button size="sm" variant="outline" onClick={() => { setResetPasswordUser(user); setNewPassword(''); }} className="gap-1 border-amber-200 text-amber-700 hover:bg-amber-50"><Key className="h-3.5 w-3.5" /></Button>
+                      <Button size="sm" variant="outline" onClick={() => toggleActive(user)} className={`gap-1 ${user.is_active !== false ? 'border-slate-200 text-slate-600' : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'}`}>{user.is_active !== false ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}</Button>
+                      {currentUser?.role === 'superadmin' && user.role !== 'superadmin' && (
+                        <Button size="sm" variant="outline" onClick={() => { if (window.confirm(`Delete user ${user.username}?`)) deleteMutation.mutate(user.id); }} className="gap-1 border-red-200 text-red-600 hover:bg-red-50"><Trash2 className="h-3.5 w-3.5" /></Button>
+                      )}
                     </div>
                   </div>
                   {isSuperAdmin && (
                     <UserFilterSelector userId={user.id} username={user.username} />
                   )}
                 </CardContent>
-              </Card>);
-
-          })
-          }
+              </Card>
+          );
+        })
+        }
       </div>
 
       {/* Create/Edit Dialog */}
