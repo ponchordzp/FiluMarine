@@ -357,19 +357,20 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
   const annualRecurring = monthlyRecurring * 12;
 
   // ── Revenue & Expenses ────────────────────────────────────────────────────
-  const boatIds = boatBookings.map(b => b.id);
-  const boatExpenses = expenses.filter(e => boatIds.includes(e.booking_id));
+  // Expenses — EXACTLY ONE per booking, no duplicates or nulls
+  const boatExpensesMap = new Map(); // booking_id -> expense
+  boatBookings.forEach(b => {
+    const expense = expenses.find(e => e && e.booking_id === b.id);
+    if (expense) boatExpensesMap.set(b.id, expense);
+  });
+  const validBoatExpenses = Array.from(boatExpensesMap.values());
 
-  // Revenue = sum of all non-cancelled booking prices
-  const totalRevenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
-
-  // Expenses (ex-fees)
-  const totalFuelCost      = boatExpenses.reduce((s, e) => s + (e.fuel_cost || 0), 0);
-  const totalCrewCost      = boatExpenses.reduce((s, e) => s + (e.crew_cost || 0), 0);
-  const totalMaintenanceCost = boatExpenses.reduce((s, e) => s + (e.maintenance_cost || 0), 0);
-  const totalCleaningCost  = boatExpenses.reduce((s, e) => s + (e.cleaning_cost || 0), 0);
-  const totalSuppliesCost  = boatExpenses.reduce((s, e) => s + (e.supplies_cost || 0), 0);
-  const totalOtherCost     = boatExpenses.reduce((s, e) => s + (e.other_cost || 0), 0);
+  const totalFuelCost      = validBoatExpenses.reduce((s, e) => s + (e.fuel_cost || 0), 0);
+  const totalCrewCost      = validBoatExpenses.reduce((s, e) => s + (e.crew_cost || 0), 0);
+  const totalMaintenanceCost = validBoatExpenses.reduce((s, e) => s + (e.maintenance_cost || 0), 0);
+  const totalCleaningCost  = validBoatExpenses.reduce((s, e) => s + (e.cleaning_cost || 0), 0);
+  const totalSuppliesCost  = validBoatExpenses.reduce((s, e) => s + (e.supplies_cost || 0), 0);
+  const totalOtherCost     = validBoatExpenses.reduce((s, e) => s + (e.other_cost || 0), 0);
   const totalExpenses      = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
 
   // Fees = commission % of each booking's revenue (matches global KPI exactly)
