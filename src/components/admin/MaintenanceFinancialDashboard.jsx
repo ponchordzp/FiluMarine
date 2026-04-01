@@ -365,6 +365,10 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
   });
   const validBoatExpenses = Array.from(boatExpensesMap.values());
 
+  // Revenue = sum of all non-cancelled booking prices
+  const totalRevenue = boatBookings.reduce((s, b) => s + (b.total_price || 0), 0);
+
+  // Expenses (ex-fees)
   const totalFuelCost      = validBoatExpenses.reduce((s, e) => s + (e.fuel_cost || 0), 0);
   const totalCrewCost      = validBoatExpenses.reduce((s, e) => s + (e.crew_cost || 0), 0);
   const totalMaintenanceCost = validBoatExpenses.reduce((s, e) => s + (e.maintenance_cost || 0), 0);
