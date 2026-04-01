@@ -1,0 +1,52 @@
+{
+  "name": "Extra",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Extra / add-on name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description shown to guests"
+    },
+    "price": {
+      "type": "number",
+      "default": 0,
+      "description": "Price in MXN"
+    },
+    "applicable_boats": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Boat names this extra applies to (empty = all)"
+    },
+    "applicable_trips": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Experience types this extra applies to (empty = all)"
+    },
+    "allowed_operators": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Operator names that can see and use this extra (empty = all operators)"
+    },
+    "visible": {
+      "type": "boolean",
+      "default": true,
+      "description": "Show in booking flow"
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

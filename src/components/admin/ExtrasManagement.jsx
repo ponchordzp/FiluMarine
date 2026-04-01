@@ -24,6 +24,7 @@ const emptyForm = {
   price: 0,
   applicable_boats: [],
   applicable_trips: [],
+  allowed_operators: [],
   visible: true,
   sort_order: 0,
 };
@@ -93,6 +94,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
       price: extra.price ?? 0,
       applicable_boats: extra.applicable_boats || [],
       applicable_trips: extra.applicable_trips || [],
+      allowed_operators: extra.allowed_operators || [],
       visible: extra.visible ?? true,
       sort_order: extra.sort_order ?? 0,
     });
@@ -114,6 +116,15 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     }));
   };
 
+  const toggleOperatorVisibility = (name) => {
+    setForm(f => ({
+      ...f,
+      allowed_operators: f.allowed_operators.includes(name)
+        ? f.allowed_operators.filter(o => o !== name)
+        : [...f.allowed_operators, name],
+    }));
+  };
+
   const toggleTrip = (value) => {
     setForm(f => ({
       ...f,
@@ -123,10 +134,11 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     }));
   };
 
+  const allOperators = loadOperators();
+
   // For any user with an operator set (non-superadmin), always restrict to their operator's boats only
   const displayBoats = (() => {
     let boats_ = boats.filter(b => b.status !== 'inactive');
-    // Operator-scoped users: ALWAYS filter to their operator only
     if (!isSuperAdmin && currentUser?.operator) {
       boats_ = boats_.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
     } else if (locationFilter && locationFilter !== 'all') {
@@ -137,8 +149,14 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const boatNames = displayBoats.map(b => b.name);
 
-  // Filter extras: show all extras
-  const filteredExtras = extras;
+  // Filter extras: non-superadmin operators only see extras allowed for them (empty allowed_operators = visible to all)
+  const filteredExtras = extras.filter(extra => {
+    if (isSuperAdmin) return true;
+    if (!currentUser?.operator) return true;
+    const allowed = extra.allowed_operators || [];
+    if (allowed.length === 0) return true;
+    return allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
+  });
 
   return (
     <div>
@@ -185,6 +203,27 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                   ))}
                 </div>
               </div>
+
+              {isSuperAdmin && (
+                <div>
+                  <Label className="mb-1 block">Operator Visibility <span className="text-slate-400 font-normal">(empty = visible to all operators)</span></Label>
+                  <p className="text-xs text-slate-400 mb-2">Restrict this extra so only selected operators can see and use it.</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {allOperators.map(op => (
+                      <label key={op.id || op.name} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
+                        <Checkbox
+                          checked={form.allowed_operators.includes(op.name)}
+                          onCheckedChange={() => toggleOperatorVisibility(op.name)}
+                        />
+                        <span className="inline-flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full" style={{ background: op.color || '#6366f1' }} />
+                          {op.name}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div>
                 <Label className="mb-2 block">Applicable Trip Types <span className="text-slate-400 font-normal">(empty = all trips)</span></Label>
@@ -254,6 +293,15 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                   ? extra.applicable_trips.map(t => <span key={t} className="text-xs px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/20">{t.replace(/_/g, ' ')}</span>)
                   : <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All trip types</span>}
               </div>
+              {isSuperAdmin && extra.allowed_operators?.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-1 ml-6">
+                  <span className="text-[10px] text-white/30 mr-1 self-center">Ops:</span>
+                  {extra.allowed_operators.map(o => {
+                    const op = allOperators.find(x => x.name === o);
+                    return <span key={o} className="text-xs px-1.5 py-0.5 rounded border font-medium text-white" style={{ background: (op?.color || '#6366f1') + '33', borderColor: (op?.color || '#6366f1') + '66' }}>{o}</span>;
+                  })}
+                </div>
+              )}
             </div>
             <div className="flex gap-2 ml-4">
               <Button size="sm" variant="ghost" className="text-white/40 hover:text-white" onClick={() => openEdit(extra)}>
