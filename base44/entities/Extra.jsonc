@@ -36,6 +36,10 @@
       },
       "description": "Operator names that can see and use this extra (empty = all operators)"
     },
+    "operator_tag": {
+      "type": "string",
+      "description": "Unique operator-specific tag (e.g., FILU_extra_12345) for data isolation"
+    },
     "visible": {
       "type": "boolean",
       "default": true,

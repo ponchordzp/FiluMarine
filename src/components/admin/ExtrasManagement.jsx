@@ -83,6 +83,12 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
         if (!saveData.allowed_operators.includes(op)) {
           saveData.allowed_operators = [op];
         }
+        // Generate unique operator tag on create
+        if (!editing) {
+          const timestamp = Date.now();
+          const random = Math.random().toString(36).substring(2, 9);
+          saveData.operator_tag = `${op}_${timestamp}_${random}`;
+        }
       }
       return editing
         ? base44.entities.Extra.update(editing.id, saveData)
