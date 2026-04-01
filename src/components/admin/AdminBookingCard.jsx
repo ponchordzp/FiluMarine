@@ -222,7 +222,8 @@ export default function AdminBookingCard({
             {commission > 0 && (
               <span><span className="text-white/30">Fee:</span> <span className="text-orange-300/70">{commission}% (${((booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN)</span></span>
             )}
-            <span><span className="text-white/30">Net:</span> <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN</span> <span className="text-white/40 text-[11px]">(${((getBookingEarnings(booking) / (booking.total_price || 1)) * 100).toFixed(1)}% ROI)</span></span>
+            <span><span className="text-white/30">Net:</span> <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN</span></span>
+            <span><span className="text-white/30">ROI:</span> <span className={`font-semibold ${((getBookingEarnings(booking) / (booking.total_price || 1)) * 100) >= 0 ? 'text-cyan-300' : 'text-red-400'}`}>${((getBookingEarnings(booking) / (booking.total_price || 1)) * 100).toFixed(1)}%</span></span>
           </div>
 
           {/* ── PAYMENT SECTION (always visible) ── */}
