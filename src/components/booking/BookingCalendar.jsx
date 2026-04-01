@@ -102,8 +102,14 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   
-  // Show ALL boats for this location - vessel editor data will populate their pricing/times
-  const availableBoats = boats;
+  // Filter boats to show ONLY those with selected experience configured in vessel editor
+  const availableBoats = boats.filter(boat => {
+    // Check if experience is in expedition_pricing (has pricing configured)
+    const hasInPricing = boat.expedition_pricing && boat.expedition_pricing.some(p => p.expedition_type === experience.id);
+    // Check if experience is in available_expeditions
+    const hasInAvailable = boat.available_expeditions && boat.available_expeditions.includes(experience.id);
+    return hasInPricing || hasInAvailable;
+  });
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 
