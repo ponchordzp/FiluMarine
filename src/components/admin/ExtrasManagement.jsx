@@ -137,6 +137,10 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
   };
 
   const openNew = () => {
+    if (!currentUser) {
+      alert('Please wait for user data to load');
+      return;
+    }
     setEditing(null);
     setForm(emptyForm);
     setOpen(true);
@@ -173,7 +177,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
          </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
-            <Button onClick={openNew} className="bg-purple-600 hover:bg-purple-700 text-white">
+            <Button onClick={openNew} className="bg-purple-600 hover:bg-purple-700 text-white" disabled={!currentUser}>
               <Plus className="h-4 w-4 mr-2" />Add Extra
             </Button>
           </DialogTrigger>
@@ -221,7 +225,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                   return;
                 }
                 saveMutation.mutate(form);
-              }} disabled={saveMutation.isPending || (!isSuperAdmin && !currentUser?.operator)}>
+              }} disabled={saveMutation.isPending || !currentUser || (!isSuperAdmin && !currentUser.operator)}>
                 {saveMutation.isPending ? 'Saving...' : editing ? 'Save Changes' : 'Create'}
               </Button>
             </div>
