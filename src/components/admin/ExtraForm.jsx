@@ -9,18 +9,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from 'lucide-react';
 
-export default function ExtraForm({ onSuccess }) {
+export default function ExtraForm({ allOperators = [], onSuccess }) {
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.role === 'superadmin';
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState(0);
   const [tag, setTag] = useState('');
+  const [selectedOperator, setSelectedOperator] = useState('');
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
       if (!data.tag || !data.tag.trim()) {
-        throw new Error('Tag is required to link this extra to an operator.');
+        throw new Error('Tag is required.');
+      }
+      if (isSuperAdmin && !data.operator) {
+        throw new Error('Superadmins must select an operator.');
       }
       let saveData = {
         name: data.name.trim(),
@@ -30,6 +36,9 @@ export default function ExtraForm({ onSuccess }) {
         visible: true,
         sort_order: 0,
       };
+      if (isSuperAdmin && data.operator) {
+        saveData.allowed_operators = [data.operator];
+      }
       return base44.entities.Extra.create(saveData);
     },
     onSuccess: () => {
@@ -52,7 +61,7 @@ export default function ExtraForm({ onSuccess }) {
       alert('Please enter a name');
       return;
     }
-    saveMutation.mutate({ name, description, price, tag });
+    saveMutation.mutate({ name, description, price, tag, operator: selectedOperator });
   };
 
   const handleOpenChange = (newOpen) => {
@@ -62,6 +71,7 @@ export default function ExtraForm({ onSuccess }) {
       setDescription('');
       setPrice(0);
       setTag('');
+      setSelectedOperator('');
     }
   };
 
@@ -78,6 +88,24 @@ export default function ExtraForm({ onSuccess }) {
           <DialogTitle>Create New Extra</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
+          {isSuperAdmin && (
+            <div>
+              <Label>Operator *</Label>
+              <select
+                value={selectedOperator}
+                onChange={(e) => setSelectedOperator(e.target.value)}
+                disabled={saveMutation.isPending}
+                className="w-full mt-1 px-3 py-2 rounded-md border border-input bg-background text-foreground"
+              >
+                <option value="">-- Select an operator --</option>
+                {allOperators.map(op => (
+                  <option key={op.id || op.name} value={op.name}>{op.name}</option>
+                ))}
+              </select>
+              <p className="text-xs text-slate-500 mt-1">This extra will only be visible to the selected operator.</p>
+            </div>
+          )}
+
           <div>
             <Label>Tag *</Label>
             <Input
@@ -87,7 +115,7 @@ export default function ExtraForm({ onSuccess }) {
               className="mt-1"
               disabled={saveMutation.isPending}
             />
-            <p className="text-xs text-slate-500 mt-1">Create a unique tag to identify this extra and link it to your operator.</p>
+            <p className="text-xs text-slate-500 mt-1">Create a unique tag to identify this extra.</p>
           </div>
 
           <div>

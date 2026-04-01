@@ -103,8 +103,14 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const allOperators = loadOperators();
 
-  // Filtering logic: everyone sees all extras (tag-based linking, no operator restrictions)
-  const filteredExtras = extras;
+  // Filtering logic: superadmins see all extras; non-superadmins see only their operator's extras
+  const filteredExtras = isSuperAdmin
+    ? extras
+    : extras.filter(extra => {
+        if (!currentUser?.operator) return false;
+        const allowed = extra.allowed_operators || [];
+        return allowed.length === 0 || allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
+      });
 
   return (
     <div>
@@ -117,6 +123,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
           {isUserRestricted && userOperatorLocation && <p className="text-xs text-cyan-300 mt-1">Restricted to operator location and boats</p>}
         </div>
         <ExtraForm
+          allOperators={allOperators}
           onSuccess={() => queryClient.invalidateQueries({ queryKey: ['extras'] })}
         />
       </div>
