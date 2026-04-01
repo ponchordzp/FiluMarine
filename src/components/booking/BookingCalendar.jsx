@@ -110,12 +110,22 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   
   // Filter boats to show ONLY those with selected experience configured in vessel editor
   const availableBoats = selectedDate ? boats.filter(boat => {
-    if (!boat.expedition_pricing || boat.expedition_pricing.length === 0) return false;
-    // Check if experience is configured in expedition_pricing with pricing data
-    return boat.expedition_pricing.some(p => 
-      p && p.expedition_type === experience.id && p.price_mxn
+    const inPricing = boat.expedition_pricing && boat.expedition_pricing.some(p => 
+      p && p.expedition_type === experience.id
     );
+    const inAvailable = boat.available_expeditions && boat.available_expeditions.includes(experience.id);
+    return inPricing || inAvailable;
   }) : [];
+
+  // Auto-select first available boat when date is chosen and current selection is invalid
+  React.useEffect(() => {
+    if (selectedDate && availableBoats.length > 0) {
+      if (!selectedBoat || !availableBoats.find(b => b.id === selectedBoat)) {
+        setSelectedBoat(availableBoats[0].id);
+        setSelectedTime(null);
+      }
+    }
+  }, [selectedDate, availableBoats, selectedBoat]);
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 
