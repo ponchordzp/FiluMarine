@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Pencil, Trash2, Sparkles } from 'lucide-react';
+// Note: applicable_boats and applicable_trips removed — extras are now assigned per boat card
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
 function loadOperators() {
@@ -28,8 +29,6 @@ const emptyForm = {
   name: '',
   description: '',
   price: 0,
-  applicable_boats: [],
-  applicable_trips: [],
   allowed_operators: [],
   visible: true,
   sort_order: 0,
@@ -98,8 +97,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
       name: extra.name,
       description: extra.description || '',
       price: extra.price ?? 0,
-      applicable_boats: extra.applicable_boats || [],
-      applicable_trips: extra.applicable_trips || [],
       allowed_operators: extra.allowed_operators || [],
       visible: extra.visible ?? true,
       sort_order: extra.sort_order ?? 0,
@@ -113,15 +110,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     setOpen(true);
   };
 
-  const toggleBoat = (name) => {
-    setForm(f => ({
-      ...f,
-      applicable_boats: f.applicable_boats.includes(name)
-        ? f.applicable_boats.filter(b => b !== name)
-        : [...f.applicable_boats, name],
-    }));
-  };
-
   const toggleOperatorVisibility = (name) => {
     setForm(f => ({
       ...f,
@@ -131,35 +119,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     }));
   };
 
-  const toggleTrip = (value) => {
-    setForm(f => ({
-      ...f,
-      applicable_trips: f.applicable_trips.includes(value)
-        ? f.applicable_trips.filter(t => t !== value)
-        : [...f.applicable_trips, value],
-    }));
-  };
-
   const allOperators = loadOperators();
-
-  // Build list of active boats, filtered by operator for non-superadmin
-  const displayBoats = (() => {
-    let boats_ = boats.filter(b => b.status !== 'inactive');
-    if (!isSuperAdmin && currentUser?.operator) {
-      boats_ = boats_.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
-    }
-    return boats_;
-  })();
-
-  const boatNames = displayBoats.map(b => b.name);
-
-  // Group boats by operator (for superadmin grouped display)
-  const boatsByOperator = displayBoats.reduce((acc, boat) => {
-    const op = boat.operator || 'No Operator';
-    if (!acc[op]) acc[op] = [];
-    acc[op].push(boat.name);
-    return acc;
-  }, {});
 
   // Filter extras: non-superadmin operators only see extras allowed for them (empty allowed_operators = visible to all)
   const filteredExtras = extras.filter(extra => {
@@ -201,38 +161,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                 <Input className="mt-1" type="number" value={form.price} onChange={e => setForm(f => ({ ...f, price: parseFloat(e.target.value) || 0 }))} />
               </div>
 
-              <div>
-                <Label className="mb-2 block">Applicable Boats <span className="text-slate-400 font-normal">(empty = all boats)</span></Label>
-                {isSuperAdmin ? (
-                  <div className="space-y-3">
-                    {Object.entries(boatsByOperator).map(([opName, opBoats]) => (
-                      <div key={opName}>
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">{opName}</p>
-                        <div className="grid grid-cols-2 gap-2 pl-2">
-                          {opBoats.map(name => (
-                            <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
-                              <Checkbox checked={form.applicable_boats.includes(name)} onCheckedChange={() => toggleBoat(name)} />
-                              {name}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : boatNames.length === 0 ? (
-                  <p className="text-xs text-slate-400 italic">No boats assigned to your fleet yet.</p>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {boatNames.map(name => (
-                      <label key={name} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
-                        <Checkbox checked={form.applicable_boats.includes(name)} onCheckedChange={() => toggleBoat(name)} />
-                        {name}
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
               {isSuperAdmin && (
                 <div>
                   <Label className="mb-1 block">Operator Visibility <span className="text-slate-400 font-normal">(empty = visible to all operators)</span></Label>
@@ -253,21 +181,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                   </div>
                 </div>
               )}
-
-              <div>
-                <Label className="mb-2 block">Applicable Trip Types <span className="text-slate-400 font-normal">(empty = all trips)</span></Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {EXPERIENCE_TYPES.map(t => (
-                    <label key={t.value} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
-                      <Checkbox
-                        checked={form.applicable_trips.includes(t.value)}
-                        onCheckedChange={() => toggleTrip(t.value)}
-                      />
-                      {t.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
 
               <div>
                 <Label>Sort Order</Label>
@@ -305,29 +218,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                 )}
               </div>
               {extra.description && <p className="text-sm text-white/50 ml-6">{extra.description}</p>}
-              <div className="flex flex-wrap gap-1 mt-2 ml-6">
-                {(() => {
-                  if (!isSuperAdmin) {
-                    // Non-superadmin: only show boats from their own fleet
-                    if (boatNames.length === 0) return null; // operator has no boats yet
-                    const myBoats = (extra.applicable_boats || []).filter(b => boatNames.includes(b));
-                    if (myBoats.length > 0)
-                      return myBoats.map(b => <span key={b} className="text-xs px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/20">{b}</span>);
-                    if (extra.applicable_boats?.length > 0)
-                      return null; // extra is for other operators' boats, hide entirely
-                    return <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All your boats</span>;
-                  }
-                  // Superadmin: show all boat tags
-                  if (extra.applicable_boats?.length > 0)
-                    return extra.applicable_boats.map(b => <span key={b} className="text-xs px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/20">{b}</span>);
-                  return <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All boats</span>;
-                })()}
-              </div>
-              <div className="flex flex-wrap gap-1 mt-1 ml-6">
-                {extra.applicable_trips?.length > 0
-                  ? extra.applicable_trips.map(t => <span key={t} className="text-xs px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/20">{t.replace(/_/g, ' ')}</span>)
-                  : <span className="text-xs px-1.5 py-0.5 rounded bg-white/10 text-white/50 border border-white/15">All trip types</span>}
-              </div>
+
               {isSuperAdmin && extra.allowed_operators?.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-1 ml-6">
                   <span className="text-[10px] text-white/30 mr-1 self-center">Ops:</span>

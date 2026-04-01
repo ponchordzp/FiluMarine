@@ -22,6 +22,7 @@ import MaintenanceAlerts from './MaintenanceAlerts';
 import MaintenanceLogView from './MaintenanceLogView';
 import CustomFieldsManager from './CustomFieldsManager';
 import LowStockMonitor from './LowStockMonitor';
+import BoatExtrasPanel from './BoatExtrasPanel';
 import VesselCompleteness from './VesselCompleteness';
 import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from './SectionLock';
 
@@ -1512,6 +1513,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               {/* Low Stock Monitor — hidden for Rental Only */}
               {boat.boat_mode !== 'rental_only' && (
                 <LowStockMonitor boat={boat} onEditSupplies={() => handleEditAndScroll(boat, 'section-supplies')} />
+              )}
+
+              {/* Extras Panel — visible for all rental modes */}
+              {(boat.boat_mode === 'rental_and_maintenance' || boat.boat_mode === 'rental_only') && (
+                <BoatExtrasPanel boat={boat} />
               )}
 
               {/* Rental Info Panel — shown only for Rental Only mode */}

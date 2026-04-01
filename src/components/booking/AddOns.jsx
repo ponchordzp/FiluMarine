@@ -11,33 +11,15 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
   const [specialRequests, setSpecialRequests] = useState(bookingData.special_requests || '');
 
   const boatName = bookingData.boat_name;
-  const experienceId = experience?.id;
-
-  const { data: allExtras = [] } = useQuery({
-    queryKey: ['extras'],
-    queryFn: () => base44.entities.Extra.list('sort_order'),
-  });
 
   const { data: boats = [] } = useQuery({
     queryKey: ['all-boats'],
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
-  // Find the operator of the selected boat
+  // Use the per-boat extras directly — these have operator-set prices
   const selectedBoat = boats.find(b => b.name === boatName);
-  const boatOperator = selectedBoat?.operator || null;
-
-  // Filter extras: visible + operator match + applicable to this boat + applicable to this trip type
-  const addOnOptions = allExtras.filter(extra => {
-    if (!extra.visible) return false;
-    // Operator visibility: if allowed_operators is set, only show if boat's operator is in the list
-    if (extra.allowed_operators?.length > 0 && boatOperator) {
-      if (!extra.allowed_operators.some(o => o.toLowerCase() === boatOperator.toLowerCase())) return false;
-    }
-    if (extra.applicable_boats?.length > 0 && boatName && !extra.applicable_boats.includes(boatName)) return false;
-    if (extra.applicable_trips?.length > 0 && experienceId && !extra.applicable_trips.includes(experienceId)) return false;
-    return true;
-  });
+  const addOnOptions = selectedBoat?.boat_extras || [];
 
   const toggleAddOn = (id) => {
     setSelectedAddOns(prev =>
@@ -51,7 +33,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
   };
 
   const totalAddOns = selectedAddOns.reduce((sum, id) => {
-    const extra = addOnOptions.find(e => e.id === id);
+    const extra = addOnOptions.find(e => e.extra_id === id);
     return sum + (extra?.price || 0);
   }, 0);
 
@@ -79,11 +61,11 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           {addOnOptions.length > 0 ? (
             <div className="space-y-4 mb-10">
               {addOnOptions.map((extra) => {
-                const isSelected = selectedAddOns.includes(extra.id);
+                const isSelected = selectedAddOns.includes(extra.extra_id);
                 return (
                   <motion.button
-                    key={extra.id}
-                    onClick={() => toggleAddOn(extra.id)}
+                    key={extra.extra_id}
+                    onClick={() => toggleAddOn(extra.extra_id)}
                     whileTap={{ scale: 0.98 }}
                     className={`w-full p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left ${
                       isSelected
