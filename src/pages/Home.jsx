@@ -125,7 +125,7 @@ export default function Home() {
 
   const handleSelectExperience = (experience) => {
     setSelectedExperience(experience);
-    setBookingData(prev => ({ ...prev, experience_type: experience.id }));
+    setBookingData(prev => ({ ...prev, experience_type: experience.expedition_id || experience.id }));
     // If coming from boat selection, stay in boat flow, otherwise go to calendar directly
     setStep('calendar');
     window.scrollTo({ top: 0, behavior: 'smooth' });

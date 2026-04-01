@@ -26,6 +26,7 @@ const getMaxGuests = (capacityStr) => {
 };
 
 export default function BookingCalendar({ experience, onBack, onContinue, bookingData, setBookingData }) {
+  const expId = experience.expedition_id || experience.id;
   const location = bookingData.location || 'ixtapa_zihuatanejo';
   
   // Fetch boats from database
@@ -63,7 +64,15 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     };
   });
 
-  const defaultBoat = boats.length > 0 ? boats[0].id : null;
+  const availableBoats = boats.filter(boat => {
+    const inPricing = boat.expedition_pricing && boat.expedition_pricing.some(p => 
+      p && p.expedition_type === expId
+    );
+    const inAvailable = boat.available_expeditions && boat.available_expeditions.includes(expId);
+    return inPricing || inAvailable;
+  });
+
+  const defaultBoat = availableBoats.length > 0 ? availableBoats[0].id : null;
   
   const [selectedDate, setSelectedDate] = useState(bookingData.date ? new Date(bookingData.date) : null);
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
@@ -78,7 +87,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const getAvailableSlotsForBoat = (boatId) => {
     const boat = activeBoats.find(b => b.id === boatId);
     if (boat?.expedition_pricing) {
-      const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
+      const pricing = boat.expedition_pricing.find(p => p.expedition_type === expId);
       if (pricing) {
         // pickup_departures is authoritative — extract all unique departure times
         if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
@@ -93,7 +102,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
         }
       }
     }
-    return fallbackTimeSlots[experience.id] || [];
+    return fallbackTimeSlots[expId] || [];
   };
 
   // Get booked time slots on a specific date for the selected boat
@@ -106,26 +115,18 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const today = startOfDay(new Date());
   const minDate = addDays(today, 1); // Only allow booking from tomorrow onwards
   
-  const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
+  const isLeisureExperience = expId === 'snorkeling' || expId === 'coastal_leisure' || expId === 'sunset_tour' || expId === 'extended_fishing';
   
-  // Filter boats to show ONLY those with selected experience configured in vessel editor
-  const availableBoats = selectedDate ? boats.filter(boat => {
-    const inPricing = boat.expedition_pricing && boat.expedition_pricing.some(p => 
-      p && p.expedition_type === experience.id
-    );
-    const inAvailable = boat.available_expeditions && boat.available_expeditions.includes(experience.id);
-    return inPricing || inAvailable;
-  }) : [];
-
-  // Auto-select first available boat when date is chosen and current selection is invalid
+  // Auto-select first available boat when current selection is invalid
   React.useEffect(() => {
-    if (selectedDate && availableBoats.length > 0) {
+    if (availableBoats.length > 0) {
       if (!selectedBoat || !availableBoats.find(b => b.id === selectedBoat)) {
         setSelectedBoat(availableBoats[0].id);
         setSelectedTime(null);
       }
     }
-  }, [selectedDate, availableBoats, selectedBoat]);
+  }, [availableBoats, selectedBoat]);
+
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 
@@ -135,7 +136,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       return experience.price || 0;
     }
     // Find pricing for THIS experience from vessel editor
-    const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
+    const pricing = boat.expedition_pricing.find(p => p.expedition_type === expId);
     // Return boat's configured price, fallback to experience price
     return (pricing && pricing.price_mxn) ? pricing.price_mxn : (experience.price || 0);
   };
@@ -243,7 +244,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     if (isBlockedForBoat) return true;
                     // Only disable if ALL available time slots are already booked
                     const slots = getAvailableSlotsForBoat(selectedBoat);
-                    if (slots.length === 0) return false;
+                    if (slots.length === 0) return true;
                     const bookedTimes = getBookedTimesForDate(currentBoat?.name, dateStr);
                     return slots.every(s => bookedTimes.includes(s.time));
                   }}
@@ -261,7 +262,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                       });
                       const slots = getAvailableSlotsForBoat(selectedBoat);
                       const bookedTimes = getBookedTimesForDate(currentBoat?.name, dateStr);
-                      const allSlotsTaken = slots.length > 0 && slots.every(s => bookedTimes.includes(s.time));
+                      const allSlotsTaken = slots.length === 0 || slots.every(s => bookedTimes.includes(s.time));
                       return isBlocked || allSlotsTaken;
                     },
                   }}
@@ -314,7 +315,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               {/* Boat Selection */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
                 <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Boat</h3>
-                  {selectedDate && availableBoats.length > 0 ? (
+                  {availableBoats.length > 0 ? (
                     <div className="space-y-3">
                     {availableBoats.map((boat) => {
                     const boatPrice = getBoatPrice(boat);
@@ -347,10 +348,6 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                       </button>
                       );
                       })}
-                      </div>
-                      ) : !selectedDate ? (
-                      <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-white/50 text-sm text-center">
-                        Select a date first
                       </div>
                       ) : (
                       <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-white/50 text-sm text-center">
