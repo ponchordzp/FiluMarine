@@ -35,7 +35,10 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const { data: extras = [] } = useQuery({
     queryKey: ['extras'],
-    queryFn: () => base44.entities.Extra.list('sort_order'),
+    queryFn: async () => {
+      const data = await base44.entities.Extra.list();
+      return data.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    },
   });
 
   const { data: boats = [] } = useQuery({
@@ -121,10 +124,10 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
   const filteredExtras = isSuperAdmin
     ? extras
     : extras.filter(extra => {
-        if (!currentUser?.operator) return false;
+        const userOp = currentUser?.operator || 'FILU'; // Safely fallback if no operator is set
         const allowed = extra.allowed_operators || [];
         // Show extras that are either explicitly allowed for this operator, or global (empty allowed_operators)
-        return allowed.length === 0 || allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
+        return allowed.length === 0 || allowed.some(o => o.toLowerCase() === userOp.toLowerCase());
       });
 
   return (

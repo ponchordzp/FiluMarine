@@ -20,13 +20,13 @@ export default function BoatExtrasPanel({ boat, inline = false, formData, onChan
   // In inline mode, read from formData; otherwise read from boat
   const boatExtras = inline ? (formData?.boat_extras || []) : (boat?.boat_extras || []);
 
-  // Strict operator isolation: only show extras explicitly tagged for this boat's operator
+  // Strict operator isolation: only show extras explicitly tagged for this boat's operator OR global ones
   const boatOperator = (boat?.operator || formData?.operator || '').toLowerCase();
   const operatorExtras = boatOperator
     ? allExtras.filter(e => {
         const allowed = e.allowed_operators || [];
-        // Must have at least the boat's operator (no global/fallback extras)
-        return allowed.length > 0 && allowed.some(o => o.toLowerCase() === boatOperator);
+        // Must have at least the boat's operator OR be global (empty allowed_operators)
+        return allowed.length === 0 || allowed.some(o => o.toLowerCase() === boatOperator);
       })
     : allExtras;
 
