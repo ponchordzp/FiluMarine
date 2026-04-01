@@ -41,21 +41,27 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   );
 
   // Map database boats to required format - load ALL vessel editor data
-  const boats = activeBoats.map(boat => ({
-    id: boat.id,
-    name: boat.name,
-    type: `${boat.size} ${boat.type}`,
-    size: boat.size,
-    capacity: boat.capacity,
-    multiplier: 1,
-    forLeisure: (boat.available_expeditions || []).some(exp => 
-      ['snorkeling', 'coastal_leisure', 'sunset_tour', 'extended_fishing'].includes(exp)
-    ) || false,
-    maxGuests: getMaxGuests(boat.capacity),
-    expedition_pricing: boat.expedition_pricing || [],
-    available_expeditions: boat.available_expeditions || [],
-    price_per_additional_hour: boat.price_per_additional_hour || 0,
-  }));
+  const boats = activeBoats.map(boat => {
+    // Ensure expedition_pricing and available_expeditions are always arrays
+    const expPricing = Array.isArray(boat.expedition_pricing) ? boat.expedition_pricing : [];
+    const availExp = Array.isArray(boat.available_expeditions) ? boat.available_expeditions : [];
+    
+    return {
+      id: boat.id,
+      name: boat.name,
+      type: `${boat.size} ${boat.type}`,
+      size: boat.size,
+      capacity: boat.capacity,
+      multiplier: 1,
+      forLeisure: availExp.some(exp => 
+        ['snorkeling', 'coastal_leisure', 'sunset_tour', 'extended_fishing'].includes(exp)
+      ) || false,
+      maxGuests: getMaxGuests(boat.capacity),
+      expedition_pricing: expPricing,
+      available_expeditions: availExp,
+      price_per_additional_hour: boat.price_per_additional_hour || 0,
+    };
+  });
 
   const defaultBoat = boats.length > 0 ? boats[0].id : null;
   
@@ -103,17 +109,13 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   const isLeisureExperience = experience.id === 'snorkeling' || experience.id === 'coastal_leisure' || experience.id === 'sunset_tour' || experience.id === 'extended_fishing';
   
   // Filter boats to show ONLY those with selected experience configured in vessel editor
-  const availableBoats = boats.filter(boat => {
-    if (!boat.expedition_pricing && !boat.available_expeditions) return false;
-    // Check if experience is in expedition_pricing array (primary source)
-    const inPricing = boat.expedition_pricing && boat.expedition_pricing.some(p => 
-      p && p.expedition_type && p.expedition_type === experience.id
+  const availableBoats = selectedDate ? boats.filter(boat => {
+    if (!boat.expedition_pricing || boat.expedition_pricing.length === 0) return false;
+    // Check if experience is configured in expedition_pricing with pricing data
+    return boat.expedition_pricing.some(p => 
+      p && p.expedition_type === experience.id && p.price_mxn
     );
-    // Check if experience is in available_expeditions list
-    const inAvailable = boat.available_expeditions && boat.available_expeditions.includes(experience.id);
-    // Show boat only if experience is configured either way
-    return inPricing || inAvailable;
-  });
+  }) : [];
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
 
@@ -302,7 +304,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
               {/* Boat Selection */}
               <div className="bg-gradient-to-br from-white/12 via-white/8 to-white/4 backdrop-blur-2xl rounded-3xl p-6 md:p-8 border-2 border-white/30 hover:border-cyan-400/40 transition-all duration-500 shadow-2xl hover:shadow-cyan-500/20 w-full overflow-x-hidden">
                 <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-6">Select Boat</h3>
-                  {availableBoats.length > 0 ? (
+                  {selectedDate && availableBoats.length > 0 ? (
                     <div className="space-y-3">
                     {availableBoats.map((boat) => {
                     const boatPrice = getBoatPrice(boat);
@@ -336,9 +338,13 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                       );
                       })}
                       </div>
+                      ) : !selectedDate ? (
+                      <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-white/50 text-sm text-center">
+                        Select a date first
+                      </div>
                       ) : (
                       <div className="p-4 bg-white/5 border border-white/10 rounded-lg text-white/50 text-sm text-center">
-                      Select a date first
+                        No boats available for this experience
                       </div>
                       )}
                       </div>
