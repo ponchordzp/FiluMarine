@@ -109,14 +109,13 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
 
   // Get actual price from boat's expedition pricing (from vessel editor)
   const getBoatPrice = (boat) => {
-    if (!boat) return experience.price;
-    // Check expedition_pricing array first
-    if (boat.expedition_pricing && boat.expedition_pricing.length > 0) {
-      const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
-      if (pricing && pricing.price_mxn) return pricing.price_mxn;
+    if (!boat || !boat.expedition_pricing || boat.expedition_pricing.length === 0) {
+      return experience.price || 0;
     }
-    // Fallback to experience default price
-    return experience.price || 0;
+    // Find pricing for THIS experience from vessel editor
+    const pricing = boat.expedition_pricing.find(p => p.expedition_type === experience.id);
+    // Return boat's configured price, fallback to experience price
+    return (pricing && pricing.price_mxn) ? pricing.price_mxn : (experience.price || 0);
   };
 
   React.useEffect(() => {
