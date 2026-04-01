@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -9,56 +9,27 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from 'lucide-react';
 
-export default function ExtraForm({ allOperators, onSuccess }) {
-  const { user: currentUser } = useAuth();
-  const isSuperAdmin = currentUser?.role === 'superadmin';
+export default function ExtraForm({ onSuccess }) {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState(0);
-  const [operator, setOperator] = useState('');
-
-  // Auto-set operator when dialog opens
-  useEffect(() => {
-    if (open) {
-      if (!isSuperAdmin && currentUser?.operator) {
-        setOperator(currentUser.operator);
-      } else if (isSuperAdmin) {
-        setOperator('');
-      }
-    }
-  }, [open, currentUser, isSuperAdmin]);
+  const [tag, setTag] = useState('');
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
+      if (!data.tag || !data.tag.trim()) {
+        throw new Error('Tag is required to link this extra to an operator.');
+      }
       let saveData = {
         name: data.name.trim(),
         description: data.description.trim(),
         price: parseFloat(data.price) || 0,
+        operator_tag: data.tag.trim(),
         visible: true,
         sort_order: 0,
       };
-
-      if (!isSuperAdmin) {
-        // Non-superadmins: locked to their operator
-        const userOperator = currentUser?.operator || data.operator;
-        if (!userOperator) {
-          throw new Error('No operator assigned to your account.');
-        }
-        saveData.allowed_operators = [userOperator];
-        const timestamp = Date.now();
-        const random = Math.random().toString(36).substring(2, 9);
-        saveData.operator_tag = `${userOperator}_${timestamp}_${random}`;
-      } else {
-        // Superadmins: use selected operator or empty for global
-        if (data.operator) {
-          saveData.allowed_operators = [data.operator];
-        } else {
-          saveData.allowed_operators = [];
-        }
-      }
-
       return base44.entities.Extra.create(saveData);
     },
     onSuccess: () => {
@@ -67,7 +38,7 @@ export default function ExtraForm({ allOperators, onSuccess }) {
       setName('');
       setDescription('');
       setPrice(0);
-      setOperator('');
+      setTag('');
       if (onSuccess) onSuccess();
     },
     onError: (error) => {
@@ -81,7 +52,7 @@ export default function ExtraForm({ allOperators, onSuccess }) {
       alert('Please enter a name');
       return;
     }
-    saveMutation.mutate({ name, description, price, operator });
+    saveMutation.mutate({ name, description, price, tag });
   };
 
   const handleOpenChange = (newOpen) => {
@@ -90,7 +61,7 @@ export default function ExtraForm({ allOperators, onSuccess }) {
       setName('');
       setDescription('');
       setPrice(0);
-      setOperator('');
+      setTag('');
     }
   };
 
@@ -107,31 +78,17 @@ export default function ExtraForm({ allOperators, onSuccess }) {
           <DialogTitle>Create New Extra</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          {isSuperAdmin ? (
-            <div>
-              <Label>Operator (Optional)</Label>
-              <select
-                value={operator}
-                onChange={(e) => setOperator(e.target.value)}
-                disabled={saveMutation.isPending}
-                className="w-full mt-1 px-3 py-2 rounded-md border border-input bg-background text-foreground"
-              >
-                <option value="">Global (All Operators)</option>
-                {allOperators.map(op => (
-                  <option key={op.id || op.name} value={op.name}>{op.name}</option>
-                ))}
-              </select>
-              <p className="text-xs text-slate-400 mt-1">Leave blank for global availability, or select an operator for restriction.</p>
-            </div>
-          ) : (
-            <div>
-              <Label>Operator</Label>
-              <div className="mt-1 px-3 py-2 rounded-md border border-input bg-slate-100 text-slate-900 font-medium">
-                {currentUser?.operator || 'No operator assigned'}
-              </div>
-              <p className="text-xs text-slate-500 mt-1">Your extras are automatically restricted to your operator.</p>
-            </div>
-          )}
+          <div>
+            <Label>Tag *</Label>
+            <Input
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+              placeholder="e.g. FILU_extra_001, TYCOON_bar_02"
+              className="mt-1"
+              disabled={saveMutation.isPending}
+            />
+            <p className="text-xs text-slate-500 mt-1">Create a unique tag to identify this extra and link it to your operator.</p>
+          </div>
 
           <div>
             <Label>Name *</Label>

@@ -22,7 +22,6 @@ const emptyForm = {
   name: '',
   description: '',
   price: 0,
-  allowed_operators: [],
 };
 
 export default function ExtrasManagement({ allBoats = [], locationFilter = 'all' }) {
@@ -98,30 +97,14 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
       name: extra.name,
       description: extra.description || '',
       price: extra.price ?? 0,
-      allowed_operators: extra.allowed_operators || [],
     });
     setEditOpen(true);
   };
 
-  const toggleOperatorVisibility = (name) => {
-    setEditForm(f => ({
-      ...f,
-      allowed_operators: f.allowed_operators.includes(name)
-        ? f.allowed_operators.filter(o => o !== name)
-        : [...f.allowed_operators, name],
-    }));
-  };
-
   const allOperators = loadOperators();
 
-  // Strict operator isolation: non-superadmins see extras where their operator is listed OR where allowed_operators is empty (global)
-  const filteredExtras = extras.filter(extra => {
-    if (isSuperAdmin) return true; // Superadmin sees all
-    if (!currentUser?.operator) return false; // Non-operator users see nothing
-    const allowed = extra.allowed_operators || [];
-    // Show if: (1) allowed list is empty (global extra), OR (2) their operator is in the list
-    return allowed.length === 0 || allowed.some(o => o.toLowerCase() === currentUser.operator.toLowerCase());
-  });
+  // Filtering logic: everyone sees all extras (tag-based linking, no operator restrictions)
+  const filteredExtras = extras;
 
   return (
     <div>
@@ -134,7 +117,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
           {isUserRestricted && userOperatorLocation && <p className="text-xs text-cyan-300 mt-1">Restricted to operator location and boats</p>}
         </div>
         <ExtraForm
-          allOperators={allOperators}
           onSuccess={() => queryClient.invalidateQueries({ queryKey: ['extras'] })}
         />
       </div>
@@ -225,26 +207,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                 <Input className="mt-1" type="number" min="0" value={editForm.price} onChange={e => setEditForm(f => ({ ...f, price: parseFloat(e.target.value) || 0 }))} />
               </div>
 
-              {isSuperAdmin && (
-                <div>
-                  <Label className="mb-1 block">Operator Visibility <span className="text-slate-400 font-normal">(empty = visible to all operators)</span></Label>
-                  <p className="text-xs text-slate-400 mb-2">Restrict this extra so only selected operators can see and use it.</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {allOperators.map(op => (
-                      <label key={op.id || op.name} className="flex items-center gap-2 cursor-pointer text-sm text-slate-700 hover:text-slate-900">
-                        <Checkbox
-                          checked={editForm.allowed_operators.includes(op.name)}
-                          onCheckedChange={() => toggleOperatorVisibility(op.name)}
-                        />
-                        <span className="inline-flex items-center gap-1">
-                          <span className="w-2 h-2 rounded-full" style={{ background: op.color || '#6366f1' }} />
-                          {op.name}
-                        </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
+
 
               <Button className="w-full" onClick={() => {
                 if (!editForm.name || !editForm.name.trim()) {
