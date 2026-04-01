@@ -1315,6 +1315,7 @@ function AdminBookingsInner() {
   );
 }
 
+// Admin bookings management and dashboard page
 export default function AdminBookings() {
   return (
     <AdminAuth>
