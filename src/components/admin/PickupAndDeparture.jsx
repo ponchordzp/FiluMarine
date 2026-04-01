@@ -1,25 +1,21 @@
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, MapPin, Clock } from 'lucide-react';
-
-const pickupLocationsByZone = {
-  ixtapa_zihuatanejo: [
-    'Marina Ixtapa',
-    'Muelle Municipal (Zihuatanejo)',
-    'Muelle Punta Ixtapa'
-  ],
-  acapulco: [
-    'Marina Cabo Marqués (Zona Diamante)',
-    'Pie de la Cuesta',
-    'Marina Acapulco'
-  ]
-};
+import { Plus, Trash2, Clock } from 'lucide-react';
 
 export default function PickupAndDeparture({ pickupAndDepartures = [], onUpdate, expeditionType, location = 'ixtapa_zihuatanejo' }) {
-  const availableLocations = pickupLocationsByZone[location] || pickupLocationsByZone.ixtapa_zihuatanejo;
+  const { data: dbPickupLocations = [] } = useQuery({
+    queryKey: ['pickup-locations'],
+    queryFn: () => base44.entities.PickupLocation.list('sort_order'),
+  });
+
+  const availableLocations = dbPickupLocations
+    .filter(p => p.visible !== false && p.location === location)
+    .map(p => p.name);
   const handleAdd = () => {
     const newEntry = {
       id: Date.now(),
