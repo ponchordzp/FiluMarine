@@ -7,22 +7,27 @@ import { ArrowLeft, Calendar, Clock, Users, CreditCard, Check, Shield, Car, Uplo
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { base44 } from '@/api/base44Client';
-
-const getAddOnPrice = (id, boatName) => {
-  const isTycoon = boatName === 'TYCOON';
-  const prices = {
-    drinks_catering: isTycoon ? 4500 : 1500,
-    celebration_package: isTycoon ? 6000 : 2000,
-  };
-  return prices[id] || 0;
-};
-
-const addOnTitles = {
-  drinks_catering: 'Premium Drinks & Catering',
-  celebration_package: 'Celebration Package',
-};
+import { useQuery } from '@tanstack/react-query';
 
 export default function BookingSummary({ experience, onBack, onConfirm, bookingData, setBookingData, isSubmitting }) {
+  const { data: boats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
+  const selectedBoat = boats.find(b => b.name === bookingData.boat_name);
+  const addOnOptions = selectedBoat?.boat_extras || [];
+
+  const getAddOnPrice = (id) => {
+    const extra = addOnOptions.find(e => e.extra_id === id);
+    return extra?.price || 0;
+  };
+
+  const getAddOnTitle = (id) => {
+    const extra = addOnOptions.find(e => e.extra_id === id);
+    return extra?.extra_name || extra?.name || id;
+  };
+
   const [paymentMethod, setPaymentMethod] = useState('paypal');
   const [guestInfo, setGuestInfo] = useState({
     name: bookingData.guest_name || '',
@@ -34,7 +39,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const [isUploading, setIsUploading] = useState(false);
   
   const addOnsTotal = (bookingData.add_ons || []).reduce((sum, id) => {
-    return sum + getAddOnPrice(id, bookingData.boat_name);
+    return sum + getAddOnPrice(id);
   }, 0);
 
   const taxiFee = bookingData.taxi_fee || 0;
@@ -167,8 +172,8 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                     <div className="pt-4 border-t border-slate-100">
                       <p className="text-sm font-medium text-slate-500 mb-2">Add-ons</p>
                       {bookingData.add_ons.map(id => {
-                        const price = getAddOnPrice(id, bookingData.boat_name);
-                        const title = addOnTitles[id];
+                        const price = getAddOnPrice(id);
+                        const title = getAddOnTitle(id);
                         return title ? (
                           <div key={id} className="flex justify-between text-sm">
                             <span className="text-slate-600">{title}</span>

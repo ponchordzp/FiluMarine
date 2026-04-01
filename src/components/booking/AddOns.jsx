@@ -77,7 +77,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                       <Sparkles className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
                     </div>
                     <div className="flex-1">
-                      <h3 className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white'}`}>{extra.name}</h3>
+                      <h3 className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white'}`}>{extra.extra_name || extra.name}</h3>
                       {extra.description && <p className="text-sm text-white/70 leading-relaxed">{extra.description}</p>}
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">

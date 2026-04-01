@@ -143,6 +143,14 @@ export default function Home() {
     const dbExpTitle = await base44.entities.Expedition.filter({ expedition_id: data.experience_type })
       .then(list => list[0]?.title).catch(() => null);
     const experience = experiences[data.experience_type] || { title: dbExpTitle || data.experience_type };
+    
+    const boatRecord = await base44.entities.BoatInventory.filter({ name: data.boat_name })
+      .then(list => list[0]).catch(() => null);
+    const addOnNames = (data.add_ons || []).map(id => {
+      const extra = boatRecord?.boat_extras?.find(e => e.extra_id === id);
+      return extra ? (extra.extra_name || extra.name || id) : id;
+    });
+
     const emailBody = `
       <h2>Booking Confirmed - Filu Marine</h2>
       <p>Thank you for booking with Filu Marine! Your adventure awaits.</p>
@@ -224,10 +232,10 @@ export default function Home() {
           <li><strong>Payment Method:</strong> ${data.payment_method}</li>
         </ul>
         
-        ${data.add_ons && data.add_ons.length > 0 ? `
+        ${addOnNames.length > 0 ? `
         <h3>Add-ons:</h3>
         <ul>
-          ${data.add_ons.map(addon => `<li>${addon}</li>`).join('')}
+          ${addOnNames.map(name => `<li>${name}</li>`).join('')}
         </ul>
         ` : ''}
         
