@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { Wrench, DollarSign, AlertTriangle, Clock, ChevronDown, ChevronUp, Ship, Info, Lightbulb, TrendingUp, TrendingDown, BarChart2, CreditCard, Banknote, Receipt, Fuel, Percent, RefreshCw, Settings, CheckCircle2, XCircle, Phone, ListChecks, CalendarDays } from 'lucide-react';
 import OperationalCalendar from './OperationalCalendar';
+import FinancialTrendChart from './FinancialTrendChart';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const fmt = (n) => `$${Number(n || 0).toLocaleString('es-MX')} MXN`;
@@ -989,6 +990,23 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
 
             {/* Smart Suggestions — collapsible */}
             <SmartSuggestions suggestions={suggestions} />
+
+            {/* Revenue vs Expenses Trend Chart */}
+            <FinancialTrendChart
+              financialFilteredBookings={bookings.filter(b => {
+                if (operatorFilter !== 'all') {
+                  const boat = filteredBoats.find(boat => boat.name === b.boat_name);
+                  if (!boat || (boat.operator || '').toLowerCase() !== operatorFilter.toLowerCase()) return false;
+                }
+                if (locationFilter !== 'all') {
+                  const boat = filteredBoats.find(boat => boat.name === b.boat_name);
+                  if (!boat || (boat.location || '') !== locationFilter) return false;
+                }
+                return true;
+              })}
+              financialExpenses={expenses}
+              getOperatorCommission={getOperatorCommission}
+            />
 
             {/* Next Service Budget — collapsible detailed breakdown */}
             <NextServiceBudgetPanel
