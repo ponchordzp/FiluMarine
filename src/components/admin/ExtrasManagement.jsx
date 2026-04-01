@@ -164,16 +164,6 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
                 )}
               </div>
               {extra.description && <p className="text-sm text-white/50 ml-6 mt-1">{extra.description}</p>}
-
-              {isSuperAdmin && extra.allowed_operators?.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-1 ml-6">
-                  <span className="text-[10px] text-white/30 mr-1 self-center">Ops:</span>
-                  {extra.allowed_operators.map(o => {
-                    const op = allOperators.find(x => x.name === o);
-                    return <span key={o} className="text-xs px-1.5 py-0.5 rounded border font-medium text-white" style={{ background: (op?.color || '#6366f1') + '33', borderColor: (op?.color || '#6366f1') + '66' }}>{o}</span>;
-                  })}
-                </div>
-              )}
             </div>
             <div className="flex gap-2 ml-4">
               <Button size="sm" variant="ghost" className="text-white/40 hover:text-white" onClick={() => openEdit(extra)}>
