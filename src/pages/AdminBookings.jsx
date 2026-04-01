@@ -947,7 +947,7 @@ function AdminBookingsInner() {
                                   </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                                  <DialogHeader className="bg-[hsl(var(--chart-5))] text-white/60 px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm h-8 flex-1 border-white/10 hover:text-white hover:bg-white/10"><DialogTitle>Booking Details</DialogTitle></DialogHeader>
+                                  <DialogHeader className="bg-gray-400 text-[hsl(var(--primary))] px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm h-8 flex-1 border-white/10 hover:text-white hover:bg-white/10"><DialogTitle>Booking Details</DialogTitle></DialogHeader>
                                   {selectedBooking &&
                                 <div className="space-y-4">
                                       <div className="grid grid-cols-2 gap-3">
