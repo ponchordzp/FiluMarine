@@ -37,7 +37,6 @@ import JoinFiluApplications from '@/components/admin/JoinFiluApplications';
 import AffiliatesManagement from '@/components/admin/AffiliatesManagement';
 import MaintenanceFinancialDashboard from '@/components/admin/MaintenanceFinancialDashboard';
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
-import PracticeBookingGenerator from '@/components/admin/PracticeBookingGenerator';
 
 const statusColors = {
   pending:   'bg-amber-400/20 text-amber-200 border border-amber-400/40',
@@ -699,7 +698,6 @@ function AdminBookingsInner() {
 
           {/* ── BOOKINGS TAB ── */}
           <TabsContent value="bookings" className="space-y-6">
-            {isSuperAdmin && <PracticeBookingGenerator />}
             <div className="rounded-2xl p-5" style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', backdropFilter: 'blur(16px)' }}>
               <div className="flex items-center gap-2 mb-4">
                 <Filter className="h-4 w-4 text-blue-300" />
@@ -1315,7 +1313,6 @@ function AdminBookingsInner() {
   );
 }
 
-// Admin bookings management and dashboard page
 export default function AdminBookings() {
   return (
     <AdminAuth>
