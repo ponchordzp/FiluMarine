@@ -124,11 +124,12 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
   const completedBookings = opBookings.filter(b => b.status === 'completed');
   const pendingBookings = opBookings.filter(b => b.status === 'pending');
   const confirmedBookings = opBookings.filter(b => b.status === 'confirmed');
-  const totalRevenue = completedBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
-  const avgRevenue = completedBookings.length > 0 ? totalRevenue / completedBookings.length : 0;
+  
+  const totalRevenue = activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0);
+  const avgRevenue = activeBookings.length > 0 ? totalRevenue / activeBookings.length : 0;
 
   const commissionPct = parseFloat(operator.commission_pct || 0);
-  const totalOpExpenses = opBookings.reduce((sum, b) => {
+  const totalOpExpenses = activeBookings.reduce((sum, b) => {
     const exp = expenses.find(e => e.booking_id === b.id);
     if (!exp) return sum;
     return sum + (exp.fuel_cost || 0) + (exp.crew_cost || 0) + (exp.maintenance_cost || 0) + (exp.cleaning_cost || 0) + (exp.supplies_cost || 0) + (exp.other_cost || 0);
