@@ -658,6 +658,59 @@ function AdminBookingsInner() {
           </button>
           {expandedRows.financial &&
           <div className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-2 mb-3">
+                  <div>
+                    <Label className="text-emerald-200 text-xs font-semibold">Time Range</Label>
+                    <Select value={financialTimeFilter} onValueChange={(val) => {setFinancialTimeFilter(val);if (val !== 'custom') setShowCustomDatePickerFinancial(false);}}>
+                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Time</SelectItem>
+                        <SelectItem value="this-week">This Week (Sun-Sun)</SelectItem>
+                        <SelectItem value="last-month">Last Month</SelectItem>
+                        <SelectItem value="last-3-months">Last 3 Months</SelectItem>
+                        <SelectItem value="this-year">This Year</SelectItem>
+                        <SelectItem value="custom">Custom Range</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {financialTimeFilter === 'custom' &&
+              <Dialog open={showCustomDatePickerFinancial} onOpenChange={setShowCustomDatePickerFinancial}>
+                      <DialogTrigger asChild>
+                        <Button className="mt-6 text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 flex items-center gap-1.5" style={{ border: '1px solid rgba(16,185,129,0.25)' }}>
+                          <CalendarIcon className="h-3.5 w-3.5" />{customDateRangeFinancial.from && customDateRangeFinancial.to ? `${format(customDateRangeFinancial.from, 'MMM d')} - ${format(customDateRangeFinancial.to, 'MMM d')}` : 'Select Dates'}
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                        <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
+                        <div className="grid md:grid-cols-2 gap-6">
+                          <div>
+                            <Label className="text-xs text-white/50 mb-2 block">From</Label>
+                            <Calendar selected={customDateRangeFinancial.from} onSelect={(date) => setCustomDateRangeFinancial((prev) => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-emerald-600" />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-white/50 mb-2 block">To</Label>
+                            <Calendar selected={customDateRangeFinancial.to} onSelect={(date) => setCustomDateRangeFinancial((prev) => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-emerald-600" />
+                          </div>
+                        </div>
+                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerFinancial(false)} disabled={!customDateRangeFinancial.from || !customDateRangeFinancial.to}>
+                          Apply Range
+                        </Button>
+                      </DialogContent>
+                    </Dialog>
+              }
+                  <div>
+                    <Label className="text-emerald-200 text-xs font-semibold">Boat</Label>
+                    <Select value={financialBoatFilter} onValueChange={setFinancialBoatFilter}>
+                      <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Boats</SelectItem>
+                        {(filteredOperatorBoats !== null ? filteredOperatorBoats : allBoats.map((b) => b.name)).map((boat) =>
+                    <SelectItem key={boat} value={boat}>{boat}</SelectItem>
+                    )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               {/* KPIs Section */}
               <div className="space-y-2">
                 {(() => {
@@ -763,7 +816,7 @@ function AdminBookingsInner() {
                       <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Boats</SelectItem>
-                        {bookingFilteredBoats.map((boat) =>
+                        {(filteredOperatorBoats !== null ? filteredOperatorBoats : allBoats.map((b) => b.name)).map((boat) =>
                     <SelectItem key={boat} value={boat}>{boat}</SelectItem>
                     )}
                       </SelectContent>
