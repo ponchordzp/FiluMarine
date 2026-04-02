@@ -171,9 +171,15 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     if (dialogOpen) setCustomRoles(loadCustomRoles());
   }, [dialogOpen]);
 
-  const ROLE_TABS = [
-  ...BUILT_IN_ROLE_TABS,
-  ...customRoles.map((r) => ({ value: r.key, label: r.label + 's' }))];
+  const allRoleTabs = [
+    ...BUILT_IN_ROLE_TABS,
+    ...customRoles.map((r) => ({ value: r.key, label: r.label + 's' }))
+  ];
+
+  // For non-superadmins, only show the "All" tab + tabs where scoped users actually exist
+  const ROLE_TABS = isSuperAdmin
+    ? allRoleTabs
+    : allRoleTabs.filter((tab) => tab.value === 'all' || scopedUsers.some((u) => u.role === tab.value));
 
 
   // Roles the current user is allowed to assign when creating/editing
