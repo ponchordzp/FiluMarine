@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { format, parseISO, startOfWeek, eachWeekOfInterval, subWeeks, subDays, subMonths, subYears, addMonths, eachDayOfInterval, eachMonthOfInterval } from 'date-fns';
 import { ChevronDown, Download, Lightbulb } from 'lucide-react';
 
@@ -160,6 +160,7 @@ export default function BookingTrendChart({ bookingFilteredBookings }) {
 
       return {
         label,
+        isCurrent: now >= start && now <= end,
         total: wb.length,
         confirmed: wb.filter(b => b.status === 'confirmed').length,
         completed: wb.filter(b => b.status === 'completed').length,
@@ -236,6 +237,9 @@ export default function BookingTrendChart({ bookingFilteredBookings }) {
                   <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} width={32} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} formatter={(value) => <span style={{ color: 'rgba(255,255,255,0.6)' }}>{value}</span>} />
+                  {chartData.find(d => d.isCurrent) && (
+                    <ReferenceLine x={chartData.find(d => d.isCurrent).label} stroke="rgba(255,255,255,0.5)" strokeDasharray="3 3" label={{ position: 'top', value: 'Today', fill: 'rgba(255,255,255,0.5)', fontSize: 10 }} />
+                  )}
                   <Area type="monotone" dataKey="confirmed" name="Confirmed" stroke="#10b981" strokeWidth={2} fill="url(#gradConfirmed)" dot={false} activeDot={{ r: 4, fill: '#10b981' }} />
                   <Area type="monotone" dataKey="completed" name="Completed" stroke="#3b82f6" strokeWidth={2} fill="url(#gradCompleted)" dot={false} activeDot={{ r: 4, fill: '#3b82f6' }} />
                   <Area type="monotone" dataKey="pending" name="Pending" stroke="#f59e0b" strokeWidth={2} fill="url(#gradPending)" dot={false} activeDot={{ r: 4, fill: '#f59e0b' }} />
