@@ -878,9 +878,11 @@ function AdminBookingsInner() {
                     <SelectTrigger className="mt-1 text-white" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Locations</SelectItem>
-                      <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
-                      <SelectItem value="acapulco">Acapulco</SelectItem>
-                      <SelectItem value="cancun">Cancún</SelectItem>
+                      {Array.from(new Set((hasElevatedAccess ? (filteredOperatorBoats ? allBoats.filter((b) => filteredOperatorBoats.includes(b.name)) : allBoats) : allBoats.filter((b) => b.name === assignedBoat)).map((b) => b.location).filter(Boolean))).map((loc) => (
+                        <SelectItem key={loc} value={loc}>
+                          {loc === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : loc === 'acapulco' ? 'Acapulco' : loc === 'cancun' ? 'Cancún' : loc}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
