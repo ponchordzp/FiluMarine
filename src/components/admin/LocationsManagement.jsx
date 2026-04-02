@@ -74,7 +74,8 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
   });
 
   const toggleVisibility = (loc) => {
-    updateMutation.mutate({ id: loc.id, data: { visible: !loc.visible } });
+    const isVisible = loc.visible !== false;
+    updateMutation.mutate({ id: loc.id, data: { visible: !isVisible } });
   };
 
   const resetForm = () => {
@@ -149,68 +150,71 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
       }
 
       <div className="grid md:grid-cols-2 gap-5">
-        {locations.filter(loc => !isUserRestricted || operatorFilter === loc.location_id || operatorFilter === 'all').map((loc) =>
-        <Card key={loc.id} className={`overflow-hidden transition-all ${!loc.visible ? 'opacity-60 border-dashed' : ''}`}>
-            {loc.image &&
-          <div className="relative h-40 overflow-hidden">
-                <img src={loc.image} alt={loc.name} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-3 left-4 text-white">
-                  <p className="font-bold text-lg leading-tight">{loc.name}</p>
-                  {loc.state && <p className="text-white/80 text-sm">{loc.state}</p>}
-                </div>
-                {!loc.visible &&
-            <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                    <EyeOff className="h-3 w-3" /> Hidden
+        {locations.filter(loc => !isUserRestricted || operatorFilter === loc.location_id || operatorFilter === 'all').map((loc) => {
+          const isVisible = loc.visible !== false;
+          return (
+            <Card key={loc.id} className={`overflow-hidden transition-all ${!isVisible ? 'opacity-60 border-dashed' : ''}`}>
+              {loc.image &&
+                <div className="relative h-40 overflow-hidden">
+                  <img src={loc.image} alt={loc.name} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-3 left-4 text-white">
+                    <p className="font-bold text-lg leading-tight">{loc.name}</p>
+                    {loc.state && <p className="text-white/80 text-sm">{loc.state}</p>}
                   </div>
-            }
-              </div>
-          }
-            <CardContent className="p-4 space-y-2">
-              {!loc.image &&
-            <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-semibold text-slate-800">{loc.name}</h4>
-                    {loc.state && <p className="text-xs text-slate-500">{loc.state}</p>}
-                  </div>
-                  {!loc.visible &&
-              <span className="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded-full flex items-center gap-1">
+                  {!isVisible &&
+                    <div className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
                       <EyeOff className="h-3 w-3" /> Hidden
-                    </span>
-              }
+                    </div>
+                  }
                 </div>
-            }
-              {loc.description && <p className="text-sm text-slate-600 line-clamp-2">{loc.description}</p>}
-              {loc.coordinates &&
-            <p className="text-xs text-slate-400 font-mono flex items-center gap-1">
-                  <MapPin className="h-3 w-3" /> {loc.coordinates}
-                </p>
-            }
-              <div className="flex gap-2 pt-1">
-                <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-2"
-                onClick={() => toggleVisibility(loc)}
-                title={loc.visible ? 'Hide from home page' : 'Show on home page'}>
+              }
+              <CardContent className="p-4 space-y-2">
+                {!loc.image &&
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h4 className="font-semibold text-slate-800">{loc.name}</h4>
+                      {loc.state && <p className="text-xs text-slate-500">{loc.state}</p>}
+                    </div>
+                    {!isVisible &&
+                      <span className="text-xs bg-slate-100 text-slate-500 px-2 py-1 rounded-full flex items-center gap-1">
+                        <EyeOff className="h-3 w-3" /> Hidden
+                      </span>
+                    }
+                  </div>
+                }
+                {loc.description && <p className="text-sm text-slate-600 line-clamp-2">{loc.description}</p>}
+                {loc.coordinates &&
+                  <p className="text-xs text-slate-400 font-mono flex items-center gap-1">
+                    <MapPin className="h-3 w-3" /> {loc.coordinates}
+                  </p>
+                }
+                <div className="flex gap-2 pt-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2"
+                    onClick={() => toggleVisibility(loc)}
+                    title={isVisible ? 'Hide from home page' : 'Show on home page'}>
 
-                  {loc.visible ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-slate-400" />}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleEdit(loc)} className="flex-1 h-8 text-xs">
-                  <Edit className="h-3 w-3 mr-1" /> Edit
-                </Button>
-                <Button
-                variant="destructive"
-                size="sm"
-                className="h-8 px-2"
-                onClick={() => {if (window.confirm(`Delete "${loc.name}"?`)) deleteMutation.mutate(loc.id);}}>
+                    {isVisible ? <Eye className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-slate-400" />}
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleEdit(loc)} className="flex-1 h-8 text-xs">
+                    <Edit className="h-3 w-3 mr-1" /> Edit
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="h-8 px-2"
+                    onClick={() => { if (window.confirm(`Delete "${loc.name}"?`)) deleteMutation.mutate(loc.id); }}>
 
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={(open) => {if (!open) resetForm();setDialogOpen(open);}}>
