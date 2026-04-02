@@ -411,8 +411,17 @@ function AdminBookingsInner() {
     setExpandedRows((prev) => ({ ...prev, [category]: !prev[category] }));
   };
 
-  // Compute unique operators for the filters
-  const uniqueOperators = Array.from(new Set(allBoats.map(b => b.operator).filter(Boolean))).sort();
+  // Compute unique operators for the filters, combining boat operators and vaulted operators to prevent truncation
+  const uniqueOperators = Array.from(new Set([
+    ...allBoats.map(b => b.operator).filter(Boolean),
+    ...(() => {
+      try {
+        const raw = localStorage.getItem('filu_operators');
+        if (!raw) return [];
+        return JSON.parse(raw).map(o => o.name).filter(Boolean);
+      } catch { return []; }
+    })()
+  ])).sort();
 
   // Filter bookings/expenses for financial KPIs
   const financialFilteredBoats = financialBoatFilter === 'all' ?
@@ -531,7 +540,8 @@ function AdminBookingsInner() {
         op = ops.find((o) => (o.name || '').toLowerCase().trim() === boatOpName);
       }
       if (!op) op = ops.find((o) => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
-      return parseFloat(op?.commission_pct || 0);
+      const fee = parseFloat(op?.commission_pct);
+      return isNaN(fee) ? 0 : fee;
     } catch {
       return 0;
     }
