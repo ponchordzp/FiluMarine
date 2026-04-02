@@ -159,15 +159,34 @@ function buildFamiliesForUser(currentUserRole) {
 }
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
+const OPERATOR_PROTECTED_KEY = 'filu_operators_protected';
+
+function loadProtectedData() {
+  try {
+    const raw = localStorage.getItem(OPERATOR_PROTECTED_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch { return {}; }
+}
+
+function mergeProtectedData(ops) {
+  const protected_ = loadProtectedData();
+  return ops.map(op => {
+    const saved = protected_[(op.name || '').toUpperCase()];
+    if (!saved) return op;
+    return { ...op, ...saved };
+  });
+}
+
 function loadOperators() {
+  let ops = [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
   try {
     const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return parsed && parsed.length > 0 ? parsed : [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
+      if (parsed && parsed.length > 0) ops = parsed;
     }
   } catch {}
-  return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
+  return mergeProtectedData(ops);
 }
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, currentUserId, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
@@ -204,11 +223,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
   if (currentOpName) {
     const opData = allOperators.find(op => (op.name || '').toLowerCase() === currentOpName.toLowerCase());
     if (opData && opData.locations && opData.locations.length > 0) {
-      if (effectiveAllowedLocations.includes('all')) {
-        effectiveAllowedLocations = opData.locations;
-      } else {
-        effectiveAllowedLocations = effectiveAllowedLocations.filter(l => opData.locations.includes(l));
-      }
+      effectiveAllowedLocations = opData.locations;
     }
   }
 
