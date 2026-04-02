@@ -5,16 +5,23 @@ import { ChevronDown, Download, Lightbulb } from 'lucide-react';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const roi = payload[0].payload.roi || 0;
   return (
     <div className="rounded-xl px-4 py-3 text-xs space-y-1.5" style={{ background: 'rgba(6,13,20,0.95)', border: '1px solid rgba(255,255,255,0.12)', backdropFilter: 'blur(16px)' }}>
       <p className="font-semibold text-white/80 mb-2">{label}</p>
       {payload.map(p => (
-        <div key={p.dataKey} className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-          <span style={{ color: p.color }} className="font-medium">{p.name}:</span>
+        <div key={p.dataKey} className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full" style={{ background: p.color }} />
+            <span style={{ color: p.color }} className="font-medium">{p.name}:</span>
+          </div>
           <span className="text-white font-bold">${p.value.toLocaleString('es-MX')}</span>
         </div>
       ))}
+      <div className="flex items-center justify-between gap-4 pt-1 mt-1" style={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+        <span className="text-white/60 font-medium">ROI:</span>
+        <span className="text-white font-bold">{roi.toFixed(1)}%</span>
+      </div>
     </div>
   );
 };
@@ -81,7 +88,7 @@ function FinancialSuggestions({ chartData }) {
   );
 }
 
-export default function FinancialTrendChart({ financialFilteredBookings, expenses, getOperatorCommission, allBoats }) {
+export default function FinancialTrendChart({ financialFilteredBookings, expenses, getOperatorCommission, allBoats, dateRange }) {
   const [chartOpen, setChartOpen] = useState(true);
   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
   const [timeRange, setTimeRange] = useState('3M');
@@ -89,36 +96,45 @@ export default function FinancialTrendChart({ financialFilteredBookings, expense
   const chartData = useMemo(() => {
     if (!financialFilteredBookings?.length) return [];
     const now = new Date();
-    // X-axis displays one month into the future
-    const futureEnd = addMonths(now, 1);
 
     let rangeStart;
+    let futureEnd;
     let intervalType = 'week';
 
-    switch (timeRange) {
-      case '7D':
-        rangeStart = subDays(now, 7);
-        intervalType = 'day';
-        break;
-      case '1M':
-        rangeStart = subMonths(now, 1);
-        intervalType = 'day';
-        break;
-      case '3M':
-        rangeStart = subMonths(now, 3);
-        intervalType = 'week';
-        break;
-      case '1Y':
-        rangeStart = subYears(now, 1);
-        intervalType = 'month';
-        break;
-      case '5Y':
-        rangeStart = subYears(now, 5);
-        intervalType = 'month';
-        break;
-      default:
-        rangeStart = subMonths(now, 3);
-        intervalType = 'week';
+    if (dateRange) {
+      rangeStart = dateRange.start;
+      futureEnd = dateRange.end;
+      const days = Math.floor((futureEnd - rangeStart) / (1000 * 60 * 60 * 24));
+      if (days <= 31) intervalType = 'day';
+      else if (days <= 180) intervalType = 'week';
+      else intervalType = 'month';
+    } else {
+      futureEnd = addMonths(now, 1);
+      switch (timeRange) {
+        case '7D':
+          rangeStart = subDays(now, 7);
+          intervalType = 'day';
+          break;
+        case '1M':
+          rangeStart = subMonths(now, 1);
+          intervalType = 'day';
+          break;
+        case '3M':
+          rangeStart = subMonths(now, 3);
+          intervalType = 'week';
+          break;
+        case '1Y':
+          rangeStart = subYears(now, 1);
+          intervalType = 'month';
+          break;
+        case '5Y':
+          rangeStart = subYears(now, 5);
+          intervalType = 'month';
+          break;
+        default:
+          rangeStart = subMonths(now, 3);
+          intervalType = 'week';
+      }
     }
 
     let intervals = [];
@@ -167,6 +183,7 @@ export default function FinancialTrendChart({ financialFilteredBookings, expense
       const expAmt = validExpenses.reduce((s, e) => s + ((e.fuel_cost || 0) + (e.crew_cost || 0) + (e.maintenance_cost || 0) + (e.cleaning_cost || 0) + (e.supplies_cost || 0) + (e.other_cost || 0)), 0);
       const feesAmt = wb.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, allBoats) / 100, 0);
       const netProfit = revenue - expAmt - feesAmt;
+      const roi = revenue > 0 ? (netProfit / revenue) * 100 : 0;
 
       return {
         label,
@@ -174,9 +191,10 @@ export default function FinancialTrendChart({ financialFilteredBookings, expense
         revenue,
         expenses: expAmt,
         netProfit,
+        roi,
       };
     });
-  }, [financialFilteredBookings, expenses, getOperatorCommission, allBoats, timeRange]);
+  }, [financialFilteredBookings, expenses, getOperatorCommission, allBoats, timeRange, dateRange]);
 
   const ranges = [
     { label: '7D', value: '7D' },
@@ -198,17 +216,19 @@ export default function FinancialTrendChart({ financialFilteredBookings, expense
           </button>
           
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
-              {ranges.map(r => (
-                <button
-                  key={r.value}
-                  onClick={(e) => { e.stopPropagation(); setTimeRange(r.value); setChartOpen(true); }}
-                  className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${timeRange === r.value ? 'bg-amber-500/20 text-amber-300' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
+            {!dateRange && (
+              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+                {ranges.map(r => (
+                  <button
+                    key={r.value}
+                    onClick={(e) => { e.stopPropagation(); setTimeRange(r.value); setChartOpen(true); }}
+                    className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${timeRange === r.value ? 'bg-amber-500/20 text-amber-300' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            )}
             {chartData.length > 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); exportToExcel(chartData, 'financial_trend.csv'); }}

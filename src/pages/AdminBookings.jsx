@@ -427,7 +427,14 @@ function AdminBookingsInner() {
           return { start, end: now };
         }
       case 'custom':{
-          return customRange.from && customRange.to ? { start: customRange.from, end: customRange.to } : null;
+          if (customRange.from && customRange.to) {
+            const start = new Date(customRange.from);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(customRange.to);
+            end.setHours(23, 59, 59, 999);
+            return { start, end };
+          }
+          return null;
         }
       default:
         return null;
@@ -439,7 +446,7 @@ function AdminBookingsInner() {
     if (financialTimeFilter !== 'all') {
       const range = getTimeRange(financialTimeFilter, customDateRangeFinancial);
       if (!range) return true;
-      const bookingDate = new Date(b.date);
+      const bookingDate = new Date(b.date + 'T12:00:00');
       if (bookingDate < range.start || bookingDate > range.end) return false;
     }
     return true;
@@ -455,7 +462,7 @@ function AdminBookingsInner() {
     if (bookingTimeFilter !== 'all') {
       const range = getTimeRange(bookingTimeFilter, customDateRangeBooking);
       if (!range) return true;
-      const bookingDate = new Date(b.date);
+      const bookingDate = new Date(b.date + 'T12:00:00');
       if (bookingDate < range.start || bookingDate > range.end) return false;
     }
     return true;
@@ -683,13 +690,13 @@ function AdminBookingsInner() {
                       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
                         <div className="grid md:grid-cols-2 gap-6">
-                          <div>
-                            <Label className="text-xs text-white/50 mb-2 block">From</Label>
-                            <Calendar selected={customDateRangeFinancial.from} onSelect={(date) => setCustomDateRangeFinancial((prev) => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-emerald-600" />
-                          </div>
-                          <div>
-                            <Label className="text-xs text-white/50 mb-2 block">To</Label>
-                            <Calendar selected={customDateRangeFinancial.to} onSelect={(date) => setCustomDateRangeFinancial((prev) => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-emerald-600" />
+                          <div className="col-span-1 md:col-span-2 flex justify-center">
+                            <Calendar 
+                              mode="range"
+                              selected={{ from: customDateRangeFinancial.from, to: customDateRangeFinancial.to }} 
+                              onSelect={(range) => setCustomDateRangeFinancial({ from: range?.from || null, to: range?.to || null })} 
+                              className="rounded-lg border border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-day_selected]:!bg-emerald-600 [&_.rdp-day_selected]:!text-white [&_.rdp-day_range_middle]:!bg-emerald-600/30 p-4" 
+                            />
                           </div>
                         </div>
                         <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerFinancial(false)} disabled={!customDateRangeFinancial.from || !customDateRangeFinancial.to}>
@@ -753,7 +760,8 @@ function AdminBookingsInner() {
               financialFilteredBookings={financialFilteredBookings}
               expenses={financialExpenses}
               getOperatorCommission={getOperatorCommission}
-              allBoats={allBoats} />
+              allBoats={allBoats}
+              dateRange={getTimeRange(financialTimeFilter, customDateRangeFinancial)} />
             
               </div>
           }
@@ -795,13 +803,13 @@ function AdminBookingsInner() {
                       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
                         <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
                         <div className="grid md:grid-cols-2 gap-6">
-                          <div>
-                            <Label className="text-xs text-white/50 mb-2 block">From</Label>
-                            <Calendar selected={customDateRangeBooking.from} onSelect={(date) => setCustomDateRangeBooking((prev) => ({ ...prev, from: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
-                          </div>
-                          <div>
-                            <Label className="text-xs text-white/50 mb-2 block">To</Label>
-                            <Calendar selected={customDateRangeBooking.to} onSelect={(date) => setCustomDateRangeBooking((prev) => ({ ...prev, to: date }))} className="rounded-lg border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-button_selected]:bg-blue-600" />
+                          <div className="col-span-1 md:col-span-2 flex justify-center">
+                            <Calendar 
+                              mode="range"
+                              selected={{ from: customDateRangeBooking.from, to: customDateRangeBooking.to }} 
+                              onSelect={(range) => setCustomDateRangeBooking({ from: range?.from || null, to: range?.to || null })} 
+                              className="rounded-lg border border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-day_selected]:!bg-blue-600 [&_.rdp-day_selected]:!text-white [&_.rdp-day_range_middle]:!bg-blue-600/30 p-4" 
+                            />
                           </div>
                         </div>
                         <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerBooking(false)} disabled={!customDateRangeBooking.from || !customDateRangeBooking.to}>
@@ -846,7 +854,10 @@ function AdminBookingsInner() {
                     </div>
               )}
                 </div>
-                <BookingTrendChart bookingFilteredBookings={bookingFilteredBookings} />
+                <BookingTrendChart 
+                  bookingFilteredBookings={bookingFilteredBookings} 
+                  dateRange={getTimeRange(bookingTimeFilter, customDateRangeBooking)} 
+                />
               </>
           }
           </div>

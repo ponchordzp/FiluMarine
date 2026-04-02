@@ -82,7 +82,7 @@ function BookingSuggestions({ chartData }) {
   );
 }
 
-export default function BookingTrendChart({ bookingFilteredBookings }) {
+export default function BookingTrendChart({ bookingFilteredBookings, dateRange }) {
   const [chartOpen, setChartOpen] = useState(true);
   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
   const [timeRange, setTimeRange] = useState('3M');
@@ -90,36 +90,45 @@ export default function BookingTrendChart({ bookingFilteredBookings }) {
   const chartData = useMemo(() => {
     if (!bookingFilteredBookings?.length) return [];
     const now = new Date();
-    // X-axis displays one month into the future
-    const futureEnd = addMonths(now, 1);
 
     let rangeStart;
+    let futureEnd;
     let intervalType = 'week';
 
-    switch (timeRange) {
-      case '7D':
-        rangeStart = subDays(now, 7);
-        intervalType = 'day';
-        break;
-      case '1M':
-        rangeStart = subMonths(now, 1);
-        intervalType = 'day';
-        break;
-      case '3M':
-        rangeStart = subMonths(now, 3);
-        intervalType = 'week';
-        break;
-      case '1Y':
-        rangeStart = subYears(now, 1);
-        intervalType = 'month';
-        break;
-      case '5Y':
-        rangeStart = subYears(now, 5);
-        intervalType = 'month';
-        break;
-      default:
-        rangeStart = subMonths(now, 3);
-        intervalType = 'week';
+    if (dateRange) {
+      rangeStart = dateRange.start;
+      futureEnd = dateRange.end;
+      const days = Math.floor((futureEnd - rangeStart) / (1000 * 60 * 60 * 24));
+      if (days <= 31) intervalType = 'day';
+      else if (days <= 180) intervalType = 'week';
+      else intervalType = 'month';
+    } else {
+      futureEnd = addMonths(now, 1);
+      switch (timeRange) {
+        case '7D':
+          rangeStart = subDays(now, 7);
+          intervalType = 'day';
+          break;
+        case '1M':
+          rangeStart = subMonths(now, 1);
+          intervalType = 'day';
+          break;
+        case '3M':
+          rangeStart = subMonths(now, 3);
+          intervalType = 'week';
+          break;
+        case '1Y':
+          rangeStart = subYears(now, 1);
+          intervalType = 'month';
+          break;
+        case '5Y':
+          rangeStart = subYears(now, 5);
+          intervalType = 'month';
+          break;
+        default:
+          rangeStart = subMonths(now, 3);
+          intervalType = 'week';
+      }
     }
 
     let intervals = [];
@@ -168,7 +177,7 @@ export default function BookingTrendChart({ bookingFilteredBookings }) {
         cancelled: wb.filter(b => b.status === 'cancelled').length,
       };
     });
-  }, [bookingFilteredBookings, timeRange]);
+  }, [bookingFilteredBookings, timeRange, dateRange]);
 
   const ranges = [
     { label: '7D', value: '7D' },
@@ -190,17 +199,19 @@ export default function BookingTrendChart({ bookingFilteredBookings }) {
           </button>
           
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
-              {ranges.map(r => (
-                <button
-                  key={r.value}
-                  onClick={(e) => { e.stopPropagation(); setTimeRange(r.value); setChartOpen(true); }}
-                  className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${timeRange === r.value ? 'bg-blue-500/20 text-blue-300' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
-                >
-                  {r.label}
-                </button>
-              ))}
-            </div>
+            {!dateRange && (
+              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/10">
+                {ranges.map(r => (
+                  <button
+                    key={r.value}
+                    onClick={(e) => { e.stopPropagation(); setTimeRange(r.value); setChartOpen(true); }}
+                    className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${timeRange === r.value ? 'bg-blue-500/20 text-blue-300' : 'text-white/40 hover:text-white/70 hover:bg-white/5'}`}
+                  >
+                    {r.label}
+                  </button>
+                ))}
+              </div>
+            )}
             {chartData.length > 0 && (
               <button
                 onClick={(e) => { e.stopPropagation(); exportToExcel(chartData, 'booking_trend.csv'); }}
