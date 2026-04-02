@@ -511,7 +511,7 @@ export default function OperatorsDashboard() {
                 <p className="text-xs text-muted-foreground italic">No locations found in database</p>
               ) : (
                 <div className="space-y-2">
-                  {dbLocations.filter(l => l.visible !== false).map(loc => (
+                  {dbLocations.map(loc => (
                     <label key={loc.location_id} className="flex items-center gap-3 cursor-pointer group rounded-lg px-3 py-2 hover:bg-muted transition-colors border border-border">
                       <input
                         type="checkbox"
