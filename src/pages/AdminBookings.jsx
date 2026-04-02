@@ -38,6 +38,7 @@ import AffiliatesManagement from '@/components/admin/AffiliatesManagement';
 import MaintenanceFinancialDashboard from '@/components/admin/MaintenanceFinancialDashboard';
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
 import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
+import { useOperators } from '@/hooks/useOperators';
 
 const statusColors = {
   pending: 'bg-amber-400/20 text-amber-200 border border-amber-400/40',
@@ -114,8 +115,9 @@ function AdminBookingsInner() {
   const [practiceCount, setPracticeCount] = useState(1);
 
   const queryClient = useQueryClient();
+  const { operators, isLoading: isLoadingOps } = useOperators();
 
-  const { data: bookings = [], isLoading } = useQuery({
+  const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
     queryKey: ['admin-bookings'],
     queryFn: () => base44.entities.Booking.list('-created_date')
   });
@@ -378,31 +380,16 @@ function AdminBookingsInner() {
     const boat = allBoats.find((b) => b.name === boatName);
     if (boat?.paypal_username?.trim()) return boat.paypal_username.trim();
 
-    // 2. Read from localStorage
-    try {
-      const raw = localStorage.getItem('filu_operators');
-      if (!raw) return null;
-      const ops = JSON.parse(raw);
-
-      // Try to match by boat's operator field
-      const boatOpName = (boat?.operator || '').toLowerCase().trim();
-
-      let op = null;
-      if (boatOpName && boatOpName !== 'filu') {
-        op = ops.find((o) => (o.name || '').toLowerCase().trim() === boatOpName);
-      }
-
-      // Default: find the FILU operator (covers most cases where boat.operator is not set)
-      if (!op) {
-        op = ops.find((o) => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
-      }
-      // Migrate legacy username
-      if (op?.paypal_username === 'ponchordzp') return 'filumarine';
-
-      return op?.paypal_username?.trim() || null;
-    } catch {
-      return null;
+    const boatOpName = (boat?.operator || '').toLowerCase().trim();
+    let op = null;
+    if (boatOpName && boatOpName !== 'filu') {
+      op = operators.find((o) => (o.name || '').toLowerCase().trim() === boatOpName);
     }
+    if (!op) {
+      op = operators.find((o) => (o.name || '').toLowerCase().trim() === 'filu') || operators[0];
+    }
+    if (op?.paypal_username === 'ponchordzp') return 'filumarine';
+    return op?.paypal_username?.trim() || null;
   };
 
   const [expandedRows, setExpandedRows] = useState({ financial: true, bookings: true });
@@ -414,13 +401,7 @@ function AdminBookingsInner() {
   // Compute unique operators for the filters, combining boat operators and vaulted operators to prevent truncation
   const uniqueOperators = Array.from(new Set([
     ...allBoats.map(b => b.operator).filter(Boolean),
-    ...(() => {
-      try {
-        const raw = localStorage.getItem('filu_operators');
-        if (!raw) return [];
-        return JSON.parse(raw).map(o => o.name).filter(Boolean);
-      } catch { return []; }
-    })()
+    ...operators.map(o => o.name).filter(Boolean)
   ])).sort();
 
   // Filter bookings/expenses for financial KPIs
@@ -530,20 +511,17 @@ function AdminBookingsInner() {
 
   const getOperatorCommission = (boatName) => {
     try {
-      const raw = localStorage.getItem('filu_operators');
-      if (!raw) return 0;
-      const ops = JSON.parse(raw);
       const boat = allBoats.find((b) => b.name === boatName);
       const boatOpName = (boat?.operator || '').toLowerCase().trim();
       let op = null;
       if (boatOpName && boatOpName !== 'filu') {
-        op = ops.find((o) => (o.name || '').toLowerCase().trim() === boatOpName);
+        op = operators.find((o) => (o.name || '').toLowerCase().trim() === boatOpName);
         // If an explicit operator was defined but missing from ops, DO NOT fallback to FILU.
         // The operator's specific commission (or 0) should be used, not FILU's.
         if (!op) return 0;
       } else {
         // Only fallback to FILU if the boat belongs to FILU or has no operator assigned.
-        op = ops.find((o) => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
+        op = operators.find((o) => (o.name || '').toLowerCase().trim() === 'filu') || operators[0];
       }
       const fee = parseFloat(op?.commission_pct);
       return isNaN(fee) ? 0 : fee;
@@ -612,7 +590,7 @@ function AdminBookingsInner() {
     return revenue - exp - revenue * commissionPct / 100;
   };
 
-  if (isLoading) {
+  if (isLoadingBookings || isLoadingOps) {
     return (
       <div className="min-h-screen bg-[#060d14] flex items-center justify-center">
         <div className="text-center">

@@ -1,0 +1,61 @@
+{
+  "name": "CharterOperator",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Operator Name"
+    },
+    "description": {
+      "type": "string"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "contact_email": {
+      "type": "string"
+    },
+    "contact_phone": {
+      "type": "string"
+    },
+    "paypal_username": {
+      "type": "string"
+    },
+    "commission_pct": {
+      "type": "number",
+      "default": 0
+    },
+    "color": {
+      "type": "string",
+      "default": "#1e88e5"
+    },
+    "bank_name": {
+      "type": "string"
+    },
+    "bank_account_clabe": {
+      "type": "string"
+    },
+    "bank_account_number": {
+      "type": "string"
+    },
+    "bank_account_holder": {
+      "type": "string"
+    },
+    "bank_notes": {
+      "type": "string"
+    },
+    "locations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

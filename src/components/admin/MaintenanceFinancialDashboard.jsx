@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import { Wrench, DollarSign, AlertTriangle, Clock, ChevronDown, ChevronUp, Ship, Info, Lightbulb, TrendingUp, TrendingDown, BarChart2, CreditCard, Banknote, Receipt, Fuel, Percent, RefreshCw, Settings, CheckCircle2, XCircle, Phone, ListChecks, CalendarDays, Download } from 'lucide-react';
 import OperationalCalendar from './OperationalCalendar';
+import { useOperators } from '@/hooks/useOperators';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 const fmt = (n) => `$${Number(n || 0).toLocaleString('es-MX')} MXN`;
@@ -335,7 +336,7 @@ function SectionRow({ label, icon, children, defaultOpen = false }) {
 }
 
 // ─── Per-boat card ────────────────────────────────────────────────────────────
-function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, dailyLogs, operatorFilter }) {
+function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, dailyLogs, operators, operatorFilter }) {
   const [expanded, setExpanded] = useState(false);
 
   // Engine hours — use all non-cancelled bookings
@@ -379,7 +380,7 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
   const totalExpenses      = totalFuelCost + totalCrewCost + totalMaintenanceCost + totalCleaningCost + totalSuppliesCost + totalOtherCost;
 
   // Fees = commission % of each booking's revenue (matches global KPI exactly)
-  const totalFeesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, allBoats, operatorFilter) / 100, 0);
+  const totalFeesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, allBoats, operators, operatorFilter) / 100, 0);
 
   // ── P&L ──────────────────────────────────────────────────────────────────
   // Gross Profit = Revenue − Expenses
@@ -745,11 +746,9 @@ function BoatFinancialCard({ boat, bookings, expenses, personalTrips, allBoats, 
 }
 
 // ─── Commission helper (mirrors global KPI logic exactly) ────────────────────
-function getOperatorCommission(boatName, allBoats, operatorFilter = 'all') {
+function getOperatorCommission(boatName, allBoats, operators, operatorFilter = 'all') {
   try {
-    const raw = localStorage.getItem('filu_operators');
-    if (!raw) return 0;
-    const ops = JSON.parse(raw);
+    if (!operators || operators.length === 0) return 0;
     const boat = allBoats.find(b => b.name === boatName);
     let boatOpName = (boat?.operator || '').toLowerCase().trim();
     
@@ -759,10 +758,10 @@ function getOperatorCommission(boatName, allBoats, operatorFilter = 'all') {
 
     let op = null;
     if (boatOpName && boatOpName !== 'filu') {
-      op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+      op = operators.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
       if (!op) return 0;
     } else {
-      op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
+      op = operators.find(o => (o.name || '').toLowerCase().trim() === 'filu') || operators[0];
     }
     return parseFloat(op?.commission_pct || 0);
   } catch {
@@ -772,6 +771,7 @@ function getOperatorCommission(boatName, allBoats, operatorFilter = 'all') {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', locationFilter = 'all' }) {
+  const { operators, isLoading: loadingOps } = useOperators();
   const { data: boats = [], isLoading: loadingBoats } = useQuery({
     queryKey: ['boats'],
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
@@ -804,7 +804,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     return true;
   });
 
-  if (loadingBoats) return <div className="text-white/40 text-center py-20">Loading financial data...</div>;
+  if (loadingBoats || loadingOps) return <div className="text-white/40 text-center py-20">Loading financial data...</div>;
 
   // Fleet-wide totals — fees computed as commission % of revenue, matching global KPIs exactly
   const fleetStats = filteredBoats.map(boat => {
@@ -820,7 +820,7 @@ export default function MaintenanceFinancialDashboard({ operatorFilter = 'all', 
     // Fees — The 'fees_cost' from BookingExpense records should NOT be included in 'expAmt' for the Expenses KPI.
     // The FILU fee (or similar platform/operator fees) is handled separately in 'feesAmt' as a commission.
     // To ensure 'Expenses' KPI excludes fees, we keep 'fees_cost' out of 'expAmt' sum.
-    const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats, operatorFilter) / 100, 0);
+    const feesAmt = boatBookings.reduce((s, b) => s + (b.total_price || 0) * getOperatorCommission(b.boat_name, boats, operators, operatorFilter) / 100, 0);
     const maintenanceSpent = (boat.maintenance_records || []).reduce((s, r) => s + (r.cost || 0), 0);
     const recurringCosts = boat.recurring_costs || [];
     const annualRecurring = recurringCosts.reduce((s, c) => s + (c.amount || 0) / (c.frequency_months || 1), 0) * 12;

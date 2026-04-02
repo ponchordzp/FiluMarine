@@ -158,42 +158,13 @@ function buildFamiliesForUser(currentUserRole) {
     .filter(family => family.tabs.length > 0);
 }
 
-const OPERATOR_STORAGE_KEY = 'filu_operators';
-const OPERATOR_PROTECTED_KEY = 'filu_operators_protected';
-
-function loadProtectedData() {
-  try {
-    const raw = localStorage.getItem(OPERATOR_PROTECTED_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function mergeProtectedData(ops) {
-  const protected_ = loadProtectedData();
-  return ops.map(op => {
-    const saved = protected_[(op.name || '').toUpperCase()];
-    if (!saved) return op;
-    return { ...op, ...saved };
-  });
-}
-
-function loadOperators() {
-  let ops = [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
-  try {
-    const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.length > 0) ops = parsed;
-    }
-  } catch {}
-  return mergeProtectedData(ops);
-}
+import { useOperators } from '@/hooks/useOperators';
 
 export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUserOperator, currentUserRole, currentUserId, operatorFilter, onOperatorFilterChange, locationFilter, onLocationFilterChange }) {
   const filterPerms = currentUserId ? loadUserFilterPerms(currentUserId) : { allowed_operators: ['all'], allowed_locations: ['all'] };
   const allowedOperators = filterPerms.allowed_operators ?? ['all'];
   const allowedLocations = filterPerms.allowed_locations ?? ['all'];
-  const allOperators = loadOperators();
+  const { operators: allOperators } = useOperators();
 
   const { data: dbLocations = [] } = useQuery({
     queryKey: ['locations'],

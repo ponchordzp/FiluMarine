@@ -9,92 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Anchor, Users, Ship, DollarSign, Calendar, MapPin, Phone, Mail, Edit, Trash2, TrendingUp, Clock, CheckCircle2, XCircle, BarChart2, ExternalLink, CreditCard, Lock } from 'lucide-react';
 import BoatManagement from './BoatManagement';
-
-const OPERATOR_STORAGE_KEY = 'filu_operators';
-const OPERATOR_PROTECTED_KEY = 'filu_operators_protected'; // stores sensitive fields separately so they survive code edits
-
-// Protected fields that must never be overwritten by default values or code changes
-const PROTECTED_FIELDS = ['id', 'name', 'commission_pct', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color', 'locations'];
-
-function loadProtectedData() {
-  try {
-    const raw = localStorage.getItem(OPERATOR_PROTECTED_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch { return {}; }
-}
-
-function saveProtectedData(ops) {
-  const protected_ = {};
-  ops.forEach(op => {
-    if (!op || !op.name) return; // Safeguard against unnamed operators
-    protected_[op.name.toUpperCase()] = {};
-    PROTECTED_FIELDS.forEach(f => { if (op[f] !== undefined) protected_[op.name.toUpperCase()][f] = op[f]; });
-  });
-  localStorage.setItem(OPERATOR_PROTECTED_KEY, JSON.stringify(protected_));
-}
-
-function mergeProtectedData(ops) {
-  const protected_ = loadProtectedData();
-  return ops.map(op => {
-    if (!op || !op.name) return op; // Safeguard
-    const saved = protected_[op.name.toUpperCase()];
-    if (!saved) return op;
-    // Protected fields from storage always win over defaults
-    return { ...op, ...saved };
-  });
-}
-
-const DEFAULT_OPERATORS = [
-  { id: 'filu',    name: 'FILU',    description: 'Primary charter service operator', paypal_username: 'filumarine', commission_pct: 0, color: '#1e88e5', contact_name: '', contact_email: '', contact_phone: '' },
-  { id: 'hilario', name: 'HILARIO', description: 'Hilario charter operator',          paypal_username: '',            commission_pct: 0, color: '#10b981', contact_name: '', contact_email: '', contact_phone: '' },
-];
-
-function ensureDefaults(ops) {
-  let updated = [...ops];
-  const protected_ = loadProtectedData();
-  for (const def of DEFAULT_OPERATORS) {
-    const exists = updated.some(o => (o.name || '').toLowerCase() === def.name.toLowerCase());
-    if (!exists) {
-      // Restore from protected store if available, otherwise use code default
-      const saved = protected_[def.name.toUpperCase()] || {};
-      updated = [...updated, { ...def, ...saved }];
-    }
-  }
-  // Merge protected data on top of existing operators so code defaults never overwrite saved values
-  updated = mergeProtectedData(updated);
-  // Legacy migration only if no protected data exists for FILU paypal
-  updated = updated.map(o => {
-    if ((o.name || '').toLowerCase() === 'filu' && (!o.paypal_username || o.paypal_username === 'ponchordzp')) {
-      const filuProtected = protected_['FILU'] || {};
-      return filuProtected.paypal_username ? o : { ...o, paypal_username: 'filumarine' };
-    }
-    return o;
-  });
-  return updated;
-}
-
-function loadOperators() {
-  try {
-    const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
-    if (raw) {
-      const ops = JSON.parse(raw);
-      // ONLY merge protected fields, DO NOT force respawn of deleted operators
-      // and DO NOT hardcode 'filumarine' paypal resets.
-      const updated = mergeProtectedData(ops);
-      return updated;
-    }
-  } catch {}
-  // Only if the storage is completely empty, we provide the initial defaults
-  const defaults = ensureDefaults([]);
-  localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(defaults));
-  return defaults;
-}
-
-function saveOperators(ops) {
-  localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(ops));
-  // Always persist protected/sensitive fields in a separate vault
-  saveProtectedData(ops);
-}
+import { useOperators } from '@/hooks/useOperators';
 
 const COLORS = ['#1e88e5','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899','#6366f1'];
 
@@ -334,7 +249,7 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
 }
 
 export default function OperatorsDashboard() {
-  const [operators, setOperators] = useState(loadOperators);
+  const { operators, createOp, updateOp, deleteOp } = useOperators();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingOp, setEditingOp] = useState(null);
   const [addBoatForOperator, setAddBoatForOperator] = useState(null);
@@ -373,26 +288,21 @@ export default function OperatorsDashboard() {
     setDialogOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim()) return;
-    let updated;
     if (editingOp) {
-      updated = operators.map(o => o.id === editingOp.id ? { ...o, ...form } : o);
+      await updateOp.mutateAsync({ id: editingOp.id, data: form });
     } else {
-      updated = [...operators, { id: `op_${Date.now()}`, ...form }];
+      await createOp.mutateAsync(form);
     }
-    saveOperators(updated);
-    setOperators(updated);
     // Sync paypal_username directly onto all boats of this operator in the DB
     syncPaypalToBoats(form.name, form.paypal_username);
     setDialogOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm('Remove this operator?')) return;
-    const updated = operators.filter(o => o.id !== id);
-    saveOperators(updated);
-    setOperators(updated);
+    await deleteOp.mutateAsync(id);
   };
 
   return (

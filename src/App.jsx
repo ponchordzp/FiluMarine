@@ -21,8 +21,14 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
+import { useOperators } from '@/hooks/useOperators';
+
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  
+  // This hook ensures operators are fetched from the database and synced to localStorage globally
+  // so that frozen/legacy components relying on localStorage still work accurately across environments.
+  useOperators();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
