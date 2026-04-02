@@ -179,25 +179,22 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
   // Roles the current user is allowed to assign when creating/editing
   const allowedRolesToCreate = ROLE_HIERARCHY[currentUser?.role] || [];
 
-  // Operator admins only see users from their own operator.
-  // Fallback to FILU if operator is empty.
-  const scopedUsers = isOperatorAdmin
-    ? appUsers.filter((u) => {
-        const currentOp = (currentUserOperator || 'FILU').toLowerCase();
-        const userOp = (u.operator || 'FILU').toLowerCase();
-        return userOp === currentOp;
-      })
-    : appUsers;
+  // Determine which users the current view should consider
+  const scopedUsers = appUsers.filter((u) => {
+    if (!isSuperAdmin) {
+      const currentOp = (currentUserOperator || 'FILU').toLowerCase();
+      const userOp = (u.operator || 'FILU').toLowerCase();
+      return userOp === currentOp;
+    } else if (operatorFilter !== 'all') {
+      const userOp = (u.operator || 'FILU').toLowerCase();
+      return userOp === operatorFilter.toLowerCase();
+    }
+    return true;
+  });
 
   // Filtered users
   const filteredUsers = scopedUsers.filter((u) => {
-    const roleMatch = roleTab === 'all' || u.role === roleTab;
-    let opMatch = true;
-    if (operatorFilter !== 'all') {
-      const userOp = (u.operator || 'FILU').toLowerCase();
-      opMatch = userOp === operatorFilter.toLowerCase();
-    }
-    return roleMatch && opMatch;
+    return roleTab === 'all' || u.role === roleTab;
   });
 
   const countByRole = (role) => scopedUsers.filter((u) => u.role === role).length;
@@ -275,26 +272,28 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
             
               {tab.label}
               {tab.value !== 'all' && <span className="ml-1.5 opacity-60">({countByRole(tab.value)})</span>}
-              {tab.value === 'all' && <span className="ml-1.5 opacity-60">({appUsers.length})</span>}
+              {tab.value === 'all' && <span className="ml-1.5 opacity-60">({scopedUsers.length})</span>}
             </button>
           )}
         </div>
 
         {/* Operator filter */}
-        <div className="flex items-center gap-2">
-          <Building2 className="h-3.5 w-3.5 text-white/40" />
-          <select
-            value={localOperatorFilter}
-            onChange={(e) => setLocalOperatorFilter(e.target.value)}
-            className="text-xs rounded-lg px-2.5 py-1.5 text-white/70 border"
-            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}>
-            
-            <option value="all">All Operators</option>
-            {operators.map((op) =>
-            <option key={op.id} value={op.name}>{op.name}</option>
-            )}
-          </select>
-        </div>
+        {isSuperAdmin && (
+          <div className="flex items-center gap-2">
+            <Building2 className="h-3.5 w-3.5 text-white/40" />
+            <select
+              value={localOperatorFilter}
+              onChange={(e) => setLocalOperatorFilter(e.target.value)}
+              className="text-xs rounded-lg px-2.5 py-1.5 text-white/70 border"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)' }}>
+              
+              <option value="all">All Operators</option>
+              {operators.map((op) =>
+              <option key={op.id} value={op.name}>{op.name}</option>
+              )}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Users list */}
