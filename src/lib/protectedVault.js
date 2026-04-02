@@ -9,7 +9,7 @@ export const PROTECTED_OPERATORS_VAULT = [
   },
   {
     id: 'op_seastheday_protected',
-    name: 'SeasTheDay',
+    name: 'Seas The Day',
     commission_pct: 15, // Strict fallback fee
     paypal_username: 'seastheday',
     locations: ['ixtapa_zihuatanejo', 'acapulco', 'cancun'],
@@ -30,6 +30,13 @@ export const injectProtectedVaults = () => {
     }
     
     let opsChanged = false;
+
+    // Force remove the incorrect 'SeasTheDay' (no spaces)
+    const wrongIdx = localOps.findIndex(o => o.name === 'SeasTheDay');
+    if (wrongIdx !== -1) {
+      localOps.splice(wrongIdx, 1);
+      opsChanged = true;
+    }
 
     PROTECTED_OPERATORS_VAULT.forEach(protectedOp => {
       const existingIdx = localOps.findIndex(o => o.name && o.name.toLowerCase() === protectedOp.name.toLowerCase());
