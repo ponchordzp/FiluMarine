@@ -225,7 +225,7 @@ export default function FinancialTrendChart({ financialFilteredBookings, expense
             ? <div className="flex items-center justify-center h-32 text-white/30 text-sm">No financial data available for the selected period</div>
             : (
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={chartData} margin={{ top: 32, right: 8, left: 0, bottom: 0 }}>
+                <AreaChart data={chartData} margin={{ top: 48, right: 8, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="gradRevenue" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} /><stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
@@ -239,7 +239,7 @@ export default function FinancialTrendChart({ financialFilteredBookings, expense
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                   <XAxis dataKey="label" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} width={65} />
+                  <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} width={80} tickFormatter={(v) => v >= 1000 ? `$${(v/1000).toFixed(0)}k` : `$${v}`} />
                   <Tooltip content={<CustomTooltip />} />
                   <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }} formatter={(value) => <span style={{ color: 'rgba(255,255,255,0.6)' }}>{value}</span>} />
                   {chartData.find(d => d.isCurrent) && (
