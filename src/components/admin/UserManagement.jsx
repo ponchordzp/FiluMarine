@@ -171,20 +171,6 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     if (dialogOpen) setCustomRoles(loadCustomRoles());
   }, [dialogOpen]);
 
-  const allRoleTabs = [
-    ...BUILT_IN_ROLE_TABS,
-    ...customRoles.map((r) => ({ value: r.key, label: r.label + 's' }))
-  ];
-
-  // For non-superadmins, only show the "All" tab + tabs where scoped users actually exist
-  const ROLE_TABS = isSuperAdmin
-    ? allRoleTabs
-    : allRoleTabs.filter((tab) => tab.value === 'all' || scopedUsers.some((u) => u.role === tab.value));
-
-
-  // Roles the current user is allowed to assign when creating/editing
-  const allowedRolesToCreate = ROLE_HIERARCHY[currentUser?.role] || [];
-
   // Determine which users the current view should consider
   const scopedUsers = appUsers.filter((u) => {
     if (!isSuperAdmin) {
@@ -197,6 +183,19 @@ export default function UserManagement({ currentUser, operatorFilter: externalOp
     }
     return true;
   });
+
+  const allRoleTabs = [
+    ...BUILT_IN_ROLE_TABS,
+    ...customRoles.map((r) => ({ value: r.key, label: r.label + 's' }))
+  ];
+
+  // For non-superadmins, only show the "All" tab + tabs where scoped users actually exist
+  const ROLE_TABS = isSuperAdmin
+    ? allRoleTabs
+    : allRoleTabs.filter((tab) => tab.value === 'all' || scopedUsers.some((u) => u.role === tab.value));
+
+  // Roles the current user is allowed to assign when creating/editing
+  const allowedRolesToCreate = ROLE_HIERARCHY[currentUser?.role] || [];
 
   // Filtered users
   const filteredUsers = scopedUsers.filter((u) => {
