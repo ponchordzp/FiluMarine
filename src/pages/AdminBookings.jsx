@@ -99,8 +99,10 @@ function AdminBookingsInner() {
   const effectiveOperatorFilter = isSuperAdmin ? globalOperatorFilter : currentUserOperator || 'all';
   const [financialTimeFilter, setFinancialTimeFilter] = useState('all');
   const [financialBoatFilter, setFinancialBoatFilter] = useState('all');
+  const [financialOperatorFilterLocal, setFinancialOperatorFilterLocal] = useState('all');
   const [bookingTimeFilter, setBookingTimeFilter] = useState('all');
   const [bookingBoatFilter, setBookingBoatFilter] = useState('all');
+  const [bookingOperatorFilterLocal, setBookingOperatorFilterLocal] = useState('all');
   const [customDateRangeFinancial, setCustomDateRangeFinancial] = useState({ from: null, to: null });
   const [customDateRangeBooking, setCustomDateRangeBooking] = useState({ from: null, to: null });
   const [showCustomDatePickerFinancial, setShowCustomDatePickerFinancial] = useState(false);
@@ -391,6 +393,9 @@ function AdminBookingsInner() {
     setExpandedRows((prev) => ({ ...prev, [category]: !prev[category] }));
   };
 
+  // Compute unique operators for the filters
+  const uniqueOperators = Array.from(new Set(allBoats.map(b => b.operator).filter(Boolean))).sort();
+
   // Filter bookings/expenses for financial KPIs
   const financialFilteredBoats = financialBoatFilter === 'all' ?
   filteredOperatorBoats !== null ? filteredOperatorBoats : allBoats.map((b) => b.name) :
@@ -442,6 +447,10 @@ function AdminBookingsInner() {
   };
 
   const financialFilteredBookings = visibleBookings.filter((b) => {
+    if (isSuperAdmin && financialOperatorFilterLocal !== 'all') {
+      const boat = allBoats.find(ab => ab.name === b.boat_name);
+      if (!boat || (boat.operator || 'FILU').toLowerCase() !== financialOperatorFilterLocal.toLowerCase()) return false;
+    }
     if (financialBoatFilter !== 'all' && b.boat_name !== financialBoatFilter) return false;
     if (financialTimeFilter !== 'all') {
       const range = getTimeRange(financialTimeFilter, customDateRangeFinancial);
@@ -458,6 +467,10 @@ function AdminBookingsInner() {
   [bookingBoatFilter];
 
   const bookingFilteredBookings = visibleBookings.filter((b) => {
+    if (isSuperAdmin && bookingOperatorFilterLocal !== 'all') {
+      const boat = allBoats.find(ab => ab.name === b.boat_name);
+      if (!boat || (boat.operator || 'FILU').toLowerCase() !== bookingOperatorFilterLocal.toLowerCase()) return false;
+    }
     if (bookingBoatFilter !== 'all' && b.boat_name !== bookingBoatFilter) return false;
     if (bookingTimeFilter !== 'all') {
       const range = getTimeRange(bookingTimeFilter, customDateRangeBooking);
@@ -665,8 +678,8 @@ function AdminBookingsInner() {
           </button>
           {expandedRows.financial &&
           <div className="space-y-4">
-                <div className="grid md:grid-cols-3 gap-2 mb-3">
-                  <div>
+                <div className={`grid gap-2 mb-3 ${isSuperAdmin ? (financialTimeFilter === 'custom' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-4') : (financialTimeFilter === 'custom' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2')}`}>
+                  <div className={financialTimeFilter !== 'custom' ? (isSuperAdmin ? 'col-span-1 md:col-span-2' : 'col-span-1 md:col-span-1') : 'col-span-1 md:col-span-1'}>
                     <Label className="text-emerald-200 text-xs font-semibold">Time Range</Label>
                     <Select value={financialTimeFilter} onValueChange={(val) => {setFinancialTimeFilter(val);if (val !== 'custom') setShowCustomDatePickerFinancial(false);}}>
                       <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
@@ -681,16 +694,17 @@ function AdminBookingsInner() {
                     </Select>
                   </div>
                   {financialTimeFilter === 'custom' &&
-              <Dialog open={showCustomDatePickerFinancial} onOpenChange={setShowCustomDatePickerFinancial}>
-                      <DialogTrigger asChild>
-                        <Button className="mt-6 text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 flex items-center gap-1.5" style={{ border: '1px solid rgba(16,185,129,0.25)' }}>
-                          <CalendarIcon className="h-3.5 w-3.5" />{customDateRangeFinancial.from && customDateRangeFinancial.to ? `${format(customDateRangeFinancial.from, 'MMM d')} - ${format(customDateRangeFinancial.to, 'MMM d')}` : 'Select Dates'}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <div className="col-span-1 md:col-span-2 flex justify-center">
+                    <div>
+                      <Label className="text-emerald-200 text-xs font-semibold opacity-0 hidden md:block">Custom Range</Label>
+                      <Dialog open={showCustomDatePickerFinancial} onOpenChange={setShowCustomDatePickerFinancial}>
+                        <DialogTrigger asChild>
+                          <Button className="mt-1 w-full text-xs bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 flex items-center justify-start gap-1.5 h-9" style={{ border: '1px solid rgba(16,185,129,0.25)' }}>
+                            <CalendarIcon className="h-3.5 w-3.5" />{customDateRangeFinancial.from && customDateRangeFinancial.to ? `${format(customDateRangeFinancial.from, 'MMM d')} - ${format(customDateRangeFinancial.to, 'MMM d')}` : 'Select Dates'}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                          <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
+                          <div className="flex justify-center">
                             <Calendar 
                               mode="range"
                               selected={{ from: customDateRangeFinancial.from, to: customDateRangeFinancial.to }} 
@@ -698,20 +712,35 @@ function AdminBookingsInner() {
                               className="rounded-lg border border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-day_selected]:!bg-emerald-600 [&_.rdp-day_selected]:!text-white [&_.rdp-day_range_middle]:!bg-emerald-600/30 p-4" 
                             />
                           </div>
-                        </div>
-                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerFinancial(false)} disabled={!customDateRangeFinancial.from || !customDateRangeFinancial.to}>
-                          Apply Range
-                        </Button>
-                      </DialogContent>
-                    </Dialog>
-              }
+                          <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerFinancial(false)} disabled={!customDateRangeFinancial.from || !customDateRangeFinancial.to}>
+                            Apply Range
+                          </Button>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  }
+                  {isSuperAdmin && (
+                    <div>
+                      <Label className="text-emerald-200 text-xs font-semibold">Operator</Label>
+                      <Select value={financialOperatorFilterLocal} onValueChange={(val) => { setFinancialOperatorFilterLocal(val); setFinancialBoatFilter('all'); }}>
+                        <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Operators</SelectItem>
+                          <SelectItem value="FILU">FILU</SelectItem>
+                          {uniqueOperators.filter(op => op && op.toLowerCase() !== 'filu').map((op) =>
+                            <SelectItem key={op} value={op}>{op}</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                   <div>
                     <Label className="text-emerald-200 text-xs font-semibold">Boat</Label>
                     <Select value={financialBoatFilter} onValueChange={setFinancialBoatFilter}>
                       <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)' }}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Boats</SelectItem>
-                        {(filteredOperatorBoats !== null ? filteredOperatorBoats : allBoats.map((b) => b.name)).map((boat) =>
+                        {(filteredOperatorBoats !== null ? filteredOperatorBoats : allBoats.filter(b => isSuperAdmin && financialOperatorFilterLocal !== 'all' ? (b.operator || 'FILU').toLowerCase() === financialOperatorFilterLocal.toLowerCase() : true).map((b) => b.name)).map((boat) =>
                     <SelectItem key={boat} value={boat}>{boat}</SelectItem>
                     )}
                       </SelectContent>
@@ -778,8 +807,8 @@ function AdminBookingsInner() {
             </button>
             {expandedRows.bookings &&
           <>
-                <div className="grid md:grid-cols-3 gap-2 mb-3">
-                  <div>
+                <div className={`grid gap-2 mb-3 ${isSuperAdmin ? (bookingTimeFilter === 'custom' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-4') : (bookingTimeFilter === 'custom' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2')}`}>
+                  <div className={bookingTimeFilter !== 'custom' ? (isSuperAdmin ? 'col-span-1 md:col-span-2' : 'col-span-1 md:col-span-1') : 'col-span-1 md:col-span-1'}>
                     <Label className="text-blue-200 text-xs font-semibold">Time Range</Label>
                     <Select value={bookingTimeFilter} onValueChange={(val) => {setBookingTimeFilter(val);if (val !== 'custom') setShowCustomDatePickerBooking(false);}}>
                       <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
@@ -794,16 +823,17 @@ function AdminBookingsInner() {
                     </Select>
                   </div>
                   {bookingTimeFilter === 'custom' &&
-              <Dialog open={showCustomDatePickerBooking} onOpenChange={setShowCustomDatePickerBooking}>
-                      <DialogTrigger asChild>
-                        <Button className="mt-6 text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 flex items-center gap-1.5" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
-                          <CalendarIcon className="h-3.5 w-3.5" />{customDateRangeBooking.from && customDateRangeBooking.to ? `${format(customDateRangeBooking.from, 'MMM d')} - ${format(customDateRangeBooking.to, 'MMM d')}` : 'Select Dates'}
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
-                        <div className="grid md:grid-cols-2 gap-6">
-                          <div className="col-span-1 md:col-span-2 flex justify-center">
+                    <div>
+                      <Label className="text-blue-200 text-xs font-semibold opacity-0 hidden md:block">Custom Range</Label>
+                      <Dialog open={showCustomDatePickerBooking} onOpenChange={setShowCustomDatePickerBooking}>
+                        <DialogTrigger asChild>
+                          <Button className="mt-1 w-full text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 flex items-center justify-start gap-1.5 h-9" style={{ border: '1px solid rgba(59,130,246,0.25)' }}>
+                            <CalendarIcon className="h-3.5 w-3.5" />{customDateRangeBooking.from && customDateRangeBooking.to ? `${format(customDateRangeBooking.from, 'MMM d')} - ${format(customDateRangeBooking.to, 'MMM d')}` : 'Select Dates'}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                          <DialogHeader><DialogTitle>Select Date Range</DialogTitle></DialogHeader>
+                          <div className="flex justify-center">
                             <Calendar 
                               mode="range"
                               selected={{ from: customDateRangeBooking.from, to: customDateRangeBooking.to }} 
@@ -811,20 +841,35 @@ function AdminBookingsInner() {
                               className="rounded-lg border border-white/10 bg-black/40 text-white [&_.rdp-cell]:text-white [&_.rdp-head_cell]:text-white/70 [&_.rdp-button]:text-white hover:[&_.rdp-button]:bg-white/20 [&_.rdp-day_selected]:!bg-blue-600 [&_.rdp-day_selected]:!text-white [&_.rdp-day_range_middle]:!bg-blue-600/30 p-4" 
                             />
                           </div>
-                        </div>
-                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowCustomDatePickerBooking(false)} disabled={!customDateRangeBooking.from || !customDateRangeBooking.to}>
-                          Apply Range
-                        </Button>
-                      </DialogContent>
-                    </Dialog>
-              }
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setShowCustomDatePickerBooking(false)} disabled={!customDateRangeBooking.from || !customDateRangeBooking.to}>
+                            Apply Range
+                          </Button>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  }
+                  {isSuperAdmin && (
+                    <div>
+                      <Label className="text-blue-200 text-xs font-semibold">Operator</Label>
+                      <Select value={bookingOperatorFilterLocal} onValueChange={(val) => { setBookingOperatorFilterLocal(val); setBookingBoatFilter('all'); }}>
+                        <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Operators</SelectItem>
+                          <SelectItem value="FILU">FILU</SelectItem>
+                          {uniqueOperators.filter(op => op && op.toLowerCase() !== 'filu').map((op) =>
+                            <SelectItem key={op} value={op}>{op}</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                   <div>
                     <Label className="text-blue-200 text-xs font-semibold">Boat</Label>
                     <Select value={bookingBoatFilter} onValueChange={setBookingBoatFilter}>
                       <SelectTrigger className="mt-1 text-white text-xs" style={{ background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)' }}><SelectValue /></SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Boats</SelectItem>
-                        {(filteredOperatorBoats !== null ? filteredOperatorBoats : allBoats.map((b) => b.name)).map((boat) =>
+                        {(filteredOperatorBoats !== null ? filteredOperatorBoats : allBoats.filter(b => isSuperAdmin && bookingOperatorFilterLocal !== 'all' ? (b.operator || 'FILU').toLowerCase() === bookingOperatorFilterLocal.toLowerCase() : true).map((b) => b.name)).map((boat) =>
                     <SelectItem key={boat} value={boat}>{boat}</SelectItem>
                     )}
                       </SelectContent>
