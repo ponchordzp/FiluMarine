@@ -538,8 +538,13 @@ function AdminBookingsInner() {
       let op = null;
       if (boatOpName && boatOpName !== 'filu') {
         op = ops.find((o) => (o.name || '').toLowerCase().trim() === boatOpName);
+        // If an explicit operator was defined but missing from ops, DO NOT fallback to FILU.
+        // The operator's specific commission (or 0) should be used, not FILU's.
+        if (!op) return 0;
+      } else {
+        // Only fallback to FILU if the boat belongs to FILU or has no operator assigned.
+        op = ops.find((o) => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
       }
-      if (!op) op = ops.find((o) => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
       const fee = parseFloat(op?.commission_pct);
       return isNaN(fee) ? 0 : fee;
     } catch {

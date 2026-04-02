@@ -14,7 +14,7 @@ const OPERATOR_STORAGE_KEY = 'filu_operators';
 const OPERATOR_PROTECTED_KEY = 'filu_operators_protected'; // stores sensitive fields separately so they survive code edits
 
 // Protected fields that must never be overwritten by default values or code changes
-const PROTECTED_FIELDS = ['commission_pct', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color', 'locations'];
+const PROTECTED_FIELDS = ['id', 'name', 'commission_pct', 'paypal_username', 'bank_name', 'bank_account_clabe', 'bank_account_number', 'bank_account_holder', 'bank_notes', 'contact_name', 'contact_email', 'contact_phone', 'description', 'color', 'locations'];
 
 function loadProtectedData() {
   try {

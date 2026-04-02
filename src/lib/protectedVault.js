@@ -8,6 +8,14 @@ export const PROTECTED_OPERATORS_VAULT = [
     is_active: true
   },
   {
+    id: 'op_hilario_protected',
+    name: 'HILARIO',
+    commission_pct: 0, // Original default fee for Hilario
+    paypal_username: '',
+    locations: ['ixtapa_zihuatanejo', 'acapulco', 'cancun'],
+    is_active: true
+  },
+  {
     id: 'op_seastheday_protected',
     name: 'Seas The Day',
     commission_pct: 15, // Strict fallback fee
@@ -102,6 +110,26 @@ export const injectProtectedVaults = () => {
              const saved = protectedData[op.name.toUpperCase()];
              if (!saved) return op;
              return { ...op, ...saved };
+          });
+
+          // Restore any operators that exist in the protected vault but are missing from the current ops array
+          Object.keys(protectedData).forEach(opNameUpper => {
+             const saved = protectedData[opNameUpper];
+             if (!mergedOps.some(op => (op.name || '').toUpperCase() === opNameUpper)) {
+               mergedOps.push({
+                 id: saved.id || `op_${opNameUpper.toLowerCase()}_restored`,
+                 name: saved.name || opNameUpper,
+                 ...saved
+               });
+             }
+          });
+
+          // Ensure strict hard-coded PROTECTED_OPERATORS_VAULT are always present
+          PROTECTED_OPERATORS_VAULT.forEach(protectedOp => {
+             const existingIdx = mergedOps.findIndex(op => (op.name || '').toUpperCase() === protectedOp.name.toUpperCase());
+             if (existingIdx === -1) {
+               mergedOps.push({...protectedOp, ...(protectedData[protectedOp.name.toUpperCase()] || {})});
+             }
           });
 
           return JSON.stringify(mergedOps);

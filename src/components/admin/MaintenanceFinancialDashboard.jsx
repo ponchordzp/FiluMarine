@@ -760,8 +760,10 @@ function getOperatorCommission(boatName, allBoats, operatorFilter = 'all') {
     let op = null;
     if (boatOpName && boatOpName !== 'filu') {
       op = ops.find(o => (o.name || '').toLowerCase().trim() === boatOpName);
+      if (!op) return 0;
+    } else {
+      op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
     }
-    if (!op) op = ops.find(o => (o.name || '').toLowerCase().trim() === 'filu') || ops[0];
     return parseFloat(op?.commission_pct || 0);
   } catch {
     return 0;
