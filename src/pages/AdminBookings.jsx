@@ -732,10 +732,10 @@ function AdminBookingsInner() {
                       <h4 className="text-[10px] font-semibold text-emerald-300 uppercase tracking-wider">KPIs</h4>
                       <div className="grid grid-cols-5 gap-2">
                         {[
-                      { label: 'Revenue', value: `$${(revenue / 1000).toFixed(1)}k`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', Icon: TrendingUp },
-                      { label: 'Expenses', value: `$${(operationalExpenses / 1000).toFixed(1)}k`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', Icon: TrendingDown },
-                      { label: 'Fees', value: `$${(fees / 1000).toFixed(1)}k`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', Icon: CreditCard },
-                      { label: 'Net Profit', value: `$${(netProfit / 1000).toFixed(1)}k`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', Icon: BarChart2 },
+                      { label: 'Revenue', value: `$${revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, color: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.3)', text: 'text-emerald-300', Icon: TrendingUp },
+                      { label: 'Expenses', value: `$${operationalExpenses.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, color: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.3)', text: 'text-red-300', Icon: TrendingDown },
+                      { label: 'Fees', value: `$${fees.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, color: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.3)', text: 'text-amber-300', Icon: CreditCard },
+                      { label: 'Net Profit', value: `$${netProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, color: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.3)', text: 'text-blue-300', Icon: BarChart2 },
                       { label: 'Margin', value: `${margin}%`, color: 'rgba(168,85,247,0.12)', border: 'rgba(168,85,247,0.3)', text: 'text-purple-300', Icon: Percent }].
                       map((s) =>
                       <div key={s.label} className="rounded-lg px-2 py-2 flex flex-col items-center justify-center gap-1" style={{ background: s.color, border: `1px solid ${s.border}` }}>
