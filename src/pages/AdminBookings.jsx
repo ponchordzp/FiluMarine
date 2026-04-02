@@ -108,6 +108,7 @@ function AdminBookingsInner() {
   const [activeTab, setActiveTab] = useState('bookings');
   const [showPracticeGenerator, setShowPracticeGenerator] = useState(false);
   const [practiceBoatFilter, setPracticeBoatFilter] = useState('');
+  const [practiceExpeditionFilter, setPracticeExpeditionFilter] = useState('');
   const [practiceCount, setPracticeCount] = useState(1);
 
   const queryClient = useQueryClient();
@@ -130,9 +131,35 @@ function AdminBookingsInner() {
   // Set default boat when allBoats loads
   React.useEffect(() => {
     if (allBoats.length > 0 && !practiceBoatFilter) {
-      setPracticeBoatFilter(allBoats[0].name);
+      const isSuperAdminLocal = currentUser?.role === 'superadmin';
+      const isOpAdminLocal = currentUser?.role === 'operator_admin';
+      const isCharterOpLocal = currentUser?.role === 'charter_operator';
+      const hasElevLocal = isSuperAdminLocal || isOpAdminLocal || isCharterOpLocal;
+      const opFilterLocal = isSuperAdminLocal ? globalOperatorFilter : currentUser?.operator || 'all';
+      
+      const filteredOps = opFilterLocal && opFilterLocal !== 'all' ? allBoats.filter(b => (b.operator || '').toLowerCase() === opFilterLocal.toLowerCase()) : allBoats;
+      
+      const allowedBoats = hasElevLocal ? filteredOps : allBoats.filter(b => b.name === (currentUser?.assigned_boat || ''));
+      
+      if (allowedBoats.length > 0) {
+        setPracticeBoatFilter(allowedBoats[0].name);
+      } else {
+        setPracticeBoatFilter(allBoats[0]?.name || '');
+      }
     }
-  }, [allBoats, practiceBoatFilter]);
+  }, [allBoats, practiceBoatFilter, currentUser, globalOperatorFilter]);
+
+  // Set default expedition when boat changes
+  React.useEffect(() => {
+    const boat = allBoats.find(b => b.name === practiceBoatFilter);
+    if (boat && boat.expedition_pricing?.length > 0) {
+      if (!practiceExpeditionFilter || !boat.expedition_pricing.some(e => e.expedition_type === practiceExpeditionFilter)) {
+        setPracticeExpeditionFilter(boat.expedition_pricing[0].expedition_type);
+      }
+    } else {
+      setPracticeExpeditionFilter('');
+    }
+  }, [practiceBoatFilter, allBoats, practiceExpeditionFilter]);
 
   const { data: expenses = [] } = useQuery({
     queryKey: ['booking-expenses'],
@@ -201,14 +228,26 @@ function AdminBookingsInner() {
     mutationFn: async () => {
       const boat = allBoats.find((b) => b.name === practiceBoatFilter);
       if (!boat) throw new Error('Boat not found');
+      
+      let totalPrice = boat.minor_maintenance_cost || 1000;
+      let expType = 'half_day_fishing';
+      
+      if (practiceExpeditionFilter) {
+        const exp = boat.expedition_pricing?.find(e => e.expedition_type === practiceExpeditionFilter);
+        if (exp && exp.price_mxn) {
+          totalPrice = exp.price_mxn;
+        }
+        expType = practiceExpeditionFilter;
+      }
+
       const bookings = [];
       for (let i = 0; i < practiceCount; i++) {
         const today = new Date();
         today.setDate(today.getDate() + i);
-        const totalPrice = boat.minor_maintenance_cost || 1000;
+        
         const booking = await base44.entities.Booking.create({
           location: boat.location || 'ixtapa_zihuatanejo',
-          experience_type: 'half_day_fishing',
+          experience_type: expType,
           date: format(today, 'yyyy-MM-dd'),
           time_slot: '6:00 AM',
           guests: 2,
@@ -1344,14 +1383,29 @@ function AdminBookingsInner() {
             <div>
               <Label className="text-xs font-semibold text-slate-700">Boat</Label>
               <Select value={practiceBoatFilter} onValueChange={setPracticeBoatFilter}>
-                <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Select boat..." /></SelectTrigger>
                 <SelectContent>
-                  {allBoats.map((boat) =>
+                  {(hasElevatedAccess ? filteredOperatorBoats ? allBoats.filter((b) => filteredOperatorBoats.includes(b.name)) : allBoats : allBoats.filter((b) => b.name === assignedBoat)).map((boat) =>
                   <SelectItem key={boat.id} value={boat.name}>{boat.name}</SelectItem>
                   )}
                 </SelectContent>
               </Select>
             </div>
+            {practiceBoatFilter && allBoats.find(b => b.name === practiceBoatFilter)?.expedition_pricing?.length > 0 && (
+              <div>
+                <Label className="text-xs font-semibold text-slate-700">Expedition Trip</Label>
+                <Select value={practiceExpeditionFilter} onValueChange={setPracticeExpeditionFilter}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select trip..." /></SelectTrigger>
+                  <SelectContent>
+                    {allBoats.find(b => b.name === practiceBoatFilter).expedition_pricing.map(exp => (
+                      <SelectItem key={exp.expedition_type} value={exp.expedition_type}>
+                        {exp.expedition_type.replace(/_/g, ' ')} - ${exp.price_mxn.toLocaleString()} MXN
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div>
               <Label className="text-xs font-semibold text-slate-700">Number of Bookings</Label>
               <Input
@@ -1368,7 +1422,7 @@ function AdminBookingsInner() {
             </p>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setShowPracticeGenerator(false)} className="flex-1">Cancel</Button>
-              <Button onClick={() => createPracticeBookingMutation.mutate()} disabled={createPracticeBookingMutation.isPending} className="flex-1 bg-purple-600 hover:bg-purple-700">
+              <Button onClick={() => createPracticeBookingMutation.mutate()} disabled={createPracticeBookingMutation.isPending || !practiceBoatFilter || (allBoats.find(b => b.name === practiceBoatFilter)?.expedition_pricing?.length > 0 && !practiceExpeditionFilter)} className="flex-1 bg-purple-600 hover:bg-purple-700">
                 {createPracticeBookingMutation.isPending ? 'Creating...' : 'Create'}
               </Button>
             </div>
