@@ -19,23 +19,28 @@ export const PROTECTED_OPERATORS_VAULT = [
 
 export const injectProtectedVaults = () => {
   if (typeof window === 'undefined') return;
-  try {
-    const rawOps = localStorage.getItem('filu_operators');
-    let localOps = rawOps ? JSON.parse(rawOps) : [];
+  
+  const enforceOperatorVault = (rawOpsStr) => {
+    let localOps = [];
+    try {
+      localOps = rawOpsStr ? JSON.parse(rawOpsStr) : [];
+      if (!Array.isArray(localOps)) localOps = [];
+    } catch {
+      localOps = [];
+    }
+    
     let opsChanged = false;
 
     PROTECTED_OPERATORS_VAULT.forEach(protectedOp => {
       const existingIdx = localOps.findIndex(o => o.name && o.name.toLowerCase() === protectedOp.name.toLowerCase());
       
       if (existingIdx === -1) {
-        // Restore completely missing operator (e.g. SeasTheDay missing in published)
         localOps.push({ ...protectedOp });
         opsChanged = true;
       } else {
-        // Protect specific fields from truncation
         const existing = localOps[existingIdx];
         
-        // 1. NEVER delete or truncate the FILU fee field
+        // 1. NEVER delete or truncate the fee field
         if (existing.commission_pct === undefined || existing.commission_pct === null || existing.commission_pct === '' || isNaN(parseFloat(existing.commission_pct))) {
           existing.commission_pct = protectedOp.commission_pct;
           opsChanged = true;
@@ -49,10 +54,36 @@ export const injectProtectedVaults = () => {
       }
     });
 
+    return { localOps, opsChanged };
+  };
+
+  // 1. Initial Injection
+  try {
+    const rawOps = localStorage.getItem('filu_operators');
+    const { localOps, opsChanged } = enforceOperatorVault(rawOps);
+    
     if (opsChanged || !rawOps) {
       localStorage.setItem('filu_operators', JSON.stringify(localOps));
     }
   } catch (e) {
     console.error("Vault injection failed:", e);
+  }
+
+  // 2. Bulletproof Interceptor - ALWAYS intercept setItem to protect data globally
+  if (!window._filuVaultInterceptorInstalled) {
+    const originalSetItem = localStorage.setItem;
+    localStorage.setItem = function(key, value) {
+      // Intercept any attempt to save filu_operators and enforce protection BEFORE saving
+      if (key === 'filu_operators') {
+        try {
+          const { localOps } = enforceOperatorVault(value);
+          value = JSON.stringify(localOps);
+        } catch (e) {
+          console.error("Vault interceptor failed:", e);
+        }
+      }
+      originalSetItem.apply(this, arguments);
+    };
+    window._filuVaultInterceptorInstalled = true;
   }
 };
