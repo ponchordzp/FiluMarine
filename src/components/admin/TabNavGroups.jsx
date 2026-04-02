@@ -197,10 +197,25 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
     ? baseOperators.filter(op => allowedOperators.includes(op.name))
     : baseOperators;
 
+  // Apply per-operator locations
+  let effectiveAllowedLocations = allowedLocations;
+  const currentOpName = !isSuperAdmin ? currentUserOperator : (operatorFilter !== 'all' ? operatorFilter : null);
+
+  if (currentOpName) {
+    const opData = allOperators.find(op => (op.name || '').toLowerCase() === currentOpName.toLowerCase());
+    if (opData && opData.locations && opData.locations.length > 0) {
+      if (effectiveAllowedLocations.includes('all')) {
+        effectiveAllowedLocations = opData.locations;
+      } else {
+        effectiveAllowedLocations = effectiveAllowedLocations.filter(l => opData.locations.includes(l));
+      }
+    }
+  }
+
   // Apply per-user allowed_locations filter
-  const displayLocations = allowedLocations.includes('all')
+  const displayLocations = effectiveAllowedLocations.includes('all')
     ? allLocationOptions
-    : allLocationOptions.filter(l => allowedLocations.includes(l.id));
+    : allLocationOptions.filter(l => effectiveAllowedLocations.includes(l.id));
 
   // Auto-lock: if only 1 operator visible, always force it selected
   const singleOperatorLock = displayOperators.length === 1 ? displayOperators[0].name : null;
