@@ -26,6 +26,7 @@ function loadProtectedData() {
 function saveProtectedData(ops) {
   const protected_ = {};
   ops.forEach(op => {
+    if (!op || !op.name) return; // Safeguard against unnamed operators
     protected_[op.name.toUpperCase()] = {};
     PROTECTED_FIELDS.forEach(f => { if (op[f] !== undefined) protected_[op.name.toUpperCase()][f] = op[f]; });
   });
@@ -35,7 +36,8 @@ function saveProtectedData(ops) {
 function mergeProtectedData(ops) {
   const protected_ = loadProtectedData();
   return ops.map(op => {
-    const saved = protected_[(op.name || '').toUpperCase()];
+    if (!op || !op.name) return op; // Safeguard
+    const saved = protected_[op.name.toUpperCase()];
     if (!saved) return op;
     // Protected fields from storage always win over defaults
     return { ...op, ...saved };

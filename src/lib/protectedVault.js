@@ -83,4 +83,34 @@ export const injectProtectedVaults = () => {
     };
     window._filuVaultInterceptorInstalled = true;
   }
+
+  // 3. Bulletproof GET Interceptor - ALWAYS return fully merged, accurate data
+  if (!window._filuVaultGetInterceptorInstalled) {
+    const originalGetItem = localStorage.getItem;
+    localStorage.getItem = function(key) {
+      const rawValue = originalGetItem.apply(this, arguments);
+      if (key === 'filu_operators' && rawValue) {
+        try {
+          const ops = JSON.parse(rawValue);
+          if (!Array.isArray(ops)) return rawValue;
+
+          const protectedRaw = originalGetItem.call(this, 'filu_operators_protected');
+          const protectedData = protectedRaw ? JSON.parse(protectedRaw) : {};
+
+          const mergedOps = ops.map(op => {
+             if (!op || !op.name) return op;
+             const saved = protectedData[op.name.toUpperCase()];
+             if (!saved) return op;
+             return { ...op, ...saved };
+          });
+
+          return JSON.stringify(mergedOps);
+        } catch (e) {
+          console.error("Vault get interceptor failed:", e);
+        }
+      }
+      return rawValue;
+    };
+    window._filuVaultGetInterceptorInstalled = true;
+  }
 };
