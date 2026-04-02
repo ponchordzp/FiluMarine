@@ -44,21 +44,9 @@ export const injectProtectedVaults = () => {
       if (existingIdx === -1) {
         localOps.push({ ...protectedOp });
         opsChanged = true;
-      } else {
-        const existing = localOps[existingIdx];
-        
-        // 1. NEVER delete or truncate the fee field
-        if (existing.commission_pct === undefined || existing.commission_pct === null || existing.commission_pct === '' || isNaN(parseFloat(existing.commission_pct))) {
-          existing.commission_pct = protectedOp.commission_pct;
-          opsChanged = true;
-        }
-        
-        // 2. Protect assigned locations from being deleted
-        if (!existing.locations || !Array.isArray(existing.locations) || existing.locations.length === 0) {
-          existing.locations = [...protectedOp.locations];
-          opsChanged = true;
-        }
       }
+      // We explicitly DO NOT touch existing operators here so that we NEVER 
+      // overwrite or truncate any fields configured in the Operators Dashboard.
     });
 
     return { localOps, opsChanged };
@@ -83,13 +71,15 @@ export const injectProtectedVaults = () => {
       // Intercept any attempt to save filu_operators and enforce protection BEFORE saving
       if (key === 'filu_operators') {
         try {
-          const { localOps } = enforceOperatorVault(value);
-          value = JSON.stringify(localOps);
+          const { localOps, opsChanged } = enforceOperatorVault(value);
+          if (opsChanged) {
+            value = JSON.stringify(localOps);
+          }
         } catch (e) {
           console.error("Vault interceptor failed:", e);
         }
       }
-      originalSetItem.apply(this, arguments);
+      originalSetItem.apply(this, [key, value]);
     };
     window._filuVaultInterceptorInstalled = true;
   }

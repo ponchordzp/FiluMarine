@@ -76,11 +76,13 @@ function loadOperators() {
     const raw = localStorage.getItem(OPERATOR_STORAGE_KEY);
     if (raw) {
       const ops = JSON.parse(raw);
-      const updated = ensureDefaults(ops);
-      localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(updated));
+      // ONLY merge protected fields, DO NOT force respawn of deleted operators
+      // and DO NOT hardcode 'filumarine' paypal resets.
+      const updated = mergeProtectedData(ops);
       return updated;
     }
   } catch {}
+  // Only if the storage is completely empty, we provide the initial defaults
   const defaults = ensureDefaults([]);
   localStorage.setItem(OPERATOR_STORAGE_KEY, JSON.stringify(defaults));
   return defaults;
