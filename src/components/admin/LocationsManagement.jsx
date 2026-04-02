@@ -73,9 +73,16 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['locations'] })
   });
 
-  const toggleVisibility = (loc) => {
+  const toggleVisibility = async (loc) => {
     const isVisible = loc.visible !== false;
-    updateMutation.mutate({ id: loc.id, data: { visible: !isVisible } });
+    try {
+      // Strip base fields and update using direct SDK call to ensure it bypasses any form reset issues
+      const { id, created_date, updated_date, created_by, ...restData } = loc;
+      await base44.entities.Location.update(loc.id, { ...restData, visible: !isVisible });
+      queryClient.invalidateQueries({ queryKey: ['locations'] });
+    } catch (err) {
+      alert("Error toggling visibility: " + err.message);
+    }
   };
 
   const resetForm = () => {
