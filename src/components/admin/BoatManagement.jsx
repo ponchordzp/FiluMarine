@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
@@ -188,7 +188,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     queryFn: () => base44.entities.Location.list('sort_order'),
   });
   // Build location options: use DB locations if available, fallback to defaults
-  const locationOptions = dbLocations.length > 0
+  let locationOptions = dbLocations.length > 0
     ? dbLocations.filter(l => l.visible !== false).map(l => ({ value: l.location_id, label: l.name }))
     : [
         { value: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' },
@@ -196,6 +196,43 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
         { value: 'cancun', label: 'Cancún' },
       ];
   const getLocationLabel = (val) => locationOptions.find(l => l.value === val)?.label ?? val;
+
+  // Filter locations by operator's assigned locations
+  const [operatorLocations, setOperatorLocations] = useState([]);
+  useEffect(() => {
+    try {
+      const currentOp = formData.operator || defaultOperator;
+      if (currentOp) {
+        const raw = localStorage.getItem('filu_operators_protected');
+        if (raw) {
+          const protectedData = JSON.parse(raw);
+          const opData = protectedData[currentOp.toUpperCase()];
+          if (opData && opData.locations && opData.locations.length > 0) {
+            setOperatorLocations(opData.locations);
+            // If current location is not in the operator's allowed locations, reset to the first allowed
+            setFormData(prev => {
+              if (prev.location && !opData.locations.includes(prev.location)) {
+                return { ...prev, location: opData.locations[0] };
+              }
+              return prev;
+            });
+          } else {
+            setOperatorLocations([]);
+          }
+        } else {
+          setOperatorLocations([]);
+        }
+      } else {
+        setOperatorLocations([]);
+      }
+    } catch {
+      setOperatorLocations([]);
+    }
+  }, [formData.operator, defaultOperator]);
+
+  if (operatorLocations.length > 0) {
+    locationOptions = locationOptions.filter(l => operatorLocations.includes(l.value));
+  }
 
   const { data: bookings = [] } = useQuery({
     queryKey: ['bookings-stats'],
