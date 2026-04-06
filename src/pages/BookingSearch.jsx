@@ -177,7 +177,7 @@ export default function BookingSearch() {
               <p className="text-sm text-white/45">
                 {booking.location === 'acapulco'
                   ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
-                  : 'Dock #12, near the main entrance. Look for the FILU Marine logo.'}
+                  : 'Please head to the pickup location. Look for the FILU Marine logo.'}
               </p>
               <p className="text-sm text-white/55">Please arrive <strong className="text-white/75">15 minutes early</strong> before your scheduled time.</p>
             </div>

@@ -68,7 +68,7 @@ const experiences = {
 
 const generateConfirmationCode = (location) => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const prefix = location === 'acapulco' ? 'ACA-' : 'IXT-';
+  const prefix = location ? (location.substring(0, 3).toUpperCase() + '-') : 'BKG-';
   let code = prefix;
   for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -87,7 +87,7 @@ export default function Home() {
 
 
 
-  const { data: dbLocations = [] } = useQuery({
+  const { data: dbLocations = [], isLoading: isLoadingLocations } = useQuery({
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list('sort_order'),
   });
@@ -171,7 +171,7 @@ export default function Home() {
       <p><strong>${data.pickup_location || 'Marina Ixtapa'}</strong><br/>
       ${data.location === 'acapulco' 
         ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
-        : 'Dock #12, near the main entrance. Look for our boat with the FILU Marine logo.'}<br/>
+        : 'Please head to the pickup location. Look for our boat with the FILU Marine logo.'}<br/>
       Please arrive <strong>15 minutes before</strong> your scheduled departure time.</p>
       
       <h3>What to Bring:</h3>
@@ -255,7 +255,7 @@ export default function Home() {
       // Send WhatsApp notification (note: this creates a message URL that can be used)
       const pickupLocationInfo = data.location === 'acapulco' 
         ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
-        : 'Dock #12, near the main entrance. Look for our boat with the FILU Marine logo.';
+        : 'Please head to the pickup location. Look for our boat with the FILU Marine logo.';
       
       const whatsappMessage = `*NEW BOOKING - FILU MARINE*%0A%0A*Confirmation:* ${confirmationCode}%0A*Experience:* ${experience.title}%0A*Date:* ${format(parseISO(data.date), 'EEEE, MMMM d, yyyy')}%0A*Time:* ${data.time_slot}%0A*Guests:* ${data.guests}%0A*Boat:* ${data.boat_name}%0A*Pickup:* ${data.pickup_location || 'Marina Ixtapa'}%0A${data.taxi_needed ? '*Taxi Needed:* Yes%0A' : ''}%0A*Guest:* ${data.guest_name}%0A*Phone:* ${data.guest_phone}%0A*Total:* $${data.total_price.toLocaleString()} MXN%0A*Deposit:* $${data.deposit_paid.toLocaleString()} MXN%0A*Due:* $${(data.total_price - data.deposit_paid).toLocaleString()} MXN%0A%0A*Meeting:* ${pickupLocationInfo}`;
       
@@ -286,13 +286,21 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  if (isLoadingLocations) {
+    return (
+      <div className="min-h-screen bg-[#060d14] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-white/10 border-t-cyan-500 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   // Location selector
   if (step === 'location') {
     return <LocationSelector onSelectLocation={handleSelectLocation} />;
   }
 
   const locationRecord = dbLocations.find(l => l.location_id === selectedLocation);
-  const locationName = locationRecord?.name || (selectedLocation === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : selectedLocation === 'cancun' ? 'Cancún' : 'Acapulco');
+  const locationName = locationRecord?.name || (selectedLocation ? selectedLocation.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : 'Destinations');
 
   // Landing page view
   if (step === 'landing') {

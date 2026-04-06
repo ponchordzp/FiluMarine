@@ -947,7 +947,7 @@ function AdminBookingsInner() {
                       <SelectItem value="all">All Locations</SelectItem>
                       {Array.from(new Set((hasElevatedAccess ? (filteredOperatorBoats ? allBoats.filter((b) => filteredOperatorBoats.includes(b.name)) : allBoats) : allBoats.filter((b) => b.name === assignedBoat)).map((b) => b.location).filter(Boolean))).map((loc) => (
                         <SelectItem key={loc} value={loc}>
-                          {loc === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : loc === 'acapulco' ? 'Acapulco' : loc === 'cancun' ? 'Cancún' : loc}
+                          {loc.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -1116,7 +1116,7 @@ function AdminBookingsInner() {
                                         <div><Label className="text-slate-500 text-xs">Status</Label><div className="mt-1"><Badge className="bg-slate-100 text-slate-700">{selectedBooking.status}</Badge></div></div>
                                         <div><Label className="text-slate-500 text-xs">Email</Label><p className="font-medium text-sm flex items-center gap-1"><Mail className="h-3 w-3" />{selectedBooking.guest_email}</p></div>
                                         <div><Label className="text-slate-500 text-xs">Phone</Label><p className="font-medium text-sm flex items-center gap-1"><Phone className="h-3 w-3" />{selectedBooking.guest_phone}</p></div>
-                                        <div><Label className="text-slate-500 text-xs">Location</Label><p className="font-medium text-sm">{selectedBooking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</p></div>
+                                        <div><Label className="text-slate-500 text-xs">Location</Label><p className="font-medium text-sm capitalize">{selectedBooking.location?.replace(/_/g, ' ')}</p></div>
                                         <div><Label className="text-slate-500 text-xs">Experience</Label><p className="font-medium text-sm capitalize">{selectedBooking.experience_type?.replace(/_/g, ' ')}</p></div>
                                         <div><Label className="text-slate-500 text-xs">Boat</Label><p className="font-medium text-sm">{selectedBooking.boat_name || 'N/A'}</p></div>
                                         <div><Label className="text-slate-500 text-xs">Pickup</Label><p className="font-medium text-sm">{selectedBooking.pickup_location || 'N/A'}</p></div>

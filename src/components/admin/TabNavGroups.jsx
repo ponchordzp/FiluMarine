@@ -173,7 +173,7 @@ export default function TabNavGroups({ isSuperAdmin, isOperatorAdmin, currentUse
 
   const allLocationOptions = dbLocations.length > 0
     ? dbLocations.map(l => ({ id: l.location_id, label: l.name }))
-    : [{ id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }];
+    : [{ id: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' }, { id: 'acapulco', label: 'Acapulco' }, { id: 'cancun', label: 'Cancún' }];
 
   // Operators scoped by role
   const baseOperators = isSuperAdmin

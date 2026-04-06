@@ -48,6 +48,18 @@ export default function DestinationManagement({ operatorFilter = 'all', location
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
+  const { data: dbLocations = [] } = useQuery({
+    queryKey: ['locations-all'],
+    queryFn: () => base44.entities.Location.list('sort_order'),
+  });
+
+  const getLocationName = (locId) => {
+    const loc = dbLocations.find(l => l.location_id === locId);
+    if (loc) return loc.name;
+    if (!locId) return '';
+    return locId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
   const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
   const userLocation = isUserRestricted ? (() => {
     const userBoats = boats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
@@ -211,9 +223,15 @@ export default function DestinationManagement({ operatorFilter = 'all', location
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
-                      <SelectItem value="acapulco">Acapulco</SelectItem>
-                      <SelectItem value="cancun">Cancún</SelectItem>
+                      {dbLocations.length > 0 ? dbLocations.map(l => (
+                        <SelectItem key={l.location_id} value={l.location_id}>{l.name}</SelectItem>
+                      )) : (
+                        <>
+                          <SelectItem value="ixtapa_zihuatanejo">Ixtapa-Zihuatanejo</SelectItem>
+                          <SelectItem value="acapulco">Acapulco</SelectItem>
+                          <SelectItem value="cancun">Cancún</SelectItem>
+                        </>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
