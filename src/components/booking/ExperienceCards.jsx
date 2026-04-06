@@ -33,6 +33,7 @@ const getPickupLocations = (p) => {
 // Card component shared between both views
 function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) {
   const [expanded, setExpanded] = useState(false);
+  const [expandedDesc, setExpandedDesc] = useState(false);
   const Icon = getExpIcon(exp.expedition_id);
   const includes = exp.includes || [];
 
@@ -62,50 +63,63 @@ function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) 
       </div>
 
       <div className="p-6 flex flex-col flex-grow">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="text-xl font-semibold text-white">{exp.title}</h3>
-          <Icon className="h-6 w-6 text-[#1e88e5] flex-shrink-0 ml-2" />
+        {/* Header - Fixed min Height to align nicely */}
+        <div className="flex items-start justify-between mb-4 min-h-[3.5rem]">
+          <h3 className="text-xl font-semibold text-white line-clamp-2">{exp.title}</h3>
+          <Icon className="h-6 w-6 text-cyan-400 flex-shrink-0 ml-3" />
         </div>
 
-        {exp.description && <p className="text-white/80 text-sm mb-3">{exp.description}</p>}
-
-        {includes.length > 0 && (
-          <div className="mb-3">
+        {/* Description - Fixed min height and line clamp */}
+        <div className="mb-4 flex-shrink-0">
+          <div className={`text-white/80 text-sm ${expandedDesc ? '' : 'line-clamp-3'} min-h-[3.75rem]`}>
+            {exp.description || 'No description available.'}
+          </div>
+          {exp.description && exp.description.length > 110 && (
             <button
-              onClick={() => setExpanded(v => !v)}
-              className="w-full flex items-center justify-between text-xs font-medium text-cyan-400 uppercase tracking-wide hover:text-cyan-300 transition-colors mb-1"
+              onClick={(e) => { e.stopPropagation(); setExpandedDesc(v => !v); }}
+              className="text-cyan-400 text-xs font-medium mt-1 hover:text-cyan-300"
+            >
+              {expandedDesc ? 'Show Less' : 'Read More'}
+            </button>
+          )}
+        </div>
+
+        {/* Included items */}
+        {includes.length > 0 && (
+          <div className="mb-4 flex-shrink-0">
+            <button
+              onClick={(e) => { e.stopPropagation(); setExpanded(v => !v); }}
+              className="w-full flex items-center justify-between text-xs font-semibold text-white/50 uppercase tracking-wide hover:text-white/70 transition-colors"
             >
               <span>What's Included</span>
               <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expanded ? '' : '-rotate-90'}`} />
             </button>
             {expanded && (
-              <div className="flex flex-wrap gap-1.5 mt-1">
+              <div className="flex flex-wrap gap-1.5 mt-3">
                 {includes.map((item, idx) => (
-                  <span key={idx} className="text-xs bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded-full border border-cyan-400/30">{item}</span>
+                  <span key={idx} className="text-xs bg-cyan-500/10 text-cyan-300 px-2.5 py-1.5 rounded-lg border border-cyan-500/20">{item}</span>
                 ))}
               </div>
             )}
           </div>
         )}
 
-        <div className="flex flex-col gap-2 pt-3 border-t border-white/20 mb-3">
-          {exp.ideal_for && (
-            <div className="flex items-center gap-2 text-sm text-white/70">
-              <Users className="h-4 w-4" />
-              <span>{exp.ideal_for}</span>
-            </div>
-          )}
-          {boatNames.length > 0 && (
-            <div className="flex items-center gap-1.5 text-xs text-white/60">
-              <Anchor className="h-3 w-3 flex-shrink-0 text-cyan-400" />
-              <span>{boatNames.join(', ')}</span>
-            </div>
-          )}
+        {/* Details list */}
+        <div className="flex flex-col gap-2.5 pt-4 border-t border-white/10 mb-6 flex-shrink-0">
+          <div className="h-5 flex items-center gap-2 text-sm text-white/70">
+            <Users className="h-4 w-4 text-white/50 flex-shrink-0" />
+            <span className="truncate">{exp.ideal_for || 'Everyone'}</span>
+          </div>
+          
+          <div className="h-5 flex items-center gap-2 text-sm text-white/70">
+            <Anchor className="h-4 w-4 flex-shrink-0 text-white/50" />
+            <span className="truncate">{boatNames.length > 0 ? boatNames.join(', ') : 'All Fleet'}</span>
+          </div>
         </div>
 
         <Button
-          onClick={() => onSelect(exp)}
-          className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.6)] mt-auto overflow-hidden border border-cyan-400/20"
+          onClick={(e) => { e.stopPropagation(); onSelect(exp); }}
+          className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] mt-auto overflow-hidden border border-cyan-400/20"
         >
           <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
           <span className="relative">Select This Experience</span>

@@ -95,8 +95,11 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [expandedEquipment, setExpandedEquipment] = useState({});
   const [expandedExperiences, setExpandedExperiences] = useState({});
+  const [expandedDesc, setExpandedDesc] = useState({});
+  
   const toggleEquipment = (name) => setExpandedEquipment(prev => ({ ...prev, [name]: !prev[name] }));
   const toggleExperiences = (name) => setExpandedExperiences(prev => ({ ...prev, [name]: !prev[name] }));
+  const toggleDesc = (name) => setExpandedDesc(prev => ({ ...prev, [name]: !prev[name] }));
 
   const { data: boatsFromDB = [] } = useQuery({
     queryKey: ['boats', location],
@@ -197,25 +200,39 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
 
               <div className="p-4 sm:p-6 flex flex-col flex-grow">
                 {/* Description */}
-                <p className="text-white/80 text-sm mb-3 line-clamp-3">{boat.description}</p>
-
-                {/* Available Tomorrow Alert — right below description */}
-                {isAvailableTomorrow(boat.name) && (
-                  <div className="mb-3 px-3 py-2 bg-red-500/20 border border-red-500/40 rounded-lg animate-pulse">
-                    <p className="text-xs font-semibold text-red-400 text-center flex items-center justify-center gap-1">
-                      <AlertTriangle className="h-3.5 w-3.5" />Available Tomorrow
-                    </p>
+                <div className="mb-4 flex-shrink-0">
+                  <div className={`text-white/80 text-sm ${expandedDesc[boat.name] ? '' : 'line-clamp-3'} min-h-[3.75rem]`}>
+                    {boat.description || 'No description available.'}
                   </div>
-                )}
+                  {boat.description && boat.description.length > 110 && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleDesc(boat.name); }}
+                      className="text-cyan-400 text-xs font-medium mt-1 hover:text-cyan-300"
+                    >
+                      {expandedDesc[boat.name] ? 'Show Less' : 'Read More'}
+                    </button>
+                  )}
+                </div>
 
-                {/* Capacity */}
-                <p className="text-white/80 mb-3 flex items-center gap-2">
-                  <Users className="h-4 w-4 flex-shrink-0" />
-                  {boat.capacity}
-                </p>
+                {/* Available Tomorrow Alert Container (Fixed Height to align elements below) */}
+                <div className="h-10 mb-4 flex-shrink-0">
+                  {isAvailableTomorrow(boat.name) && (
+                    <div className="h-full px-3 flex items-center justify-center bg-red-500/20 border border-red-500/40 rounded-lg animate-pulse">
+                      <p className="text-xs font-semibold text-red-400 flex items-center gap-1">
+                        <AlertTriangle className="h-3.5 w-3.5" />Available Tomorrow
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-                {/* Equipment — Collapsible, collapsed by default */}
-                <div className="mb-3">
+                {/* Capacity (Fixed Height) */}
+                <div className="h-6 mb-4 flex items-center gap-2 flex-shrink-0">
+                  <Users className="h-4 w-4 text-white/50" />
+                  <span className="text-white/80 text-sm truncate">{boat.capacity || 'Up to 6 guests'}</span>
+                </div>
+
+                {/* Equipment */}
+                <div className="mb-4 flex-shrink-0">
                   <button
                     onClick={(e) => { e.stopPropagation(); toggleEquipment(boat.name); }}
                     className="w-full flex items-center justify-between text-xs font-semibold text-white/50 uppercase tracking-wide hover:text-white/70 transition-colors"
@@ -224,20 +241,20 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                     <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedEquipment[boat.name] ? '' : '-rotate-90'}`} />
                   </button>
                   {expandedEquipment[boat.name] && (
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-2 mt-2">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3 mt-4">
                       {boat.strengths.map((strength, idx) => (
                         <div key={idx} className="flex items-center gap-2 text-white">
                           <strength.icon className="h-4 w-4 text-cyan-400 flex-shrink-0" />
-                          <span className="text-sm capitalize">{strength.text}</span>
+                          <span className="text-xs capitalize truncate">{strength.text}</span>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
 
-                {/* Available Experiences — Collapsible, collapsed by default */}
+                {/* Available Experiences */}
                 {boat.available_expeditions && boat.available_expeditions.length > 0 && (
-                  <div className="pt-3 border-t border-white/20 mb-4">
+                  <div className="pt-4 border-t border-white/10 mb-6 flex-shrink-0">
                     <button
                       onClick={(e) => { e.stopPropagation(); toggleExperiences(boat.name); }}
                       className="w-full flex items-center justify-between text-xs font-semibold text-white/50 uppercase tracking-wide hover:text-white/70 transition-colors"
@@ -246,7 +263,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                       <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${expandedExperiences[boat.name] ? '' : '-rotate-90'}`} />
                     </button>
                     {expandedExperiences[boat.name] && (
-                      <div className="space-y-2 mt-2">
+                      <div className="space-y-3 mt-4">
                         {boat.available_expeditions.map((exp) => {
                           const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
                           const defaultDurations = {
@@ -275,24 +292,24 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                           }
 
                           return (
-                            <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 flex flex-col gap-1.5">
+                            <div key={exp} className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 flex flex-col gap-2">
                               <div className="flex items-center gap-2">
-                                <ExpIcon className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
-                                <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
-                                <span className="text-xs text-white/40 ml-auto">{durationHours}h</span>
+                                <ExpIcon className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                                <p className="text-sm font-medium text-cyan-300 capitalize">{displayName}</p>
+                                <span className="text-xs text-white/50 ml-auto">{durationHours}h</span>
                               </div>
                               {(departureLocations.length > 0 || departureTimes.length > 0) && (
-                                <div className="pl-5 space-y-1">
+                                <div className="pl-6 space-y-1.5">
                                   {departureLocations.length > 0 && (
-                                    <div className="flex items-start gap-1.5 text-[10px] text-white/60">
-                                      <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5 text-cyan-500/70" />
-                                      <span>{departureLocations.join(' · ')}</span>
+                                    <div className="flex items-start gap-1.5 text-xs text-white/60">
+                                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-cyan-500/70" />
+                                      <span className="leading-snug">{departureLocations.join(' · ')}</span>
                                     </div>
                                   )}
                                   {departureTimes.length > 0 && (
-                                    <div className="flex items-start gap-1.5 text-[10px] text-white/60">
-                                      <Clock className="h-3 w-3 flex-shrink-0 mt-0.5 text-cyan-500/70" />
-                                      <span>{departureTimes.join(' · ')}</span>
+                                    <div className="flex items-start gap-1.5 text-xs text-white/60">
+                                      <Clock className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-cyan-500/70" />
+                                      <span className="leading-snug">{departureTimes.join(' · ')}</span>
                                     </div>
                                   )}
                                 </div>
@@ -310,7 +327,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                     e.stopPropagation();
                     handleSelectBoat(boat);
                   }}
-                  className="mt-auto w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                  className="mt-auto w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-3.5 rounded-2xl font-semibold transition-all duration-300 hover:scale-105 shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] border border-cyan-400/20"
                 >
                   Select This Boat
                 </button>
