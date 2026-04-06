@@ -27,15 +27,26 @@ const FALLBACK_LOCATIONS = [
 ];
 
 export default function LocationSelector({ onSelectLocation }) {
+  const [expandedDesc, setExpandedDesc] = React.useState({});
+
   const { data: dbLocations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list('sort_order'),
     refetchInterval: 5000,
   });
 
+  const { data: dbBoats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
   const locations = dbLocations.length > 0
     ? dbLocations.filter(l => l.visible !== false)
     : FALLBACK_LOCATIONS;
+
+  const toggleDesc = (id) => {
+    setExpandedDesc(prev => ({ ...prev, [id]: !prev[id] }));
+  };
 
   return (
     <div className="relative min-h-screen py-20 px-4 sm:px-6 overflow-hidden" style={{ backgroundColor: '#0a1f3d' }}>
@@ -160,8 +171,55 @@ export default function LocationSelector({ onSelectLocation }) {
                   <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{location.name}</span>
                 </h3>
                 <p className="text-cyan-300/60 text-sm mb-1 font-mono">{location.coordinates}</p>
-                <WeatherWidget locationId={location.location_id} coordinates={location.coordinates} />
-                <p className="text-white/80 mt-2 mb-3 text-base leading-relaxed line-clamp-3" style={{ minHeight: '4.5rem' }}>{location.description}</p>
+                <div className="flex flex-col gap-3 mb-2">
+                  <WeatherWidget locationId={location.location_id} coordinates={location.coordinates} />
+                  
+                  {/* Stats Badges */}
+                  {(() => {
+                    const locId = location.location_id || location.id;
+                    const locationBoatsList = dbBoats.filter(b => b.location === locId && b.status !== 'inactive');
+                    const boatCount = locationBoatsList.length;
+                    
+                    const uniqueExperiences = new Set();
+                    locationBoatsList.forEach(boat => {
+                      if (boat.available_expeditions) {
+                        boat.available_expeditions.forEach(e => uniqueExperiences.add(e));
+                      }
+                      if (boat.expedition_pricing) {
+                        boat.expedition_pricing.forEach(e => uniqueExperiences.add(e.expedition_type));
+                      }
+                    });
+                    const experienceCount = uniqueExperiences.size;
+
+                    return (
+                      <div className="flex flex-wrap gap-2">
+                        <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-blue-600/40 to-purple-600/40 border border-blue-400/30 text-blue-100 text-xs font-semibold shadow-[0_0_15px_rgba(59,130,246,0.4)] flex items-center gap-1.5">
+                          <Anchor className="h-3.5 w-3.5 text-cyan-300" />
+                          {boatCount} {boatCount === 1 ? 'boat' : 'boats'} available
+                        </div>
+                        <div className="px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-600/40 to-pink-600/40 border border-purple-400/30 text-purple-100 text-xs font-semibold shadow-[0_0_15px_rgba(168,85,247,0.4)] flex items-center gap-1.5">
+                          <Waves className="h-3.5 w-3.5 text-pink-300" />
+                          {experienceCount} {experienceCount === 1 ? 'experience' : 'experiences'} available
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+                
+                <div className="mt-2 mb-3 relative">
+                  <p className={`text-white/80 text-base leading-relaxed transition-all duration-300 ${expandedDesc[location.location_id || location.id] ? '' : 'line-clamp-3'}`} style={{ minHeight: '4.5rem' }}>
+                    {location.description}
+                  </p>
+                  {location.description && location.description.length > 100 && (
+                    <button 
+                      onClick={() => toggleDesc(location.location_id || location.id)}
+                      className="text-cyan-400 hover:text-cyan-300 text-sm mt-1 font-medium focus:outline-none flex items-center gap-1 transition-colors"
+                    >
+                      {expandedDesc[location.location_id || location.id] ? 'Show less' : 'Read more'}
+                    </button>
+                  )}
+                </div>
+
                 <Button 
                   onClick={() => onSelectLocation(location.location_id || location.id)}
                   className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-5 rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,211,238,0.5)] text-base mt-auto"
