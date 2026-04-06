@@ -166,7 +166,7 @@ export default function DestinationManagement({ operatorFilter = 'all', location
         <div>
           <h2 className="text-slate-50 text-2xl font-semibold">Destination Content Management</h2>
           {operatorFilter !== 'all' && <p className="text-xs text-orange-300 mt-0.5">Viewing as operator: <strong>{operatorFilter}</strong></p>}
-          {locationFilter && locationFilter !== 'all' && <p className="text-xs text-cyan-300 mt-1">Filtered to: <strong>{locationFilter === 'ixtapa_zihuatanejo' ? 'Ixtapa-Zihuatanejo' : locationFilter === 'acapulco' ? 'Acapulco' : 'Cancún'}</strong></p>}
+          {locationFilter && locationFilter !== 'all' && <p className="text-xs text-cyan-300 mt-1">Filtered to: <strong>{getLocationName(locationFilter)}</strong></p>}
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>

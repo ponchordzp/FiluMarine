@@ -38,11 +38,6 @@
     },
     "region": {
       "type": "string",
-      "enum": [
-        "ixtapa_zihuatanejo",
-        "acapulco",
-        "cancun"
-      ],
       "description": "Region for grouping"
     }
   },
