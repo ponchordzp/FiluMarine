@@ -88,17 +88,19 @@ export default function JoinFiluLanding() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full filter blur-[60px] group-hover:bg-cyan-500/10 transition-colors"></div>
               
               <div className="relative z-10 flex flex-col h-full">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-2xl flex items-center justify-center mb-8 border border-cyan-400/20 shrink-0">
-                  <DollarSign className="h-8 w-8 text-cyan-400" />
+                <div className="shrink-0 lg:h-[320px] flex flex-col">
+                  <div className="w-16 h-16 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-2xl flex items-center justify-center mb-8 border border-cyan-400/20 shrink-0">
+                    <DollarSign className="h-8 w-8 text-cyan-400" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-white mb-4 shrink-0">Premium Rental Management</h3>
+                  <p className="text-white/70 text-lg mb-10 leading-relaxed shrink-0">
+                    Transform your vessel into a profitable asset. We connect you with a curated network of high-end clients while handling the logistical heavy lifting.
+                  </p>
                 </div>
-                <h3 className="text-3xl font-bold text-white mb-4 shrink-0">Premium Rental Management</h3>
-                <p className="text-white/70 text-lg mb-10 leading-relaxed shrink-0">
-                  Transform your vessel into a profitable asset. We connect you with a curated network of high-end clients while handling the logistical heavy lifting.
-                </p>
 
                 <Accordion type="single" collapsible className="w-full space-y-4 flex-grow">
                   <AccordionItem value="item-1" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
-                    <AccordionTrigger className="text-white hover:no-underline py-4">
+                    <AccordionTrigger className="text-white hover:no-underline py-4 lg:min-h-[88px]">
                       <div className="flex items-center gap-3 text-left">
                         <Users className="w-5 h-5 text-cyan-400 shrink-0" />
                         <span className="font-semibold text-lg">Curated Client Network</span>
@@ -110,7 +112,7 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
 
                   <AccordionItem value="item-2" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
-                    <AccordionTrigger className="text-white hover:no-underline py-4">
+                    <AccordionTrigger className="text-white hover:no-underline py-4 lg:min-h-[88px]">
                       <div className="flex items-center gap-3 text-left">
                         <ShieldCheck className="w-5 h-5 text-cyan-400 shrink-0" />
                         <span className="font-semibold text-lg">Secure Booking & Payments</span>
@@ -122,7 +124,7 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
 
                   <AccordionItem value="item-3" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
-                    <AccordionTrigger className="text-white hover:no-underline py-4">
+                    <AccordionTrigger className="text-white hover:no-underline py-4 lg:min-h-[88px]">
                       <div className="flex items-center gap-3 text-left">
                         <Calendar className="w-5 h-5 text-cyan-400 shrink-0" />
                         <span className="font-semibold text-lg">Automated Scheduling</span>
@@ -134,7 +136,7 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
 
                   <AccordionItem value="item-4" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
-                    <AccordionTrigger className="text-white hover:no-underline py-4">
+                    <AccordionTrigger className="text-white hover:no-underline py-4 lg:min-h-[88px]">
                       <div className="flex items-center gap-3 text-left">
                         <Settings className="w-5 h-5 text-cyan-400 shrink-0" />
                         <span className="font-semibold text-lg">Total Operational Control</span>
@@ -146,7 +148,7 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
                 </Accordion>
                 
-                <div className="mt-8 pt-8 border-t border-white/10 flex flex-col gap-6 shrink-0">
+                <div className="mt-auto pt-8 border-t border-white/10 flex flex-col gap-6 shrink-0 lg:h-[400px]">
                   <div>
                     <div className="flex items-center gap-4 mb-3">
                       <div className="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center border border-cyan-500/30 shrink-0">
@@ -191,17 +193,19 @@ export default function JoinFiluLanding() {
               <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full filter blur-[60px] group-hover:bg-blue-500/10 transition-colors"></div>
               
               <div className="relative z-10 flex flex-col h-full">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-400/20 to-indigo-500/20 rounded-2xl flex items-center justify-center mb-8 border border-blue-400/20 shrink-0">
-                  <Activity className="h-8 w-8 text-blue-400" />
+                <div className="shrink-0 lg:h-[320px] flex flex-col">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-400/20 to-indigo-500/20 rounded-2xl flex items-center justify-center mb-8 border border-blue-400/20 shrink-0">
+                    <Activity className="h-8 w-8 text-blue-400" />
+                  </div>
+                  <h3 className="text-3xl font-bold text-white mb-4 shrink-0">Intelligent Fleet Software</h3>
+                  <p className="text-white/70 text-lg mb-10 leading-relaxed shrink-0">
+                    A powerful digital toolkit designed for owners and crew. Log your data, track engine health, and let our platform generate actionable insights to prevent costly downtime.
+                  </p>
                 </div>
-                <h3 className="text-3xl font-bold text-white mb-4 shrink-0">Intelligent Fleet Software</h3>
-                <p className="text-white/70 text-lg mb-10 leading-relaxed shrink-0">
-                  A powerful digital toolkit designed for owners and crew. Log your data, track engine health, and let our platform generate actionable insights to prevent costly downtime.
-                </p>
 
                 <Accordion type="single" collapsible className="w-full space-y-4 flex-grow">
                   <AccordionItem value="item-1" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
-                    <AccordionTrigger className="text-white hover:no-underline py-4">
+                    <AccordionTrigger className="text-white hover:no-underline py-4 lg:min-h-[88px]">
                       <div className="flex items-center gap-3 text-left">
                         <Wrench className="w-5 h-5 text-blue-400 shrink-0" />
                         <span className="font-semibold text-lg">Proactive Maintenance Tracking</span>
@@ -213,7 +217,7 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
 
                   <AccordionItem value="item-2" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
-                    <AccordionTrigger className="text-white hover:no-underline py-4">
+                    <AccordionTrigger className="text-white hover:no-underline py-4 lg:min-h-[88px]">
                       <div className="flex items-center gap-3 text-left">
                         <Ship className="w-5 h-5 text-blue-400 shrink-0" />
                         <span className="font-semibold text-lg">Digital Service & Daily Logs</span>
@@ -225,7 +229,7 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
 
                   <AccordionItem value="item-3" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
-                    <AccordionTrigger className="text-white hover:no-underline py-4">
+                    <AccordionTrigger className="text-white hover:no-underline py-4 lg:min-h-[88px]">
                       <div className="flex items-center gap-3 text-left">
                         <LineChart className="w-5 h-5 text-blue-400 shrink-0" />
                         <span className="font-semibold text-lg">Expense & Financial Analytics</span>
@@ -237,7 +241,7 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
 
                   <AccordionItem value="item-4" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
-                    <AccordionTrigger className="text-white hover:no-underline py-4">
+                    <AccordionTrigger className="text-white hover:no-underline py-4 lg:min-h-[88px]">
                       <div className="flex items-center gap-3 text-left">
                         <Anchor className="w-5 h-5 text-blue-400 shrink-0" />
                         <span className="font-semibold text-lg">Inventory & Supplies Management</span>
@@ -249,7 +253,7 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
                 </Accordion>
 
-                <div className="mt-8 pt-8 border-t border-white/10 flex flex-col gap-6 shrink-0">
+                <div className="mt-auto pt-8 border-t border-white/10 flex flex-col gap-6 shrink-0 lg:h-[400px]">
                   <div>
                     <div className="flex items-center gap-4 mb-3">
                       <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/30 shrink-0">
