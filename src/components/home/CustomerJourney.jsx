@@ -5,8 +5,8 @@ import { motion } from 'framer-motion';
 const journeySteps = [
   {
     icon: MousePointerClick,
-    title: '1. Select Your Adventure',
-    description: 'Browse our curated fleet and choose your ideal experience. Enjoy transparent pricing with no hidden fees.',
+    title: '1. Select a Boat or Experience',
+    description: 'Start your journey by choosing either a specific vessel or an experience type. The options will adapt dynamically based on your selection.',
   },
   {
     icon: ShieldCheck,
@@ -27,14 +27,14 @@ const journeySteps = [
 
 export default function CustomerJourney() {
   return (
-    <section className="relative py-16 md:py-24 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0a1f3d' }}>
+    <section className="relative py-10 md:py-16 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0a1f3d' }}>
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #0a1f3ddd, #0d2a50dd)' }} />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-16 md:mb-20"
+          className="text-center mb-10 md:mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-light text-white mb-6">
             How It <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">Works</span>
@@ -63,6 +63,23 @@ export default function CustomerJourney() {
               </div>
               <h3 className="text-xl font-bold text-white mb-4">{step.title}</h3>
               <p className="text-base text-white/70 leading-relaxed max-w-[260px]">{step.description}</p>
+              
+              {/* Arrow pointing right (Desktop) */}
+              {i < journeySteps.length - 1 && (
+                <div className="hidden lg:block absolute top-10 -right-[2rem] text-cyan-500/40 translate-x-1/2 -translate-y-1/2">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                  </svg>
+                </div>
+              )}
+              {/* Arrow pointing down (Mobile/Tablet) */}
+              {i < journeySteps.length - 1 && (
+                <div className="block lg:hidden mt-6 -mb-6 text-cyan-500/40">
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13l-7 7-7-7m14-8l-7 7-7-7" />
+                  </svg>
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
