@@ -83,20 +83,20 @@ export default function JoinFiluLanding() {
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="group relative bg-gradient-to-b from-[#0a1f3d] to-[#0d2a50] rounded-[2.5rem] p-8 md:p-12 border border-white/5 hover:border-cyan-500/30 transition-all duration-500 overflow-hidden"
+              className="group relative bg-gradient-to-b from-[#0a1f3d] to-[#0d2a50] rounded-[2.5rem] p-8 md:p-12 border border-white/5 hover:border-cyan-500/30 transition-all duration-500 overflow-hidden flex flex-col h-full"
             >
               <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full filter blur-[60px] group-hover:bg-cyan-500/10 transition-colors"></div>
               
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-2xl flex items-center justify-center mb-8 border border-cyan-400/20">
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="w-16 h-16 bg-gradient-to-br from-cyan-400/20 to-blue-500/20 rounded-2xl flex items-center justify-center mb-8 border border-cyan-400/20 shrink-0">
                   <DollarSign className="h-8 w-8 text-cyan-400" />
                 </div>
-                <h3 className="text-3xl font-bold text-white mb-4">Premium Rental Management</h3>
-                <p className="text-white/70 text-lg mb-10 leading-relaxed">
+                <h3 className="text-3xl font-bold text-white mb-4 shrink-0">Premium Rental Management</h3>
+                <p className="text-white/70 text-lg mb-10 leading-relaxed shrink-0">
                   Transform your vessel into a profitable asset. We connect you with a curated network of high-end clients while handling the logistical heavy lifting.
                 </p>
 
-                <Accordion type="single" collapsible className="w-full space-y-4">
+                <Accordion type="single" collapsible className="w-full space-y-4 flex-grow">
                   <AccordionItem value="item-1" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
                     <AccordionTrigger className="text-white hover:no-underline py-4">
                       <div className="flex items-center gap-3 text-left">
@@ -146,19 +146,36 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
                 </Accordion>
                 
-                <div className="mt-8 pt-8 border-t border-white/10">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center border border-cyan-500/30">
-                      <LineChart className="w-6 h-6 text-cyan-400" />
+                <div className="mt-8 pt-8 border-t border-white/10 flex flex-col gap-6 shrink-0">
+                  <div>
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center border border-cyan-500/30 shrink-0">
+                        <LineChart className="w-6 h-6 text-cyan-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-semibold">Main Benefit: Revenue Growth</h4>
+                        <p className="text-white/60 text-sm">Maximize fleet utilization & yield</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-white font-semibold">KPI Benefit: Revenue Growth</h4>
-                      <p className="text-white/60 text-sm">Maximize fleet utilization & yield</p>
-                    </div>
+                    <p className="text-white/70 text-sm italic">
+                      Example: Our booking platform brings in new premium clientele. A vessel previously booked 5 times a month saw bookings increase to 15 times a month, generating significant new revenue without extra marketing effort.
+                    </p>
                   </div>
-                  <p className="text-white/70 text-sm italic">
-                    Example: Our booking platform brings in new premium clientele. A vessel previously booked 5 times a month saw bookings increase to 15 times a month, generating significant new revenue without extra marketing effort.
-                  </p>
+
+                  <div>
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center border border-cyan-500/30 shrink-0">
+                        <ShieldCheck className="w-6 h-6 text-cyan-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-semibold">Main Benefit: Seamless Operations</h4>
+                        <p className="text-white/60 text-sm">Zero administrative headaches</p>
+                      </div>
+                    </div>
+                    <p className="text-white/70 text-sm italic">
+                      Example: We automatically handle customer inquiries, secure deposits, remaining balances, and calendar scheduling, completely freeing you to focus purely on delivering an exceptional on-water experience.
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -169,20 +186,20 @@ export default function JoinFiluLanding() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="group relative bg-gradient-to-b from-[#0a1f3d] to-[#0d2a50] rounded-[2.5rem] p-8 md:p-12 border border-white/5 hover:border-blue-500/30 transition-all duration-500 overflow-hidden"
+              className="group relative bg-gradient-to-b from-[#0a1f3d] to-[#0d2a50] rounded-[2.5rem] p-8 md:p-12 border border-white/5 hover:border-blue-500/30 transition-all duration-500 overflow-hidden flex flex-col h-full"
             >
               <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500/5 rounded-full filter blur-[60px] group-hover:bg-blue-500/10 transition-colors"></div>
               
-              <div className="relative z-10">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-400/20 to-indigo-500/20 rounded-2xl flex items-center justify-center mb-8 border border-blue-400/20">
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-400/20 to-indigo-500/20 rounded-2xl flex items-center justify-center mb-8 border border-blue-400/20 shrink-0">
                   <Activity className="h-8 w-8 text-blue-400" />
                 </div>
-                <h3 className="text-3xl font-bold text-white mb-4">Intelligent Fleet Software</h3>
-                <p className="text-white/70 text-lg mb-10 leading-relaxed">
+                <h3 className="text-3xl font-bold text-white mb-4 shrink-0">Intelligent Fleet Software</h3>
+                <p className="text-white/70 text-lg mb-10 leading-relaxed shrink-0">
                   A powerful digital toolkit designed for owners and crew. Log your data, track engine health, and let our platform generate actionable insights to prevent costly downtime.
                 </p>
 
-                <Accordion type="single" collapsible className="w-full space-y-4">
+                <Accordion type="single" collapsible className="w-full space-y-4 flex-grow">
                   <AccordionItem value="item-1" className="border border-white/10 rounded-xl px-4 bg-white/5 data-[state=open]:bg-white/10 transition-colors">
                     <AccordionTrigger className="text-white hover:no-underline py-4">
                       <div className="flex items-center gap-3 text-left">
@@ -232,19 +249,36 @@ export default function JoinFiluLanding() {
                   </AccordionItem>
                 </Accordion>
 
-                <div className="mt-8 pt-8 border-t border-white/10">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/30">
-                      <DollarSign className="w-6 h-6 text-blue-400" />
+                <div className="mt-8 pt-8 border-t border-white/10 flex flex-col gap-6 shrink-0">
+                  <div>
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/30 shrink-0">
+                        <DollarSign className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-semibold">Main Benefit: Cost Savings</h4>
+                        <p className="text-white/60 text-sm">Predictive & proactive maintenance</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="text-white font-semibold">KPI Benefit: Cost Savings</h4>
-                      <p className="text-white/60 text-sm">Predictive & proactive maintenance</p>
-                    </div>
+                    <p className="text-white/70 text-sm italic">
+                      Example: Our maintenance platform saves money by doing everything proactively. By logging engine hours regularly, an operator prevented a major outboard failure, saving thousands of dollars and eliminating costly downtime, saving the owner from extra work.
+                    </p>
                   </div>
-                  <p className="text-white/70 text-sm italic">
-                    Example: Our maintenance platform saves money by doing everything proactively. By logging engine hours regularly, an operator prevented a major outboard failure, saving thousands of dollars and eliminating costly downtime, saving the owner from extra work.
-                  </p>
+
+                  <div>
+                    <div className="flex items-center gap-4 mb-3">
+                      <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/30 shrink-0">
+                        <Activity className="w-6 h-6 text-blue-400" />
+                      </div>
+                      <div>
+                        <h4 className="text-white font-semibold">Main Benefit: Total Visibility</h4>
+                        <p className="text-white/60 text-sm">Real-time operational insight</p>
+                      </div>
+                    </div>
+                    <p className="text-white/70 text-sm italic">
+                      Example: Whether you're in a different city or country, you can track your crew's daily fuel consumption, mechanical checks, and inventory levels instantly, ensuring total transparency of your maritime assets.
+                    </p>
+                  </div>
                 </div>
               </div>
             </motion.div>
