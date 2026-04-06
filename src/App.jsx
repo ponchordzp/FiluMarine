@@ -7,6 +7,7 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
+import JoinFiluLanding from './pages/JoinFiluLanding';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { injectProtectedVaults } from '@/lib/protectedVault';
 
@@ -69,6 +70,11 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      <Route path="/JoinFiluLanding" element={
+        <LayoutWrapper currentPageName="JoinFiluLanding">
+          <JoinFiluLanding />
+        </LayoutWrapper>
+      } />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
