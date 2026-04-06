@@ -101,12 +101,6 @@ function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) 
               <span>{boatNames.join(', ')}</span>
             </div>
           )}
-          {departureTimes.length > 0 && (
-            <div className="flex items-start gap-1.5 text-xs text-cyan-300">
-              <Clock className="h-3 w-3 flex-shrink-0 mt-0.5" />
-              <span>{departureTimes.join(' · ')}</span>
-            </div>
-          )}
         </div>
 
         <Button

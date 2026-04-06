@@ -261,13 +261,42 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                           };
                           const ExpIcon = expIcons[exp] || Anchor;
                           const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
+                          
+                          let departureLocations = [];
+                          let departureTimes = [];
+                          if (pricing) {
+                            if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
+                              departureLocations = [...new Set(pricing.pickup_departures.map(d => d.pickup_location).filter(Boolean))];
+                              departureTimes = [...new Set(pricing.pickup_departures.map(d => d.departure_time).filter(Boolean))];
+                            } else {
+                              if (pricing.pickup_location) departureLocations = [pricing.pickup_location];
+                              if (pricing.departure_time) departureTimes = [pricing.departure_time];
+                            }
+                          }
+
                           return (
-                            <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2">
+                            <div key={exp} className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 flex flex-col gap-1.5">
                               <div className="flex items-center gap-2">
                                 <ExpIcon className="h-3.5 w-3.5 text-cyan-400 flex-shrink-0" />
                                 <p className="text-xs font-semibold text-cyan-300 capitalize">{displayName}</p>
                                 <span className="text-xs text-white/40 ml-auto">{durationHours}h</span>
                               </div>
+                              {(departureLocations.length > 0 || departureTimes.length > 0) && (
+                                <div className="pl-5 space-y-1">
+                                  {departureLocations.length > 0 && (
+                                    <div className="flex items-start gap-1.5 text-[10px] text-white/60">
+                                      <MapPin className="h-3 w-3 flex-shrink-0 mt-0.5 text-cyan-500/70" />
+                                      <span>{departureLocations.join(' · ')}</span>
+                                    </div>
+                                  )}
+                                  {departureTimes.length > 0 && (
+                                    <div className="flex items-start gap-1.5 text-[10px] text-white/60">
+                                      <Clock className="h-3 w-3 flex-shrink-0 mt-0.5 text-cyan-500/70" />
+                                      <span>{departureTimes.join(' · ')}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           );
                         })}
