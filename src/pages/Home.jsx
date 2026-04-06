@@ -10,7 +10,7 @@ import LocationSelector from '@/components/booking/LocationSelector';
 import Hero from '@/components/booking/Hero';
 import IntroSection from '@/components/home/IntroSection';
 import ExperienceCards from '@/components/booking/ExperienceCards';
-import BoatBenefits from '@/components/home/BoatBenefits';
+import CustomerJourney from '@/components/home/CustomerJourney';
 import Fleet from '@/components/home/Fleet';
 import Destinations from '@/components/home/Destinations';
 import JoinFilu from '@/components/home/JoinFilu';
@@ -314,7 +314,7 @@ export default function Home() {
           backgroundImage={getLocationImage(selectedLocation)}
         />
         <IntroSection />
-        <BoatBenefits />
+        <CustomerJourney />
         <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
         <div ref={experiencesRef}>
           <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={null} location={selectedLocation} />
