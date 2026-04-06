@@ -145,6 +145,21 @@ export default function JoinFiluLanding() {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+                
+                <div className="mt-8 pt-8 border-t border-white/10">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center border border-cyan-500/30">
+                      <LineChart className="w-6 h-6 text-cyan-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">KPI Benefit: Revenue Growth</h4>
+                      <p className="text-white/60 text-sm">Maximize fleet utilization & yield</p>
+                    </div>
+                  </div>
+                  <p className="text-white/70 text-sm italic">
+                    Example: Our booking platform brings in new premium clientele. A vessel previously booked 5 times a month saw bookings increase to 15 times a month, generating significant new revenue without extra marketing effort.
+                  </p>
+                </div>
               </div>
             </motion.div>
 
@@ -216,6 +231,21 @@ export default function JoinFiluLanding() {
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+
+                <div className="mt-8 pt-8 border-t border-white/10">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center border border-blue-500/30">
+                      <DollarSign className="w-6 h-6 text-blue-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-white font-semibold">KPI Benefit: Cost Savings</h4>
+                      <p className="text-white/60 text-sm">Predictive & proactive maintenance</p>
+                    </div>
+                  </div>
+                  <p className="text-white/70 text-sm italic">
+                    Example: Our maintenance platform saves money by doing everything proactively. By logging engine hours regularly, an operator prevented a major outboard failure, saving thousands of dollars and eliminating costly downtime, saving the owner from extra work.
+                  </p>
+                </div>
               </div>
             </motion.div>
           </div>
