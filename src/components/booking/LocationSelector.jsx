@@ -160,7 +160,7 @@ export default function LocationSelector({ onSelectLocation }) {
                   <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">{location.name}</span>
                 </h3>
                 <p className="text-cyan-300/60 text-sm mb-1 font-mono">{location.coordinates}</p>
-                <WeatherWidget locationId={location.location_id} />
+                <WeatherWidget locationId={location.location_id} coordinates={location.coordinates} />
                 <p className="text-white/80 mt-2 mb-3 text-base leading-relaxed line-clamp-3" style={{ minHeight: '4.5rem' }}>{location.description}</p>
                 <Button 
                   onClick={() => onSelectLocation(location.location_id || location.id)}
