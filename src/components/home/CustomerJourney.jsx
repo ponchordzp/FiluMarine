@@ -27,7 +27,7 @@ const journeySteps = [
 
 export default function CustomerJourney() {
   return (
-    <section className="relative py-10 md:py-16 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0a1f3d' }}>
+    <section className="relative pt-10 pb-4 md:pt-16 md:pb-6 overflow-hidden" style={{ backgroundImage: `url('https://media.base44.com/images/public/6987f0afff96227dd3af0e68/388bdd58c_FILUMarine3.png')`, backgroundRepeat: 'repeat', backgroundSize: '300px 300px', backgroundColor: '#0a1f3d' }}>
       <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #0a1f3ddd, #0d2a50dd)' }} />
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div 
