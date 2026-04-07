@@ -117,6 +117,20 @@ export default function LocationsManagement({ operatorFilter = 'all' }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Check for duplicate location_id
+    if (!editingLoc) {
+      if (locations.some(l => l.location_id.toLowerCase() === formData.location_id.toLowerCase())) {
+        alert("A location with this ID already exists. Please use a unique ID.");
+        return;
+      }
+    } else {
+      if (locations.some(l => l.location_id.toLowerCase() === formData.location_id.toLowerCase() && l.id !== editingLoc.id)) {
+        alert("A location with this ID already exists. Please use a unique ID.");
+        return;
+      }
+    }
+
     setUploading(true);
     let finalImage = formData.image;
     if (imageFile) {
