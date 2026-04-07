@@ -9,12 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Pencil, Trash2, MapPin } from 'lucide-react';
-
-const LOCATIONS = [
-  { value: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' },
-  { value: 'acapulco', label: 'Acapulco' },
-  { value: 'cancun', label: 'Cancún' },
-];
+import { useOperators } from '@/hooks/useOperators';
 
 const emptyForm = { name: '', address: '', location: 'ixtapa_zihuatanejo', applicable_boats: [], notes: '', visible: true, sort_order: 0 };
 
@@ -39,18 +34,31 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
-  // Determine operator's location(s) from their boats
+  const { data: dbLocations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list('sort_order'),
+  });
+
+  const { operators = [] } = useOperators();
+
+  const locationOptions = dbLocations.length > 0 
+    ? dbLocations.map(l => ({ value: l.location_id, label: l.name }))
+    : [
+        { value: 'ixtapa_zihuatanejo', label: 'Ixtapa-Zihuatanejo' },
+        { value: 'acapulco', label: 'Acapulco' },
+        { value: 'cancun', label: 'Cancún' },
+      ];
+
   const currentOperator = currentUser?.operator || '';
   const isOperatorUser = !isSuperAdmin && !!currentOperator;
 
-  const operatorLocations = isOperatorUser
-    ? [...new Set(boats.filter(b => (b.operator || '').toLowerCase() === currentOperator.toLowerCase()).map(b => b.location))]
-    : [];
-
-  // Effective filter: operators auto-filter by their location(s); superadmin uses external filter
-  const effectiveLocationFilter = isOperatorUser
-    ? (operatorLocations.length === 1 ? operatorLocations[0] : null)
-    : (externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : null);
+  // Determine active operator for filtering
+  const activeOperatorName = !isSuperAdmin ? currentOperator : (operatorFilter && operatorFilter !== 'all' ? operatorFilter : null);
+  const activeOperator = operators.find(op => (op.name || '').toLowerCase() === (activeOperatorName || '').toLowerCase());
+  
+  const allowedLocs = activeOperator?.locations || [];
+  const boatLocs = [...new Set(boats.filter(b => (b.operator || '').toLowerCase() === (activeOperatorName || '').toLowerCase()).map(b => b.location))];
+  const effectiveAllowedLocations = activeOperatorName ? (allowedLocs.length > 0 ? allowedLocs : boatLocs) : [];
 
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -90,16 +98,40 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
 
   const openNew = () => {
     setEditing(null);
-    setForm(emptyForm);
+    let defaultLocation = externalLocationFilter && externalLocationFilter !== 'all' ? externalLocationFilter : 'ixtapa_zihuatanejo';
+    if (activeOperatorName && effectiveAllowedLocations.length > 0) {
+      if (!effectiveAllowedLocations.includes(defaultLocation)) {
+        defaultLocation = effectiveAllowedLocations[0];
+      }
+    }
+    setForm({ ...emptyForm, location: defaultLocation });
     setOpen(true);
   };
 
-
-
   const filtered = pickupLocations.filter(p => {
-    if (effectiveLocationFilter) return p.location === effectiveLocationFilter;
+    if (externalLocationFilter && externalLocationFilter !== 'all') {
+      if (p.location !== externalLocationFilter) return false;
+    }
+    if (activeOperatorName) {
+      if (effectiveAllowedLocations.length > 0 && !effectiveAllowedLocations.includes(p.location)) {
+        return false;
+      } else if (effectiveAllowedLocations.length === 0) {
+        return false;
+      }
+    }
     return true;
   });
+
+  const allowedLocationOptions = locationOptions.filter(l => {
+    if (activeOperatorName && effectiveAllowedLocations.length > 0) {
+      return effectiveAllowedLocations.includes(l.value);
+    }
+    return true;
+  });
+
+  const displayFilterLabel = (externalLocationFilter && externalLocationFilter !== 'all') 
+    ? locationOptions.find(l => l.value === externalLocationFilter)?.label 
+    : (activeOperatorName && effectiveAllowedLocations.length === 1 ? locationOptions.find(l => l.value === effectiveAllowedLocations[0])?.label : null);
 
   return (
     <div>
@@ -107,7 +139,7 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
         <div>
           <h2 className="text-xl font-bold text-white mb-1">Pickup Locations</h2>
           <p className="text-sm text-white/50">Manage pickup points shown to guests during booking.</p>
-          {isOperatorUser && effectiveLocationFilter && <p className="text-xs text-cyan-300 mt-1">Showing: <strong>{LOCATIONS.find(l => l.value === effectiveLocationFilter)?.label}</strong></p>}
+          {displayFilterLabel && <p className="text-xs text-cyan-300 mt-1">Showing: <strong>{displayFilterLabel}</strong></p>}
         </div>
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
           <DialogTrigger asChild>
@@ -122,17 +154,15 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
                 <Label>Name *</Label>
                 <Input className="mt-1" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Las Gatas Beach" />
               </div>
-              {!isOperatorUser && (
               <div>
                 <Label>Destination *</Label>
                 <Select value={form.location} onValueChange={v => setForm(f => ({ ...f, location: v }))}>
                   <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {LOCATIONS.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
+                    {allowedLocationOptions.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
-              )}
               <div>
                 <Label>Address / Description</Label>
                 <Input className="mt-1" value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))} placeholder="e.g. Pier 4, Marina Ixtapa" />
@@ -174,7 +204,7 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
                 <span className="font-semibold text-white">{pl.name}</span>
                 {!pl.visible && <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/40">Hidden</span>}
                 <span className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'rgba(20,184,166,0.15)', color: '#5eead4', border: '1px solid rgba(20,184,166,0.3)' }}>
-                  {LOCATIONS.find(l => l.value === pl.location)?.label}
+                  {locationOptions.find(l => l.value === pl.location)?.label || pl.location}
                 </span>
               </div>
               {pl.address && <p className="text-sm text-white/50 ml-6">{pl.address}</p>}
