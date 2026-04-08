@@ -45,8 +45,25 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   // Map database boats to required format - load ALL vessel editor data
   const boats = activeBoats.map(boat => {
     // Ensure expedition_pricing and available_expeditions are always arrays
-    const expPricing = Array.isArray(boat.expedition_pricing) ? boat.expedition_pricing : [];
+    let expPricing = Array.isArray(boat.expedition_pricing) ? boat.expedition_pricing : [];
     const availExp = Array.isArray(boat.available_expeditions) ? boat.available_expeditions : [];
+    
+    // Auto-recover pickup_departures from vault if DB stripped them (for backward compatibility)
+    try {
+      const raw = localStorage.getItem('filu_expedition_pricing_vault');
+      if (raw) {
+        const vault = JSON.parse(raw)[boat.id];
+        if (vault?.pickup_departures) {
+          expPricing = expPricing.map(p => {
+            const deps = vault.pickup_departures[p.expedition_type];
+            if (deps && deps.length > 0 && (!p.pickup_departures || p.pickup_departures.length === 0)) {
+              return { ...p, pickup_departures: deps };
+            }
+            return p;
+          });
+        }
+      }
+    } catch {}
     
     return {
       id: boat.id,
@@ -87,7 +104,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   // Reads all unique departure times from pickup_departures (authoritative)
   // then falls back to legacy departure_time field
   const getAvailableSlotsForBoat = (boatId) => {
-    const boat = activeBoats.find(b => b.id === boatId);
+    const boat = boats.find(b => b.id === boatId);
     if (boat?.expedition_pricing) {
       const pricing = boat.expedition_pricing.find(p => p.expedition_type === expId);
       if (pricing) {

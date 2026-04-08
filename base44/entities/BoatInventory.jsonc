@@ -110,6 +110,23 @@
           },
           "departure_time": {
             "type": "string"
+          },
+          "pickup_departures": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "number"
+                },
+                "pickup_location": {
+                  "type": "string"
+                },
+                "departure_time": {
+                  "type": "string"
+                }
+              }
+            }
           }
         }
       },
