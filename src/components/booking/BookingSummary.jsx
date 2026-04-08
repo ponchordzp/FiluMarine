@@ -46,7 +46,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const taxiFee = bookingData.taxi_fee || 0;
   const dockFee = bookingData.dock_fee || selectedBoat?.dock_fee || 0;
   const basePrice = bookingData.boat_price || experience.price;
-  const totalPrice = basePrice + addOnsTotal + taxiFee + dockFee;
+  const totalPrice = basePrice + addOnsTotal + taxiFee;
   const deposit = Math.round(totalPrice * 0.4);
   const remaining = totalPrice - deposit;
 
@@ -211,12 +211,6 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                       <span className="text-slate-800">${taxiFee} {currency}</span>
                     </div>
                   )}
-                  {dockFee > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span className="text-slate-600">Dock fee</span>
-                      <span className="text-slate-800">${dockFee.toLocaleString()} {currency}</span>
-                    </div>
-                  )}
                   <div className="flex justify-between font-semibold pt-3 border-t border-slate-100">
                     <span className="text-slate-800">Total</span>
                     <span className="text-slate-800">${totalPrice.toLocaleString()} {currency}</span>
@@ -350,6 +344,12 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               <div className="bg-[#f0f5f9] rounded-lg md:rounded-2xl p-4 md:p-6">
                 <h3 className="font-semibold text-slate-800 mb-2">Remaining Balance (60%)</h3>
                 <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining.toLocaleString()} {currency}</span></p>
+                {dockFee > 0 && (
+                  <div className="mb-3 p-3 bg-white border border-slate-200 rounded-lg">
+                    <p className="text-sm text-slate-700 font-medium">Additional Dock Fee</p>
+                    <p className="text-sm text-slate-500">A separate dock fee of <span className="font-semibold">${dockFee.toLocaleString()} {currency}</span> must be paid in cash upon arrival.</p>
+                  </div>
+                )}
                 <p className="text-sm text-slate-600 mb-3">Payment options available on the day of your trip:</p>
                 <div className="flex flex-wrap gap-2">
                   <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">PayPal</span>

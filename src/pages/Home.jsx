@@ -229,9 +229,9 @@ export default function Home() {
         <ul>
           <li><strong>Total Price:</strong> $${data.total_price.toLocaleString()} ${data.currency || 'MXN'}</li>
           <li><strong>Deposit:</strong> $${data.deposit_paid.toLocaleString()} ${data.currency || 'MXN'}</li>
-          ${data.dock_fee > 0 ? `<li><strong>Dock Fee:</strong> $${data.dock_fee.toLocaleString()} ${data.currency || 'MXN'}</li>` : ''}
           <li><strong>Payment Method:</strong> ${data.payment_method}</li>
         </ul>
+        ${data.dock_fee > 0 ? `<p><strong>Note:</strong> A separate dock fee of $${data.dock_fee.toLocaleString()} ${data.currency || 'MXN'} must be paid in cash upon arrival.</p>` : ''}
         
         ${addOnNames.length > 0 ? `
         <h3>Add-ons:</h3>
@@ -258,7 +258,7 @@ export default function Home() {
         ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
         : 'Please head to the pickup location. Look for our boat with the FILU Marine logo.';
       
-      const whatsappMessage = `*NEW BOOKING - FILU MARINE*%0A%0A*Confirmation:* ${confirmationCode}%0A*Experience:* ${experience.title}%0A*Date:* ${format(parseISO(data.date), 'EEEE, MMMM d, yyyy')}%0A*Time:* ${data.time_slot}%0A*Guests:* ${data.guests}%0A*Boat:* ${data.boat_name}%0A*Pickup:* ${data.pickup_location || 'Marina Ixtapa'}%0A${data.taxi_needed ? '*Taxi Needed:* Yes%0A' : ''}%0A*Guest:* ${data.guest_name}%0A*Phone:* ${data.guest_phone}%0A*Total:* $${data.total_price.toLocaleString()} ${data.currency || 'MXN'}%0A*Deposit:* $${data.deposit_paid.toLocaleString()} ${data.currency || 'MXN'}%0A${data.dock_fee > 0 ? `*Dock Fee:* $${data.dock_fee.toLocaleString()} ${data.currency || 'MXN'}%0A` : ''}*Due:* $${(data.total_price - data.deposit_paid).toLocaleString()} ${data.currency || 'MXN'}%0A%0A*Meeting:* ${pickupLocationInfo}`;
+      const whatsappMessage = `*NEW BOOKING - FILU MARINE*%0A%0A*Confirmation:* ${confirmationCode}%0A*Experience:* ${experience.title}%0A*Date:* ${format(parseISO(data.date), 'EEEE, MMMM d, yyyy')}%0A*Time:* ${data.time_slot}%0A*Guests:* ${data.guests}%0A*Boat:* ${data.boat_name}%0A*Pickup:* ${data.pickup_location || 'Marina Ixtapa'}%0A${data.taxi_needed ? '*Taxi Needed:* Yes%0A' : ''}%0A*Guest:* ${data.guest_name}%0A*Phone:* ${data.guest_phone}%0A*Total:* $${data.total_price.toLocaleString()} ${data.currency || 'MXN'}%0A*Deposit:* $${data.deposit_paid.toLocaleString()} ${data.currency || 'MXN'}%0A*Due:* $${(data.total_price - data.deposit_paid).toLocaleString()} ${data.currency || 'MXN'}%0A${data.dock_fee > 0 ? `*Dock Fee (paid on arrival):* $${data.dock_fee.toLocaleString()} ${data.currency || 'MXN'}%0A` : ''}%0A*Meeting:* ${pickupLocationInfo}`;
       
       // Open WhatsApp link in new window (this will notify management)
       window.open(`https://wa.me/5215513782169?text=${whatsappMessage}`, '_blank');
