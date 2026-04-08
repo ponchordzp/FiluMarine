@@ -92,12 +92,12 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
             </p>
             <div className="pt-2 border-t border-slate-200">
               <p className="text-sm text-slate-500">
-                Deposit Paid: <strong className="text-emerald-600">${booking.deposit_paid?.toLocaleString()} MXN</strong>
+                Deposit Paid: <strong className="text-emerald-600">${booking.deposit_paid?.toLocaleString()} {booking.currency || 'MXN'}</strong>
               </p>
               <p className="text-sm text-slate-500">
-                Due on Arrival: <strong className="text-amber-600">${(booking.total_price - booking.deposit_paid)?.toLocaleString()} MXN</strong>
+                Due on Arrival: <strong className="text-amber-600">${(booking.total_price - booking.deposit_paid)?.toLocaleString()} {booking.currency || 'MXN'}</strong>
               </p>
-              <p className="text-xs text-slate-400 mt-1">Total: ${booking.total_price?.toLocaleString()} MXN</p>
+              <p className="text-xs text-slate-400 mt-1">Total: ${booking.total_price?.toLocaleString()} {booking.currency || 'MXN'}</p>
             </div>
           </div>
         </motion.div>

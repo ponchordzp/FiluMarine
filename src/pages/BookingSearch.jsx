@@ -225,7 +225,7 @@ export default function BookingSearch() {
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-white/50">Total Price</span>
-                    <span className="text-lg font-bold text-white">${(booking.total_price || 0).toLocaleString()} MXN</span>
+                    <span className="text-lg font-bold text-white">${(booking.total_price || 0).toLocaleString()} {booking.currency || 'MXN'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
@@ -234,7 +234,7 @@ export default function BookingSearch() {
                         <span className="ml-2 text-xs text-white/25 capitalize">({booking.payment_method.replace(/_/g, ' ')})</span>
                       )}
                     </div>
-                    <span className="text-sm font-semibold text-emerald-400">${(booking.deposit_paid || 0).toLocaleString()} MXN</span>
+                    <span className="text-sm font-semibold text-emerald-400">${(booking.deposit_paid || 0).toLocaleString()} {booking.currency || 'MXN'}</span>
                   </div>
                   <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
                   <div className="flex items-center justify-between">
@@ -248,7 +248,7 @@ export default function BookingSearch() {
                       </span>
                     ) : (
                       <span className={`text-sm font-semibold ${effectiveRemaining > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                        {effectiveRemaining > 0 ? `$${effectiveRemaining.toLocaleString()} MXN` : 'Fully Paid'}
+                        {effectiveRemaining > 0 ? `$${effectiveRemaining.toLocaleString()} ${booking.currency || 'MXN'}` : 'Fully Paid'}
                       </span>
                     )}
                   </div>
@@ -262,7 +262,7 @@ export default function BookingSearch() {
                     style={{ background: 'linear-gradient(135deg, #003087, #009cde)', border: 'none' }}
                   >
                     <ExternalLink className="h-4 w-4" />
-                    Pay ${effectiveRemaining.toLocaleString()} MXN via PayPal
+                    Pay ${effectiveRemaining.toLocaleString()} {booking.currency || 'MXN'} via PayPal
                   </Button>
                 )}
 

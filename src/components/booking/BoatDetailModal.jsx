@@ -107,7 +107,7 @@ export default function BoatDetailModal({ boat, isOpen, onClose }) {
                         {pricing?.price_mxn && (
                           <div className="text-right">
                             <p className="text-lg font-bold text-emerald-400">${pricing.price_mxn.toLocaleString()}</p>
-                            <p className="text-xs text-white/50">MXN</p>
+                            <p className="text-xs text-white/50">{boat.currency || 'MXN'}</p>
                           </div>
                         )}
                       </div>
