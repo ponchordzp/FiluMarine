@@ -110,8 +110,8 @@ export default function Home() {
   };
 
   const handleSelectLocation = (locationId) => {
-    setSelectedLocation(locationId.toLowerCase());
-    setBookingData({ location: locationId.toLowerCase() });
+    setSelectedLocation(locationId);
+    setBookingData({ location: locationId });
     setStep('landing');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };

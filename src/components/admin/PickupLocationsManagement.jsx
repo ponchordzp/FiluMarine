@@ -66,9 +66,12 @@ export default function PickupLocationsManagement({ locationFilter: externalLoca
   const [form, setForm] = useState(emptyForm);
 
   const saveMutation = useMutation({
-    mutationFn: (data) => editing
-      ? base44.entities.PickupLocation.update(editing.id, data)
-      : base44.entities.PickupLocation.create(data),
+    mutationFn: (data) => {
+      const cleanData = { ...data, location: (data.location || '').toLowerCase().trim() };
+      return editing
+        ? base44.entities.PickupLocation.update(editing.id, cleanData)
+        : base44.entities.PickupLocation.create(cleanData);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pickup-locations'] });
       setOpen(false);
