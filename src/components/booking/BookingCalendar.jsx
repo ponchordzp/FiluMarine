@@ -62,6 +62,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       expedition_pricing: expPricing,
       available_expeditions: availExp,
       price_per_additional_hour: boat.price_per_additional_hour || 0,
+      currency: boat.currency || 'MXN',
     };
   });
 
@@ -353,7 +354,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                             <p className={`font-medium ${selectedBoat === boat.id ? 'text-white' : 'text-white/80'}`}>
                               {boat.name}
                             </p>
-                            <p className="text-sm text-white/60">{boat.type} • ${boatPrice.toLocaleString()} MXN</p>
+                            <p className="text-sm text-white/60">{boat.type} • ${boatPrice.toLocaleString()} {boat.currency || 'MXN'}</p>
                           </div>
                         </div>
                         {selectedBoat === boat.id && (
@@ -453,7 +454,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     <span>
                       <span className="font-semibold">Extra hours:</span> Additional time beyond scheduled duration is{' '}
                       <span className="font-semibold">
-                        ${((activeBoats.find(b => b.id === selectedBoat)?.price_per_additional_hour) || 2500).toLocaleString()} MXN per hour
+                        ${((activeBoats.find(b => b.id === selectedBoat)?.price_per_additional_hour) || 2500).toLocaleString()} {activeBoats.find(b => b.id === selectedBoat)?.currency || 'MXN'} per hour
                       </span>
                     </span>
                   </p>
