@@ -830,7 +830,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <Label>Boat Image</Label>
               <div className="space-y-2 mt-1">
                 {imagePreview && <div className="relative w-full h-48 rounded-lg overflow-hidden border border-sky-200"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
-                <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
+                <Input type="file" accept="image/*,.heic,.heif" onChange={handleImageChange} className="cursor-pointer" />
               </div>
             </div>
           </div>
@@ -891,7 +891,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <InfoLabel info="Main photo of the boat shown to guests. Use a high-quality landscape photo.">Boat Image (Main)</InfoLabel>
                     <div className="space-y-2 mt-1">
                       {imagePreview && <div className="relative w-full h-48 rounded-lg overflow-hidden border border-sky-200"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
-                      <Input type="file" accept="image/*" onChange={handleImageChange} className="cursor-pointer" />
+                      <Input type="file" accept="image/*,.heic,.heif" onChange={handleImageChange} className="cursor-pointer" />
                     </div>
                   </div>
                   <div>
@@ -918,7 +918,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         </div>
                       )}
                       {(formData.images || []).length + additionalImageFiles.length < 20 && (
-                        <Input type="file" accept="image/*" multiple onChange={handleAdditionalImagesChange} className="cursor-pointer" />
+                        <Input type="file" accept="image/*,.heic,.heif" multiple onChange={handleAdditionalImagesChange} className="cursor-pointer" />
                       )}
                       <p className="text-xs text-sky-600">{(formData.images || []).length + additionalImageFiles.length}/20 photos</p>
                     </div>
