@@ -533,6 +533,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
     setFormData(prev => ({ ...prev, expedition_pricing: mergedExpPricing }));
     setExpeditionPickupDepartures(pickupDeps);
+    setAdditionalImageFiles([]);
     setDialogOpen(true);
   };
 
@@ -546,8 +547,14 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const handleAdditionalImagesChange = (e) => {
     const files = Array.from(e.target.files || []);
     const existing = formData.images || [];
-    const slots = 20 - existing.length;
-    setAdditionalImageFiles(prev => [...prev, ...files].slice(0, slots));
+    const slots = 20 - existing.length - additionalImageFiles.length;
+    if (slots <= 0) return;
+    
+    const allowedFiles = files.slice(0, slots).map(f => ({
+      file: f,
+      preview: URL.createObjectURL(f)
+    }));
+    setAdditionalImageFiles(prev => [...prev, ...allowedFiles]);
   };
 
   const removeAdditionalImage = (index) => {
@@ -589,7 +596,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       finalData.image = file_url;
     }
     if (additionalImageFiles.length > 0) {
-      const uploaded = await Promise.all(additionalImageFiles.map(f => base44.integrations.Core.UploadFile({ file: f })));
+      const uploaded = await Promise.all(additionalImageFiles.map(obj => base44.integrations.Core.UploadFile({ file: obj.file })));
       const newUrls = uploaded.map(r => r.file_url);
       finalData.images = [...(finalData.images || []), ...newUrls].slice(0, 20);
       setAdditionalImageFiles([]);
@@ -895,17 +902,17 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                           {(formData.images || []).map((url, idx) => (
                             <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-sky-200">
                               <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
-                              {isSuperAdmin && <button type="button" onClick={() => removeAdditionalImage(idx)} className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors"><Trash2 className="h-3 w-3" /></button>}
+                              {!locks['general'] && <button type="button" onClick={() => removeAdditionalImage(idx)} className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors"><Trash2 className="h-3 w-3" /></button>}
                             </div>
                           ))}
                         </div>
                       )}
                       {additionalImageFiles.length > 0 && (
                         <div className="grid grid-cols-4 gap-2">
-                          {additionalImageFiles.map((file, idx) => (
+                          {additionalImageFiles.map((obj, idx) => (
                             <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border-2 border-dashed border-sky-400">
-                              <img src={URL.createObjectURL(file)} alt={`New ${idx + 1}`} className="w-full h-full object-cover" />
-                              {isSuperAdmin && <button type="button" onClick={() => removeAdditionalPendingFile(idx)} className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors"><Trash2 className="h-3 w-3" /></button>}
+                              <img src={obj.preview} alt={`New ${idx + 1}`} className="w-full h-full object-cover" />
+                              {!locks['general'] && <button type="button" onClick={() => removeAdditionalPendingFile(idx)} className="absolute top-1 right-1 w-6 h-6 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-md transition-colors"><Trash2 className="h-3 w-3" /></button>}
                             </div>
                           ))}
                         </div>
