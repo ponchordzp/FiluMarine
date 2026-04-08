@@ -86,6 +86,11 @@
       "default": 0,
       "description": "Price in MXN for each additional hour"
     },
+    "dock_fee": {
+      "type": "number",
+      "default": 0,
+      "description": "Dock fee applied per booking"
+    },
     "expedition_pricing": {
       "type": "array",
       "items": {

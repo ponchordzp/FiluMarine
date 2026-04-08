@@ -90,6 +90,11 @@
       "default": "MXN",
       "description": "Currency of the booking"
     },
+    "dock_fee": {
+      "type": "number",
+      "default": 0,
+      "description": "Dock fee applied to the booking"
+    },
     "payment_method": {
       "type": "string",
       "enum": [
