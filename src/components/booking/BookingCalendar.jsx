@@ -91,16 +91,28 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     if (boat?.expedition_pricing) {
       const pricing = boat.expedition_pricing.find(p => p.expedition_type === expId);
       if (pricing) {
-        // pickup_departures is authoritative — extract all unique departure times
+        let allTimes = [];
+        
+        // Collect times from pickup_departures array if present
         if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
-          const times = [...new Set(
-            pricing.pickup_departures.map(d => d.departure_time).filter(t => t && t.trim())
-          )];
-          if (times.length > 0) return times.map(t => ({ time: t, label: 'Departure' }));
+          pricing.pickup_departures.forEach(d => {
+            if (d.departure_time && d.departure_time.trim()) {
+               const parts = d.departure_time.split(',').map(part => part.trim()).filter(Boolean);
+               allTimes.push(...parts);
+            }
+          });
         }
-        // Legacy: single departure_time field
+        
+        // Collect time from legacy single departure_time field if present
         if (pricing.departure_time && pricing.departure_time.trim()) {
-          return [{ time: pricing.departure_time, label: 'Departure' }];
+          const parts = pricing.departure_time.split(',').map(t => t.trim()).filter(Boolean);
+          allTimes.push(...parts);
+        }
+
+        // Deduplicate and return times
+        const uniqueTimes = [...new Set(allTimes)];
+        if (uniqueTimes.length > 0) {
+          return uniqueTimes.map(t => ({ time: t, label: 'Departure' }));
         }
       }
     }
