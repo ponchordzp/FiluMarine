@@ -175,7 +175,11 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
             Our <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Fleet</span>
           </h2>
           <p className="text-white/70 text-xl max-w-xl mx-auto">
-            Two exceptional vessels for every type of adventure
+            {fleet.length === 0 
+              ? 'New vessels coming soon to this location' 
+              : fleet.length === 1 
+                ? 'One exceptional vessel for your adventure' 
+                : `${fleet.length} exceptional vessels for every type of adventure`}
           </p>
         </motion.div>
 
