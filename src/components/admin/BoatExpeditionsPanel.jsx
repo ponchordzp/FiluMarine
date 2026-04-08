@@ -23,6 +23,7 @@ export default function BoatExpeditionsPanel({
   locks = {},
   toggleLock = () => {},
   sectionKey = 'expeditions',
+  currency = 'MXN',
 }) {
   const [expandedPickup, setExpandedPickup] = useState({});
   const [collapsed, setCollapsed] = useState(false);
@@ -94,7 +95,7 @@ export default function BoatExpeditionsPanel({
         {onPricePerHourChange && (
           <div className="bg-white border border-indigo-200 rounded-lg p-3">
             <Label className="text-xs font-semibold text-indigo-800 flex items-center gap-1">
-              <Clock className="h-3 w-3" /> Price Per Additional Hour (MXN)
+              <Clock className="h-3 w-3" /> Price Per Additional Hour ({currency})
             </Label>
             <Input
               type="number"
@@ -165,7 +166,7 @@ export default function BoatExpeditionsPanel({
                       </div>
                       <div>
                         <Label className="text-xs text-indigo-700 flex items-center gap-1">
-                          <DollarSign className="h-3 w-3" /> Price (MXN)
+                          <DollarSign className="h-3 w-3" /> Price ({currency})
                         </Label>
                         <Input
                           type="number"
