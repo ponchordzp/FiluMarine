@@ -35,11 +35,12 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
     queryFn: () => base44.entities.BoatInventory.list('-created_date'),
   });
 
-  const activeBoats = boatsFromDB.filter(boat => 
-    boat.location === location && 
-    boat.status === 'active' && 
-    boat.boat_mode !== 'maintenance_only'
-  );
+  const activeBoats = boatsFromDB.filter(boat => {
+    const matchLocation = (boat.location || '').toLowerCase().trim() === (location || '').toLowerCase().trim();
+    const matchStatus = !boat.status || boat.status === 'active';
+    const matchMode = boat.boat_mode !== 'maintenance_only';
+    return matchLocation && matchStatus && matchMode;
+  });
 
   // Map database boats to required format - load ALL vessel editor data
   const boats = activeBoats.map(boat => {
@@ -102,7 +103,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
         }
       }
     }
-    return fallbackTimeSlots[expId] || [];
+    return fallbackTimeSlots[expId] || [{ time: '9:00 AM', label: 'Morning Departure' }];
   };
 
   // Get booked time slots on a specific date for the selected boat
@@ -231,38 +232,55 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                 selected={selectedDate}
                 onSelect={handleDateSelect}
                   disabled={(date) => {
-                    if (isBefore(date, minDate)) return true;
-                    if (!selectedBoat) return true;
+                    const todayStr = format(new Date(), 'yyyy-MM-dd');
                     const dateStr = format(date, 'yyyy-MM-dd');
+                    if (dateStr <= todayStr) return true; // Always block today and past days
+
+                    if (!selectedBoat) return false; // Allow picking dates even if no boat is selected yet
                     const currentBoat = boats.find(b => b.id === selectedBoat);
+                    if (!currentBoat) return false;
+
                     // Blocked by admin
                     const isBlockedForBoat = blockedDates.some(blocked => {
                       if (blocked.date !== dateStr) return false;
                       const blockBoatName = blocked.boat_name || 'both';
-                      return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
+                      return blockBoatName === 'both' || blockBoatName === currentBoat.name;
                     });
                     if (isBlockedForBoat) return true;
+
                     // Only disable if ALL available time slots are already booked
                     const slots = getAvailableSlotsForBoat(selectedBoat);
-                    if (slots.length === 0) return true;
-                    const bookedTimes = getBookedTimesForDate(currentBoat?.name, dateStr);
+                    if (!slots || slots.length === 0) return false;
+                    
+                    const bookedTimes = getBookedTimesForDate(currentBoat.name, dateStr);
                     return slots.every(s => bookedTimes.includes(s.time));
                   }}
                   className="rounded-lg"
                   modifiers={{
-                    past: (date) => isBefore(date, minDate),
-                    blocked: (date) => {
-                      if (!selectedBoat) return false;
+                    past: (date) => {
+                      const todayStr = format(new Date(), 'yyyy-MM-dd');
                       const dateStr = format(date, 'yyyy-MM-dd');
+                      return dateStr <= todayStr;
+                    },
+                    blocked: (date) => {
+                      const todayStr = format(new Date(), 'yyyy-MM-dd');
+                      const dateStr = format(date, 'yyyy-MM-dd');
+                      if (dateStr <= todayStr) return false;
+
+                      if (!selectedBoat) return false;
                       const currentBoat = boats.find(b => b.id === selectedBoat);
+                      if (!currentBoat) return false;
+
                       const isBlocked = blockedDates.some(blocked => {
                         if (blocked.date !== dateStr) return false;
                         const blockBoatName = blocked.boat_name || 'both';
-                        return blockBoatName === 'both' || (currentBoat && blockBoatName === currentBoat.name);
+                        return blockBoatName === 'both' || blockBoatName === currentBoat.name;
                       });
+
                       const slots = getAvailableSlotsForBoat(selectedBoat);
-                      const bookedTimes = getBookedTimesForDate(currentBoat?.name, dateStr);
-                      const allSlotsTaken = slots.length === 0 || slots.every(s => bookedTimes.includes(s.time));
+                      const bookedTimes = getBookedTimesForDate(currentBoat.name, dateStr);
+                      const allSlotsTaken = slots && slots.length > 0 && slots.every(s => bookedTimes.includes(s.time));
+                      
                       return isBlocked || allSlotsTaken;
                     },
                   }}
