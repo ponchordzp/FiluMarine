@@ -17,6 +17,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
 
   const selectedBoat = boats.find(b => b.name === bookingData.boat_name);
   const addOnOptions = selectedBoat?.boat_extras || [];
+  const currency = selectedBoat?.currency || 'MXN';
 
   const getAddOnPrice = (id) => {
     const extra = addOnOptions.find(e => e.extra_id === id);
@@ -97,6 +98,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
       payment_screenshot: paymentScreenshot,
       total_price: totalPrice,
       deposit_paid: deposit,
+      currency: currency,
     };
     
     setBookingData(finalData);
@@ -177,7 +179,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                         return title ? (
                           <div key={id} className="flex justify-between text-sm">
                             <span className="text-slate-600">{title}</span>
-                            <span className="text-slate-800">${price.toLocaleString()} MXN</span>
+                            <span className="text-slate-800">${price.toLocaleString()} {currency}</span>
                           </div>
                         ) : null;
                       })}
@@ -193,23 +195,23 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-slate-600">Experience ({bookingData.boat_name})</span>
-                    <span className="text-slate-800">${basePrice.toLocaleString()} MXN</span>
+                    <span className="text-slate-800">${basePrice.toLocaleString()} {currency}</span>
                   </div>
                   {addOnsTotal > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600">Add-ons</span>
-                      <span className="text-slate-800">${addOnsTotal.toLocaleString()} MXN</span>
+                      <span className="text-slate-800">${addOnsTotal.toLocaleString()} {currency}</span>
                     </div>
                   )}
                   {taxiFee > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600">Taxi pickup</span>
-                      <span className="text-slate-800">${taxiFee} MXN</span>
+                      <span className="text-slate-800">${taxiFee} {currency}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-semibold pt-3 border-t border-slate-100">
                     <span className="text-slate-800">Total</span>
-                    <span className="text-slate-800">${totalPrice.toLocaleString()} MXN</span>
+                    <span className="text-slate-800">${totalPrice.toLocaleString()} {currency}</span>
                   </div>
                 </div>
 
@@ -218,11 +220,11 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span className="text-[#0c2340]/80">Deposit (40%) - due today</span>
-                      <span className="font-semibold text-[#0c2340]">${deposit.toLocaleString()} MXN</span>
+                      <span className="font-semibold text-[#0c2340]">${deposit.toLocaleString()} {currency}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-[#0c2340]/80">Balance (60%) - on arrival</span>
-                      <span className="text-[#0c2340]/80">${remaining.toLocaleString()} MXN</span>
+                      <span className="text-[#0c2340]/80">${remaining.toLocaleString()} {currency}</span>
                     </div>
                   </div>
                 </div>
@@ -281,11 +283,11 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               {/* Payment Method - Deposit */}
               <div className="bg-white rounded-lg md:rounded-2xl p-4 md:p-6 shadow-sm">
                 <h3 className="font-semibold text-slate-800 mb-2">Deposit Payment (40%)</h3>
-                <p className="text-sm text-slate-500 mb-4">Non-refundable reservation fee: <span className="font-semibold text-slate-700">${deposit.toLocaleString()} MXN</span></p>
+                <p className="text-sm text-slate-500 mb-4">Non-refundable reservation fee: <span className="font-semibold text-slate-700">${deposit.toLocaleString()} {currency}</span></p>
 
                 {/* PayPal only */}
                 <a
-                  href={`https://www.paypal.com/paypalme/filumarine/${deposit}`}
+                  href={`https://www.paypal.com/paypalme/${selectedBoat?.paypal_username || 'filumarine'}/${deposit}${currency}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setPaymentMethod('paypal')}
@@ -294,9 +296,9 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                   <CreditCard className="h-5 w-5 text-[#1e88e5]" />
                   <div className="flex-1">
                     <p className="font-medium text-[#1e88e5]">Pay via PayPal</p>
-                    <p className="text-sm text-slate-500">Click to open PayPal · @filumarine</p>
+                    <p className="text-sm text-slate-500">Click to open PayPal · @{selectedBoat?.paypal_username || 'filumarine'}</p>
                   </div>
-                  <span className="text-sm font-semibold text-[#1e88e5]">${deposit.toLocaleString()} MXN</span>
+                  <span className="text-sm font-semibold text-[#1e88e5]">${deposit.toLocaleString()} {currency}</span>
                 </a>
 
                 {/* Screenshot upload */}
@@ -339,7 +341,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               {/* Remaining Balance Info */}
               <div className="bg-[#f0f5f9] rounded-lg md:rounded-2xl p-4 md:p-6">
                 <h3 className="font-semibold text-slate-800 mb-2">Remaining Balance (60%)</h3>
-                <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining.toLocaleString()} MXN</span></p>
+                <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining.toLocaleString()} {currency}</span></p>
                 <p className="text-sm text-slate-600 mb-3">Payment options available on the day of your trip:</p>
                 <div className="flex flex-wrap gap-2">
                   <span className="text-xs bg-white text-slate-600 px-3 py-1.5 rounded-full border">PayPal</span>
@@ -362,7 +364,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                 ) : (
                   <span className="flex items-center gap-2">
                     <Check className="h-5 w-5" />
-                    Confirm Booking - Pay ${deposit.toLocaleString()} MXN Deposit
+                    Confirm Booking - Pay ${deposit.toLocaleString()} {currency} Deposit
                   </span>
                 )}
               </Button>

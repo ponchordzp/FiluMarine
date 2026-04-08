@@ -399,6 +399,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       recurring_costs: [],
       price_per_additional_hour: 0,
       status: 'active',
+      currency: 'MXN',
       maintenance_checklist: {},
       custom_fields_general: [],
       custom_fields_maintenance: [],
@@ -460,6 +461,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       supplies_inventory: boat.supplies_inventory || [],
       recurring_costs: boat.recurring_costs || [],
       price_per_additional_hour: boat.price_per_additional_hour || 0,
+      currency: boat.currency || 'MXN',
       maintenance_checklist: boat.maintenance_checklist || {},
       field_meta: boat.field_meta || {},
       equipment: boat.equipment || {
@@ -811,6 +813,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <div><Label>Capacity *</Label><Input required value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" className="mt-1" /></div>
               <div><Label>Location *</Label><Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent>{locationOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
+              <div><Label>Currency</Label><Select value={formData.currency || 'MXN'} onValueChange={(v) => setFormData({ ...formData, currency: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="MXN">MXN</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
               <div className="md:col-span-2"><Label>Operator</Label><Select value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
             </div>
             <div><Label>Description</Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} className="mt-1" /></div>
@@ -870,6 +873,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><InfoLabel info="The city/port where this boat operates and takes bookings." example="Ixtapa-Zihuatanejo">Location *</InfoLabel><Select disabled={locks['general']} value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{locationOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select></div>
                     <div><InfoLabel info="Exact dock slip or marina name where the boat is currently moored." example="Marina Paradise Slip 14, Dry Dock 3">Dock Location</InfoLabel><Input disabled={locks['general']} value={formData.dock_location} onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })} placeholder="e.g., Marina Paradise, Dry Dock 3" /></div>
                     <div><InfoLabel info="Current operational status. 'Maintenance' hides the boat from bookings." example="active">Status</InfoLabel><Select disabled={locks['general']} value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
+                    <div><InfoLabel info="Currency for this boat's pricing." example="MXN">Currency</InfoLabel><Select disabled={locks['general']} value={formData.currency || 'MXN'} onValueChange={(value) => setFormData({ ...formData, currency: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="MXN">MXN</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
                     <div className="md:col-span-2"><InfoLabel info="The operator this boat belongs to. Used to group boats by fleet." example="FILU, NAUTIKA">Operator</InfoLabel><Select disabled={locks['general']} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
                   </div>
                   <div><InfoLabel info="A short marketing description shown to guests on the booking page.">Description</InfoLabel><Textarea disabled={locks['general']} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} /></div>

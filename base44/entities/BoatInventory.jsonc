@@ -532,6 +532,15 @@
         "inactive"
       ],
       "default": "active"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "MXN",
+        "USD"
+      ],
+      "default": "MXN",
+      "description": "Currency for this boat's pricing"
     }
   },
   "required": [

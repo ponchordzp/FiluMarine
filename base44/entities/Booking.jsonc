@@ -81,6 +81,15 @@
       "type": "number",
       "description": "Deposit amount paid (approx. 40%)"
     },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "MXN",
+        "USD"
+      ],
+      "default": "MXN",
+      "description": "Currency of the booking"
+    },
     "payment_method": {
       "type": "string",
       "enum": [
