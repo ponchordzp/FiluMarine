@@ -141,11 +141,12 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     queryFn: () => base44.entities.Expedition.list('sort_order'),
   });
 
-  const activeBoats = useMemo(() => dbBoats.filter(b =>
-    (!location || b.location === location) &&
-    b.status === 'active' &&
-    b.boat_mode !== 'maintenance_only'
-  ), [dbBoats, location]);
+  const activeBoats = useMemo(() => dbBoats.filter(b => {
+    const matchLocation = !location || (b.location || '').toLowerCase().trim() === (location || '').toLowerCase().trim();
+    const matchStatus = !b.status || b.status === 'active';
+    const matchMode = b.boat_mode !== 'maintenance_only';
+    return matchLocation && matchStatus && matchMode;
+  }), [dbBoats, location]);
 
   // helper: is expedition hidden for a given operator?
   const isHiddenForOperator = (catalog, operator) => {

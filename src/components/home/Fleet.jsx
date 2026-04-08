@@ -111,11 +111,12 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
     queryFn: () => base44.entities.Booking.list(),
   });
 
-  const activeBoats = boatsFromDB.filter(boat => 
-    boat.location === location && 
-    boat.status === 'active' && 
-    boat.boat_mode !== 'maintenance_only'
-  );
+  const activeBoats = boatsFromDB.filter(boat => {
+    const matchLocation = (boat.location || '').toLowerCase().trim() === (location || '').toLowerCase().trim();
+    const matchStatus = !boat.status || boat.status === 'active';
+    const matchMode = boat.boat_mode !== 'maintenance_only';
+    return matchLocation && matchStatus && matchMode;
+  });
 
   const fleet = activeBoats.map(boat => {
     const strengths = [];
