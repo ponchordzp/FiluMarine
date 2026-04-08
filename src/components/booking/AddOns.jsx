@@ -20,6 +20,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
   // Use the per-boat extras directly — these have operator-set prices
   const selectedBoat = boats.find(b => b.name === boatName);
   const addOnOptions = selectedBoat?.boat_extras || [];
+  const currency = selectedBoat?.currency || 'MXN';
 
   const toggleAddOn = (id) => {
     setSelectedAddOns(prev =>
@@ -82,7 +83,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                     </div>
                     <div className="flex items-center gap-3 flex-shrink-0">
                       <span className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
-                        ${(extra.price || 0).toLocaleString()} MXN
+                        ${(extra.price || 0).toLocaleString()} {currency}
                       </span>
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'}`}>
                         {isSelected && <Check className="h-4 w-4 text-slate-900" />}
@@ -113,7 +114,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           <div className="flex flex-col items-center gap-6">
             {totalAddOns > 0 && (
               <div className="text-white/90 text-lg">
-                Add-ons total: <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">${totalAddOns.toLocaleString()} MXN</span>
+                Add-ons total: <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">${totalAddOns.toLocaleString()} {currency}</span>
               </div>
             )}
             <motion.div whileHover={{ scale: 1.02 }}>

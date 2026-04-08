@@ -1127,8 +1127,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
                   <div className="bg-orange-100 border border-orange-200 rounded-lg p-3"><p className="text-sm text-orange-900">Enter the maintenance cost <strong>per engine</strong>. Total is calculated from engine count above.</p></div>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div><InfoLabel info="Cost of a minor service per engine (oil, filters, basic check)." example="5000">Minor Maintenance Cost (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['maintenance']} value={formData.minor_maintenance_cost} onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 5000" /><p className="text-xs text-orange-700 mt-1">Oil change, filters, basic service</p></div>
-                    <div><InfoLabel info="Cost of a major service per engine (full overhaul, timing, impeller, etc.)." example="25000">Major Maintenance Cost (MXN)</InfoLabel><Input type="number" min="0" disabled={locks['maintenance']} value={formData.major_maintenance_cost} onChange={(e) => setFormData({ ...formData, major_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 25000" /><p className="text-xs text-orange-700 mt-1">Engine rebuild, major repairs</p></div>
+                    <div><InfoLabel info="Cost of a minor service per engine (oil, filters, basic check)." example="5000">Minor Maintenance Cost ({formData.currency || 'MXN'})</InfoLabel><Input type="number" min="0" disabled={locks['maintenance']} value={formData.minor_maintenance_cost} onChange={(e) => setFormData({ ...formData, minor_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 5000" /><p className="text-xs text-orange-700 mt-1">Oil change, filters, basic service</p></div>
+                    <div><InfoLabel info="Cost of a major service per engine (full overhaul, timing, impeller, etc.)." example="25000">Major Maintenance Cost ({formData.currency || 'MXN'})</InfoLabel><Input type="number" min="0" disabled={locks['maintenance']} value={formData.major_maintenance_cost} onChange={(e) => setFormData({ ...formData, major_maintenance_cost: parseInt(e.target.value) || 0 })} placeholder="e.g., 25000" /><p className="text-xs text-orange-700 mt-1">Engine rebuild, major repairs</p></div>
                   </div>
                   <div className="grid md:grid-cols-2 gap-4 pt-2 border-t border-orange-200">
                     <div><InfoLabel info="Full name of the preferred mechanic for this boat." example="Juan Pérez">Mechanic Name</InfoLabel><Input disabled={locks['maintenance']} value={formData.mechanic_name} onChange={(e) => setFormData({ ...formData, mechanic_name: e.target.value })} placeholder="e.g., Juan Pérez" /></div>
@@ -1272,7 +1272,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                   <p className="font-semibold text-slate-800">{supply.name}</p>
                                   <div className="flex gap-2 flex-wrap mt-1">
                                     {supply.category && <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">{supply.category}</span>}
-                                    {totalCost > 0 && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">${totalCost.toLocaleString()} MXN</span>}
+                                    {totalCost > 0 && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-medium">${totalCost.toLocaleString()} {formData.currency || 'MXN'}</span>}
                                     {/* Deduction badge */}
                                     {hasDeductions && (
                                       <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium flex items-center gap-1">
@@ -1458,7 +1458,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                                 </div>
                                 {isSuperAdmin && <Button type="button" variant="ghost" size="sm" onClick={() => removeRecurringCost(index)} className="text-red-600 hover:text-red-700 hover:bg-red-100"><Trash2 className="h-4 w-4" /></Button>}
                               </div>
-                              <p className="text-green-700 font-bold text-sm">${cost.amount.toLocaleString()} MXN</p>
+                              <p className="text-green-700 font-bold text-sm">${cost.amount.toLocaleString()} {formData.currency || 'MXN'}</p>
                               {cost.next_payment_date && <p className="text-xs text-slate-600 mt-1">Next payment: {format(parseISO(cost.next_payment_date), 'MMM d, yyyy')}</p>}
                               {cost.notes && <p className="text-xs text-slate-600 bg-purple-50 p-2 rounded mt-2">{cost.notes}</p>}
                             </div>
@@ -1471,7 +1471,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <p className="font-semibold text-sm text-purple-800">Add Recurring Cost</p>
                     <div className="grid md:grid-cols-2 gap-3">
                       <div><Label className="text-xs">Cost Name *</Label><Input value={newRecurringCost.name} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, name: e.target.value })} placeholder="e.g., Docking Fee" className="text-sm" /></div>
-                      <div><Label className="text-xs">Amount (MXN) *</Label><Input type="number" min="0" value={newRecurringCost.amount} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, amount: parseFloat(e.target.value) || 0 })} className="text-sm" /></div>
+                      <div><Label className="text-xs">Amount ({formData.currency || 'MXN'}) *</Label><Input type="number" min="0" value={newRecurringCost.amount} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, amount: parseFloat(e.target.value) || 0 })} className="text-sm" /></div>
                       <div><Label className="text-xs">Category</Label><Select value={newRecurringCost.category} onValueChange={(value) => setNewRecurringCost({ ...newRecurringCost, category: value })}><SelectTrigger className="text-sm"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="docking">Docking</SelectItem><SelectItem value="insurance">Insurance</SelectItem><SelectItem value="crew">Crew Salary</SelectItem><SelectItem value="permits">Permits &amp; Licenses</SelectItem><SelectItem value="other">Other</SelectItem></SelectContent></Select></div>
                       <div><Label className="text-xs">Frequency</Label><Select value={newRecurringCost.frequency_months.toString()} onValueChange={(value) => setNewRecurringCost({ ...newRecurringCost, frequency_months: parseInt(value) })}><SelectTrigger className="text-sm"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="1">Monthly</SelectItem><SelectItem value="3">Every 3 months</SelectItem><SelectItem value="6">Every 6 months</SelectItem><SelectItem value="9">Every 9 months</SelectItem><SelectItem value="12">Yearly</SelectItem></SelectContent></Select></div>
                       <div><div className="flex items-center gap-0.5"><Label className="text-xs">Next Payment Date</Label><TimestampButton meta={newRecurringCost.next_payment_date_meta} onStamp={(d, m) => setNewRecurringCost(prev => ({ ...prev, next_payment_date: d, next_payment_date_meta: m }))} /></div><Input type="date" value={newRecurringCost.next_payment_date} onChange={(e) => setNewRecurringCost({ ...newRecurringCost, next_payment_date: e.target.value })} className="text-sm" /></div>
@@ -1624,7 +1624,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-emerald-700 font-medium">Total Revenue</span>
-                      <span className="text-lg font-bold text-emerald-700">${stats.revenue.toLocaleString()} MXN</span>
+                      <span className="text-lg font-bold text-emerald-700">${stats.revenue.toLocaleString()} {boat.currency || 'MXN'}</span>
                     </div>
                   </div>
                   {boat.available_expeditions?.length > 0 && (
@@ -1721,7 +1721,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div key={idx} className="p-3 bg-slate-50 rounded-lg border text-xs">
                         <div className="flex items-start justify-between mb-2">
                           <div><p className="font-semibold text-slate-800">{format(parseISO(record.date), 'MMM d, yyyy')}</p><Badge className={record.service_type === 'major' ? 'bg-purple-100 text-purple-800 text-xs' : record.service_type === 'minor' ? 'bg-blue-100 text-blue-800 text-xs' : record.service_type === 'repair' ? 'bg-red-100 text-red-800 text-xs' : 'bg-slate-100 text-slate-800 text-xs'}>{record.service_type}</Badge></div>
-                          <p className="font-bold text-green-700">${record.cost?.toLocaleString()} MXN</p>
+                          <p className="font-bold text-green-700">${record.cost?.toLocaleString()} {boat.currency || 'MXN'}</p>
                         </div>
                         <p className="text-slate-600 mb-1"><strong>Engine Hours:</strong> {record.engine_hours} hrs</p>
                         {record.work_performed && <p className="text-slate-600 mb-1"><strong>Work:</strong> {record.work_performed}</p>}
