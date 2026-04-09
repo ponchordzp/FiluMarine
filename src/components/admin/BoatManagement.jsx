@@ -26,6 +26,8 @@ import BoatExpeditionsPanel from './BoatExpeditionsPanelFixed';
 import VesselCompleteness from './VesselCompleteness';
 import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from './SectionLock';
 import ImportExpeditionsButton from './ImportExpeditionsButton';
+import ImportExtraGuestsButton from './ImportExtraGuestsButton';
+import ImportEquipmentButton from './ImportEquipmentButton';
 
 const expeditionTypes = [
 'half_day_fishing',
@@ -1656,8 +1658,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   <Badge className={boat.status === 'active' ? 'bg-emerald-100 text-emerald-800' : boat.status === 'maintenance' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'}>{boat.status}</Badge>
                 </div>
                 {!readOnlyMode && (
-                  <div className="mb-2">
+                  <div className="mb-2 space-y-1">
                     <ImportExpeditionsButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} isSuperAdmin={isSuperAdmin} defaultOperator={lockedOperator || defaultOperator} />
+                    <ImportExtraGuestsButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} isSuperAdmin={isSuperAdmin} defaultOperator={lockedOperator || defaultOperator} />
+                    <ImportEquipmentButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} isSuperAdmin={isSuperAdmin} defaultOperator={lockedOperator || defaultOperator} />
                   </div>
                 )}
                 <div className="mt-2 p-2 bg-slate-50 rounded-lg border">
