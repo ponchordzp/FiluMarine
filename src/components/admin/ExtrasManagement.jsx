@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Pencil, Trash2, Sparkles } from 'lucide-react';
+import { Pencil, Trash2, Sparkles, Copy } from 'lucide-react';
 import ExtraForm from './ExtraForm';
 
 const OPERATOR_STORAGE_KEY = 'filu_operators';
@@ -92,6 +92,26 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['extras'] }),
   });
 
+  const createCopyMutation = useMutation({
+    mutationFn: (extra) => {
+      const userOp = currentUser?.operator || 'FILU';
+      const timestamp = Date.now();
+      const random = Math.random().toString(36).substring(2, 9);
+      const tag = `${userOp}_${timestamp}_${random}`;
+      
+      return base44.entities.Extra.create({
+        name: extra.name,
+        description: extra.description || '',
+        image: extra.image || '',
+        operator_tag: tag,
+        visible: true,
+        sort_order: extra.sort_order || 0,
+        allowed_operators: [userOp]
+      });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['extras'] }),
+  });
+
   const openEdit = (extra) => {
     setEditingId(extra.id);
     setEditForm({
@@ -152,7 +172,13 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
             <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-20" />
             <p>No extras yet. Add one to get started.</p>
           </div>
-        ) : filteredExtras.map(extra => (
+        ) : filteredExtras.map(extra => {
+          const isGlobal = !extra.allowed_operators || extra.allowed_operators.length === 0;
+          const userOp = currentUser?.operator || 'FILU';
+          const isOwner = !isGlobal && extra.allowed_operators.some(o => o.toLowerCase() === userOp.toLowerCase());
+          const canEdit = isSuperAdmin || isOwner;
+
+          return (
           <div key={extra.id} className="flex items-start gap-4 p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             {extra.image ? (
               <img src={extra.image} alt={extra.name} className="w-20 h-20 object-cover rounded-lg flex-shrink-0 border border-white/10" />
@@ -165,12 +191,22 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="font-semibold text-white">{extra.name}</span>
                 {!extra.visible && <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/40">Hidden</span>}
+                {isGlobal && !isSuperAdmin && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                    Global Template
+                  </span>
+                )}
+                {isOwner && !isSuperAdmin && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                    Your Copy
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2 mb-2 flex-wrap">
                 <span className="text-xs text-white/40 font-mono bg-white/5 px-2 py-1 rounded border border-white/10">
                   ID: {extra.operator_tag || extra.id}
                 </span>
-                {!extra.operator_tag && (
+                {!extra.operator_tag && canEdit && (
                   <Button
                     size="sm"
                     variant="outline"
@@ -185,16 +221,28 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               {extra.description && <p className="text-sm text-white/50 mt-1">{extra.description}</p>}
             </div>
             <div className="flex flex-col gap-2 ml-4 flex-shrink-0">
-              <Button size="sm" variant="ghost" className="text-white/40 hover:text-white bg-white/5 h-8 w-8 p-0" onClick={() => openEdit(extra)}>
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button size="sm" variant="ghost" className="text-red-400/50 hover:text-red-400 bg-white/5 h-8 w-8 p-0"
-                onClick={() => { if (window.confirm(`Delete "${extra.name}"?`)) deleteMutation.mutate(extra.id); }}>
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              {canEdit ? (
+                <>
+                  <Button size="sm" variant="ghost" className="text-white/40 hover:text-white bg-white/5 h-8 w-8 p-0" onClick={() => openEdit(extra)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button size="sm" variant="ghost" className="text-red-400/50 hover:text-red-400 bg-white/5 h-8 w-8 p-0"
+                    onClick={() => { if (window.confirm(`Delete "${extra.name}"?`)) deleteMutation.mutate(extra.id); }}>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              ) : (
+                <Button size="sm" variant="outline" className="h-8 text-xs text-cyan-400 border-cyan-400/30 hover:bg-cyan-400/10 px-2"
+                  onClick={() => { if (window.confirm(`Create your own editable copy of "${extra.name}"?`)) createCopyMutation.mutate(extra); }}
+                  disabled={createCopyMutation.isPending}
+                >
+                  <Copy className="h-3 w-3 mr-1" />
+                  Your Copy
+                </Button>
+              )}
             </div>
           </div>
-        ))}
+        )})}
       </div>
 
       {editOpen && (
