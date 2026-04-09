@@ -124,6 +124,11 @@ function AdminBookingsInner() {
     queryFn: () => base44.entities.Booking.list('-created_date')
   });
 
+  const { data: allBoats = [] } = useQuery({
+    queryKey: ['all-boats'],
+    queryFn: () => base44.entities.BoatInventory.list()
+  });
+
   const bookings = React.useMemo(() => {
     return rawBookings.map(b => {
       const boat = allBoats.find(ab => ab.name === b.boat_name);
@@ -148,11 +153,6 @@ function AdminBookingsInner() {
   const { data: blockedDates = [] } = useQuery({
     queryKey: ['blocked-dates'],
     queryFn: () => base44.entities.BlockedDate.list()
-  });
-
-  const { data: allBoats = [] } = useQuery({
-    queryKey: ['all-boats'],
-    queryFn: () => base44.entities.BoatInventory.list()
   });
 
   // Set default boat when allBoats loads
