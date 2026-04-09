@@ -125,14 +125,14 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
             <span>Back to extras</span>
           </button>
 
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-light text-white mb-3">
+          <div className="text-center mb-6 sm:mb-10">
+            <h2 className="text-2xl sm:text-3xl font-light text-white mb-2 sm:mb-3">
               Complete Your <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Booking</span>
             </h2>
-            <p className="text-white/70">Review details and confirm your reservation</p>
+            <p className="text-sm sm:text-base text-white/70">Review details and confirm your reservation</p>
           </div>
 
-          <div className="grid md:grid-cols-5 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 sm:gap-6 md:gap-8">
             {/* Booking Summary */}
             <div className="md:col-span-2 space-y-6 min-w-0">
               <div className="bg-white rounded-lg md:rounded-2xl p-4 md:p-6 shadow-sm">
@@ -295,14 +295,23 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setPaymentMethod('paypal')}
-                  className="flex items-center gap-4 p-4 rounded-xl border-2 border-[#1e88e5] bg-[#1e88e5]/5 cursor-pointer transition-all hover:bg-[#1e88e5]/10"
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4 rounded-xl border-2 border-[#1e88e5] bg-[#1e88e5]/5 cursor-pointer transition-all hover:bg-[#1e88e5]/10"
                 >
-                  <CreditCard className="h-5 w-5 text-[#1e88e5]" />
-                  <div className="flex-1">
-                    <p className="font-medium text-[#1e88e5]">Pay via PayPal</p>
-                    <p className="text-sm text-slate-500">Click to open PayPal · @{selectedBoat?.paypal_username || 'filumarine'}</p>
+                  <div className="flex items-center gap-3 w-full sm:w-auto">
+                    <CreditCard className="h-5 w-5 text-[#1e88e5] flex-shrink-0" />
+                    <div className="flex-1 sm:hidden">
+                      <p className="font-medium text-[#1e88e5]">Pay via PayPal</p>
+                    </div>
+                    <span className="sm:hidden text-sm font-semibold text-[#1e88e5] whitespace-nowrap">${deposit.toLocaleString()} {currency}</span>
                   </div>
-                  <span className="text-sm font-semibold text-[#1e88e5]">${deposit.toLocaleString()} {currency}</span>
+                  <div className="flex-1 hidden sm:block">
+                    <p className="font-medium text-[#1e88e5]">Pay via PayPal</p>
+                    <p className="text-sm text-slate-500 truncate">Click to open PayPal · @{selectedBoat?.paypal_username || 'filumarine'}</p>
+                  </div>
+                  <div className="sm:hidden w-full">
+                    <p className="text-xs text-slate-500 truncate">Click to open PayPal · @{selectedBoat?.paypal_username || 'filumarine'}</p>
+                  </div>
+                  <span className="hidden sm:inline-block text-sm font-semibold text-[#1e88e5] whitespace-nowrap">${deposit.toLocaleString()} {currency}</span>
                 </a>
 
                 {/* Screenshot upload */}
@@ -364,7 +373,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               <Button
                 onClick={handleConfirm}
                 disabled={isSubmitting}
-                className="w-full bg-[#1e88e5] hover:bg-[#1976d2] text-white py-6 rounded-lg md:rounded-xl font-medium text-lg transition-all disabled:opacity-50"
+                className="w-full bg-[#1e88e5] hover:bg-[#1976d2] text-white py-4 sm:py-6 rounded-lg md:rounded-xl font-medium text-base sm:text-lg transition-all disabled:opacity-50 h-auto"
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
@@ -372,9 +381,11 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                     Processing...
                   </span>
                 ) : (
-                  <span className="flex items-center gap-2">
-                    <Check className="h-5 w-5" />
-                    Confirm Booking - Pay ${deposit.toLocaleString()} {currency} Deposit
+                  <span className="flex items-center gap-2 text-center flex-wrap justify-center">
+                    <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span>Confirm Booking</span>
+                    <span className="hidden sm:inline">-</span>
+                    <span>Pay ${deposit.toLocaleString()} {currency}</span>
                   </span>
                 )}
               </Button>

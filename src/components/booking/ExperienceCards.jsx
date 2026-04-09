@@ -119,7 +119,7 @@ function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) 
 
         <Button
           onClick={(e) => { e.stopPropagation(); onSelect(exp); }}
-          className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-6 rounded-2xl font-semibold transition-all duration-500 hover:scale-105 shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] mt-auto overflow-hidden border border-cyan-400/20"
+          className="relative w-full bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white py-4 sm:py-6 rounded-xl sm:rounded-2xl font-semibold transition-all duration-500 hover:scale-105 shadow-[0_4px_20px_rgba(34,211,238,0.2)] hover:shadow-[0_0_30px_rgba(34,211,238,0.4)] mt-auto overflow-hidden border border-cyan-400/20 h-auto"
         >
           <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
           <span className="relative">Select This Experience</span>
@@ -211,10 +211,10 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
               animate={{ opacity: 1, y: 0 }}
               className="text-center mb-10"
             >
-              <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
+              <h2 className="text-3xl sm:text-5xl md:text-6xl font-light text-white mb-3 sm:mb-6">
                 Choose Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">Experience</span>
               </h2>
-              <p className="text-white/80 text-xl md:text-2xl max-w-2xl mx-auto font-light">
+              <p className="text-white/80 text-lg sm:text-xl md:text-2xl max-w-2xl mx-auto font-light">
                 Select the perfect adventure for your group
               </p>
             </motion.div>
@@ -294,10 +294,10 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
           viewport={{ once: true }}
           className="text-center mb-20"
         >
-          <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
+          <h2 className="text-3xl sm:text-5xl md:text-6xl font-light text-white mb-3 sm:mb-6">
             Choose Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-600 drop-shadow-[0_0_20px_rgba(34,211,238,0.5)]">Experience</span>
           </h2>
-          <p className="text-white/80 text-xl md:text-2xl max-w-2xl mx-auto font-light">
+          <p className="text-white/80 text-lg sm:text-xl md:text-2xl max-w-2xl mx-auto font-light">
             Select the perfect adventure for your group
           </p>
         </motion.div>

@@ -58,10 +58,10 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           </button>
 
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-light text-white mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light text-white mb-2 sm:mb-4">
               Enhance Your <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Experience</span>
             </h2>
-            <p className="text-white/80 text-xl">Optional extras to make your trip even better</p>
+            <p className="text-white/80 text-base sm:text-xl">Optional extras to make your trip even better</p>
           </div>
 
           {/* Add-ons */}
@@ -77,29 +77,40 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                     key={extra.extra_id}
                     onClick={() => toggleAddOn(extra.extra_id)}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full p-4 sm:p-5 rounded-2xl border-2 transition-all flex items-center gap-4 sm:gap-5 text-left ${
+                    className={`w-full p-3 sm:p-5 rounded-xl sm:rounded-2xl border-2 transition-all flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-5 text-left ${
                       isSelected
                         ? 'border-cyan-400 bg-cyan-400/20 shadow-lg shadow-cyan-500/30'
                         : 'border-white/30 bg-white/10 hover:border-white/40 backdrop-blur-xl'
                     }`}
                   >
-                    <div className={`w-32 sm:w-40 h-[70px] rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden ${isSelected ? 'bg-cyan-400' : 'bg-white/20'}`}>
-                      {imageUrl ? (
-                        <img src={imageUrl} alt={extra.extra_name || extra.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Sparkles className={`h-8 w-8 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
-                      )}
+                    <div className="flex items-center gap-3 sm:gap-5 w-full">
+                      <div className={`w-24 sm:w-40 h-[60px] sm:h-[70px] rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden ${isSelected ? 'bg-cyan-400' : 'bg-white/20'}`}>
+                        {imageUrl ? (
+                          <img src={imageUrl} alt={extra.extra_name || extra.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <Sparkles className={`h-6 w-6 sm:h-8 sm:w-8 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className={`font-semibold text-sm sm:text-base truncate sm:whitespace-normal ${isSelected ? 'text-cyan-400' : 'text-white'}`}>{extra.extra_name || extra.name}</h3>
+                        {extra.description && <p className="text-xs sm:text-sm text-white/70 leading-relaxed line-clamp-2 sm:line-clamp-none">{extra.description}</p>}
+                      </div>
+                      <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
+                        <span className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
+                          ${(extra.price || 0).toLocaleString()} {currency}
+                        </span>
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'}`}>
+                          {isSelected && <Check className="h-4 w-4 text-slate-900" />}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <h3 className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white'}`}>{extra.extra_name || extra.name}</h3>
-                      {extra.description && <p className="text-sm text-white/70 leading-relaxed">{extra.description}</p>}
-                    </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
+                    {/* Mobile Price & Check */}
+                    <div className="flex sm:hidden items-center justify-between w-full pt-2 border-t border-white/10 mt-1">
+                      <span className={`font-semibold text-sm ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
                         ${(extra.price || 0).toLocaleString()} {currency}
                       </span>
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'}`}>
-                        {isSelected && <Check className="h-4 w-4 text-slate-900" />}
+                      <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'}`}>
+                        {isSelected && <Check className="h-3 w-3 text-slate-900" />}
                       </div>
                     </div>
                   </motion.button>
@@ -133,7 +144,7 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
             <motion.div whileHover={{ scale: 1.02 }}>
               <Button
                 onClick={handleContinue}
-                className="relative px-16 py-8 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white text-lg font-bold rounded-2xl transition-all duration-500 shadow-2xl shadow-cyan-500/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.8)] border-2 border-cyan-400/30 overflow-hidden group"
+                className="relative w-full sm:w-auto px-8 sm:px-16 py-6 sm:py-8 bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 hover:from-cyan-400 hover:via-cyan-500 hover:to-blue-500 text-white text-base sm:text-lg font-bold rounded-xl sm:rounded-2xl transition-all duration-500 shadow-2xl shadow-cyan-500/40 hover:shadow-[0_0_50px_rgba(34,211,238,0.8)] border-2 border-cyan-400/30 overflow-hidden group h-auto"
               >
                 <span className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
                 <span className="relative">Continue to Payment</span>

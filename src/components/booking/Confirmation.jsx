@@ -42,10 +42,10 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
             <CheckCircle className="h-10 w-10 text-emerald-600" />
           </motion.div>
           
-          <h1 className="text-3xl md:text-4xl font-light text-slate-800 mb-3">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-light text-slate-800 mb-2 sm:mb-3">
             Booking <span className="font-semibold">Confirmed!</span>
           </h1>
-          <p className="text-slate-600 text-lg">
+          <p className="text-slate-600 text-base sm:text-lg">
             Your adventure awaits. Check your email for details.
           </p>
         </motion.div>
@@ -62,7 +62,7 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
             <p className="text-3xl font-bold text-slate-800 tracking-wider">{booking.confirmation_code}</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <div className="bg-slate-50 rounded-xl p-4">
               <div className="flex items-center gap-2 text-slate-500 mb-1">
                 <Calendar className="h-4 w-4" />
@@ -132,7 +132,7 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
           className="bg-white rounded-2xl p-6 shadow-sm mb-6"
         >
           <h3 className="font-semibold text-slate-800 mb-4">What to Bring</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
             {whatToBring.map((item, i) => (
               <div key={i} className="flex items-center gap-3 text-sm text-slate-600">
                 <item.icon className="h-4 w-4 text-slate-400" />
@@ -166,11 +166,11 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
           <Button
             asChild
             size="lg"
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-6 rounded-full font-medium"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 sm:px-8 py-5 sm:py-6 rounded-full font-medium w-full sm:w-auto h-auto text-wrap text-center"
           >
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="mr-2 h-5 w-5" />
-              Contact us on WhatsApp
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center">
+              <MessageCircle className="mr-2 h-5 w-5 flex-shrink-0" />
+              <span>Contact us on WhatsApp</span>
             </a>
           </Button>
           <img 
@@ -191,7 +191,7 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
             onClick={onBackToMain}
             variant="outline"
             size="lg"
-            className="px-8 py-6 rounded-full font-medium"
+            className="px-6 sm:px-8 py-5 sm:py-6 rounded-full font-medium w-full sm:w-auto h-auto"
           >
             Back to Main Page
           </Button>
