@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -1035,7 +1035,8 @@ function AdminBookingsInner() {
 
             <div className="space-y-3">
               {/* Practice Booking Generator Button */}
-            <div className="mb-4 flex justify-end">
+            <div className="mb-4 flex justify-end gap-2">
+              <OffsiteBookingModal allBoats={allBoats} operators={operators} />
               <Button onClick={() => setShowPracticeGenerator(true)} className="text-xs bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30">
                 + Practice Booking
               </Button>
