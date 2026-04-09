@@ -68,15 +68,21 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   });
 
   const availableBoats = boats.filter(boat => {
-    return boat.available_expeditions && boat.available_expeditions.includes(expId);
+    const hasExp = boat.available_expeditions && boat.available_expeditions.includes(expId);
+    if (!hasExp) return false;
+    
+    // If started by selecting a boat, filter to show ONLY that boat
+    if (bookingData.boat_name && boat.name !== bookingData.boat_name) {
+      return false;
+    }
+    
+    return true;
   });
 
-  const defaultBoat = availableBoats.length > 0 ? availableBoats[0].id : null;
-  
   const [selectedDate, setSelectedDate] = useState(bookingData.date ? new Date(bookingData.date) : null);
   const [selectedTime, setSelectedTime] = useState(bookingData.time_slot || null);
   const [guests, setGuests] = useState(bookingData.guests || 2);
-  const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || defaultBoat);
+  const [selectedBoat, setSelectedBoat] = useState(bookingData.boat_id || null);
   const [blockedDates, setBlockedDates] = useState([]);
   const [existingBookings, setExistingBookings] = useState([]);
 
@@ -149,13 +155,11 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   
   const isLeisureExperience = expId === 'snorkeling' || expId === 'coastal_leisure' || expId === 'sunset_tour' || expId === 'extended_fishing';
   
-  // Auto-select first available boat when current selection is invalid
+  // Clear selection if current selection is invalid
   React.useEffect(() => {
-    if (availableBoats.length > 0) {
-      if (!selectedBoat || !availableBoats.find(b => b.id === selectedBoat)) {
-        setSelectedBoat(availableBoats[0].id);
-        setSelectedTime(null);
-      }
+    if (selectedBoat && !availableBoats.find(b => b.id === selectedBoat)) {
+      setSelectedBoat(null);
+      setSelectedTime(null);
     }
   }, [availableBoats, selectedBoat]);
 
