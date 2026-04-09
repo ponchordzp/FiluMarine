@@ -159,7 +159,10 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   // ── BOAT-SELECTED VIEW ──────────────────────────────────────────────────
   if (selectedBoat) {
     const boatExperiences = (selectedBoat.available_expeditions || []).map(expType => {
-      const catalog = dbExpeditions.find(e => e.expedition_id === expType);
+      const opCatalog = dbExpeditions.find(e => e.expedition_id === expType && e.operator && e.operator.toLowerCase() === (selectedBoat.operator || '').toLowerCase());
+      const globalCatalog = dbExpeditions.find(e => e.expedition_id === expType && !e.operator);
+      const catalog = opCatalog || globalCatalog || dbExpeditions.find(e => e.expedition_id === expType);
+
       if (isHiddenForOperator(catalog, selectedBoat.operator)) return null;
       const pricing = (selectedBoat.expedition_pricing || []).find(p => p.expedition_type === expType);
       const departureTimes = getDepartureTimes(pricing);
@@ -231,7 +234,10 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     activeBoats.forEach(boat => {
       (boat.available_expeditions || []).forEach(expId => {
         if (!expMap.has(expId)) {
-          const catalog = dbExpeditions.find(e => e.expedition_id === expId);
+          const opCatalog = dbExpeditions.find(e => e.expedition_id === expId && e.operator && e.operator.toLowerCase() === (boat.operator || '').toLowerCase());
+          const globalCatalog = dbExpeditions.find(e => e.expedition_id === expId && !e.operator);
+          const catalog = opCatalog || globalCatalog || dbExpeditions.find(e => e.expedition_id === expId);
+
           if (catalog && !isHiddenForOperator(catalog, boat.operator)) {
             expMap.set(expId, catalog);
           }
