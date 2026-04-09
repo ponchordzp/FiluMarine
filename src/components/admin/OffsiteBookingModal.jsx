@@ -77,13 +77,56 @@ export default function OffsiteBookingModal({ allBoats = [], operators = [] }) {
     return true;
   });
   
-  const availableExtras = allExtras.filter(extra => {
-    if (!selectedBoatObj) return true;
-    if (extra.applicable_boats && extra.applicable_boats.length > 0) {
-      if (!extra.applicable_boats.includes(selectedBoatObj.name)) return false;
+  const availableExtras = useMemo(() => {
+    if (!selectedBoatObj || !experience) return [];
+    const expObj = boatExpeditions.find(e => e.expedition_type === experience);
+    
+    // De-duplicate extras by extra_name
+    const extraMap = new Map();
+    
+    if (expObj && expObj.extras && expObj.extras.length > 0) {
+      expObj.extras.forEach(ex => {
+        if (ex.extra_name) extraMap.set(ex.extra_name, ex);
+      });
     }
-    return true;
-  });
+    if (selectedBoatObj.boat_extras && selectedBoatObj.boat_extras.length > 0) {
+      selectedBoatObj.boat_extras.forEach(ex => {
+        if (ex.extra_name && !extraMap.has(ex.extra_name)) extraMap.set(ex.extra_name, ex);
+      });
+    }
+    
+    return Array.from(extraMap.values());
+  }, [selectedBoatObj, experience, boatExpeditions]);
+
+  const availableTimeSlots = useMemo(() => {
+    if (!selectedBoatObj || !experience) return [];
+    const expObj = boatExpeditions.find(e => e.expedition_type === experience);
+    if (!expObj) return [];
+    
+    const times = new Set();
+    if (expObj.pickup_departures && expObj.pickup_departures.length > 0) {
+      expObj.pickup_departures.forEach(pd => {
+        if (pd.departure_time) times.add(pd.departure_time);
+      });
+    }
+    if (expObj.departure_time) {
+      times.add(expObj.departure_time);
+    }
+    
+    if (times.size === 0) {
+      return ['6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'];
+    }
+    
+    return Array.from(times).sort();
+  }, [selectedBoatObj, experience, boatExpeditions]);
+
+  const maxGuests = useMemo(() => {
+    if (!selectedBoatObj || !selectedBoatObj.capacity) return 15;
+    const match = selectedBoatObj.capacity.match(/\d+/);
+    return match ? parseInt(match[0], 10) : 15;
+  }, [selectedBoatObj]);
+
+  const currency = selectedBoatObj?.currency || 'MXN';
 
   // Calculate Price
   const totalPrice = useMemo(() => {
@@ -97,12 +140,12 @@ export default function OffsiteBookingModal({ allBoats = [], operators = [] }) {
     }
     
     selectedExtras.forEach(exName => {
-      const ex = allExtras.find(e => e.name === exName);
+      const ex = availableExtras.find(e => e.extra_name === exName);
       if (ex && ex.price) total += ex.price;
     });
     
     return total;
-  }, [selectedBoatObj, experience, selectedExtras, allExtras, boatExpeditions]);
+  }, [selectedBoatObj, experience, selectedExtras, availableExtras, boatExpeditions]);
 
   const createBookingMutation = useMutation({
     mutationFn: async () => {
@@ -120,6 +163,7 @@ export default function OffsiteBookingModal({ allBoats = [], operators = [] }) {
         pickup_location: pickup,
         add_ons: selectedExtras,
         total_price: totalPrice,
+        currency: currency,
         deposit_paid: paymentMethod === 'cash' ? 0 : Math.round(totalPrice * 0.4),
         payment_method: paymentMethod === 'direct deposit' ? 'bank_transfer' : paymentMethod,
         payment_status: 'payment_done',
@@ -203,12 +247,12 @@ export default function OffsiteBookingModal({ allBoats = [], operators = [] }) {
             <>
               <div className="col-span-2 sm:col-span-1">
                 <Label className="text-white/70">Experience / Trip</Label>
-                <Select value={experience} onValueChange={setExperience}>
+                <Select value={experience} onValueChange={(val) => { setExperience(val); setTimeSlot(''); }}>
                   <SelectTrigger className="bg-white/5 border-white/10"><SelectValue placeholder="Select experience..." /></SelectTrigger>
                   <SelectContent>
                     {boatExpeditions.map(e => (
                       <SelectItem key={e.expedition_type} value={e.expedition_type}>
-                        {e.expedition_type.replace(/_/g, ' ')}
+                        {e.expedition_type.replace(/_/g, ' ')} - ${(e.price_mxn || 0).toLocaleString()} {currency}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -257,7 +301,7 @@ export default function OffsiteBookingModal({ allBoats = [], operators = [] }) {
                 <Select value={timeSlot} onValueChange={setTimeSlot} disabled={!date}>
                   <SelectTrigger className="bg-white/5 border-white/10"><SelectValue placeholder="Select time..." /></SelectTrigger>
                   <SelectContent>
-                    {['6:00 AM', '7:00 AM', '8:00 AM', '9:00 AM', '10:00 AM', '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM'].map(t => (
+                    {availableTimeSlots.map(t => (
                       <SelectItem key={t} value={t}>{t}</SelectItem>
                     ))}
                   </SelectContent>
@@ -265,13 +309,18 @@ export default function OffsiteBookingModal({ allBoats = [], operators = [] }) {
               </div>
 
               <div className="col-span-2 sm:col-span-1">
-                <Label className="text-white/70">Guests</Label>
+                <Label className="text-white/70">Guests (Max: {maxGuests})</Label>
                 <Input 
                   type="number" 
                   min="1" 
+                  max={maxGuests}
                   className="bg-white/5 border-white/10 text-white" 
                   value={guests} 
-                  onChange={(e) => setGuests(e.target.value)} 
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value);
+                    if (val > maxGuests) setGuests(maxGuests);
+                    else setGuests(val || 1);
+                  }} 
                 />
               </div>
 
@@ -313,17 +362,17 @@ export default function OffsiteBookingModal({ allBoats = [], operators = [] }) {
                 <Label className="text-white/70 mb-2 block">Extras</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-32 overflow-y-auto pr-2">
                   {availableExtras.map(ex => (
-                    <div key={ex.name} className="flex items-center space-x-2">
+                    <div key={ex.extra_name} className="flex items-center space-x-2">
                       <Checkbox 
-                        id={`extra-${ex.name}`} 
-                        checked={selectedExtras.includes(ex.name)}
+                        id={`extra-${ex.extra_name}`} 
+                        checked={selectedExtras.includes(ex.extra_name)}
                         onCheckedChange={(checked) => {
-                          if (checked) setSelectedExtras([...selectedExtras, ex.name]);
-                          else setSelectedExtras(selectedExtras.filter(e => e !== ex.name));
+                          if (checked) setSelectedExtras([...selectedExtras, ex.extra_name]);
+                          else setSelectedExtras(selectedExtras.filter(e => e !== ex.extra_name));
                         }}
                       />
-                      <label htmlFor={`extra-${ex.name}`} className="text-sm text-white font-medium leading-none cursor-pointer">
-                        {ex.name} (${(ex.price || 0).toLocaleString()} MXN)
+                      <label htmlFor={`extra-${ex.extra_name}`} className="text-sm text-white font-medium leading-none cursor-pointer">
+                        {ex.extra_name} (${(ex.price || 0).toLocaleString()} {currency})
                       </label>
                     </div>
                   ))}
@@ -334,7 +383,7 @@ export default function OffsiteBookingModal({ allBoats = [], operators = [] }) {
               <div className="col-span-2 mt-4 p-4 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
                 <div className="flex justify-between items-center text-lg font-bold text-emerald-400">
                   <span>Total Price:</span>
-                  <span>${totalPrice.toLocaleString()} MXN</span>
+                  <span>${totalPrice.toLocaleString()} {currency}</span>
                 </div>
               </div>
             </>
