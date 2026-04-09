@@ -217,7 +217,7 @@ export default function AdminBookingCard({
 
           {/* ── FINANCIAL SUMMARY (always visible) ── */}
           <div className="mt-3 pt-3 border-t border-white/[0.06] flex flex-wrap gap-x-4 gap-y-1 text-xs text-white/50">
-            <span><span className="text-white/30">Revenue:</span> <span className="text-emerald-300/80 font-semibold">${(booking.total_price || 0).toLocaleString()} MXN</span></span>
+            <span><span className="text-white/30">Revenue:</span> <span className="text-emerald-300/80 font-semibold">${(booking.total_price || 0).toLocaleString()} MXN</span> {booking.original_currency === 'USD' && <span className="text-emerald-300/50">(${booking.original_total_price?.toLocaleString()} USD)</span>}</span>
             <span><span className="text-white/30">Expenses:</span> <span className="text-red-300/80 font-medium">${expenseTotal.toLocaleString()} MXN</span></span>
             {commission > 0 && (
               <span><span className="text-white/30">Fee:</span> <span className="text-orange-300/70">{commission}% (${((booking.total_price || 0) * commission / 100).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN)</span></span>
@@ -356,8 +356,8 @@ export default function AdminBookingCard({
                     <div><Label className="text-slate-500">Created</Label><p className="font-medium">{format(parseISO(booking.created_date), 'MMM d, yyyy h:mm a')}</p></div>
                     <div><Label className="text-slate-500">Time</Label><p className="font-medium">{booking.time_slot}</p></div>
                     <div><Label className="text-slate-500">Guests</Label><p className="font-medium">{booking.guests}</p></div>
-                    <div><Label className="text-slate-500">Total Price</Label><p className="font-medium">${booking.total_price?.toLocaleString()} MXN</p></div>
-                    <div><Label className="text-slate-500">Deposit Paid</Label><p className="font-medium">${booking.deposit_paid?.toLocaleString()} MXN</p></div>
+                    <div><Label className="text-slate-500">Total Price</Label><p className="font-medium">${booking.total_price?.toLocaleString()} MXN {booking.original_currency === 'USD' && <span className="text-xs text-slate-400">(${booking.original_total_price?.toLocaleString()} USD)</span>}</p></div>
+                    <div><Label className="text-slate-500">Deposit Paid</Label><p className="font-medium">${booking.deposit_paid?.toLocaleString()} MXN {booking.original_currency === 'USD' && <span className="text-xs text-slate-400">(${booking.original_deposit_paid?.toLocaleString()} USD)</span>}</p></div>
                     <div><Label className="text-slate-500">Payment Method</Label><p className="font-medium">{booking.payment_method}</p></div>
                   </div>
                   {booking.payment_screenshot && (

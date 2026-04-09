@@ -117,10 +117,33 @@ function AdminBookingsInner() {
   const queryClient = useQueryClient();
   const { operators, isLoading: isLoadingOps } = useOperators();
 
-  const { data: bookings = [], isLoading: isLoadingBookings } = useQuery({
+  const EXCHANGE_RATE = 20; // 1 USD = 20 MXN
+
+  const { data: rawBookings = [], isLoading: isLoadingBookings } = useQuery({
     queryKey: ['admin-bookings'],
     queryFn: () => base44.entities.Booking.list('-created_date')
   });
+
+  const bookings = React.useMemo(() => {
+    return rawBookings.map(b => {
+      const boat = allBoats.find(ab => ab.name === b.boat_name);
+      const isUSD = b.currency === 'USD' || boat?.currency === 'USD';
+      
+      if (isUSD && !b.is_converted_to_mxn) {
+        return {
+          ...b,
+          original_currency: 'USD',
+          original_total_price: b.total_price,
+          original_deposit_paid: b.deposit_paid,
+          total_price: (b.total_price || 0) * EXCHANGE_RATE,
+          deposit_paid: (b.deposit_paid || 0) * EXCHANGE_RATE,
+          currency: 'MXN',
+          is_converted_to_mxn: true
+        };
+      }
+      return { ...b, currency: 'MXN', is_converted_to_mxn: true };
+    });
+  }, [rawBookings, allBoats]);
 
   const { data: blockedDates = [] } = useQuery({
     queryKey: ['blocked-dates'],
