@@ -283,12 +283,9 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     });
                     if (isBlockedForBoat) return true;
 
-                    // Only disable if ALL available time slots are already booked
-                    const slots = getAvailableSlotsForBoat(selectedBoat);
-                    if (!slots || slots.length === 0) return false;
-                    
+                    // Any booking blocks the entire day for this boat
                     const bookedTimes = getBookedTimesForDate(currentBoat.name, dateStr);
-                    return slots.every(s => bookedTimes.includes(s.time));
+                    return bookedTimes.length > 0;
                   }}
                   className="rounded-lg"
                   modifiers={{
@@ -313,11 +310,10 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                         return blockBoatName === 'both' || blockBoatName === currentBoat.name;
                       });
 
-                      const slots = getAvailableSlotsForBoat(selectedBoat);
                       const bookedTimes = getBookedTimesForDate(currentBoat.name, dateStr);
-                      const allSlotsTaken = slots && slots.length > 0 && slots.every(s => bookedTimes.includes(s.time));
+                      const isBooked = bookedTimes.length > 0;
                       
-                      return isBlocked || allSlotsTaken;
+                      return isBlocked || isBooked;
                     },
                   }}
                   modifiersStyles={{
