@@ -42,6 +42,7 @@ function InfoBlock({ icon: Icon, label, value, accent }) {
 export default function BookingSearch() {
   const [confirmationCode, setConfirmationCode] = useState('');
   const [booking, setBooking] = useState(null);
+  const [boat, setBoat] = useState(null);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState('');
 
@@ -50,16 +51,28 @@ export default function BookingSearch() {
     setSearching(true);
     setError('');
     setBooking(null);
+    setBoat(null);
     const bookings = await base44.entities.Booking.filter({ confirmation_code: confirmationCode.toUpperCase().trim() });
-    setSearching(false);
-    if (bookings.length === 0) setError('No booking found with this confirmation code');
-    else setBooking(bookings[0]);
+    if (bookings.length === 0) {
+      setError('No booking found with this confirmation code');
+      setSearching(false);
+    } else {
+      const b = bookings[0];
+      setBooking(b);
+      if (b.boat_name) {
+        const boats = await base44.entities.BoatInventory.filter({ name: b.boat_name });
+        if (boats.length > 0) setBoat(boats[0]);
+      }
+      setSearching(false);
+    }
   };
 
   const remaining = booking ? Math.max(0, (booking.total_price || 0) - (booking.deposit_paid || 0)) : 0;
   const collectedOnSite = booking?.remaining_payment_status === 'collected_on_site';
   const effectiveRemaining = collectedOnSite ? 0 : remaining;
-  const paypalLink = effectiveRemaining > 0 ? `https://paypal.me/filumarine/${effectiveRemaining}` : null;
+  const currencyCode = boat?.currency || booking?.currency || 'MXN';
+  const paypalUsername = boat?.paypal_username || 'filumarine';
+  const paypalLink = effectiveRemaining > 0 ? `https://www.paypal.com/paypalme/${paypalUsername}/${effectiveRemaining}${currencyCode}` : null;
 
   return (
     <div className="min-h-screen relative" style={{ background: '#060d14' }}>
@@ -223,7 +236,7 @@ export default function BookingSearch() {
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-white/50">Total Price</span>
-                    <span className="text-lg font-bold text-white">${(booking.total_price || 0).toLocaleString()} {booking.currency || 'MXN'}</span>
+                    <span className="text-lg font-bold text-white">${(booking.total_price || 0).toLocaleString()} {currencyCode}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
@@ -232,7 +245,7 @@ export default function BookingSearch() {
                         <span className="ml-2 text-xs text-white/25 capitalize">({booking.payment_method.replace(/_/g, ' ')})</span>
                       )}
                     </div>
-                    <span className="text-sm font-semibold text-emerald-400">${(booking.deposit_paid || 0).toLocaleString()} {booking.currency || 'MXN'}</span>
+                    <span className="text-sm font-semibold text-emerald-400">${(booking.deposit_paid || 0).toLocaleString()} {currencyCode}</span>
                   </div>
                   <div className="h-px" style={{ background: 'rgba(255,255,255,0.06)' }} />
                   <div className="flex items-center justify-between">
@@ -246,7 +259,7 @@ export default function BookingSearch() {
                       </span>
                     ) : (
                       <span className={`text-sm font-semibold ${effectiveRemaining > 0 ? 'text-amber-400' : 'text-emerald-400'}`}>
-                        {effectiveRemaining > 0 ? `$${effectiveRemaining.toLocaleString()} ${booking.currency || 'MXN'}` : 'Fully Paid'}
+                        {effectiveRemaining > 0 ? `$${effectiveRemaining.toLocaleString()} ${currencyCode}` : 'Fully Paid'}
                       </span>
                     )}
                   </div>
@@ -260,7 +273,7 @@ export default function BookingSearch() {
                     style={{ background: 'linear-gradient(135deg, #003087, #009cde)', border: 'none' }}
                   >
                     <ExternalLink className="h-4 w-4" />
-                    Pay ${effectiveRemaining.toLocaleString()} {booking.currency || 'MXN'} via PayPal
+                    Pay ${effectiveRemaining.toLocaleString()} {currencyCode} via PayPal
                   </Button>
                 )}
 
