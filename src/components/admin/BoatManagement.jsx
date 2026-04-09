@@ -22,7 +22,7 @@ import MaintenanceAlerts from './MaintenanceAlerts';
 import MaintenanceLogView from './MaintenanceLogView';
 import CustomFieldsManager from './CustomFieldsManager';
 import LowStockMonitor from './LowStockMonitor';
-import BoatExtrasPanel from './BoatExtrasPanel';
+import BoatExtrasPanel from './BoatExtrasPanelFixed';
 import BoatExpeditionsPanel from './BoatExpeditionsPanelFixed';
 import VesselCompleteness from './VesselCompleteness';
 import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from './SectionLock';
