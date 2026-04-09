@@ -12,7 +12,6 @@ import IntroSection from '@/components/home/IntroSection';
 import ExperienceCards from '@/components/booking/ExperienceCards';
 import CustomerJourney from '@/components/home/CustomerJourney';
 import Fleet from '@/components/home/Fleet';
-import Destinations from '@/components/home/Destinations';
 import JoinFilu from '@/components/home/JoinFilu';
 import BookingCalendar from '@/components/booking/BookingCalendar';
 import SelectedBoatInfo from '@/components/booking/SelectedBoatInfo';
@@ -320,7 +319,6 @@ export default function Home() {
         <div ref={experiencesRef}>
           <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={null} location={selectedLocation} />
         </div>
-        <Destinations location={selectedLocation} />
         <JoinFilu />
         
         {/* Footer */}
