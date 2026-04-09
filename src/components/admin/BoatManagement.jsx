@@ -22,7 +22,6 @@ import MaintenanceAlerts from './MaintenanceAlerts';
 import MaintenanceLogView from './MaintenanceLogView';
 import CustomFieldsManager from './CustomFieldsManager';
 import LowStockMonitor from './LowStockMonitor';
-import BoatExtrasPanel from './BoatExtrasPanelFixed';
 import BoatExpeditionsPanel from './BoatExpeditionsPanelFixed';
 import VesselCompleteness from './VesselCompleteness';
 import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from './SectionLock';
@@ -39,7 +38,7 @@ const expeditionTypes = [
 const OPERATOR_STORAGE_KEY = 'filu_operators';
 const EXPEDITION_VAULT_KEY = 'filu_expedition_pricing_vault';
 
-function saveExpeditionVault(boatId, expeditionPricing, pickupDepartures, boatExtras) {
+function saveExpeditionVault(boatId, expeditionPricing, pickupDepartures) {
   try {
     const raw = localStorage.getItem(EXPEDITION_VAULT_KEY);
     const vault = raw ? JSON.parse(raw) : {};
@@ -48,7 +47,6 @@ function saveExpeditionVault(boatId, expeditionPricing, pickupDepartures, boatEx
       ...vault[boatId],
       expedition_pricing: expeditionPricing || vault[boatId]?.expedition_pricing || [], 
       pickup_departures: pickupDepartures || vault[boatId]?.pickup_departures || {},
-      boat_extras: boatExtras || vault[boatId]?.boat_extras || [],
       saved_at: Date.now() 
     };
     localStorage.setItem(EXPEDITION_VAULT_KEY, JSON.stringify(vault));
@@ -203,7 +201,6 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
   const isEngineComplete = !!(formData.engine_config && formData.engine_name && formData.engine_quantity);
   const isMaintenanceComplete = !!(formData.last_service_date && formData.mechanic_name && formData.mechanic_phone);
   const isExpeditionsComplete = formData.available_expeditions?.length > 0;
-  const isExtrasComplete = (formData.boat_extras || []).length > 0;
   const isSellersComplete = !!(formData.owner_phone);
   const isEquipmentComplete = Object.values(formData.equipment || {}).some(Boolean) || (formData.custom_equipment || []).length > 0;
   const isSuppliesComplete = (formData.supplies_inventory || []).length > 0;
@@ -360,18 +357,13 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     }
   });
 
-  // Safe update: NEVER wipe expedition_pricing or boat_extras — always restore from vault if update would clear it
+  // Safe update: NEVER wipe expedition_pricing — always restore from vault if update would clear it
   const safeUpdateBoat = async (id, updateData) => {
     let data = { ...updateData };
     const vault = loadExpeditionVault(id);
     if (!data.expedition_pricing || data.expedition_pricing.length === 0) {
       if (vault?.expedition_pricing?.length > 0) {
         data.expedition_pricing = vault.expedition_pricing;
-      }
-    }
-    if (!data.boat_extras || data.boat_extras.length === 0) {
-      if (vault?.boat_extras?.length > 0) {
-        data.boat_extras = vault.boat_extras;
       }
     }
     return updateMutation.mutateAsync({ id, data });
@@ -473,15 +465,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     );
 
     const vaultData = loadExpeditionVault(boat.id);
-    const dbExtras = boat.boat_extras || [];
-    const vaultExtras = vaultData?.boat_extras || [];
-    const mergedExtras = dbExtras.length > 0 ? dbExtras : vaultExtras;
 
     setFormData({
       ...boat,
       dock_location: boat.dock_location || '',
       expedition_pricing: boat.expedition_pricing || [],
-      boat_extras: mergedExtras,
       next_service_type: boat.next_service_type || 'minor',
       mechanic_name: boat.mechanic_name || '',
       mechanic_phone: boat.mechanic_phone || '',
@@ -624,7 +612,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     });
     // Save to protected vault BEFORE upload so data is never lost
     const boatId = editingBoat?.id;
-    if (boatId) saveExpeditionVault(boatId, finalData.expedition_pricing, expeditionPickupDepartures, finalData.boat_extras);
+    if (boatId) saveExpeditionVault(boatId, finalData.expedition_pricing, expeditionPickupDepartures);
     setUploading(true);
     if (imageFile) {
       const { file_url } = await base44.integrations.Core.UploadFile({ file: imageFile });
@@ -1004,24 +992,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 </div>
               )}
 
-              {/* ── SECTION 2b: Extras ── purple */}
-              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') && (
-                <div className="rounded-xl overflow-hidden border border-purple-200 mb-4">
-                  <button type="button" onClick={() => toggleSection('extras')} className="w-full bg-purple-600 px-5 py-3 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-white" />
-                    <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Extras / Add-ons</h3>
-                    {(() => { const n = (formData.boat_extras || []).length; return <><span className="text-xs text-white/80 mr-1">{n} extras</span><div className="w-16 h-1.5 bg-white/30 rounded-full overflow-hidden mr-2"><div className="h-full bg-white transition-all rounded-full" style={{ width: n > 0 ? '100%' : '0%' }} /></div></>; })()}
-                    <SectionLockButton sectionKey="extras" locks={locks} toggle={toggleLock} isComplete={isExtrasComplete} />
-                    {collapsedSections['extras'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
-                  </button>
-                  {!collapsedSections['extras'] && (
-                    <div className="bg-purple-50 p-4">
-                      {locks['extras'] && <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-700 flex items-center gap-1.5 mb-3"><span>Section locked — unlock to edit.</span></div>}
-                      <BoatExtrasPanel boat={editingBoat} inline formData={formData} onChange={(boat_extras) => setFormData(prev => ({ ...prev, boat_extras }))} disabled={locks['extras']} />
-                    </div>
-                  )}
-                </div>
-              )}
+
 
               {/* ── SECTION 3: Equipment ── teal */}
               {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') &&
@@ -1654,10 +1625,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <LowStockMonitor boat={boat} onEditSupplies={() => handleEditAndScroll(boat, 'section-supplies')} />
               )}
 
-              {/* Extras Panel — visible for all rental modes */}
-              {(boat.boat_mode === 'rental_and_maintenance' || boat.boat_mode === 'rental_only') && (
-                <BoatExtrasPanel boat={boat} />
-              )}
+
 
               {/* Rental Info Panel — shown only for Rental Only mode */}
               {boat.boat_mode === 'rental_only' && (

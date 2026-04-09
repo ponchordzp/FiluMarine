@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Check, Fish, ChevronDown, ChevronUp, Clock, DollarSign, MapPin } from 'lucide-react';
+import { Check, Fish, ChevronDown, ChevronUp, Clock, DollarSign, MapPin, Sparkles, Trash2, Plus } from 'lucide-react';
 import { SectionLockButton } from './SectionLock';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import PickupAndDeparture from './PickupAndDeparture';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function BoatExpeditionsPanelFixed({
   availableExpeditions = [],
@@ -25,9 +27,27 @@ export default function BoatExpeditionsPanelFixed({
   sectionKey = 'expeditions',
   currency = 'MXN',
 }) {
+  const { user: currentUser } = useAuth();
   const [expandedPickup, setExpandedPickup] = useState({});
+  const [expandedExtras, setExpandedExtras] = useState({});
+  const [selectedExtraId, setSelectedExtraId] = useState({});
+  const [customPrice, setCustomPrice] = useState({});
   const [collapsed, setCollapsed] = useState(false);
   const isComplete = availableExpeditions.length > 0;
+
+  const { data: allExtras = [] } = useQuery({
+    queryKey: ['extras'],
+    queryFn: () => base44.entities.Extra.list('sort_order'),
+  });
+
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+  const operatorExtras = isSuperAdmin
+    ? allExtras
+    : allExtras.filter(e => {
+        const userOp = currentUser?.operator || 'FILU';
+        const allowed = e.allowed_operators || [];
+        return allowed.length === 0 || allowed.some(o => o.toLowerCase() === userOp.toLowerCase());
+      });
 
   const { data: allExpeditions = [] } = useQuery({
     queryKey: ['expeditions'],
@@ -68,6 +88,60 @@ export default function BoatExpeditionsPanelFixed({
         price_mxn: field === 'price_mxn' ? parseFloat(value) || 0 : 0,
       }]);
     }
+  };
+
+  const updateExtras = (expId, extrasArray) => {
+    if (!onPricingChange) return;
+    const existing = expeditionPricing.find(p => p.expedition_type === expId);
+    if (existing) {
+      onPricingChange(expeditionPricing.map(p =>
+        p.expedition_type === expId
+          ? { ...p, extras: extrasArray }
+          : p
+      ));
+    } else {
+      onPricingChange([...expeditionPricing, {
+        expedition_type: expId,
+        extras: extrasArray
+      }]);
+    }
+  };
+
+  const handleAddExtra = (expId) => {
+    const extraId = selectedExtraId[expId];
+    if (!extraId) return;
+    const extra = operatorExtras.find(e => e.id === extraId);
+    if (!extra) return;
+    
+    const pricing = getPricing(expId);
+    const currentExtras = pricing.extras || [];
+    const newPrice = customPrice[expId] !== undefined && customPrice[expId] !== '' ? parseFloat(customPrice[expId]) : (extra.price || 0);
+
+    updateExtras(expId, [
+      ...currentExtras,
+      {
+        extra_id: extra.id,
+        extra_name: extra.name,
+        description: extra.description || '',
+        price: newPrice,
+      },
+    ]);
+    setSelectedExtraId(prev => ({ ...prev, [expId]: '' }));
+    setCustomPrice(prev => ({ ...prev, [expId]: '' }));
+  };
+
+  const handleRemoveExtra = (expId, extraId) => {
+    const pricing = getPricing(expId);
+    const currentExtras = pricing.extras || [];
+    updateExtras(expId, currentExtras.filter(e => e.extra_id !== extraId));
+  };
+
+  const handleUpdateExtraPrice = (expId, extraId, newPrice) => {
+    const pricing = getPricing(expId);
+    const currentExtras = pricing.extras || [];
+    updateExtras(expId, currentExtras.map(e =>
+      e.extra_id === extraId ? { ...e, price: parseFloat(newPrice) || 0 } : e
+    ));
   };
 
   if (filteredExpeditions.length === 0) {
@@ -182,6 +256,92 @@ export default function BoatExpeditionsPanelFixed({
                           className="text-sm h-8 mt-1"
                         />
                       </div>
+                    </div>
+
+                    {/* Extras — expandable */}
+                    <div>
+                      <button
+                        type="button"
+                        disabled={disabled}
+                        onClick={() => setExpandedExtras(prev => ({ ...prev, [exp.expedition_id]: !prev[exp.expedition_id] }))}
+                        className="flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-medium mb-2"
+                      >
+                        <Sparkles className="h-3 w-3" />
+                        Extras / Add-ons ({(pricing.extras || []).length})
+                        {expandedExtras[exp.expedition_id] ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                      </button>
+                      {expandedExtras[exp.expedition_id] && (
+                        <div className="mt-2 space-y-2 mb-4">
+                          {(pricing.extras || []).length === 0 && (
+                            <p className="text-xs text-slate-400 italic">No extras added yet.</p>
+                          )}
+                          {(pricing.extras || []).map(be => (
+                            <div key={be.extra_id} className="flex items-center gap-2 bg-indigo-50/50 border border-indigo-100 rounded-lg px-3 py-2">
+                              <Sparkles className="h-3 w-3 text-indigo-400 flex-shrink-0" />
+                              <span className="text-xs font-medium text-slate-700 flex-1 truncate">{be.extra_name}</span>
+                              <div className="flex items-center gap-1">
+                                <span className="text-[10px] text-slate-500">$</span>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  disabled={disabled}
+                                  value={be.price}
+                                  onChange={e => !disabled && handleUpdateExtraPrice(exp.expedition_id, be.extra_id, e.target.value)}
+                                  className="h-6 w-16 text-xs px-1"
+                                />
+                                <span className="text-[10px] text-slate-400">{currency}</span>
+                              </div>
+                              <button
+                                type="button"
+                                disabled={disabled}
+                                onClick={() => !disabled && handleRemoveExtra(exp.expedition_id, be.extra_id)}
+                                className={`text-red-400 hover:text-red-600 flex-shrink-0 ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          ))}
+                          {operatorExtras.filter(e => !(pricing.extras || []).some(be => be.extra_id === e.id)).length > 0 && !disabled && (
+                            <div className="flex items-center gap-2 pt-1">
+                              <select
+                                value={selectedExtraId[exp.expedition_id] || ''}
+                                onChange={e => {
+                                  const val = e.target.value;
+                                  setSelectedExtraId(prev => ({ ...prev, [exp.expedition_id]: val }));
+                                  const ex = operatorExtras.find(x => x.id === val);
+                                  setCustomPrice(prev => ({ ...prev, [exp.expedition_id]: ex?.price?.toString() || '0' }));
+                                }}
+                                className="flex-1 h-7 text-xs rounded-md border border-input bg-background px-2 focus:outline-none focus:ring-1 focus:ring-ring"
+                              >
+                                <option value="">Select extra...</option>
+                                {operatorExtras.filter(e => !(pricing.extras || []).some(be => be.extra_id === e.id)).map(e => (
+                                  <option key={e.id} value={e.id}>{e.name}</option>
+                                ))}
+                              </select>
+                              <div className="flex items-center gap-1">
+                                <span className="text-xs text-slate-500">$</span>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={customPrice[exp.expedition_id] ?? ''}
+                                  onChange={e => setCustomPrice(prev => ({ ...prev, [exp.expedition_id]: e.target.value }))}
+                                  placeholder="Price"
+                                  className="h-7 w-16 text-xs px-1"
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={() => handleAddExtra(exp.expedition_id)}
+                                disabled={!selectedExtraId[exp.expedition_id]}
+                                className="h-7 text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Pickup & Departure — expandable */}

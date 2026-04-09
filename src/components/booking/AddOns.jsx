@@ -17,9 +17,10 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
-  // Use the per-boat extras directly — these have operator-set prices
+  // Use the per-expedition extras — these have operator-set prices
   const selectedBoat = boats.find(b => b.name === boatName);
-  const addOnOptions = selectedBoat?.boat_extras || [];
+  const expPricing = (selectedBoat?.expedition_pricing || []).find(p => p.expedition_type === bookingData.experience_type);
+  const addOnOptions = expPricing?.extras || [];
   const currency = selectedBoat?.currency || 'MXN';
 
   const toggleAddOn = (id) => {

@@ -127,6 +127,26 @@
                 }
               }
             }
+          },
+          "extras": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "extra_id": {
+                  "type": "string"
+                },
+                "extra_name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "price": {
+                  "type": "number"
+                }
+              }
+            }
           }
         }
       },
@@ -151,7 +171,7 @@
           }
         }
       },
-      "description": "Extras/add-ons available for this boat with operator-set prices"
+      "description": "Legacy per-boat extras. Use expedition_pricing.extras instead."
     },
     "equipment": {
       "type": "object",

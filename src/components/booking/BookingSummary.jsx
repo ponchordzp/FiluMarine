@@ -16,7 +16,8 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   });
 
   const selectedBoat = boats.find(b => b.name === bookingData.boat_name);
-  const addOnOptions = selectedBoat?.boat_extras || [];
+  const expPricing = (selectedBoat?.expedition_pricing || []).find(p => p.expedition_type === bookingData.experience_type);
+  const addOnOptions = expPricing?.extras || [];
   const currency = selectedBoat?.currency || 'MXN';
 
   const getAddOnPrice = (id) => {
