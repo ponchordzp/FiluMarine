@@ -77,17 +77,17 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                     key={extra.extra_id}
                     onClick={() => toggleAddOn(extra.extra_id)}
                     whileTap={{ scale: 0.98 }}
-                    className={`w-full p-6 rounded-2xl border-2 transition-all flex items-center gap-4 text-left ${
+                    className={`w-full p-4 sm:p-5 rounded-2xl border-2 transition-all flex items-center gap-4 sm:gap-5 text-left ${
                       isSelected
                         ? 'border-cyan-400 bg-cyan-400/20 shadow-lg shadow-cyan-500/30'
                         : 'border-white/30 bg-white/10 hover:border-white/40 backdrop-blur-xl'
                     }`}
                   >
-                    <div className={`w-20 h-12 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden ${isSelected ? 'bg-cyan-400' : 'bg-white/20'}`}>
+                    <div className={`w-32 sm:w-40 h-[70px] rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden ${isSelected ? 'bg-cyan-400' : 'bg-white/20'}`}>
                       {imageUrl ? (
                         <img src={imageUrl} alt={extra.extra_name || extra.name} className="w-full h-full object-cover" />
                       ) : (
-                        <Sparkles className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
+                        <Sparkles className={`h-8 w-8 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
                       )}
                     </div>
                     <div className="flex-1">
