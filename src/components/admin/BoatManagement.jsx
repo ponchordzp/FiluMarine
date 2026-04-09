@@ -227,10 +227,18 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     return dbExpeditions.find(e => e.expedition_id === expId) || { title: expId.replace(/_/g, ' '), duration: '0 hours' };
   };
 
-  const getSortedExpeditions = (expIds) => {
+  const parseDuration = (durStr) => {
+    if (!durStr) return 0;
+    const match = String(durStr).match(/\d+(\.\d+)?/);
+    return match ? parseFloat(match[0]) : Number.MAX_VALUE;
+  };
+
+  const getSortedExpeditions = (expIds, pricingList = []) => {
     return [...(expIds || [])].sort((a, b) => {
-      const durA = parseFloat(getExpDetails(a).duration) || 0;
-      const durB = parseFloat(getExpDetails(b).duration) || 0;
+      const pA = pricingList?.find(p => p.expedition_type === a);
+      const pB = pricingList?.find(p => p.expedition_type === b);
+      const durA = (pA && pA.duration_hours) ? parseFloat(pA.duration_hours) : parseDuration(getExpDetails(a).duration);
+      const durB = (pB && pB.duration_hours) ? parseFloat(pB.duration_hours) : parseDuration(getExpDetails(b).duration);
       return durA - durB;
     });
   };
@@ -353,7 +361,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       expenses: totalExpenses,
       profit: netProfit,
       roi: roi,
-      frequentTrip: frequentTrip ? frequentTrip[0].replace(/_/g, ' ') : 'N/A',
+      frequentTrip: frequentTrip ? getExpDetails(frequentTrip[0]).title : 'N/A',
       frequentTripCount: frequentTrip ? frequentTrip[1] : 0,
       lastTrip: lastTrip,
       totalEngineHoursFromBookings: totalEngineHoursFromBookings,
@@ -1029,8 +1037,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                         Price per Extra Guest (Per Expedition)
                       </h4>
                       <p className="text-xs text-slate-500 mb-4">Set the additional fee charged for each guest above the boat's "Included Guests" count (set in General Information).</p>
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {getSortedExpeditions(formData.available_expeditions).map(expType => {
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        {getSortedExpeditions(formData.available_expeditions, formData.expedition_pricing).map(expType => {
                           const price = formData.expedition_pricing.find(p => p.expedition_type === expType)?.price_per_extra_guest || 0;
                           const expDetails = getExpDetails(expType);
                           return (
@@ -1744,7 +1752,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div>
                       <p className="text-xs text-slate-500 mb-1">Available Expeditions</p>
                       <div className="flex flex-wrap gap-1">
-                        {getSortedExpeditions(boat.available_expeditions).map((exp) => (
+                        {getSortedExpeditions(boat.available_expeditions, boat.expedition_pricing).map((exp) => (
                           <span key={exp} className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
                             {getExpDetails(exp).title}
                           </span>
@@ -1789,7 +1797,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                           const fee = revenue * (stats.commissionPct / 100);
                           const profit = revenue - totalExpenses - fee;
                           const roi = revenue > 0 ? profit / revenue * 100 : 0;
-                          return { type: 'rental', date: b.date, title: b.experience_type?.replace(/_/g, ' ') || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi, currency: boat.currency || 'MXN' };
+                          return { type: 'rental', date: b.date, title: getExpDetails(b.experience_type).title || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi, currency: boat.currency || 'MXN' };
                         }),
                         ...boatPersonalTrips.map((t) => {
                           const totalCost = (t.fuel_quantity || 0) * (t.fuel_price_per_unit || 0) + (t.additional_expenses || 0) + (t.supplies_used?.reduce((sum, s) => sum + (s.price || 0), 0) || 0);
@@ -1821,7 +1829,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <div className="mb-4">
                   <h4 className="text-xs font-semibold text-slate-700 mb-2">Available Expeditions</h4>
                   <div className="flex flex-wrap gap-1">
-                    {getSortedExpeditions(boat.available_expeditions).map((exp) => <span key={exp} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">{getExpDetails(exp).title}</span>)}
+                    {getSortedExpeditions(boat.available_expeditions, boat.expedition_pricing).map((exp) => <span key={exp} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">{getExpDetails(exp).title}</span>)}
                   </div>
                 </div>
                 }
@@ -1860,7 +1868,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><p className="text-slate-500 text-xs">Future / Past</p><p className="font-semibold text-lg">{stats.future} / {stats.past}</p></div>
                   </div>
                   <div className="pt-2"><p className="text-slate-500 text-xs">Most Frequent Trip</p><p className="font-medium text-sm capitalize">{stats.frequentTrip} ({stats.frequentTripCount}x)</p></div>
-                  {stats.lastTrip && <div className="pt-3 border-t"><p className="text-slate-500 text-xs mb-2">Last Completed Trip</p><div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm"><p className="font-medium capitalize">{stats.lastTrip.experience_type?.replace(/_/g, ' ')}</p><p className="text-xs text-slate-600">{format(parseISO(stats.lastTrip.date), 'MMM d, yyyy')} • {stats.lastTrip.guests} guests</p></div></div>}
+                  {stats.lastTrip && <div className="pt-3 border-t"><p className="text-slate-500 text-xs mb-2">Last Completed Trip</p><div className="bg-slate-50 p-3 rounded-lg space-y-1 text-sm"><p className="font-medium capitalize">{getExpDetails(stats.lastTrip.experience_type).title}</p><p className="text-xs text-slate-600">{format(parseISO(stats.lastTrip.date), 'MMM d, yyyy')} • {stats.lastTrip.guests} guests</p></div></div>}
                   {boat.last_service_date && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Last Service</p><div className="bg-blue-50 p-2 rounded text-xs"><p className="font-medium">{format(parseISO(boat.last_service_date), 'MMM d, yyyy')}</p>{boat.last_service_mechanic_phone && <p className="text-slate-600 mt-1">Mechanic: {boat.last_service_mechanic_phone}</p>}</div></div>}
                   {boat.mechanic_name && <div className="pt-2"><p className="text-slate-500 text-xs mb-1">Mechanic</p><div className="bg-slate-50 p-2 rounded text-xs space-y-1"><p className="font-medium">{boat.mechanic_name}</p>{boat.mechanic_phone && <p className="text-slate-600">{boat.mechanic_phone}</p>}{boat.mechanic_email && <p className="text-slate-600">{boat.mechanic_email}</p>}</div></div>}
                   {needsMaintenance && <div className="pt-2"><Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">Action Needed: Schedule Maintenance</Badge></div>}
