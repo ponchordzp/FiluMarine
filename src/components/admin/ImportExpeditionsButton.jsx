@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Copy } from 'lucide-react';
 
-export default function ImportExpeditionsButton({ currentBoat, boats, onImport }) {
+export default function ImportExpeditionsButton({ currentBoat, boats, onImport, isSuperAdmin, defaultOperator }) {
   const [open, setOpen] = useState(false);
   const [selectedBoatId, setSelectedBoatId] = useState('');
 
@@ -56,7 +56,13 @@ export default function ImportExpeditionsButton({ currentBoat, boats, onImport }
     }, 100);
   };
 
-  const otherBoats = boats.filter(b => b.id !== currentBoat.id);
+  const otherBoats = boats.filter(b => {
+    if (b.id === currentBoat.id) return false;
+    if (!isSuperAdmin && defaultOperator) {
+      if ((b.operator || '').toLowerCase() !== defaultOperator.toLowerCase()) return false;
+    }
+    return true;
+  });
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

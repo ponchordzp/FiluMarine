@@ -852,7 +852,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <div><Label>Currency</Label><Select value={formData.currency || 'MXN'} onValueChange={(v) => setFormData({ ...formData, currency: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="MXN">MXN</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
               <div><Label>Sort Order</Label><Input type="number" value={formData.sort_order || 0} onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })} placeholder="0" className="mt-1" /></div>
               <div><Label>Top Rated</Label><div className="flex items-center gap-2 mt-3"><input type="checkbox" checked={!!formData.top_rated} onChange={(e) => setFormData({ ...formData, top_rated: e.target.checked })} className="h-4 w-4 rounded border-sky-400 accent-sky-600" /><span className="text-sm text-slate-700">Display as Top Rated</span></div></div>
-              <div><Label>Operator</Label><Select value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
+              <div><Label>Operator</Label><Select disabled={!isSuperAdmin && !!defaultOperator} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{(isSuperAdmin || !defaultOperator ? operatorNames : [defaultOperator]).map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
             </div>
             <div><Label>Description</Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} className="mt-1" /></div>
             <div>
@@ -921,7 +921,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><InfoLabel info="Dock fee charged per person per booking." example="500">Dock Fee (per person)</InfoLabel><Input type="number" min="0" disabled={locks['general']} value={formData.dock_fee || ''} onChange={(e) => setFormData({ ...formData, dock_fee: parseFloat(e.target.value) || 0 })} placeholder="e.g., 500" /></div>
                     <div><InfoLabel info="Determines the display order of the boat." example="0, 1, 2">Sort Order</InfoLabel><Input type="number" disabled={locks['general']} value={formData.sort_order || 0} onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })} placeholder="e.g., 0" /></div>
                     <div><InfoLabel info="Mark this boat as Top Rated." example="Yes">Top Rated</InfoLabel><div className="flex items-center gap-2 mt-3"><input type="checkbox" disabled={locks['general']} checked={!!formData.top_rated} onChange={(e) => setFormData({ ...formData, top_rated: e.target.checked })} className="h-4 w-4 rounded border-sky-400 accent-sky-600" /><span className="text-sm text-slate-700">Display as Top Rated</span></div></div>
-                    <div><InfoLabel info="The operator this boat belongs to. Used to group boats by fleet." example="FILU, NAUTIKA">Operator</InfoLabel><Select disabled={locks['general']} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
+                    <div><InfoLabel info="The operator this boat belongs to. Used to group boats by fleet." example="FILU, NAUTIKA">Operator</InfoLabel><Select disabled={locks['general'] || (!isSuperAdmin && !!defaultOperator)} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{(isSuperAdmin || !defaultOperator ? operatorNames : [defaultOperator]).map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
                   </div>
                   <div><InfoLabel info="A short marketing description shown to guests on the booking page.">Description</InfoLabel><Textarea disabled={locks['general']} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} /></div>
                   <div>
@@ -1574,7 +1574,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 </div>
                 {!readOnlyMode && (
                   <div className="mb-2">
-                    <ImportExpeditionsButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} />
+                    <ImportExpeditionsButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} isSuperAdmin={isSuperAdmin} defaultOperator={defaultOperator} />
                   </div>
                 )}
                 <div className="mt-2 p-2 bg-slate-50 rounded-lg border">
