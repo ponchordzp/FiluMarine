@@ -38,6 +38,16 @@
       "type": "string",
       "description": "Guest capacity (e.g., Up to 6 guests)"
     },
+    "included_guests": {
+      "type": "number",
+      "default": 2,
+      "description": "Number of guests included in base price"
+    },
+    "max_guests": {
+      "type": "number",
+      "default": 6,
+      "description": "Maximum guest capacity"
+    },
     "crew_members": {
       "type": "number",
       "default": 0,
@@ -109,6 +119,11 @@
           },
           "price_mxn": {
             "type": "number"
+          },
+          "price_per_extra_guest": {
+            "type": "number",
+            "default": 0,
+            "description": "Price per extra guest"
           },
           "pickup_location": {
             "type": "string"

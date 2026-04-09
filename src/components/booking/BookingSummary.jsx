@@ -59,7 +59,12 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const perPersonDockFee = selectedBoat?.dock_fee || 0;
   const totalDockFee = perPersonDockFee * (bookingData.guests || 1);
   const basePrice = bookingData.boat_price || experience.price;
-  const totalPrice = basePrice + addOnsTotal + taxiFee;
+  
+  const includedGuests = selectedBoat?.included_guests || 2;
+  const pricePerExtraGuest = expPricing?.price_per_extra_guest || 0;
+  const extraGuestsCost = bookingData.guests > includedGuests ? (bookingData.guests - includedGuests) * pricePerExtraGuest : 0;
+  
+  const totalPrice = basePrice + addOnsTotal + taxiFee + extraGuestsCost;
   const deposit = Math.round(totalPrice * 0.4);
   const remaining = totalPrice - deposit;
 
@@ -223,6 +228,12 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600">Taxi pickup</span>
                       <span className="text-slate-800">${taxiFee} {currency}</span>
+                    </div>
+                  )}
+                  {extraGuestsCost > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600">Extra Guests ({bookingData.guests - includedGuests})</span>
+                      <span className="text-slate-800">${extraGuestsCost.toLocaleString()} {currency}</span>
                     </div>
                   )}
                   <div className="flex justify-between font-semibold pt-3 border-t border-slate-100">

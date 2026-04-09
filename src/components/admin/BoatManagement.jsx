@@ -85,6 +85,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     description: '',
     image: '',
     capacity: '',
+    included_guests: 2,
+    max_guests: 6,
     location: 'ixtapa_zihuatanejo',
     dock_location: '',
     operator: defaultOperator || '',
@@ -389,6 +391,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       image: '',
       images: [],
       capacity: '',
+      included_guests: 2,
+      max_guests: 6,
       location: 'ixtapa_zihuatanejo',
       dock_location: '',
       operator: lockedOperator || defaultOperator || '',
@@ -847,7 +851,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <div><Label>Boat Name *</Label><Input required value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} className="mt-1" /></div>
               <div><Label>Type *</Label><Input required value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console" className="mt-1" /></div>
               <div><Label>Size *</Label><Input required value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} placeholder="e.g., 25ft" className="mt-1" /></div>
-              <div><Label>Capacity *</Label><Input required value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" className="mt-1" /></div>
+              <div><Label>Included Guests *</Label><Input type="number" required value={formData.included_guests || ''} onChange={(e) => setFormData({ ...formData, included_guests: parseInt(e.target.value) || 0 })} placeholder="e.g., 2" className="mt-1" /></div>
+              <div><Label>Guest Capacity *</Label><Input type="number" required value={formData.max_guests || ''} onChange={(e) => setFormData({ ...formData, max_guests: parseInt(e.target.value) || 0, capacity: `Up to ${e.target.value} guests` })} placeholder="e.g., 6" className="mt-1" /></div>
               <div><Label>Location *</Label><Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent>{locationOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
               <div><Label>Currency</Label><Select value={formData.currency || 'MXN'} onValueChange={(v) => setFormData({ ...formData, currency: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="MXN">MXN</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
@@ -913,7 +918,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><InfoLabel info="The category or model type of the boat." example="Center Console, Yacht, Panga">Type *</InfoLabel><Input required disabled={locks['general']} value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })} placeholder="e.g., Center Console, Yacht" /></div>
                     <div><InfoLabel info="The specific model of the boat." example="Sea Ray 310, Grady-White 251, Azimut 55">Boat Model</InfoLabel><Input disabled={locks['general']} value={formData.boat_model || ''} onChange={(e) => setFormData({ ...formData, boat_model: e.target.value })} placeholder="e.g., Sea Ray 310" /></div>
                     <div><InfoLabel info="Total length of the boat including the unit." example="25ft, 55ft, 8m">Size *</InfoLabel><Input required disabled={locks['general']} value={formData.size} onChange={(e) => setFormData({ ...formData, size: e.target.value })} placeholder="e.g., 25ft" /></div>
-                    <div><InfoLabel info="Maximum number of passengers allowed on board." example="Up to 6 guests, Up to 12 guests">Capacity *</InfoLabel><Input required disabled={locks['general']} value={formData.capacity} onChange={(e) => setFormData({ ...formData, capacity: e.target.value })} placeholder="e.g., Up to 6 guests" /></div>
+                    <div><InfoLabel info="Number of guests included in the base price." example="2, 4">Included Guests *</InfoLabel><Input required type="number" disabled={locks['general']} value={formData.included_guests || ''} onChange={(e) => setFormData({ ...formData, included_guests: parseInt(e.target.value) || 0 })} placeholder="e.g., 2" /></div>
+                    <div><InfoLabel info="Maximum number of passengers allowed on board." example="6, 12">Guest Capacity *</InfoLabel><Input required type="number" disabled={locks['general']} value={formData.max_guests || ''} onChange={(e) => setFormData({ ...formData, max_guests: parseInt(e.target.value) || 0, capacity: `Up to ${e.target.value} guests` })} placeholder="e.g., 6" /></div>
                     <div><InfoLabel info="Number of crew members typically assigned to this boat (not counting captain)." example="2">Crew Members</InfoLabel><Input type="number" min="0" disabled={locks['general']} value={formData.crew_members} onChange={(e) => setFormData({ ...formData, crew_members: parseInt(e.target.value) || 0 })} placeholder="e.g., 2" /></div>
                     <div><InfoLabel info="The city/port where this boat operates and takes bookings." example="Ixtapa-Zihuatanejo">Location *</InfoLabel><Select disabled={locks['general']} value={formData.location} onValueChange={(value) => setFormData({ ...formData, location: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{locationOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select></div>
                     <div><InfoLabel info="Exact dock slip or marina name where the boat is currently moored." example="Marina Paradise Slip 14, Dry Dock 3">Dock Location</InfoLabel><Input disabled={locks['general']} value={formData.dock_location} onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })} placeholder="e.g., Marina Paradise, Dry Dock 3" /></div>
@@ -996,6 +1002,56 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     toggleLock={toggleLock}
                     sectionKey="expeditions"
                   />
+
+                  {!locks['expeditions'] && formData.available_expeditions?.length > 0 && (
+                    <div className="mt-4 p-5 bg-white border border-blue-200 rounded-xl shadow-sm">
+                      <h4 className="font-bold text-sm text-slate-800 mb-2 flex items-center gap-2">
+                        <svg className="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        Price per Extra Guest (Per Expedition)
+                      </h4>
+                      <p className="text-xs text-slate-500 mb-4">Set the additional fee charged for each guest above the boat's "Included Guests" count (set in General Information).</p>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {formData.available_expeditions.map(expType => {
+                          const price = formData.expedition_pricing.find(p => p.expedition_type === expType)?.price_per_extra_guest || 0;
+                          return (
+                            <div key={expType} className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                              <Label className="text-xs font-semibold text-slate-700 capitalize">{expType.replace(/_/g, ' ')}</Label>
+                              <div className="mt-2 flex items-center gap-2">
+                                <span className="text-xs font-bold text-slate-400">{formData.currency || 'MXN'}</span>
+                                <Input 
+                                  type="number" 
+                                  min="0" 
+                                  value={price || ''} 
+                                  onChange={e => {
+                                    const val = parseFloat(e.target.value) || 0;
+                                    setFormData(prev => {
+                                      const existing = prev.expedition_pricing.find(p => p.expedition_type === expType);
+                                      if (existing) {
+                                        return {
+                                          ...prev,
+                                          expedition_pricing: prev.expedition_pricing.map(p => 
+                                            p.expedition_type === expType ? { ...p, price_per_extra_guest: val } : p
+                                          )
+                                        };
+                                      } else {
+                                        return {
+                                          ...prev,
+                                          expedition_pricing: [...prev.expedition_pricing, { expedition_type: expType, price_per_extra_guest: val }]
+                                        };
+                                      }
+                                    });
+                                  }} 
+                                  className="h-8 text-sm" 
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

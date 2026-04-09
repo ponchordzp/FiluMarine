@@ -473,14 +473,44 @@ export default function Home() {
 
   // Calendar step
   if (step === 'calendar') {
+    const expPricing = selectedBoat?.expedition_pricing?.find(p => p.expedition_type === selectedExperience?.id || p.expedition_type === selectedExperience?.expedition_id);
+    const extraGuestPrice = expPricing?.price_per_extra_guest || 0;
+    const includedGuests = selectedBoat?.included_guests || 2;
+
     return (
-      <BookingCalendar 
-        experience={selectedExperience}
-        onBack={() => setStep('landing')}
-        onContinue={() => setStep('pickup')}
-        bookingData={bookingData}
-        setBookingData={setBookingData}
-      />
+      <div className="min-h-screen bg-[#051024] flex flex-col relative">
+        <div className="flex-grow z-10">
+          <BookingCalendar 
+            experience={selectedExperience}
+            onBack={() => setStep('landing')}
+            onContinue={() => setStep('pickup')}
+            bookingData={bookingData}
+            setBookingData={setBookingData}
+          />
+        </div>
+        
+        {/* Extra Guest Pricing info displayed below calendar */}
+        {extraGuestPrice > 0 && (
+          <div className="max-w-4xl mx-auto w-full px-4 pb-12 z-20 -mt-10">
+            <div className="bg-[#0b2144] border border-[#1e88e5]/30 shadow-[0_0_20px_rgba(30,136,229,0.15)] rounded-xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300">
+              <div className="flex items-center gap-4">
+                <div className="bg-gradient-to-br from-[#1e88e5] to-purple-600 p-2.5 rounded-lg shadow-inner">
+                  <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white/90">Additional Guests</p>
+                  <p className="text-xs text-white/60">Base price covers up to {includedGuests} guests.</p>
+                </div>
+              </div>
+              <div className="text-center sm:text-right">
+                <p className="text-xl font-bold text-white">${extraGuestPrice.toLocaleString()} <span className="text-xs font-medium text-white/50">{selectedBoat?.currency || 'MXN'} / extra guest</span></p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     );
   }
 
