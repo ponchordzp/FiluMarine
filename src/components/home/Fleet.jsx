@@ -159,27 +159,38 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
     onSelectBoat?.(boat);
   };
 
-  const isAvailableTomorrow = (boatName) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+  const getNextAvailableDate = (boatName) => {
+    let checkDate = new Date();
+    checkDate.setDate(checkDate.getDate() + 1);
     
-    const year = tomorrow.getFullYear();
-    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
-    const day = String(tomorrow.getDate()).padStart(2, '0');
-    const tomorrowStr = `${year}-${month}-${day}`;
+    for (let i = 0; i < 60; i++) {
+      const year = checkDate.getFullYear();
+      const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+      const day = String(checkDate.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
 
-    const tomorrowBookings = bookings.filter(b =>
-      b.boat_name === boatName &&
-      b.date === tomorrowStr &&
-      b.status !== 'cancelled'
-    );
+      const dayBookings = bookings.filter(b =>
+        b.boat_name === boatName &&
+        b.date === dateStr &&
+        b.status !== 'cancelled'
+      );
 
-    const isBlocked = blockedDates.some(b => 
-      b.date === tomorrowStr && 
-      (b.boat_name === boatName || b.boat_name === 'both' || !b.boat_name)
-    );
+      const isBlocked = blockedDates.some(b => 
+        b.date === dateStr && 
+        (b.boat_name === boatName || b.boat_name === 'both' || !b.boat_name)
+      );
 
-    return tomorrowBookings.length === 0 && !isBlocked;
+      if (dayBookings.length === 0 && !isBlocked) {
+        return {
+          dateStr,
+          isTomorrow: i === 0,
+          dateObj: new Date(checkDate)
+        };
+      }
+      
+      checkDate.setDate(checkDate.getDate() + 1);
+    }
+    return null;
   };
 
   return (
@@ -245,15 +256,26 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                   )}
                 </div>
 
-                {/* Available Tomorrow Alert Container (Fixed Height to align elements below) */}
+                {/* Available Alert Container (Fixed Height to align elements below) */}
                 <div className="h-10 mb-4 flex-shrink-0">
-                  {isAvailableTomorrow(boat.name) && (
-                    <div className="h-full px-3 flex items-center justify-center bg-red-500/20 border border-red-500/40 rounded-lg animate-pulse">
-                      <p className="text-xs font-semibold text-red-400 flex items-center gap-1">
-                        <AlertTriangle className="h-3.5 w-3.5" />Available Tomorrow
-                      </p>
-                    </div>
-                  )}
+                  {(() => {
+                    const nextAvailable = getNextAvailableDate(boat.name);
+                    if (!nextAvailable) return null;
+                    return (
+                      <div className="relative h-full px-3 flex items-center justify-center bg-gradient-to-r from-blue-900/40 to-purple-900/40 border border-purple-500/30 rounded-lg overflow-hidden animate-[pulse_3s_ease-in-out_infinite]">
+                        <div className="absolute inset-0 w-full h-full flex items-center justify-center">
+                          <div className="w-16 h-16 bg-blue-500/30 rounded-full blur-xl absolute -translate-x-2"></div>
+                          <div className="w-12 h-12 bg-purple-500/30 rounded-full blur-xl absolute translate-x-4"></div>
+                        </div>
+                        <p className="relative z-10 text-xs font-semibold text-purple-200 flex items-center gap-1.5 drop-shadow-md tracking-wide">
+                          <AlertTriangle className="h-3.5 w-3.5 text-blue-400" />
+                          {nextAvailable.isTomorrow 
+                            ? 'Available Tomorrow' 
+                            : `Available ${new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(nextAvailable.dateObj)}`}
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {/* Capacity (Fixed Height) */}
