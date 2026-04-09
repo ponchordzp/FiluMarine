@@ -39,6 +39,7 @@ import MaintenanceFinancialDashboard from '@/components/admin/MaintenanceFinanci
 import BookingTrendChart from '@/components/admin/BookingTrendChart';
 import FinancialTrendChart from '@/components/admin/FinancialTrendChart';
 import { useOperators } from '@/hooks/useOperators';
+import OffsiteBookingModal from '@/components/admin/OffsiteBookingModal';
 
 const statusColors = {
   pending: 'bg-amber-400/20 text-amber-200 border border-amber-400/40',
