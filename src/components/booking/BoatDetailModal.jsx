@@ -14,7 +14,7 @@ const equipmentIcons = {
   snorkeling_gear: Droplet,
 };
 
-export default function BoatDetailModal({ boat, isOpen, onClose }) {
+export default function BoatDetailModal({ boat, isOpen, onClose, dbExpeditions = [] }) {
   if (!boat) return null;
 
   return (
@@ -80,40 +80,70 @@ export default function BoatDetailModal({ boat, isOpen, onClose }) {
             <div>
               <h3 className="text-lg font-semibold mb-3 text-cyan-400">Available Experiences</h3>
               <div className="space-y-2">
-                {boat.available_expeditions.map((exp) => {
-                  const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
-                  return (
-                    <div 
-                      key={exp} 
-                      className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-400/20 rounded-xl p-3"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <p className="text-sm font-semibold text-cyan-300 capitalize mb-1">
-                            {exp.replace(/_/g, ' ')}
-                          </p>
-                          <div className="flex flex-wrap gap-2 text-xs text-white/60">
-                            {pricing?.duration_hours && (
-                              <span>⏱️ {pricing.duration_hours}h</span>
-                            )}
-                            {pricing?.departure_time && (
-                              <span>🕐 {pricing.departure_time}</span>
-                            )}
-                            {pricing?.pickup_location && (
-                              <span>📍 {pricing.pickup_location}</span>
-                            )}
+                {(() => {
+                  const getCatalog = (expId, operator) => {
+                    const opCatalog = dbExpeditions.find(e => e.expedition_id === expId && e.operator && e.operator.toLowerCase() === (operator || '').toLowerCase());
+                    const globalCatalog = dbExpeditions.find(e => e.expedition_id === expId && !e.operator);
+                    return opCatalog || globalCatalog || dbExpeditions.find(e => e.expedition_id === expId);
+                  };
+                  const sortedExpeditions = [...boat.available_expeditions].map(exp => {
+                    const catalog = getCatalog(exp, boat.operator);
+                    const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
+                    const defaultDurations = {
+                      half_day_fishing: 5, full_day_fishing: 8,
+                      extended_fishing: 10, snorkeling: 5,
+                      coastal_leisure: 5, sunset_tour: 3,
+                    };
+                    const durationHours = pricing?.duration_hours || parseFloat(catalog?.duration) || defaultDurations[exp] || 5;
+                    return { exp, catalog, durationHours, pricing };
+                  }).sort((a, b) => b.durationHours - a.durationHours);
+
+                  return sortedExpeditions.map(({ exp, catalog, durationHours, pricing }) => {
+                    let departureLocations = [];
+                    let departureTimes = [];
+                    if (pricing) {
+                      if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
+                        departureLocations = [...new Set(pricing.pickup_departures.map(d => d.pickup_location).filter(Boolean))];
+                        departureTimes = [...new Set(pricing.pickup_departures.map(d => d.departure_time).filter(Boolean))];
+                      } else {
+                        if (pricing.pickup_location) departureLocations = [pricing.pickup_location];
+                        if (pricing.departure_time) departureTimes = [pricing.departure_time];
+                      }
+                    }
+
+                    return (
+                      <div 
+                        key={exp} 
+                        className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-400/20 rounded-xl p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-cyan-300 capitalize mb-1">
+                              {catalog?.title || exp.replace(/_/g, ' ')}
+                            </p>
+                            <div className="flex flex-wrap gap-2 text-xs text-white/60">
+                              {durationHours && (
+                                <span>⏱️ {durationHours}h</span>
+                              )}
+                              {departureTimes.length > 0 && (
+                                <span>🕐 {departureTimes.join(' · ')}</span>
+                              )}
+                              {departureLocations.length > 0 && (
+                                <span>📍 {departureLocations.join(' · ')}</span>
+                              )}
+                            </div>
                           </div>
+                          {pricing?.price_mxn && (
+                            <div className="text-right">
+                              <p className="text-lg font-bold text-emerald-400">${pricing.price_mxn.toLocaleString()}</p>
+                              <p className="text-xs text-white/50">{boat.currency || 'MXN'}</p>
+                            </div>
+                          )}
                         </div>
-                        {pricing?.price_mxn && (
-                          <div className="text-right">
-                            <p className="text-lg font-bold text-emerald-400">${pricing.price_mxn.toLocaleString()}</p>
-                            <p className="text-xs text-white/50">{boat.currency || 'MXN'}</p>
-                          </div>
-                        )}
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             </div>
           )}

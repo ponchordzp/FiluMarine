@@ -166,13 +166,22 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       if (isHiddenForOperator(catalog, selectedBoat.operator)) return null;
       const pricing = (selectedBoat.expedition_pricing || []).find(p => p.expedition_type === expType);
       const departureTimes = getDepartureTimes(pricing);
+      const defaultDurations = {
+        half_day_fishing: 5, full_day_fishing: 8,
+        extended_fishing: 10, snorkeling: 5,
+        coastal_leisure: 5, sunset_tour: 3,
+      };
+      const durationHours = pricing?.duration_hours || parseFloat(catalog?.duration) || defaultDurations[expType] || 5;
+
       return {
         ...catalog,
-        duration: pricing?.duration_hours ? `${pricing.duration_hours} hours` : catalog.duration,
-        price: pricing?.price_mxn > 0 ? pricing.price_mxn : catalog.price,
+        title: catalog?.title || expType.replace(/_/g, ' '),
+        duration: pricing?.duration_hours ? `${pricing.duration_hours} hours` : catalog?.duration,
+        duration_hours: durationHours,
+        price: pricing?.price_mxn > 0 ? pricing.price_mxn : catalog?.price,
         departureTimes,
       };
-    }).filter(Boolean);
+    }).filter(Boolean).sort((a, b) => b.duration_hours - a.duration_hours);
 
     if (boatExperiences.length === 0) {
       return (
@@ -239,12 +248,20 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
           const catalog = opCatalog || globalCatalog || dbExpeditions.find(e => e.expedition_id === expId);
 
           if (catalog && !isHiddenForOperator(catalog, boat.operator)) {
-            expMap.set(expId, catalog);
+            const pricing = (boat.expedition_pricing || []).find(p => p.expedition_type === expId);
+            const defaultDurations = {
+              half_day_fishing: 5, full_day_fishing: 8,
+              extended_fishing: 10, snorkeling: 5,
+              coastal_leisure: 5, sunset_tour: 3,
+            };
+            const duration_hours = pricing?.duration_hours || parseFloat(catalog.duration) || defaultDurations[expId] || 5;
+
+            expMap.set(expId, { ...catalog, title: catalog.title || expId.replace(/_/g, ' '), duration_hours });
           }
         }
       });
     });
-    return Array.from(expMap.values()).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+    return Array.from(expMap.values()).sort((a, b) => b.duration_hours - a.duration_hours);
   }, [activeBoats, dbExpeditions]);
 
   // For each expedition, gather boat names + departure times from all offering boats

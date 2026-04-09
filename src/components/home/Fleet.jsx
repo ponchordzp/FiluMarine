@@ -111,6 +111,11 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
     queryFn: () => base44.entities.Booking.list(),
   });
 
+  const { data: dbExpeditions = [] } = useQuery({
+    queryKey: ['expeditions-fleet'],
+    queryFn: () => base44.entities.Expedition.list(),
+  });
+
   const activeBoats = boatsFromDB.filter(boat => {
     const matchLocation = (boat.location || '').toLowerCase().trim() === (location || '').toLowerCase().trim();
     const matchStatus = !boat.status || boat.status === 'active';
@@ -274,59 +279,71 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                     </button>
                     {expandedExperiences[boat.name] && (
                       <div className="space-y-3 mt-4">
-                        {boat.available_expeditions.map((exp) => {
-                          const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
-                          const defaultDurations = {
-                            half_day_fishing: { hours: 5 }, full_day_fishing: { hours: 8 },
-                            extended_fishing: { hours: 10 }, snorkeling: { hours: 5 },
-                            coastal_leisure: { hours: 5 }, sunset_tour: { hours: 3 },
+                        {(() => {
+                          const getCatalog = (expId, operator) => {
+                            const opCatalog = dbExpeditions.find(e => e.expedition_id === expId && e.operator && e.operator.toLowerCase() === (operator || '').toLowerCase());
+                            const globalCatalog = dbExpeditions.find(e => e.expedition_id === expId && !e.operator);
+                            return opCatalog || globalCatalog || dbExpeditions.find(e => e.expedition_id === expId);
                           };
-                          const durationHours = pricing?.duration_hours || (defaultDurations[exp]?.hours ?? 5);
-                          const expIcons = {
-                            half_day_fishing: Fish, full_day_fishing: Fish, extended_fishing: Anchor,
-                            snorkeling: Waves, coastal_leisure: Navigation, sunset_tour: Sun,
-                          };
-                          const ExpIcon = expIcons[exp] || Anchor;
-                          const displayName = exp === 'extended_fishing' ? 'Full Day Expedition' : exp.replace(/_/g, ' ');
-                          
-                          let departureLocations = [];
-                          let departureTimes = [];
-                          if (pricing) {
-                            if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
-                              departureLocations = [...new Set(pricing.pickup_departures.map(d => d.pickup_location).filter(Boolean))];
-                              departureTimes = [...new Set(pricing.pickup_departures.map(d => d.departure_time).filter(Boolean))];
-                            } else {
-                              if (pricing.pickup_location) departureLocations = [pricing.pickup_location];
-                              if (pricing.departure_time) departureTimes = [pricing.departure_time];
-                            }
-                          }
+                          const sortedExpeditions = [...boat.available_expeditions].map(exp => {
+                            const catalog = getCatalog(exp, boat.operator);
+                            const pricing = boat.expedition_pricing?.find(p => p.expedition_type === exp);
+                            const defaultDurations = {
+                              half_day_fishing: 5, full_day_fishing: 8,
+                              extended_fishing: 10, snorkeling: 5,
+                              coastal_leisure: 5, sunset_tour: 3,
+                            };
+                            const durationHours = pricing?.duration_hours || parseFloat(catalog?.duration) || defaultDurations[exp] || 5;
+                            return { exp, catalog, durationHours, pricing };
+                          }).sort((a, b) => b.durationHours - a.durationHours);
 
-                          return (
-                            <div key={exp} className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 flex flex-col gap-2">
-                              <div className="flex items-center gap-2">
-                                <ExpIcon className="h-4 w-4 text-cyan-400 flex-shrink-0" />
-                                <p className="text-sm font-medium text-cyan-300 capitalize">{displayName}</p>
-                                <span className="text-xs text-white/50 ml-auto">{durationHours}h</span>
-                              </div>
-                              {(departureLocations.length > 0 || departureTimes.length > 0) && (
-                                <div className="pl-6 space-y-1.5">
-                                  {departureLocations.length > 0 && (
-                                    <div className="flex items-start gap-1.5 text-xs text-white/60">
-                                      <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-cyan-500/70" />
-                                      <span className="leading-snug">{departureLocations.join(' · ')}</span>
-                                    </div>
-                                  )}
-                                  {departureTimes.length > 0 && (
-                                    <div className="flex items-start gap-1.5 text-xs text-white/60">
-                                      <Clock className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-cyan-500/70" />
-                                      <span className="leading-snug">{departureTimes.join(' · ')}</span>
-                                    </div>
-                                  )}
+                          return sortedExpeditions.map(({ exp, catalog, durationHours, pricing }) => {
+                            const expIcons = {
+                              half_day_fishing: Fish, full_day_fishing: Fish, extended_fishing: Anchor,
+                              snorkeling: Waves, coastal_leisure: Navigation, sunset_tour: Sun,
+                            };
+                            const ExpIcon = expIcons[exp] || Anchor;
+                            const displayName = catalog?.title || exp.replace(/_/g, ' ');
+                            
+                            let departureLocations = [];
+                            let departureTimes = [];
+                            if (pricing) {
+                              if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
+                                departureLocations = [...new Set(pricing.pickup_departures.map(d => d.pickup_location).filter(Boolean))];
+                                departureTimes = [...new Set(pricing.pickup_departures.map(d => d.departure_time).filter(Boolean))];
+                              } else {
+                                if (pricing.pickup_location) departureLocations = [pricing.pickup_location];
+                                if (pricing.departure_time) departureTimes = [pricing.departure_time];
+                              }
+                            }
+
+                            return (
+                              <div key={exp} className="bg-white/5 border border-white/10 rounded-xl px-3 py-3 flex flex-col gap-2">
+                                <div className="flex items-center gap-2">
+                                  <ExpIcon className="h-4 w-4 text-cyan-400 flex-shrink-0" />
+                                  <p className="text-sm font-medium text-cyan-300 capitalize">{displayName}</p>
+                                  <span className="text-xs text-white/50 ml-auto">{durationHours}h</span>
                                 </div>
-                              )}
-                            </div>
-                          );
-                        })}
+                                {(departureLocations.length > 0 || departureTimes.length > 0) && (
+                                  <div className="pl-6 space-y-1.5">
+                                    {departureLocations.length > 0 && (
+                                      <div className="flex items-start gap-1.5 text-xs text-white/60">
+                                        <MapPin className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-cyan-500/70" />
+                                        <span className="leading-snug">{departureLocations.join(' · ')}</span>
+                                      </div>
+                                    )}
+                                    {departureTimes.length > 0 && (
+                                      <div className="flex items-start gap-1.5 text-xs text-white/60">
+                                        <Clock className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-cyan-500/70" />
+                                        <span className="leading-snug">{departureTimes.join(' · ')}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          });
+                        })()}
                       </div>
                     )}
                   </div>
@@ -348,6 +365,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
 
         <BoatDetailModal 
           boat={selectedBoatDetail} 
+          dbExpeditions={dbExpeditions}
           isOpen={showDetailModal} 
           onClose={() => setShowDetailModal(false)} 
         />
