@@ -90,6 +90,10 @@
       "default": "MXN",
       "description": "Currency of the booking"
     },
+    "exchange_rate": {
+      "type": "number",
+      "description": "Exchange rate used to convert USD to MXN for this booking"
+    },
     "dock_fee": {
       "type": "number",
       "default": 0,

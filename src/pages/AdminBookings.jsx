@@ -135,15 +135,17 @@ function AdminBookingsInner() {
       const isUSD = b.currency === 'USD' || boat?.currency === 'USD';
       
       if (isUSD && !b.is_converted_to_mxn) {
+        const rate = b.exchange_rate || EXCHANGE_RATE;
         return {
           ...b,
           original_currency: 'USD',
           original_total_price: b.total_price,
           original_deposit_paid: b.deposit_paid,
-          total_price: (b.total_price || 0) * EXCHANGE_RATE,
-          deposit_paid: (b.deposit_paid || 0) * EXCHANGE_RATE,
+          total_price: (b.total_price || 0) * rate,
+          deposit_paid: (b.deposit_paid || 0) * rate,
           currency: 'MXN',
-          is_converted_to_mxn: true
+          is_converted_to_mxn: true,
+          applied_exchange_rate: rate
         };
       }
       return { ...b, currency: 'MXN', is_converted_to_mxn: true };
@@ -265,6 +267,11 @@ function AdminBookingsInner() {
 
   const updateRemainingMethodMutation = useMutation({
     mutationFn: ({ id, remaining_payment_method }) => base44.entities.Booking.update(id, { remaining_payment_method }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] })
+  });
+
+  const updateExchangeRateMutation = useMutation({
+    mutationFn: ({ id, exchange_rate }) => base44.entities.Booking.update(id, { exchange_rate }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin-bookings'] })
   });
 
@@ -1052,6 +1059,7 @@ function AdminBookingsInner() {
                 updatePaymentStatusMutation={updatePaymentStatusMutation}
                 updateRemainingPaymentMutation={updateRemainingPaymentMutation}
                 updateRemainingMethodMutation={updateRemainingMethodMutation}
+                updateExchangeRateMutation={updateExchangeRateMutation}
                 handleStatusChange={handleStatusChange}
                 deleteBookingMutation={deleteBookingMutation}
                 setExpenseBooking={setExpenseBooking}

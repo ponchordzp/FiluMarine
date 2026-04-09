@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Calendar as CalendarIcon, Clock, Users, Mail, Phone, DollarSign,
   CheckCircle2, XCircle, Info, Trash2, PenSquare, FileText,
@@ -111,12 +112,18 @@ export default function AdminBookingCard({
   updatePaymentStatusMutation,
   updateRemainingPaymentMutation,
   updateRemainingMethodMutation,
+  updateExchangeRateMutation,
   handleStatusChange,
   deleteBookingMutation,
   setExpenseBooking,
   setExpenseDialogOpen,
 }) {
   const [reportOpen, setReportOpen] = useState(false);
+  const [exchangeRateInput, setExchangeRateInput] = useState(booking.exchange_rate || booking.applied_exchange_rate || 20);
+
+  React.useEffect(() => {
+    setExchangeRateInput(booking.exchange_rate || booking.applied_exchange_rate || 20);
+  }, [booking.exchange_rate, booking.applied_exchange_rate]);
 
   const StatusIcon = statusIcons[booking.status] || Clock;
   const expenseTotal = getBookingExpenses(booking.id);
@@ -225,6 +232,26 @@ export default function AdminBookingCard({
             <span><span className="text-white/30">Net:</span> <span className={`font-medium ${getBookingEarnings(booking) >= 0 ? 'text-purple-300/80' : 'text-red-300/80'}`}>${getBookingEarnings(booking).toLocaleString(undefined, { maximumFractionDigits: 0 })} MXN</span></span>
             <span><span className="text-white/30">ROI:</span> <span className={`font-semibold ${((getBookingEarnings(booking) / (booking.total_price || 1)) * 100) >= 0 ? 'text-cyan-300' : 'text-red-400'}`}>${((getBookingEarnings(booking) / (booking.total_price || 1)) * 100).toFixed(1)}%</span></span>
           </div>
+
+          {booking.original_currency === 'USD' && hasElevatedAccess && (
+            <div className="mt-2 flex items-center gap-2">
+              <Label className="text-xs text-white/60">USD/MXN Exchange Rate:</Label>
+              <Input
+                type="number"
+                className="w-20 h-7 text-xs bg-white/5 border-white/10 text-white px-2"
+                value={exchangeRateInput}
+                onChange={(e) => setExchangeRateInput(e.target.value)}
+              />
+              <Button
+                size="sm"
+                className="h-7 text-xs bg-blue-600 hover:bg-blue-700 text-white px-3"
+                onClick={() => updateExchangeRateMutation?.mutate({ id: booking.id, exchange_rate: parseFloat(exchangeRateInput) })}
+                disabled={updateExchangeRateMutation?.isPending || parseFloat(exchangeRateInput) === (booking.exchange_rate || booking.applied_exchange_rate || 20)}
+              >
+                {updateExchangeRateMutation?.isPending ? 'Saving...' : 'Apply'}
+              </Button>
+            </div>
+          )}
 
           {/* ── PAYMENT SECTION (always visible) ── */}
           {hasElevatedAccess && (
