@@ -579,9 +579,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
         return {
           ...p,
           pickup_departures: deps,
-          // Keep legacy single fields from first entry for backward compat
+          // Keep legacy single fields for backward compat. Join all departure times so public users can see them.
           pickup_location: deps[0]?.pickup_location || p.pickup_location || '',
-          departure_time: deps[0]?.departure_time || p.departure_time || '',
+          departure_time: deps.map(d => d.departure_time).filter(t => t && t.trim()).join(', ') || p.departure_time || '',
         };
       }
       // No new entries: preserve existing data untouched

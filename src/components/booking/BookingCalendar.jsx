@@ -45,25 +45,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   // Map database boats to required format - load ALL vessel editor data
   const boats = activeBoats.map(boat => {
     // Ensure expedition_pricing and available_expeditions are always arrays
-    let expPricing = Array.isArray(boat.expedition_pricing) ? boat.expedition_pricing : [];
+    const expPricing = Array.isArray(boat.expedition_pricing) ? boat.expedition_pricing : [];
     const availExp = Array.isArray(boat.available_expeditions) ? boat.available_expeditions : [];
-    
-    // Auto-recover pickup_departures from vault if DB stripped them (for backward compatibility)
-    try {
-      const raw = localStorage.getItem('filu_expedition_pricing_vault');
-      if (raw) {
-        const vault = JSON.parse(raw)[boat.id];
-        if (vault?.pickup_departures) {
-          expPricing = expPricing.map(p => {
-            const deps = vault.pickup_departures[p.expedition_type];
-            if (deps && deps.length > 0 && (!p.pickup_departures || p.pickup_departures.length === 0)) {
-              return { ...p, pickup_departures: deps };
-            }
-            return p;
-          });
-        }
-      }
-    } catch {}
     
     return {
       id: boat.id,
@@ -110,7 +93,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       if (pricing) {
         let allTimes = [];
         
-        // Collect times from pickup_departures array if present
+        // 1. Collect times from pickup_departures array if present in DB
         if (pricing.pickup_departures && pricing.pickup_departures.length > 0) {
           pricing.pickup_departures.forEach(d => {
             if (d.departure_time && d.departure_time.trim()) {
@@ -120,7 +103,25 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
           });
         }
         
-        // Collect time from legacy single departure_time field if present
+        // 2. Try vault fallback if DB array was stripped (for backward compatibility)
+        if (allTimes.length === 0) {
+          try {
+            const raw = localStorage.getItem('filu_expedition_pricing_vault');
+            if (raw) {
+              const vault = JSON.parse(raw)[boat.id];
+              if (vault?.pickup_departures && vault.pickup_departures[expId]) {
+                vault.pickup_departures[expId].forEach(d => {
+                  if (d.departure_time && d.departure_time.trim()) {
+                    const parts = d.departure_time.split(',').map(part => part.trim()).filter(Boolean);
+                    allTimes.push(...parts);
+                  }
+                });
+              }
+            }
+          } catch {}
+        }
+        
+        // 3. Collect time from legacy single departure_time field if present
         if (pricing.departure_time && pricing.departure_time.trim()) {
           const parts = pricing.departure_time.split(',').map(t => t.trim()).filter(Boolean);
           allTimes.push(...parts);
