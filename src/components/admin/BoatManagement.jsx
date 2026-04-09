@@ -1698,11 +1698,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                           const fee = revenue * (stats.commissionPct / 100);
                           const profit = revenue - totalExpenses - fee;
                           const roi = revenue > 0 ? profit / revenue * 100 : 0;
-                          return { type: 'rental', date: b.date, title: b.experience_type?.replace(/_/g, ' ') || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi };
+                          return { type: 'rental', date: b.date, title: b.experience_type?.replace(/_/g, ' ') || 'Booking', guests: b.guests, hours: b.engine_hours_used || 0, code: b.confirmation_code, revenue, expenses: totalExpenses, profit, roi, currency: boat.currency || 'MXN' };
                         }),
                         ...boatPersonalTrips.map((t) => {
                           const totalCost = (t.fuel_quantity || 0) * (t.fuel_price_per_unit || 0) + (t.additional_expenses || 0) + (t.supplies_used?.reduce((sum, s) => sum + (s.price || 0), 0) || 0);
-                          return { type: 'personal', date: t.trip_date, title: t.destination || 'Personal Trip', guests: t.guests, hours: t.engine_hours_used || 0, notes: t.notes, expenses: totalCost, revenue: 0, profit: -totalCost, roi: 0 };
+                          return { type: 'personal', date: t.trip_date, title: t.destination || 'Personal Trip', guests: t.guests, hours: t.engine_hours_used || 0, notes: t.notes, expenses: totalCost, revenue: 0, profit: -totalCost, roi: 0, currency: boat.currency || 'MXN' };
                         })].
                         sort((a, b) => new Date(b.date) - new Date(a.date));
                         const filteredTrips = allTrips.filter((trip) => tripHistoryFilter === 'all' || trip.type === tripHistoryFilter);
@@ -1759,8 +1759,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <div className="pt-4 border-t space-y-3">
                   <h4 className="font-semibold text-sm text-slate-700 mb-3">Booking Statistics</h4>
                   <div className="grid grid-cols-3 gap-2">
-                    <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-lg border border-emerald-400"><p className="text-white text-xs font-medium mb-1">Revenue</p><p className="font-bold text-xl text-white">${(stats.revenue / 1000).toFixed(1)}k</p></div>
-                    <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg border border-blue-400"><p className="text-white text-xs font-medium mb-1">Profit</p><p className="font-bold text-xl text-white">${(stats.profit / 1000).toFixed(1)}k</p></div>
+                    <div className="bg-gradient-to-br from-emerald-500 to-green-600 p-3 rounded-xl shadow-lg border border-emerald-400"><p className="text-white text-xs font-medium mb-1">Revenue</p><p className="font-bold text-xl text-white">${(stats.revenue / 1000).toFixed(1)}k {boat.currency || 'MXN'}</p></div>
+                    <div className="bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl shadow-lg border border-blue-400"><p className="text-white text-xs font-medium mb-1">Profit</p><p className="font-bold text-xl text-white">${(stats.profit / 1000).toFixed(1)}k {boat.currency || 'MXN'}</p></div>
                     <div className="bg-gradient-to-br from-purple-500 to-pink-600 p-3 rounded-xl shadow-lg border border-purple-400"><p className="text-white text-xs font-medium mb-1">Avg ROI</p><p className="font-bold text-xl text-white">{stats.roi}%</p></div>
                   </div>
                   <div className="bg-amber-50 border-l-4 border-amber-500 p-3 rounded-r-lg"><p className="text-xs text-amber-800"><span className="font-semibold">Note:</span> FILU fee is {stats.commissionPct}% of the total booking revenue.</p></div>

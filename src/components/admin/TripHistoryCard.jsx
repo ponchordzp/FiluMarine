@@ -40,14 +40,14 @@ export default function TripHistoryCard({ trip }) {
               <DollarSign className="h-3 w-3 text-green-600" />
               <p className="text-xs text-green-600 font-medium">Revenue</p>
             </div>
-            <p className="text-xs font-bold text-green-800">${(trip.revenue / 1000).toFixed(1)}k</p>
+            <p className="text-xs font-bold text-green-800">${(trip.revenue / 1000).toFixed(1)}k {trip.currency}</p>
           </div>
           <div className="bg-red-100 px-2 py-1.5 rounded">
             <div className="flex items-center gap-1 mb-0.5">
               <DollarSign className="h-3 w-3 text-red-600" />
               <p className="text-xs text-red-600 font-medium">Expenses</p>
             </div>
-            <p className="text-xs font-bold text-red-800">${(trip.expenses / 1000).toFixed(1)}k</p>
+            <p className="text-xs font-bold text-red-800">${(trip.expenses / 1000).toFixed(1)}k {trip.currency}</p>
           </div>
           <div className={`px-2 py-1.5 rounded ${trip.profit >= 0 ? 'bg-emerald-100' : 'bg-rose-100'}`}>
             <div className="flex items-center gap-1 mb-0.5">
@@ -55,7 +55,7 @@ export default function TripHistoryCard({ trip }) {
               <p className={`text-xs font-medium ${trip.profit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>Profit</p>
             </div>
             <p className={`text-xs font-bold ${trip.profit >= 0 ? 'text-emerald-800' : 'text-rose-800'}`}>
-              ${(trip.profit / 1000).toFixed(1)}k
+              ${(trip.profit / 1000).toFixed(1)}k {trip.currency}
             </p>
           </div>
           <div className={`px-2 py-1.5 rounded ${trip.roi >= 0 ? 'bg-purple-100' : 'bg-rose-100'}`}>
@@ -77,7 +77,7 @@ export default function TripHistoryCard({ trip }) {
             <DollarSign className="h-3 w-3 text-amber-600" />
             <p className="text-xs text-amber-600 font-medium">Cost</p>
           </div>
-          <p className="text-xs font-bold text-amber-800">${(trip.expenses / 1000).toFixed(1)}k</p>
+          <p className="text-xs font-bold text-amber-800">${(trip.expenses / 1000).toFixed(1)}k {trip.currency}</p>
         </div>
       )}
       
