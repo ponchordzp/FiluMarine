@@ -82,7 +82,7 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
           </div>
 
           <div className="mt-4 p-4 bg-slate-50 rounded-xl space-y-2">
-            <p className="font-semibold text-slate-800 mb-1">{experience.title}</p>
+            <p className="font-semibold text-slate-800 mb-1">{experience?.title || booking.experience_type}</p>
             <p className="text-sm text-slate-500 flex items-center gap-2">
               <Users className="h-4 w-4" />
               {booking.guests} guest{booking.guests > 1 ? 's' : ''}
