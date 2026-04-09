@@ -63,15 +63,12 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
       available_expeditions: availExp,
       price_per_additional_hour: boat.price_per_additional_hour || 0,
       currency: boat.currency || 'MXN',
+      included_guests: boat.included_guests || 2,
     };
   });
 
   const availableBoats = boats.filter(boat => {
-    const inPricing = boat.expedition_pricing && boat.expedition_pricing.some(p => 
-      p && p.expedition_type === expId
-    );
-    const inAvailable = boat.available_expeditions && boat.available_expeditions.includes(expId);
-    return inPricing || inAvailable;
+    return boat.available_expeditions && boat.available_expeditions.includes(expId);
   });
 
   const defaultBoat = availableBoats.length > 0 ? availableBoats[0].id : null;
@@ -164,6 +161,9 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
 
   const currentBoat = boats.find(b => b.id === selectedBoat);
   const maxGuests = currentBoat ? currentBoat.maxGuests : 6;
+  const includedGuests = currentBoat ? currentBoat.included_guests : 2;
+  const pricingForExp = currentBoat?.expedition_pricing?.find(p => p.expedition_type === expId);
+  const pricePerExtraGuest = pricingForExp?.price_per_extra_guest || 0;
 
   // Get actual price from boat's expedition pricing (from vessel editor)
   const getBoatPrice = (boat) => {
@@ -357,6 +357,14 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                     Trips operate only when weather and safety conditions allow. We'll contact you if changes are needed.
                   </p>
                 </div>
+                {selectedBoat && currentBoat && pricePerExtraGuest > 0 && (
+                  <div className="p-4 bg-blue-500/20 border-2 border-blue-400/40 rounded-xl flex gap-3 items-start backdrop-blur-sm">
+                    <Users className="h-5 w-5 text-blue-300 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-blue-100">
+                      <span className="font-semibold">Additional guests:</span> The base price includes up to {includedGuests} guests. An additional fee of <span className="font-semibold">${pricePerExtraGuest.toLocaleString()} {currentBoat.currency}</span> applies per guest beyond {includedGuests}.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 
