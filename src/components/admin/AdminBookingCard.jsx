@@ -180,7 +180,7 @@ export default function AdminBookingCard({
                 <p className="text-xs text-white/40">Code: <span className="font-mono text-white/60">{booking.confirmation_code}</span></p>
                 <span className="text-xs px-2 py-0.5 rounded-full text-white/50"
                   style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                  {booking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}
+                  {booking.location?.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'N/A'}
                 </span>
                 {booking.boat_name && (
                   <span className="text-xs px-2 py-0.5 rounded-full font-medium"
@@ -375,7 +375,7 @@ export default function AdminBookingCard({
                     <div><Label className="text-slate-500">Status</Label><div className="mt-1"><Badge className={statusColors[booking.status]}>{booking.status}</Badge></div></div>
                     <div><Label className="text-slate-500">Email</Label><p className="font-medium flex items-center gap-2"><Mail className="h-4 w-4" />{booking.guest_email}</p></div>
                     <div><Label className="text-slate-500">Phone</Label><p className="font-medium flex items-center gap-2"><Phone className="h-4 w-4" />{booking.guest_phone}</p></div>
-                    <div><Label className="text-slate-500">Location</Label><p className="font-medium">{booking.location === 'acapulco' ? 'Acapulco' : 'Ixtapa-Zihuatanejo'}</p></div>
+                    <div><Label className="text-slate-500">Location</Label><p className="font-medium">{booking.location?.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'N/A'}</p></div>
                     <div><Label className="text-slate-500">Experience</Label><p className="font-medium capitalize">{booking.experience_type?.replace(/_/g, ' ')}</p></div>
                     <div><Label className="text-slate-500">Boat</Label><p className="font-medium">{booking.boat_name || 'N/A'}</p></div>
                     <div><Label className="text-slate-500">Pickup</Label><p className="font-medium">{booking.pickup_location || 'N/A'}</p></div>

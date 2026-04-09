@@ -173,11 +173,9 @@ export default function BookingSearch() {
                 <MapPin className="h-4 w-4 text-[#60b4ff]" />
                 <span className="text-sm font-semibold text-[#60b4ff] uppercase tracking-wider">Meeting Point</span>
               </div>
-              <p className="text-white font-medium">{pickupLocationNames[booking.pickup_location] || booking.pickup_location || 'Marina Ixtapa'}</p>
+              <p className="text-white font-medium">{pickupLocationNames[booking.pickup_location] || booking.pickup_location || booking.location?.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'To be determined'}</p>
               <p className="text-sm text-white/45">
-                {booking.location === 'acapulco'
-                  ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
-                  : 'Please head to the pickup location. Look for the FILU Marine logo.'}
+                Please head to the designated pickup location. Our crew will contact you 24 hours before departure with exact meeting details.
               </p>
               <p className="text-sm text-white/55">Please arrive <strong className="text-white/75">15 minutes early</strong> before your scheduled time.</p>
             </div>

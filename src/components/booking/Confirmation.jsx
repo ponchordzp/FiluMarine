@@ -22,7 +22,7 @@ const pickupLocationNames = {
 
 export default function Confirmation({ booking, experience, onBackToMain }) {
   const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I%20have%20a%20booking%20with%20confirmation%20code:%20" + booking.confirmation_code;
-  const pickupLocationDisplay = pickupLocationNames[booking.pickup_location] || booking.pickup_location || 'Marina Ixtapa';
+  const pickupLocationDisplay = pickupLocationNames[booking.pickup_location] || booking.pickup_location || booking.location?.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'To be determined';
 
   return (
     <section className="min-h-screen bg-gradient-to-b from-sky-50 to-white py-12 md:py-20">
@@ -117,9 +117,7 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
             <strong>{pickupLocationDisplay}</strong>
           </p>
           <p className="text-sm text-slate-500 mb-4">
-            {booking.location === 'acapulco' 
-              ? 'Our crew will contact you 24 hours before departure with exact meeting details.'
-              : 'Dock #12, near the main entrance. Look for our boat with the FILU Marine logo.'}
+            Please head to the designated pickup location. Our crew will contact you 24 hours before departure with exact meeting details.
           </p>
           <p className="text-sm text-slate-600">
             Please arrive <strong>15 minutes before</strong> your scheduled departure time.
