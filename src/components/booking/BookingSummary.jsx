@@ -20,14 +20,24 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const addOnOptions = expPricing?.extras || [];
   const currency = selectedBoat?.currency || 'MXN';
 
+  const isScubaExtra = (id) => id && id.toLowerCase().includes('scubamaster');
+
   const getAddOnPrice = (id) => {
     const extra = addOnOptions.find(e => e.extra_id === id);
-    return extra?.price || 0;
+    let price = extra?.price || 0;
+    if (isScubaExtra(id)) {
+      price += 200 * (bookingData.scuba_divers_count || 1);
+    }
+    return price;
   };
 
   const getAddOnTitle = (id) => {
     const extra = addOnOptions.find(e => e.extra_id === id);
-    return extra?.extra_name || extra?.name || id;
+    let title = extra?.extra_name || extra?.name || id;
+    if (isScubaExtra(id)) {
+      title += ` (${bookingData.scuba_divers_count || 1} Certified Diver${(bookingData.scuba_divers_count || 1) > 1 ? 's' : ''})`;
+    }
+    return title;
   };
 
   const [paymentMethod, setPaymentMethod] = useState('paypal');
@@ -103,6 +113,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
       deposit_paid: deposit,
       currency: currency,
       dock_fee: totalDockFee,
+      scuba_divers_count: bookingData.scuba_divers_count || 0,
     };
     
     setBookingData(finalData);

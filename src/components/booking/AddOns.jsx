@@ -3,12 +3,18 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Check, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
 export default function AddOns({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const [selectedAddOns, setSelectedAddOns] = useState(bookingData.add_ons || []);
   const [specialRequests, setSpecialRequests] = useState(bookingData.special_requests || '');
+  const [scubaDiversCount, setScubaDiversCount] = useState(bookingData.scuba_divers_count || 1);
+  const [scubaDialogOpen, setScubaDialogOpen] = useState(false);
+  const [tempScubaExtraId, setTempScubaExtraId] = useState(null);
 
   const boatName = bookingData.boat_name;
 
@@ -28,20 +34,42 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
   const addOnOptions = expPricing?.extras || [];
   const currency = selectedBoat?.currency || 'MXN';
 
+  const isScubaExtra = (id) => id && id.toLowerCase().includes('scubamaster');
+
   const toggleAddOn = (id) => {
-    setSelectedAddOns(prev =>
-      prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
-    );
+    if (isScubaExtra(id)) {
+      if (selectedAddOns.includes(id)) {
+        setSelectedAddOns(prev => prev.filter(a => a !== id));
+      } else {
+        setTempScubaExtraId(id);
+        setScubaDialogOpen(true);
+      }
+    } else {
+      setSelectedAddOns(prev =>
+        prev.includes(id) ? prev.filter(a => a !== id) : [...prev, id]
+      );
+    }
+  };
+
+  const handleConfirmScuba = () => {
+    if (tempScubaExtraId && !selectedAddOns.includes(tempScubaExtraId)) {
+      setSelectedAddOns(prev => [...prev, tempScubaExtraId]);
+    }
+    setScubaDialogOpen(false);
   };
 
   const handleContinue = () => {
-    setBookingData({ ...bookingData, add_ons: selectedAddOns, special_requests: specialRequests });
+    setBookingData({ ...bookingData, add_ons: selectedAddOns, special_requests: specialRequests, scuba_divers_count: scubaDiversCount });
     onContinue();
   };
 
   const totalAddOns = selectedAddOns.reduce((sum, id) => {
     const extra = addOnOptions.find(e => e.extra_id === id);
-    return sum + (extra?.price || 0);
+    let price = extra?.price || 0;
+    if (isScubaExtra(id)) {
+      price += 200 * scubaDiversCount;
+    }
+    return sum + price;
   }, 0);
 
   return (
@@ -71,6 +99,10 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                 const isSelected = selectedAddOns.includes(extra.extra_id);
                 const fullExtra = extras.find(e => e.id === extra.extra_id || e.name === extra.extra_name || e.name === extra.name);
                 const imageUrl = fullExtra?.image;
+                const isScuba = isScubaExtra(extra.extra_id);
+                const displayedPrice = isScuba && isSelected 
+                  ? (extra.price || 0) + (200 * scubaDiversCount)
+                  : (extra.price || 0);
                 
                 return (
                   <motion.button
@@ -97,7 +129,8 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                       </div>
                       <div className="hidden sm:flex items-center gap-3 flex-shrink-0">
                         <span className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
-                          ${(extra.price || 0).toLocaleString()} {currency}
+                          ${displayedPrice.toLocaleString()} {currency}
+                          {isScuba && !isSelected && <span className="text-xs text-white/50 block font-normal">+ $200 {currency}/diver</span>}
                         </span>
                         <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'}`}>
                           {isSelected && <Check className="h-4 w-4 text-slate-900" />}
@@ -107,7 +140,8 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                     {/* Mobile Price & Check */}
                     <div className="flex sm:hidden items-center justify-between w-full pt-2 border-t border-white/10 mt-1">
                       <span className={`font-semibold text-sm ${isSelected ? 'text-cyan-400' : 'text-white/80'}`}>
-                        ${(extra.price || 0).toLocaleString()} {currency}
+                        ${displayedPrice.toLocaleString()} {currency}
+                        {isScuba && !isSelected && <span className="text-xs text-white/50 ml-1 font-normal">+ $200 {currency}/diver</span>}
                       </span>
                       <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${isSelected ? 'border-cyan-400 bg-cyan-400' : 'border-white/40'}`}>
                         {isSelected && <Check className="h-3 w-3 text-slate-900" />}
@@ -153,6 +187,38 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           </div>
         </motion.div>
       </div>
+
+      <Dialog open={scubaDialogOpen} onOpenChange={setScubaDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-slate-900 border-slate-700 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-semibold text-cyan-400">Certified Scuba Divers</DialogTitle>
+            <DialogDescription className="text-slate-300">
+              Please enter the number of certified scuba divers for this trip. The dive master rate is flat, and each diver is an additional $200 {currency}.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="py-6">
+            <Label htmlFor="scuba-divers" className="text-slate-300 mb-2 block">Number of Certified Divers</Label>
+            <Input
+              id="scuba-divers"
+              type="number"
+              min={1}
+              value={scubaDiversCount}
+              onChange={(e) => setScubaDiversCount(Math.max(1, parseInt(e.target.value) || 1))}
+              className="bg-slate-800 border-slate-600 text-white focus:border-cyan-400"
+            />
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setScubaDialogOpen(false)} className="border-slate-600 text-slate-300 hover:bg-slate-800">
+              Cancel
+            </Button>
+            <Button onClick={handleConfirmScuba} className="bg-cyan-500 hover:bg-cyan-600 text-white">
+              Confirm & Add
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

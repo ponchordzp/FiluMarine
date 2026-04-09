@@ -49,6 +49,11 @@
       },
       "description": "Selected add-ons"
     },
+    "scuba_divers_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of certified scuba divers for the ScubaMaster extra"
+    },
     "special_requests": {
       "type": "string",
       "description": "Special requests or notes"
