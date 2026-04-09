@@ -105,7 +105,7 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
           <StatBox icon={Ship} label="Boats" value={opBoats.length} color="text-blue-300" />
           <StatBox icon={Users} label="Crew" value={opCrew.length} color="text-purple-300" />
           <StatBox icon={Calendar} label="Today" value={tripsToday} color="text-amber-300" />
-          <StatBox icon={DollarSign} label="Revenue" value={`$${(totalRevenue / 1000).toFixed(0)}k`} color="text-emerald-300" />
+          <StatBox icon={DollarSign} label="Revenue" value={`$${(totalRevenue / 1000).toFixed(0)}k MXN`} color="text-emerald-300" />
         </div>
 
         {/* Booking stats */}
@@ -134,15 +134,15 @@ function OperatorCard({ operator, boats, crew, bookings, expenses, onEdit, onDel
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-white/40">Avg ticket</span>
-              <span className="text-white/60 font-medium">{avgRevenue > 0 ? `$${(avgRevenue/1000).toFixed(1)}k` : '—'}</span>
+              <span className="text-white/60 font-medium">{avgRevenue > 0 ? `$${(avgRevenue/1000).toFixed(1)}k MXN` : '—'}</span>
             </div>
             <div className="flex justify-between text-xs col-span-2 pt-1 border-t border-white/8">
               <span className="text-white/40">FILU Fee ({commissionPct}% of revenue)</span>
-              <span className="text-orange-300 font-medium">-${(commission/1000).toFixed(1)}k</span>
+              <span className="text-orange-300 font-medium">-${(commission/1000).toFixed(1)}k MXN</span>
             </div>
             <div className="flex justify-between text-xs col-span-2">
               <span className="text-white/60 font-semibold">Earnings (net)</span>
-              <span className={`font-bold ${earnings >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>${(earnings/1000).toFixed(1)}k</span>
+              <span className={`font-bold ${earnings >= 0 ? 'text-emerald-300' : 'text-red-300'}`}>${(earnings/1000).toFixed(1)}k MXN</span>
             </div>
           </div>
         </div>
@@ -259,8 +259,33 @@ export default function OperatorsDashboard() {
   const { data: dbLocations = [] } = useQuery({ queryKey: ['locations'], queryFn: () => base44.entities.Location.list('sort_order') });
   const { data: boats = [] } = useQuery({ queryKey: ['all-boats'], queryFn: () => base44.entities.BoatInventory.list() });
   const { data: crew = [] } = useQuery({ queryKey: ['app-users'], queryFn: () => base44.entities.AppUser.list() });
-  const { data: bookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
+  const { data: rawBookings = [] } = useQuery({ queryKey: ['admin-bookings'], queryFn: () => base44.entities.Booking.list('-created_date') });
   const { data: expenses = [] } = useQuery({ queryKey: ['booking-expenses'], queryFn: () => base44.entities.BookingExpense.list() });
+
+  const EXCHANGE_RATE = 20;
+
+  const bookings = React.useMemo(() => {
+    return rawBookings.map(b => {
+      const boat = boats.find(ab => ab.name === b.boat_name);
+      const isUSD = b.currency === 'USD' || boat?.currency === 'USD';
+      
+      if (isUSD && !b.is_converted_to_mxn) {
+        const rate = b.exchange_rate || EXCHANGE_RATE;
+        return {
+          ...b,
+          original_currency: 'USD',
+          original_total_price: b.total_price,
+          original_deposit_paid: b.deposit_paid,
+          total_price: (b.total_price || 0) * rate,
+          deposit_paid: (b.deposit_paid || 0) * rate,
+          currency: 'MXN',
+          is_converted_to_mxn: true,
+          applied_exchange_rate: rate
+        };
+      }
+      return { ...b, currency: 'MXN', is_converted_to_mxn: true };
+    });
+  }, [rawBookings, boats]);
 
   // Sync paypal_username to all boats belonging to this operator
   const syncPaypalToBoats = async (opName, paypalUsername) => {
