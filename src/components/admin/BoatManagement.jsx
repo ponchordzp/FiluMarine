@@ -218,6 +218,23 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     queryFn: () => base44.entities.BoatInventory.list('sort_order')
   });
 
+  const { data: dbExpeditions = [] } = useQuery({
+    queryKey: ['expeditions'],
+    queryFn: () => base44.entities.Expedition.list('sort_order'),
+  });
+
+  const getExpDetails = (expId) => {
+    return dbExpeditions.find(e => e.expedition_id === expId) || { title: expId.replace(/_/g, ' '), duration: '0 hours' };
+  };
+
+  const getSortedExpeditions = (expIds) => {
+    return [...(expIds || [])].sort((a, b) => {
+      const durA = parseFloat(getExpDetails(a).duration) || 0;
+      const durB = parseFloat(getExpDetails(b).duration) || 0;
+      return durA - durB;
+    });
+  };
+
   const { data: dbLocations = [] } = useQuery({
     queryKey: ['locations-all'],
     queryFn: () => base44.entities.Location.list('sort_order'),
@@ -1013,11 +1030,12 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                       </h4>
                       <p className="text-xs text-slate-500 mb-4">Set the additional fee charged for each guest above the boat's "Included Guests" count (set in General Information).</p>
                       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {formData.available_expeditions.map(expType => {
+                        {getSortedExpeditions(formData.available_expeditions).map(expType => {
                           const price = formData.expedition_pricing.find(p => p.expedition_type === expType)?.price_per_extra_guest || 0;
+                          const expDetails = getExpDetails(expType);
                           return (
                             <div key={expType} className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-                              <Label className="text-xs font-semibold text-slate-700 capitalize">{expType.replace(/_/g, ' ')}</Label>
+                              <Label className="text-xs font-semibold text-slate-700">{expDetails.title} ({expDetails.duration})</Label>
                               <div className="mt-2 flex items-center gap-2">
                                 <span className="text-xs font-bold text-slate-400">{formData.currency || 'MXN'}</span>
                                 <Input 
@@ -1726,9 +1744,9 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div>
                       <p className="text-xs text-slate-500 mb-1">Available Expeditions</p>
                       <div className="flex flex-wrap gap-1">
-                        {boat.available_expeditions.map((exp) => (
+                        {getSortedExpeditions(boat.available_expeditions).map((exp) => (
                           <span key={exp} className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
-                            {exp.replace(/_/g, ' ')}
+                            {getExpDetails(exp).title}
                           </span>
                         ))}
                       </div>
@@ -1803,7 +1821,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <div className="mb-4">
                   <h4 className="text-xs font-semibold text-slate-700 mb-2">Available Expeditions</h4>
                   <div className="flex flex-wrap gap-1">
-                    {boat.available_expeditions.map((exp) => <span key={exp} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">{exp.replace(/_/g, ' ')}</span>)}
+                    {getSortedExpeditions(boat.available_expeditions).map((exp) => <span key={exp} className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded">{getExpDetails(exp).title}</span>)}
                   </div>
                 </div>
                 }
