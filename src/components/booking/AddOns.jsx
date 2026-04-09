@@ -34,10 +34,16 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
   const addOnOptions = expPricing?.extras || [];
   const currency = selectedBoat?.currency || 'MXN';
 
-  const isScubaExtra = (id) => id && id.toLowerCase().includes('scubamaster');
+  const isScubaExtra = (name) => name && name.toLowerCase().includes('scuba');
+
+  const getExtraName = (id) => {
+    const extra = addOnOptions.find(e => e.extra_id === id);
+    return extra?.extra_name || extra?.name || '';
+  };
 
   const toggleAddOn = (id) => {
-    if (isScubaExtra(id)) {
+    const extraName = getExtraName(id);
+    if (isScubaExtra(extraName)) {
       if (selectedAddOns.includes(id)) {
         setSelectedAddOns(prev => prev.filter(a => a !== id));
       } else {
@@ -66,7 +72,8 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
   const totalAddOns = selectedAddOns.reduce((sum, id) => {
     const extra = addOnOptions.find(e => e.extra_id === id);
     let price = extra?.price || 0;
-    if (isScubaExtra(id)) {
+    const name = extra?.extra_name || extra?.name || '';
+    if (isScubaExtra(name)) {
       price += 200 * scubaDiversCount;
     }
     return sum + price;
@@ -99,7 +106,8 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                 const isSelected = selectedAddOns.includes(extra.extra_id);
                 const fullExtra = extras.find(e => e.id === extra.extra_id || e.name === extra.extra_name || e.name === extra.name);
                 const imageUrl = fullExtra?.image;
-                const isScuba = isScubaExtra(extra.extra_id);
+                const extraName = extra.extra_name || extra.name || '';
+                const isScuba = isScubaExtra(extraName);
                 const displayedPrice = isScuba && isSelected 
                   ? (extra.price || 0) + (200 * scubaDiversCount)
                   : (extra.price || 0);
@@ -198,13 +206,16 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
           </DialogHeader>
           
           <div className="py-6">
-            <Label htmlFor="scuba-divers" className="text-slate-300 mb-2 block">Number of Certified Divers</Label>
+            <Label htmlFor="scuba-divers" className="text-slate-300 mb-2 block">
+              Number of Certified Divers (Max {bookingData.guests || 1})
+            </Label>
             <Input
               id="scuba-divers"
               type="number"
               min={1}
+              max={bookingData.guests || 1}
               value={scubaDiversCount}
-              onChange={(e) => setScubaDiversCount(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => setScubaDiversCount(Math.max(1, Math.min(bookingData.guests || 1, parseInt(e.target.value) || 1)))}
               className="bg-slate-800 border-slate-600 text-white focus:border-cyan-400"
             />
           </div>

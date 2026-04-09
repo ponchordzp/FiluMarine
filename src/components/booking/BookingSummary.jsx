@@ -20,12 +20,13 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const addOnOptions = expPricing?.extras || [];
   const currency = selectedBoat?.currency || 'MXN';
 
-  const isScubaExtra = (id) => id && id.toLowerCase().includes('scubamaster');
+  const isScubaExtra = (name) => name && name.toLowerCase().includes('scuba');
 
   const getAddOnPrice = (id) => {
     const extra = addOnOptions.find(e => e.extra_id === id);
     let price = extra?.price || 0;
-    if (isScubaExtra(id)) {
+    const name = extra?.extra_name || extra?.name || id;
+    if (isScubaExtra(name)) {
       price += 200 * (bookingData.scuba_divers_count || 1);
     }
     return price;
@@ -34,7 +35,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const getAddOnTitle = (id) => {
     const extra = addOnOptions.find(e => e.extra_id === id);
     let title = extra?.extra_name || extra?.name || id;
-    if (isScubaExtra(id)) {
+    if (isScubaExtra(title)) {
       title += ` (${bookingData.scuba_divers_count || 1} Certified Diver${(bookingData.scuba_divers_count || 1) > 1 ? 's' : ''})`;
     }
     return title;
