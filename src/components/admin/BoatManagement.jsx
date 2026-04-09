@@ -25,6 +25,7 @@ import LowStockMonitor from './LowStockMonitor';
 import BoatExpeditionsPanel from './BoatExpeditionsPanelFixed';
 import VesselCompleteness from './VesselCompleteness';
 import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from './SectionLock';
+import ImportExpeditionsButton from './ImportExpeditionsButton';
 
 const expeditionTypes = [
 'half_day_fishing',
@@ -1571,6 +1572,11 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                   </div>
                   <Badge className={boat.status === 'active' ? 'bg-emerald-100 text-emerald-800' : boat.status === 'maintenance' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'}>{boat.status}</Badge>
                 </div>
+                {!readOnlyMode && (
+                  <div className="mb-2">
+                    <ImportExpeditionsButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} />
+                  </div>
+                )}
                 <div className="mt-2 p-2 bg-slate-50 rounded-lg border">
                   <p className="text-xs text-slate-600 mb-1.5 font-medium">Boat Mode</p>
                   <div className="flex gap-2">
