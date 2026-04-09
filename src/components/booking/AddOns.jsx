@@ -17,6 +17,11 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
+  const { data: extras = [] } = useQuery({
+    queryKey: ['all-extras'],
+    queryFn: () => base44.entities.Extra.list(),
+  });
+
   // Use the per-expedition extras — these have operator-set prices
   const selectedBoat = boats.find(b => b.name === boatName);
   const expPricing = (selectedBoat?.expedition_pricing || []).find(p => p.expedition_type === bookingData.experience_type);
@@ -64,6 +69,9 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
             <div className="space-y-4 mb-10">
               {addOnOptions.map((extra) => {
                 const isSelected = selectedAddOns.includes(extra.extra_id);
+                const fullExtra = extras.find(e => e.id === extra.extra_id || e.name === extra.extra_name || e.name === extra.name);
+                const imageUrl = fullExtra?.image;
+                
                 return (
                   <motion.button
                     key={extra.extra_id}
@@ -75,8 +83,12 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
                         : 'border-white/30 bg-white/10 hover:border-white/40 backdrop-blur-xl'
                     }`}
                   >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-cyan-400' : 'bg-white/20'}`}>
-                      <Sparkles className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
+                    <div className={`w-20 h-12 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden ${isSelected ? 'bg-cyan-400' : 'bg-white/20'}`}>
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={extra.extra_name || extra.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Sparkles className={`h-6 w-6 ${isSelected ? 'text-slate-900' : 'text-white/70'}`} />
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className={`font-semibold ${isSelected ? 'text-cyan-400' : 'text-white'}`}>{extra.extra_name || extra.name}</h3>
