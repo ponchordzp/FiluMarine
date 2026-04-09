@@ -140,7 +140,10 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   // Get booked time slots on a specific date for the selected boat
   const getBookedTimesForDate = (boatName, dateStr) =>
     existingBookings
-      .filter(b => b.date === dateStr && b.boat_name === boatName && b.status !== 'cancelled')
+      .filter(b => {
+        const bDate = b.date ? b.date.split('T')[0] : '';
+        return bDate === dateStr && b.boat_name === boatName && b.status !== 'cancelled';
+      })
       .map(b => b.time_slot);
 
   const availableSlots = getAvailableSlotsForBoat(selectedBoat);
@@ -176,7 +179,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   React.useEffect(() => {
     const fetchBlockedDates = async () => {
       try {
-        const blocked = await base44.entities.BlockedDate.list();
+        const blocked = await base44.entities.BlockedDate.list('', 5000);
         setBlockedDates(blocked); // Keep full objects to access boat_name
       } catch (error) {
         console.error('Error fetching blocked dates:', error);
@@ -188,7 +191,7 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
   React.useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const bookings = await base44.entities.Booking.list();
+        const bookings = await base44.entities.Booking.list('', 5000);
         setExistingBookings(bookings);
       } catch (error) {
         console.error('Error fetching bookings:', error);
@@ -273,7 +276,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
 
                     // Blocked by admin
                     const isBlockedForBoat = blockedDates.some(blocked => {
-                      if (blocked.date !== dateStr) return false;
+                      const bDate = blocked.date ? blocked.date.split('T')[0] : '';
+                      if (bDate !== dateStr) return false;
                       const blockBoatName = blocked.boat_name || 'both';
                       return blockBoatName === 'both' || blockBoatName === currentBoat.name;
                     });
@@ -303,7 +307,8 @@ export default function BookingCalendar({ experience, onBack, onContinue, bookin
                       if (!currentBoat) return false;
 
                       const isBlocked = blockedDates.some(blocked => {
-                        if (blocked.date !== dateStr) return false;
+                        const bDate = blocked.date ? blocked.date.split('T')[0] : '';
+                        if (bDate !== dateStr) return false;
                         const blockBoatName = blocked.boat_name || 'both';
                         return blockBoatName === 'both' || blockBoatName === currentBoat.name;
                       });
