@@ -199,6 +199,11 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
                   <h3 className="text-2xl font-bold text-white mb-1">{boat.name}</h3>
+                  {boat.top_rated && (
+                    <div className="flex items-center gap-1 text-[11px] font-bold text-amber-400 mb-1 drop-shadow-md">
+                      ⭐ ⭐ ⭐ ⭐ ⭐ <span className="ml-1 text-amber-300 uppercase tracking-wider">Top rated boat!</span>
+                    </div>
+                  )}
                   <p className="text-white/80 text-sm">{boat.type} • {boat.size}</p>
                 </div>
               </div>

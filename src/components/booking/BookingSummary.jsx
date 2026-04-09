@@ -45,7 +45,8 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   }, 0);
 
   const taxiFee = bookingData.taxi_fee || 0;
-  const dockFee = bookingData.dock_fee || selectedBoat?.dock_fee || 0;
+  const perPersonDockFee = selectedBoat?.dock_fee || 0;
+  const totalDockFee = perPersonDockFee * (bookingData.guests || 1);
   const basePrice = bookingData.boat_price || experience.price;
   const totalPrice = basePrice + addOnsTotal + taxiFee;
   const deposit = Math.round(totalPrice * 0.4);
@@ -101,7 +102,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
       total_price: totalPrice,
       deposit_paid: deposit,
       currency: currency,
-      dock_fee: dockFee,
+      dock_fee: totalDockFee,
     };
     
     setBookingData(finalData);
@@ -345,10 +346,10 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
               <div className="bg-[#f0f5f9] rounded-lg md:rounded-2xl p-4 md:p-6">
                 <h3 className="font-semibold text-slate-800 mb-2">Remaining Balance (60%)</h3>
                 <p className="text-sm text-slate-500 mb-3">Due on arrival: <span className="font-semibold text-slate-700">${remaining.toLocaleString()} {currency}</span></p>
-                {dockFee > 0 && (
+                {totalDockFee > 0 && (
                   <div className="mb-3 p-3 bg-white border border-slate-200 rounded-lg">
                     <p className="text-sm text-slate-700 font-medium">Additional Dock Fee</p>
-                    <p className="text-sm text-slate-500">A separate dock fee of <span className="font-semibold">${dockFee.toLocaleString()} {currency}</span> must be paid in cash upon arrival.</p>
+                    <p className="text-sm text-slate-500">A separate dock fee of <span className="font-semibold">${totalDockFee.toLocaleString()} {currency}</span> (${perPersonDockFee.toLocaleString()} {currency} per person) must be paid in cash upon arrival.</p>
                   </div>
                 )}
                 <p className="text-sm text-slate-600 mb-3">Payment options available on the day of your trip:</p>

@@ -136,7 +136,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     custom_fields_general: [],
     custom_fields_maintenance: [],
     field_meta: {},
-    sort_order: 0
+    sort_order: 0,
+    top_rated: false
 
   });
   const [imageFile, setImageFile] = useState(null);
@@ -430,7 +431,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       custom_fields_general: [],
       custom_fields_maintenance: [],
       field_meta: {},
-      sort_order: 0
+      sort_order: 0,
+      top_rated: false
     });
     setImageFile(null);
     setImagePreview('');
@@ -489,6 +491,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       maintenance_checklist: boat.maintenance_checklist || {},
       field_meta: boat.field_meta || {},
       sort_order: boat.sort_order || 0,
+      top_rated: boat.top_rated || false,
       equipment: boat.equipment || {
         bathroom: false,
         live_well: false,
@@ -847,7 +850,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
               <div><Label>Currency</Label><Select value={formData.currency || 'MXN'} onValueChange={(v) => setFormData({ ...formData, currency: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="MXN">MXN</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
               <div><Label>Sort Order</Label><Input type="number" value={formData.sort_order || 0} onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })} placeholder="0" className="mt-1" /></div>
-              <div className="md:col-span-2"><Label>Operator</Label><Select value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
+              <div><Label>Top Rated</Label><div className="flex items-center gap-2 mt-3"><input type="checkbox" checked={!!formData.top_rated} onChange={(e) => setFormData({ ...formData, top_rated: e.target.checked })} className="h-4 w-4 rounded border-sky-400 accent-sky-600" /><span className="text-sm text-slate-700">Display as Top Rated</span></div></div>
+              <div><Label>Operator</Label><Select value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
             </div>
             <div><Label>Description</Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} className="mt-1" /></div>
             <div>
@@ -913,9 +917,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><InfoLabel info="Exact dock slip or marina name where the boat is currently moored." example="Marina Paradise Slip 14, Dry Dock 3">Dock Location</InfoLabel><Input disabled={locks['general']} value={formData.dock_location} onChange={(e) => setFormData({ ...formData, dock_location: e.target.value })} placeholder="e.g., Marina Paradise, Dry Dock 3" /></div>
                     <div><InfoLabel info="Current operational status. 'Maintenance' hides the boat from bookings." example="active">Status</InfoLabel><Select disabled={locks['general']} value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
                     <div><InfoLabel info="Currency for this boat's pricing." example="MXN">Currency</InfoLabel><Select disabled={locks['general']} value={formData.currency || 'MXN'} onValueChange={(value) => setFormData({ ...formData, currency: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="MXN">MXN</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
-                    <div><InfoLabel info="Dock fee charged per booking." example="500">Dock Fee</InfoLabel><Input type="number" min="0" disabled={locks['general']} value={formData.dock_fee || ''} onChange={(e) => setFormData({ ...formData, dock_fee: parseFloat(e.target.value) || 0 })} placeholder="e.g., 500" /></div>
+                    <div><InfoLabel info="Dock fee charged per person per booking." example="500">Dock Fee (per person)</InfoLabel><Input type="number" min="0" disabled={locks['general']} value={formData.dock_fee || ''} onChange={(e) => setFormData({ ...formData, dock_fee: parseFloat(e.target.value) || 0 })} placeholder="e.g., 500" /></div>
                     <div><InfoLabel info="Determines the display order of the boat." example="0, 1, 2">Sort Order</InfoLabel><Input type="number" disabled={locks['general']} value={formData.sort_order || 0} onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })} placeholder="e.g., 0" /></div>
-                    <div className="md:col-span-2"><InfoLabel info="The operator this boat belongs to. Used to group boats by fleet." example="FILU, NAUTIKA">Operator</InfoLabel><Select disabled={locks['general']} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
+                    <div><InfoLabel info="Mark this boat as Top Rated." example="Yes">Top Rated</InfoLabel><div className="flex items-center gap-2 mt-3"><input type="checkbox" disabled={locks['general']} checked={!!formData.top_rated} onChange={(e) => setFormData({ ...formData, top_rated: e.target.checked })} className="h-4 w-4 rounded border-sky-400 accent-sky-600" /><span className="text-sm text-slate-700">Display as Top Rated</span></div></div>
+                    <div><InfoLabel info="The operator this boat belongs to. Used to group boats by fleet." example="FILU, NAUTIKA">Operator</InfoLabel><Select disabled={locks['general']} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
                   </div>
                   <div><InfoLabel info="A short marketing description shown to guests on the booking page.">Description</InfoLabel><Textarea disabled={locks['general']} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} /></div>
                   <div>
@@ -1556,7 +1561,12 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                 <div className="flex items-start justify-between mb-1">
                   <div>
                     <h3 className="text-lg font-semibold text-slate-900">{boat.name}</h3>
-                    <p className="text-xs text-slate-600">{boat.type} • {boat.size}</p>
+                    {boat.top_rated && (
+                      <div className="flex items-center gap-1 text-[11px] font-bold text-amber-500 mt-0.5">
+                        ⭐ ⭐ ⭐ ⭐ ⭐ <span className="ml-1 text-amber-600">Top rated boat!</span>
+                      </div>
+                    )}
+                    <p className="text-xs text-slate-600 mt-0.5">{boat.type} • {boat.size}</p>
                     {boat.operator && <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-200 font-medium">{boat.operator}</span>}
                   </div>
                   <Badge className={boat.status === 'active' ? 'bg-emerald-100 text-emerald-800' : boat.status === 'maintenance' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-800'}>{boat.status}</Badge>

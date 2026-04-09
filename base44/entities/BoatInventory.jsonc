@@ -89,7 +89,12 @@
     "dock_fee": {
       "type": "number",
       "default": 0,
-      "description": "Dock fee applied per booking"
+      "description": "Dock fee applied per person per booking"
+    },
+    "top_rated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this boat is top rated"
     },
     "expedition_pricing": {
       "type": "array",
