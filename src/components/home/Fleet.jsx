@@ -111,6 +111,11 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
     queryFn: () => base44.entities.Booking.list(),
   });
 
+  const { data: blockedDates = [] } = useQuery({
+    queryKey: ['blocked-dates-fleet'],
+    queryFn: () => base44.entities.BlockedDate.list(),
+  });
+
   const { data: dbExpeditions = [] } = useQuery({
     queryKey: ['expeditions-fleet'],
     queryFn: () => base44.entities.Expedition.list(),
@@ -157,13 +162,24 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
   const isAvailableTomorrow = (boatName) => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    
+    const year = tomorrow.getFullYear();
+    const month = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const day = String(tomorrow.getDate()).padStart(2, '0');
+    const tomorrowStr = `${year}-${month}-${day}`;
+
     const tomorrowBookings = bookings.filter(b =>
       b.boat_name === boatName &&
       b.date === tomorrowStr &&
       b.status !== 'cancelled'
     );
-    return tomorrowBookings.length === 0;
+
+    const isBlocked = blockedDates.some(b => 
+      b.date === tomorrowStr && 
+      (b.boat_name === boatName || b.boat_name === 'both' || !b.boat_name)
+    );
+
+    return tomorrowBookings.length === 0 && !isBlocked;
   };
 
   return (
