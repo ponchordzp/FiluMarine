@@ -137,9 +137,42 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     maintenance_checklist: {},
     custom_fields_general: [],
     custom_fields_maintenance: [],
-    field_meta: {}
+    field_meta: {},
+    sort_order: 0
+
   });
   const [imageFile, setImageFile] = useState(null);
+  const [dragActive, setDragActive] = useState(false);
+  const [dragActiveAlbum, setDragActiveAlbum] = useState(false);
+
+  const handleDragOver = (e) => { e.preventDefault(); setDragActive(true); };
+  const handleDragLeave = (e) => { e.preventDefault(); setDragActive(false); };
+  const handleDropMain = (e) => {
+    e.preventDefault();
+    setDragActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleDragOverAlbum = (e) => { e.preventDefault(); setDragActiveAlbum(true); };
+  const handleDragLeaveAlbum = (e) => { e.preventDefault(); setDragActiveAlbum(false); };
+  const handleDropAlbum = (e) => {
+    e.preventDefault();
+    setDragActiveAlbum(false);
+    const files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'));
+    const existing = formData.images || [];
+    const slots = 20 - existing.length - additionalImageFiles.length;
+    if (slots <= 0) return;
+    
+    const allowedFiles = files.slice(0, slots).map(f => ({
+      file: f,
+      preview: URL.createObjectURL(f)
+    }));
+    setAdditionalImageFiles(prev => [...prev, ...allowedFiles]);
+  };
   const [imagePreview, setImagePreview] = useState('');
   const [additionalImageFiles, setAdditionalImageFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
@@ -180,7 +213,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
-    queryFn: () => base44.entities.BoatInventory.list('-created_date')
+    queryFn: () => base44.entities.BoatInventory.list('sort_order')
   });
 
   const { data: dbLocations = [] } = useQuery({
@@ -404,7 +437,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       maintenance_checklist: {},
       custom_fields_general: [],
       custom_fields_maintenance: [],
-      field_meta: {}
+      field_meta: {},
+      sort_order: 0
     });
     setImageFile(null);
     setImagePreview('');
@@ -466,6 +500,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       currency: boat.currency || 'MXN',
       maintenance_checklist: boat.maintenance_checklist || {},
       field_meta: boat.field_meta || {},
+      sort_order: boat.sort_order || 0,
       equipment: boat.equipment || {
         bathroom: false,
         live_well: false,
@@ -823,14 +858,21 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               <div><Label>Location *</Label><Select value={formData.location} onValueChange={(v) => setFormData({ ...formData, location: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent>{locationOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select></div>
               <div><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
               <div><Label>Currency</Label><Select value={formData.currency || 'MXN'} onValueChange={(v) => setFormData({ ...formData, currency: v })}><SelectTrigger className="mt-1"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="MXN">MXN</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
+              <div><Label>Sort Order</Label><Input type="number" value={formData.sort_order || 0} onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })} placeholder="0" className="mt-1" /></div>
               <div className="md:col-span-2"><Label>Operator</Label><Select value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger className="mt-1"><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
             </div>
             <div><Label>Description</Label><Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} className="mt-1" /></div>
             <div>
               <Label>Boat Image</Label>
-              <div className="space-y-2 mt-1">
+              <div 
+                className={`space-y-2 mt-1 p-4 border-2 border-dashed rounded-lg transition-colors ${dragActive ? 'border-sky-500 bg-sky-50' : 'border-sky-200'}`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDropMain}
+              >
                 {imagePreview && <div className="relative w-full h-48 rounded-lg overflow-hidden border border-sky-200"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
                 <Input type="file" accept="image/*, .heic, .heif, .jpg, .jpeg, .png, .webp, .gif" onChange={handleImageChange} className="cursor-pointer" />
+                <p className="text-xs text-sky-600 text-center">Drag and drop an image here or click to select</p>
               </div>
             </div>
           </div>
@@ -884,19 +926,31 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <div><InfoLabel info="Current operational status. 'Maintenance' hides the boat from bookings." example="active">Status</InfoLabel><Select disabled={locks['general']} value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="active">Active</SelectItem><SelectItem value="maintenance">Maintenance</SelectItem><SelectItem value="inactive">Inactive</SelectItem></SelectContent></Select></div>
                     <div><InfoLabel info="Currency for this boat's pricing." example="MXN">Currency</InfoLabel><Select disabled={locks['general']} value={formData.currency || 'MXN'} onValueChange={(value) => setFormData({ ...formData, currency: value })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="MXN">MXN</SelectItem><SelectItem value="USD">USD</SelectItem></SelectContent></Select></div>
                     <div><InfoLabel info="Dock fee charged per booking." example="500">Dock Fee</InfoLabel><Input type="number" min="0" disabled={locks['general']} value={formData.dock_fee || ''} onChange={(e) => setFormData({ ...formData, dock_fee: parseFloat(e.target.value) || 0 })} placeholder="e.g., 500" /></div>
+                    <div><InfoLabel info="Determines the display order of the boat." example="0, 1, 2">Sort Order</InfoLabel><Input type="number" disabled={locks['general']} value={formData.sort_order || 0} onChange={(e) => setFormData({ ...formData, sort_order: parseInt(e.target.value) || 0 })} placeholder="e.g., 0" /></div>
                     <div className="md:col-span-2"><InfoLabel info="The operator this boat belongs to. Used to group boats by fleet." example="FILU, NAUTIKA">Operator</InfoLabel><Select disabled={locks['general']} value={formData.operator || ''} onValueChange={(v) => setFormData({ ...formData, operator: v })}><SelectTrigger><SelectValue placeholder="Select operator" /></SelectTrigger><SelectContent>{operatorNames.map(name => <SelectItem key={name} value={name}>{name}</SelectItem>)}</SelectContent></Select></div>
                   </div>
                   <div><InfoLabel info="A short marketing description shown to guests on the booking page.">Description</InfoLabel><Textarea disabled={locks['general']} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} /></div>
                   <div>
                     <InfoLabel info="Main photo of the boat shown to guests. Use a high-quality landscape photo.">Boat Image (Main)</InfoLabel>
-                    <div className="space-y-2 mt-1">
+                    <div 
+                      className={`space-y-2 mt-1 p-4 border-2 border-dashed rounded-lg transition-colors ${dragActive ? 'border-sky-500 bg-sky-50' : 'border-sky-200'}`}
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDropMain}
+                    >
                       {imagePreview && <div className="relative w-full h-48 rounded-lg overflow-hidden border border-sky-200"><img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /></div>}
                       <Input type="file" accept="image/*, .heic, .heif, .jpg, .jpeg, .png, .webp, .gif" onChange={handleImageChange} className="cursor-pointer" />
+                      <p className="text-xs text-sky-600 text-center">Drag and drop an image here or click to select</p>
                     </div>
                   </div>
                   <div>
                     <InfoLabel info="Photo album shown to guests on the fleet page and booking flow. Up to 20 photos total.">Photo Album (up to 20 photos)</InfoLabel>
-                    <div className="space-y-2 mt-1">
+                    <div 
+                      className={`space-y-2 mt-1 p-4 border-2 border-dashed rounded-lg transition-colors ${dragActiveAlbum ? 'border-sky-500 bg-sky-50' : 'border-sky-200'}`}
+                      onDragOver={handleDragOverAlbum}
+                      onDragLeave={handleDragLeaveAlbum}
+                      onDrop={handleDropAlbum}
+                    >
                       {(formData.images || []).length > 0 && (
                         <div className="grid grid-cols-4 gap-2">
                           {(formData.images || []).map((url, idx) => (

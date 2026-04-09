@@ -103,7 +103,7 @@ export default function Fleet({ location = 'ixtapa_zihuatanejo', onSelectBoat })
 
   const { data: boatsFromDB = [] } = useQuery({
     queryKey: ['boats', location],
-    queryFn: () => base44.entities.BoatInventory.list('-created_date'),
+    queryFn: () => base44.entities.BoatInventory.list('sort_order'),
   });
 
   const { data: bookings = [] } = useQuery({

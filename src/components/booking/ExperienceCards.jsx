@@ -132,7 +132,7 @@ function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) 
 export default function ExperienceCards({ onSelectExperience, selectedBoat, location }) {
   const { data: dbBoats = [] } = useQuery({
     queryKey: ['boats-for-exp', location],
-    queryFn: () => base44.entities.BoatInventory.list('-created_date'),
+    queryFn: () => base44.entities.BoatInventory.list('sort_order'),
     enabled: !selectedBoat,
   });
 
