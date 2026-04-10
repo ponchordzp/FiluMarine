@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar, Clock, Users, CreditCard, Check, Shield, Car, Uplo
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { base44 } from '@/api/base44Client';
+import { ALCOHOL_UPGRADES_LIST } from '@/lib/alcoholUpgrades';
 import { useQuery } from '@tanstack/react-query';
 
 export default function BookingSummary({ experience, onBack, onConfirm, bookingData, setBookingData, isSubmitting }) {
@@ -55,6 +56,11 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
     return sum + getAddOnPrice(id);
   }, 0);
 
+  const alcoholTotal = (bookingData.alcohol_upgrades || []).reduce((sum, id) => {
+    const upgrade = (selectedBoat?.alcohol_upgrades || []).find(u => u.id === id);
+    return sum + (upgrade?.price || 0);
+  }, 0);
+
   const taxiFee = bookingData.taxi_fee || 0;
   const perPersonDockFee = selectedBoat?.dock_fee || 0;
   const totalDockFee = perPersonDockFee * (bookingData.guests || 1);
@@ -64,7 +70,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
   const pricePerExtraGuest = expPricing?.price_per_extra_guest || 0;
   const extraGuestsCost = bookingData.guests > includedGuests ? (bookingData.guests - includedGuests) * pricePerExtraGuest : 0;
   
-  const totalPrice = basePrice + addOnsTotal + taxiFee + extraGuestsCost;
+  const totalPrice = basePrice + addOnsTotal + alcoholTotal + taxiFee + extraGuestsCost;
   const deposit = Math.round(totalPrice * 0.4);
   const remaining = totalPrice - deposit;
 
@@ -206,6 +212,22 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                       })}
                     </div>
                   )}
+
+                  {bookingData.alcohol_upgrades?.length > 0 && (
+                    <div className="pt-4 border-t border-slate-100">
+                      <p className="text-sm font-medium text-slate-500 mb-2">Alcohol Upgrades</p>
+                      {bookingData.alcohol_upgrades.map(id => {
+                        const upgrade = (selectedBoat?.alcohol_upgrades || []).find(u => u.id === id);
+                        const title = ALCOHOL_UPGRADES_LIST.find(i => i.id === id)?.name;
+                        return title ? (
+                          <div key={id} className="flex justify-between text-sm">
+                            <span className="text-slate-600">{title}</span>
+                            <span className="text-slate-800">${(upgrade?.price || 0).toLocaleString()} {currency}</span>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -222,6 +244,12 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-600">Add-ons</span>
                       <span className="text-slate-800">${addOnsTotal.toLocaleString()} {currency}</span>
+                    </div>
+                  )}
+                  {alcoholTotal > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600">Alcohol Upgrades</span>
+                      <span className="text-slate-800">${alcoholTotal.toLocaleString()} {currency}</span>
                     </div>
                   )}
                   {taxiFee > 0 && (

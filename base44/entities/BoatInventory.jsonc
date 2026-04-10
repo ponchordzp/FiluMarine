@@ -193,6 +193,23 @@
       },
       "description": "Legacy per-boat extras. Use expedition_pricing.extras instead."
     },
+    "alcohol_upgrades": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "checked": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
     "equipment": {
       "type": "object",
       "properties": {

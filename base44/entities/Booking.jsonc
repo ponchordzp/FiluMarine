@@ -49,6 +49,13 @@
       },
       "description": "Selected add-ons"
     },
+    "alcohol_upgrades": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Selected alcohol upgrade IDs"
+    },
     "scuba_divers_count": {
       "type": "number",
       "default": 0,

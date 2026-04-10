@@ -28,6 +28,8 @@ import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from '
 import ImportExpeditionsButton from './ImportExpeditionsButton';
 import ImportExtraGuestsButton from './ImportExtraGuestsButton';
 import ImportEquipmentButton from './ImportEquipmentButton';
+import AlcoholUpgradesManager from './AlcoholUpgradesManager';
+import { GlassWater } from 'lucide-react';
 
 const expeditionTypes = [
 'half_day_fishing',
@@ -143,9 +145,10 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
     custom_fields_maintenance: [],
     field_meta: {},
     sort_order: 0,
-    top_rated: false
+    top_rated: false,
+    alcohol_upgrades: []
 
-  });
+    });
   const [imageFile, setImageFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const [dragActiveAlbum, setDragActiveAlbum] = useState(false);
@@ -485,7 +488,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       custom_fields_maintenance: [],
       field_meta: {},
       sort_order: 0,
-      top_rated: false
+      top_rated: false,
+      alcohol_upgrades: []
     });
     setImageFile(null);
     setImagePreview('');
@@ -564,7 +568,8 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
       },
       equipment_visibility: boat.equipment_visibility || {},
       custom_equipment: customEquip,
-      custom_equipment_visibility: normalizedCustomVisibility
+      custom_equipment_visibility: normalizedCustomVisibility,
+      alcohol_upgrades: boat.alcohol_upgrades || []
     });
     setImagePreview(boat.image || '');
     // Always merge vault + DB — take whichever has richer expedition data
@@ -1106,6 +1111,28 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
               )}
 
 
+
+              {/* ── SECTION 2.5: Alcohol Upgrades ── */}
+              {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') && (
+                <div className="rounded-xl overflow-hidden border border-indigo-200 mb-4">
+                  <button type="button" onClick={() => toggleSection('alcohol')} className="w-full bg-indigo-600 px-5 py-3 flex items-center gap-2">
+                    <GlassWater className="h-4 w-4 text-white" />
+                    <h3 className="text-sm font-bold text-white tracking-wide uppercase flex-1 text-left">Alcohol Upgrades</h3>
+                    {(() => {const n = (formData.alcohol_upgrades || []).filter(u => u.checked).length; return n > 0 ? <span className="text-xs text-white/80 mr-1">{n} selected</span> : null;})()}
+                    {collapsedSections['alcohol'] ? <ChevronDown className="h-4 w-4 text-white/70" /> : <ChevronUp className="h-4 w-4 text-white/70" />}
+                  </button>
+                  {!collapsedSections['alcohol'] && (
+                    <div className="bg-indigo-50 p-5">
+                      <AlcoholUpgradesManager 
+                        upgrades={formData.alcohol_upgrades || []}
+                        onChange={(val) => setFormData(prev => ({ ...prev, alcohol_upgrades: val }))}
+                        currency={formData.currency || 'MXN'}
+                        disabled={locks['expeditions']}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* ── SECTION 3: Equipment ── teal */}
               {(formData.boat_mode === 'rental_and_maintenance' || formData.boat_mode === 'rental_only') &&

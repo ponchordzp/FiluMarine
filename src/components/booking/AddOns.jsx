@@ -7,10 +7,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { base44 } from '@/api/base44Client';
+import AlcoholUpgradesCustomer from './AlcoholUpgradesCustomer';
 import { useQuery } from '@tanstack/react-query';
 
 export default function AddOns({ experience, onBack, onContinue, bookingData, setBookingData }) {
   const [selectedAddOns, setSelectedAddOns] = useState(bookingData.add_ons || []);
+  const [selectedAlcohol, setSelectedAlcohol] = useState(bookingData.alcohol_upgrades || []);
   const [specialRequests, setSpecialRequests] = useState(bookingData.special_requests || '');
   const [scubaDiversCount, setScubaDiversCount] = useState(bookingData.scuba_divers_count || 1);
   const [scubaDialogOpen, setScubaDialogOpen] = useState(false);
@@ -65,9 +67,14 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
   };
 
   const handleContinue = () => {
-    setBookingData({ ...bookingData, add_ons: selectedAddOns, special_requests: specialRequests, scuba_divers_count: scubaDiversCount });
+    setBookingData({ ...bookingData, add_ons: selectedAddOns, alcohol_upgrades: selectedAlcohol, special_requests: specialRequests, scuba_divers_count: scubaDiversCount });
     onContinue();
   };
+
+  const totalAlcohol = selectedAlcohol.reduce((sum, id) => {
+    const upgrade = (selectedBoat?.alcohol_upgrades || []).find(u => u.id === id);
+    return sum + (upgrade?.price || 0);
+  }, 0);
 
   const totalAddOns = selectedAddOns.reduce((sum, id) => {
     const extra = addOnOptions.find(e => e.extra_id === id);
@@ -98,6 +105,15 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
             </h2>
             <p className="text-white/80 text-base sm:text-xl">Optional extras to make your trip even better</p>
           </div>
+
+          {/* Alcohol Upgrades */}
+          <AlcoholUpgradesCustomer 
+            boat={selectedBoat}
+            selectedItems={selectedAlcohol}
+            onToggleItem={(id) => {
+              setSelectedAlcohol(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+            }}
+          />
 
           {/* Add-ons */}
           {addOnOptions.length > 0 ? (
@@ -178,9 +194,11 @@ export default function AddOns({ experience, onBack, onContinue, bookingData, se
 
           {/* Summary & Continue */}
           <div className="flex flex-col items-center gap-6">
-            {totalAddOns > 0 && (
-              <div className="text-white/90 text-lg">
-                Add-ons total: <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">${totalAddOns.toLocaleString()} {currency}</span>
+            {(totalAddOns > 0 || totalAlcohol > 0) && (
+              <div className="text-white/90 text-lg flex flex-col items-center gap-1">
+                {totalAddOns > 0 && <div>Add-ons total: <span className="font-bold text-cyan-400">${totalAddOns.toLocaleString()} {currency}</span></div>}
+                {totalAlcohol > 0 && <div>Alcohol Upgrades total: <span className="font-bold text-indigo-400">${totalAlcohol.toLocaleString()} {currency}</span></div>}
+                {(totalAddOns > 0 && totalAlcohol > 0) && <div className="font-bold text-xl mt-2 border-t border-white/20 pt-2">Extras Total: <span className="text-white">${(totalAddOns + totalAlcohol).toLocaleString()} {currency}</span></div>}
               </div>
             )}
             <motion.div whileHover={{ scale: 1.02 }}>
