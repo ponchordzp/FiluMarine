@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Pencil, Trash2, Sparkles, Copy } from 'lucide-react';
 import ExtraForm from './ExtraForm';
@@ -32,6 +33,10 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState(emptyForm);
   const [editOpen, setEditOpen] = useState(false);
+
+  const [copyDialogOpen, setCopyDialogOpen] = useState(false);
+  const [extraToCopy, setExtraToCopy] = useState(null);
+  const [selectedCopyOperator, setSelectedCopyOperator] = useState('');
 
   const { data: extras = [] } = useQuery({
     queryKey: ['extras'],
@@ -122,6 +127,43 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     setEditOpen(true);
   };
 
+  const superAdminCopyMutation = useMutation({
+    mutationFn: (data) => {
+      return base44.entities.Extra.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['extras'] });
+      setCopyDialogOpen(false);
+      setSelectedCopyOperator('');
+      setExtraToCopy(null);
+    }
+  });
+
+  const handleSuperAdminCopy = (extra) => {
+    setExtraToCopy(extra);
+    setSelectedCopyOperator('');
+    setCopyDialogOpen(true);
+  };
+
+  const submitSuperAdminCopy = () => {
+    if (!selectedCopyOperator || !extraToCopy) return;
+    
+    const timestamp = Date.now();
+    const random = Math.random().toString(36).substring(2, 9);
+    const tag = `${selectedCopyOperator}_${timestamp}_${random}`;
+
+    superAdminCopyMutation.mutate({
+      name: extraToCopy.name,
+      description: extraToCopy.description || '',
+      image: extraToCopy.image || '',
+      price: extraToCopy.price || 0,
+      operator_tag: tag,
+      visible: true,
+      sort_order: extraToCopy.sort_order || 0,
+      allowed_operators: [selectedCopyOperator]
+    });
+  };
+
   const [isUploading, setIsUploading] = useState(false);
   const handleImageUpload = async (e) => {
     const file = e.target.files?.[0];
@@ -138,7 +180,10 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     }
   };
 
-  const allOperators = loadOperators();
+  const { data: allOperators = [] } = useQuery({
+    queryKey: ['operators'],
+    queryFn: () => base44.entities.CharterOperator.list()
+  });
 
   // Filtering logic: superadmins see all extras; non-superadmins see only their operator's extras
   const filteredExtras = isSuperAdmin
@@ -223,6 +268,11 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
             <div className="flex flex-col gap-2 ml-4 flex-shrink-0">
               {canEdit ? (
                 <>
+                  {isSuperAdmin && (
+                    <Button variant="outline" size="sm" className="h-8 text-xs text-indigo-400 bg-indigo-400/10 border-indigo-400/30 hover:bg-indigo-400/20 px-2" onClick={() => handleSuperAdminCopy(extra)} title="Create copy for operator">
+                      <Copy className="h-3 w-3 mr-1" /> Copy for Operator
+                    </Button>
+                  )}
                   <Button size="sm" variant="ghost" className="text-white/40 hover:text-white bg-white/5 h-8 w-8 p-0" onClick={() => openEdit(extra)}>
                     <Pencil className="h-4 w-4" />
                   </Button>
@@ -314,6 +364,39 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Super Admin Copy Dialog */}
+      <Dialog open={copyDialogOpen} onOpenChange={setCopyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Operator Copy</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <p className="text-sm text-slate-600">
+              Create a unique copy of <strong>{extraToCopy?.name}</strong> for a specific operator. They will be able to customize their own version without affecting others.
+            </p>
+            <div>
+              <Label>Select Operator</Label>
+              <Select value={selectedCopyOperator} onValueChange={setSelectedCopyOperator}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select an operator..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {allOperators.map(op => (
+                    <SelectItem key={op.name} value={op.name}>{op.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setCopyDialogOpen(false)}>Cancel</Button>
+              <Button onClick={submitSuperAdminCopy} disabled={!selectedCopyOperator || superAdminCopyMutation.isPending}>
+                Create Copy
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
