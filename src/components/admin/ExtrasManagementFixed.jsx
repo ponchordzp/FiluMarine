@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Sparkles, Copy } from 'lucide-react';
 import ExtraForm from './ExtraForm';
 
@@ -226,74 +227,45 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                <span className="font-semibold text-white">{extra.name}</span>
-                {!extra.visible && <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/40">Hidden</span>}
-                {isGlobal && !isSuperAdmin && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                    Global Template
-                  </span>
-                )}
-                {isGlobal && isSuperAdmin && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                    Global Template
-                  </span>
-                )}
-                {isOwner && !isSuperAdmin && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                    Your Copy
-                  </span>
-                )}
-                {!isGlobal && isSuperAdmin && extra.allowed_operators?.length > 0 && (
-                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                    {extra.allowed_operators[0]}
-                  </span>
-                )}
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-semibold text-white truncate">{extra.name}</h4>
+                  {isSuperAdmin && !isGlobal && extra.allowed_operators?.length > 0 && <Badge className="text-xs bg-indigo-100 text-indigo-700 mt-1 mr-1">{extra.allowed_operators[0]}</Badge>}
+                  {isSuperAdmin && isGlobal && <Badge className="text-xs bg-emerald-100 text-emerald-700 mt-1 mr-1">Global</Badge>}
+                  {isOwner && !isSuperAdmin && <Badge className="text-xs bg-blue-100 text-blue-600 mt-1">Your copy</Badge>}
+                  {!extra.visible && <Badge className="text-xs bg-slate-100 text-slate-600 mt-1">Hidden</Badge>}
+                </div>
               </div>
-              <div className="flex items-center gap-2 mb-2 flex-wrap">
-                <span className="text-xs text-white/40 font-mono bg-white/5 px-2 py-1 rounded border border-white/10">
-                  ID: {extra.operator_tag || extra.id}
-                </span>
-                {!extra.operator_tag && canEdit && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-6 text-xs text-cyan-400 border-cyan-400/30 hover:bg-cyan-400/10"
-                    onClick={() => generateTagMutation.mutate(extra.id)}
-                    disabled={generateTagMutation.isPending}
-                  >
-                    {generateTagMutation.isPending ? 'Generating...' : 'Generate Tag'}
-                  </Button>
-                )}
-              </div>
+              
               {extra.description && <p className="text-sm text-white/50 mt-1">{extra.description}</p>}
-            </div>
-            <div className="flex flex-col gap-2 ml-4 flex-shrink-0">
-              {canEdit && (
-                <>
-                  {isSuperAdmin && (
-                    <Button size="sm" variant="ghost" className="text-indigo-400/80 hover:text-indigo-400 bg-white/5 h-8 w-8 p-0" title="Create operator copy" onClick={() => handleSuperAdminCopy(extra)}>
-                      <Copy className="h-4 w-4" />
+              
+              <div className="flex gap-2 pt-2 mt-2 border-t border-white/5">
+                {canEdit && (
+                  <>
+                    {isSuperAdmin && (
+                      <Button variant="outline" size="sm" onClick={() => handleSuperAdminCopy(extra)} className="h-8 px-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border-indigo-200" title="Create copy for operator">
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" onClick={() => openEdit(extra)} className="flex-1 h-8 text-xs bg-white/5 text-white/70 hover:text-white border-white/10 hover:bg-white/10">
+                      <Pencil className="h-3 w-3 mr-1" /> Edit
                     </Button>
-                  )}
-                  <Button size="sm" variant="ghost" className="text-white/40 hover:text-white bg-white/5 h-8 w-8 p-0" onClick={() => openEdit(extra)}>
-                    <Pencil className="h-4 w-4" />
+                    <Button variant="destructive" size="sm" className="h-8 px-2"
+                      onClick={() => { if (window.confirm(`Delete "${extra.name}"?`)) deleteMutation.mutate(extra.id); }}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+                  </>
+                )}
+                {!canEdit && (
+                  <Button size="sm" variant="outline" className="h-8 text-xs text-cyan-400 border-cyan-400/30 hover:bg-cyan-400/10 px-2"
+                    onClick={() => { if (window.confirm(`Create your own editable copy of "${extra.name}"?`)) createCopyMutation.mutate(extra); }}
+                    disabled={createCopyMutation.isPending}
+                  >
+                    <Copy className="h-3 w-3 mr-1" />
+                    Your Copy
                   </Button>
-                  <Button size="sm" variant="ghost" className="text-red-400/50 hover:text-red-400 bg-white/5 h-8 w-8 p-0"
-                    onClick={() => { if (window.confirm(`Delete "${extra.name}"?`)) deleteMutation.mutate(extra.id); }}>
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
-              {!canEdit && (
-                <Button size="sm" variant="outline" className="h-8 text-xs text-cyan-400 border-cyan-400/30 hover:bg-cyan-400/10 px-2"
-                  onClick={() => { if (window.confirm(`Create your own editable copy of "${extra.name}"?`)) createCopyMutation.mutate(extra); }}
-                  disabled={createCopyMutation.isPending}
-                >
-                  <Copy className="h-3 w-3 mr-1" />
-                  Your Copy
-                </Button>
-              )}
+                )}
+              </div>
             </div>
           </div>
         )})}
