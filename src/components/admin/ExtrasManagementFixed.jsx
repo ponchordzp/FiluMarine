@@ -25,9 +25,16 @@ const emptyForm = {
   image: '',
 };
 
-export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 'all' }) {
+export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 'all', operatorFilter = 'all' }) {
   const { user: currentUser } = useAuth();
-  const isSuperAdmin = currentUser?.role === 'superadmin';
+  const isRealSuperAdmin = currentUser?.role === 'superadmin';
+  
+  // Treat as SuperAdmin only if they are a real super admin AND haven't filtered to a specific operator
+  const isSuperAdminMode = isRealSuperAdmin && operatorFilter === 'all';
+  // If they are filtering, impersonate that operator
+  const currentOperator = !isSuperAdminMode && isRealSuperAdmin ? operatorFilter : (currentUser?.operator || 'FILU');
+  
+  const isSuperAdmin = isSuperAdminMode;
 
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState(null);
@@ -54,7 +61,7 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
   const allOperators = loadOperators();
 
   const isChartOperator = currentUser?.role === 'charter_operator';
-  const isUserRestricted = currentUser && !isSuperAdmin && currentUser.operator;
+  const isUserRestricted = currentUser && !isRealSuperAdmin && currentUser.operator;
   const userOperatorLocation = isUserRestricted ? (() => {
     const userBoats = boats.filter(b => (b.operator || '').toLowerCase() === (currentUser.operator || '').toLowerCase());
     if (userBoats.length > 0) {
@@ -184,7 +191,7 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
   const filteredExtras = isSuperAdmin
     ? extras
     : extras.filter(extra => {
-        const userOp = currentUser?.operator || 'FILU';
+        const userOp = currentOperator || 'FILU';
         const allowed = extra.allowed_operators || [];
         return allowed.length === 0 || allowed.some(o => o.toLowerCase() === userOp.toLowerCase());
       });
@@ -213,7 +220,7 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
           </div>
         ) : filteredExtras.map(extra => {
           const isGlobal = !extra.allowed_operators || extra.allowed_operators.length === 0;
-          const userOp = currentUser?.operator || 'FILU';
+          const userOp = currentOperator || 'FILU';
           const isOwner = !isGlobal && extra.allowed_operators.some(o => o.toLowerCase() === userOp.toLowerCase());
           const canEdit = isSuperAdmin || isOwner;
 
@@ -230,10 +237,12 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-white truncate">{extra.name}</h4>
-                  {isSuperAdmin && !isGlobal && extra.allowed_operators?.length > 0 && <Badge className="text-xs bg-indigo-100 text-indigo-700 mt-1 mr-1">{extra.allowed_operators[0]}</Badge>}
-                  {isSuperAdmin && isGlobal && <Badge className="text-xs bg-emerald-100 text-emerald-700 mt-1 mr-1">Global</Badge>}
-                  {isOwner && !isSuperAdmin && <Badge className="text-xs bg-blue-100 text-blue-600 mt-1">Your copy</Badge>}
-                  {!extra.visible && <Badge className="text-xs bg-slate-100 text-slate-600 mt-1">Hidden</Badge>}
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {isSuperAdmin && !isGlobal && extra.allowed_operators?.length > 0 && <Badge className="text-[10px] bg-indigo-500/20 text-indigo-300 border-indigo-500/30 px-2 py-0.5 font-medium">{extra.allowed_operators[0]}</Badge>}
+                    {isSuperAdmin && isGlobal && <Badge className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-0.5 font-medium">Global</Badge>}
+                    {isOwner && !isSuperAdmin && <Badge className="text-[10px] bg-blue-500/20 text-blue-300 border-blue-500/30 px-2 py-0.5 font-medium">Your copy</Badge>}
+                    {!extra.visible && <Badge className="text-[10px] bg-white/10 text-white/40 border-white/20 px-2 py-0.5 font-medium">Hidden</Badge>}
+                  </div>
                 </div>
               </div>
               
@@ -243,8 +252,8 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
                 {canEdit && (
                   <>
                     {isSuperAdmin && (
-                      <Button variant="outline" size="sm" onClick={() => handleSuperAdminCopy(extra)} className="h-8 px-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 border-indigo-200" title="Create copy for operator">
-                        <Copy className="h-4 w-4" />
+                      <Button variant="outline" size="sm" onClick={() => handleSuperAdminCopy(extra)} className="h-8 px-2 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/30" title="Create copy for operator">
+                        <Copy className="h-3 w-3 mr-1" /> Copy for Operator
                       </Button>
                     )}
                     <Button variant="outline" size="sm" onClick={() => openEdit(extra)} className="flex-1 h-8 text-xs bg-white/5 text-white/70 hover:text-white border-white/10 hover:bg-white/10">
