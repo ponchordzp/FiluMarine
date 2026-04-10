@@ -136,7 +136,7 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
 
   const handleSuperAdminCopy = (extra) => {
     setExtraToCopy(extra);
-    setSelectedCopyOperator('');
+    setSelectedCopyOperator(operatorFilter && operatorFilter !== 'all' ? operatorFilter : '');
     setCopyDialogOpen(true);
   };
 
@@ -249,8 +249,8 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
                 {canEdit && (
                   <>
                     {isRealSuperAdmin && (
-                      <Button variant="outline" size="sm" onClick={() => handleSuperAdminCopy(extra)} className="h-8 px-2 text-indigo-400 bg-indigo-400/10 border-indigo-400/30 hover:bg-indigo-400/20" title="Create copy for operator">
-                        <Copy className="h-4 w-4" />
+                      <Button variant="outline" size="sm" onClick={() => handleSuperAdminCopy(extra)} className="h-8 text-xs text-indigo-400 bg-indigo-400/10 border-indigo-400/30 hover:bg-indigo-400/20 px-2" title="Create copy for operator">
+                        <Copy className="h-3 w-3 mr-1" /> Create Operator Copy
                       </Button>
                     )}
                     <Button variant="outline" size="sm" onClick={() => openEdit(extra)} className="flex-1 h-8 text-xs bg-white/5 text-white/70 hover:text-white border-white/10 hover:bg-white/10">
