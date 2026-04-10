@@ -252,6 +252,8 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-slate-800 truncate">{exp.title}</h4>
                   {isSuperAdmin && <p className="text-xs text-slate-400 font-mono mt-0.5">{exp.expedition_id}</p>}
+                  {isSuperAdmin && exp.operator && <Badge className="text-xs bg-indigo-100 text-indigo-700 mt-1 mr-1">{exp.operator}</Badge>}
+                  {isSuperAdmin && !exp.operator && <Badge className="text-xs bg-emerald-100 text-emerald-700 mt-1 mr-1">Global</Badge>}
                   {isOwned(exp) && !isSuperAdmin && <Badge className="text-xs bg-blue-100 text-blue-600 mt-1">Your copy</Badge>}
                   {isHiddenForCurrentOperator(exp) && <Badge className="text-xs bg-slate-100 text-slate-600 mt-1">Hidden</Badge>}
                 </div>
