@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 import LocationSelector from '@/components/booking/LocationSelector';
 import Hero from '@/components/booking/Hero';
 import IntroSection from '@/components/home/IntroSection';
-import ExperienceCards from '@/components/booking/ExperienceCards';
+import ExperienceCardsFixed from '@/components/booking/ExperienceCardsFixed';
 import CustomerJourney from '@/components/home/CustomerJourney';
 import Fleet from '@/components/home/Fleet';
 import JoinFilu from '@/components/home/JoinFilu';
@@ -317,7 +317,7 @@ export default function Home() {
         <CustomerJourney />
         <Fleet location={selectedLocation} onSelectBoat={handleSelectBoat} />
         <div ref={experiencesRef}>
-          <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={null} location={selectedLocation} />
+          <ExperienceCardsFixed onSelectExperience={handleSelectExperience} selectedBoat={null} location={selectedLocation} />
         </div>
         <JoinFilu />
         
@@ -444,7 +444,7 @@ export default function Home() {
               </div>
             </motion.div>
             <SelectedBoatInfo boat={selectedBoat} />
-            <ExperienceCards onSelectExperience={handleSelectExperience} selectedBoat={selectedBoat} location={selectedLocation} />
+            <ExperienceCardsFixed onSelectExperience={handleSelectExperience} selectedBoat={selectedBoat} location={selectedLocation} />
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

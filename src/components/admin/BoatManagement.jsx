@@ -217,7 +217,27 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
 
   const { data: boats = [] } = useQuery({
     queryKey: ['boats'],
-    queryFn: () => base44.entities.BoatInventory.list('sort_order')
+    queryFn: async () => {
+      const bList = await base44.entities.BoatInventory.list('sort_order');
+      const eList = await base44.entities.Expedition.list();
+      const validExpIds = eList.map(e => e.expedition_id);
+      
+      // Auto-cleanup deleted expeditions to prevent them from showing up
+      const promises = [];
+      bList.forEach(b => {
+        if (b.available_expeditions) {
+          const valid = b.available_expeditions.filter(id => validExpIds.includes(id));
+          if (valid.length !== b.available_expeditions.length) {
+            promises.push(base44.entities.BoatInventory.update(b.id, { ...b, available_expeditions: valid }));
+          }
+        }
+      });
+      if (promises.length > 0) {
+        await Promise.all(promises);
+        return base44.entities.BoatInventory.list('sort_order');
+      }
+      return bList;
+    }
   });
 
   const { data: dbExpeditions = [] } = useQuery({
@@ -1041,11 +1061,13 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                       <p className="text-xs text-slate-500 mb-4">Set the additional fee charged for each guest above the boat's "Included Guests" count (set in General Information).</p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                         {getSortedExpeditions(formData.available_expeditions, formData.expedition_pricing).map(expType => {
-                          const price = formData.expedition_pricing.find(p => p.expedition_type === expType)?.price_per_extra_guest || 0;
+                          const customPricing = formData.expedition_pricing.find(p => p.expedition_type === expType);
+                          const price = customPricing?.price_per_extra_guest || 0;
                           const expDetails = getExpDetails(expType);
+                          const displayDuration = customPricing?.duration_hours ? `${customPricing.duration_hours} hours` : expDetails.duration;
                           return (
                             <div key={expType} className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-                              <Label className="text-xs font-semibold text-slate-700">{expDetails.title} ({expDetails.duration})</Label>
+                              <Label className="text-xs font-semibold text-slate-700">{expDetails.title} ({displayDuration})</Label>
                               <div className="mt-2 flex items-center gap-2">
                                 <span className="text-xs font-bold text-slate-400">{formData.currency || 'MXN'}</span>
                                 <Input 
