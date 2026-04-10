@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Sparkles, Copy } from 'lucide-react';
 import ExtraForm from './ExtraForm';
 
@@ -25,9 +26,12 @@ const emptyForm = {
   image: '',
 };
 
-export default function ExtrasManagement({ allBoats = [], locationFilter = 'all' }) {
+export default function ExtrasManagement({ allBoats = [], locationFilter = 'all', operatorFilter = 'all' }) {
   const { user: currentUser } = useAuth();
-  const isSuperAdmin = currentUser?.role === 'superadmin';
+  const isRealSuperAdmin = currentUser?.role === 'superadmin';
+  const isSuperAdminMode = isRealSuperAdmin && operatorFilter === 'all';
+  const currentOperator = !isSuperAdminMode && isRealSuperAdmin ? operatorFilter : (currentUser?.operator || 'FILU');
+  const isSuperAdmin = isSuperAdminMode;
 
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState(null);
@@ -104,13 +108,16 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
       const random = Math.random().toString(36).substring(2, 9);
       const tag = `${userOp}_${timestamp}_${random}`;
       
+      const newExtra = { ...extra };
+      delete newExtra.id;
+      delete newExtra.created_date;
+      delete newExtra.updated_date;
+      delete newExtra.created_by;
+      
       return base44.entities.Extra.create({
-        name: extra.name,
-        description: extra.description || '',
-        image: extra.image || '',
+        ...newExtra,
         operator_tag: tag,
         visible: true,
-        sort_order: extra.sort_order || 0,
         allowed_operators: [userOp]
       });
     },
@@ -141,7 +148,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
 
   const handleSuperAdminCopy = (extra) => {
     setExtraToCopy(extra);
-    setSelectedCopyOperator('');
+    setSelectedCopyOperator(operatorFilter && operatorFilter !== 'all' ? operatorFilter : '');
     setCopyDialogOpen(true);
   };
 
@@ -152,14 +159,16 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
     const random = Math.random().toString(36).substring(2, 9);
     const tag = `${selectedCopyOperator}_${timestamp}_${random}`;
 
+    const newExtra = { ...extraToCopy };
+    delete newExtra.id;
+    delete newExtra.created_date;
+    delete newExtra.updated_date;
+    delete newExtra.created_by;
+
     superAdminCopyMutation.mutate({
-      name: extraToCopy.name,
-      description: extraToCopy.description || '',
-      image: extraToCopy.image || '',
-      price: extraToCopy.price || 0,
+      ...newExtra,
       operator_tag: tag,
       visible: true,
-      sort_order: extraToCopy.sort_order || 0,
       allowed_operators: [selectedCopyOperator]
     });
   };
@@ -219,9 +228,9 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
           </div>
         ) : filteredExtras.map(extra => {
           const isGlobal = !extra.allowed_operators || extra.allowed_operators.length === 0;
-          const userOp = currentUser?.operator || 'FILU';
+          const userOp = currentOperator || 'FILU';
           const isOwner = !isGlobal && extra.allowed_operators.some(o => o.toLowerCase() === userOp.toLowerCase());
-          const canEdit = (currentUser?.role === 'superadmin') || isOwner;
+          const canEdit = isRealSuperAdmin || isOwner;
 
           return (
           <div key={extra.id} className="flex items-start gap-4 p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -236,15 +245,21 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 <span className="font-semibold text-white">{extra.name}</span>
                 {!extra.visible && <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/40">Hidden</span>}
-                {isGlobal && !isSuperAdmin && (
+                {isGlobal && !isRealSuperAdmin && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
                     Global Template
                   </span>
                 )}
-                {isOwner && !isSuperAdmin && (
+                {isOwner && !isRealSuperAdmin && (
                   <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
                     Your Copy
                   </span>
+                )}
+                {isRealSuperAdmin && !isGlobal && extra.allowed_operators?.length > 0 && (
+                  <Badge className="text-[10px] bg-indigo-500/20 text-indigo-300 border-indigo-500/30 px-2 py-0.5 font-medium">{extra.allowed_operators[0]}</Badge>
+                )}
+                {isRealSuperAdmin && isGlobal && (
+                  <Badge className="text-[10px] bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-2 py-0.5 font-medium">Global</Badge>
                 )}
               </div>
               <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -268,7 +283,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
             <div className="flex flex-col gap-2 ml-4 flex-shrink-0">
             {canEdit ? (
               <>
-                {(currentUser?.role === 'superadmin') && (
+                {isRealSuperAdmin && (
                   <Button variant="outline" size="sm" className="h-8 text-xs text-indigo-400 bg-indigo-400/10 border-indigo-400/30 hover:bg-indigo-400/20 px-2" onClick={() => handleSuperAdminCopy(extra)} title="Create copy for operator">
                     <Copy className="h-3 w-3 mr-1" /> Create Operator Copy
                   </Button>

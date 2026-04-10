@@ -31,7 +31,7 @@ import TabNavGroups from '@/components/admin/TabNavGroups';
 import CustomersPanel from '@/components/admin/CustomersPanel';
 import AdminBookingCard from '@/components/admin/AdminBookingCard';
 import PickupLocationsManagement from '@/components/admin/PickupLocationsManagement';
-import ExtrasManagementFixed from '@/components/admin/ExtrasManagementFixed';
+import ExtrasManagement from '@/components/admin/ExtrasManagement';
 import EngineDatabases from '@/components/admin/EngineDatabases';
 import JoinFiluApplications from '@/components/admin/JoinFiluApplications';
 import AffiliatesManagement from '@/components/admin/AffiliatesManagement';
@@ -1436,7 +1436,7 @@ function AdminBookingsInner() {
           {(isSuperAdmin || isOperatorAdmin || currentUser?.role === 'charter_operator') &&
           <TabsContent value="extras">
               <div className="rounded-2xl p-6" style={{ background: 'rgba(20,184,166,0.08)', border: '1px solid rgba(20,184,166,0.2)', backdropFilter: 'blur(16px)' }}>
-                <ExtrasManagementFixed allBoats={allBoats} locationFilter={globalLocationFilter} operatorFilter={isOperatorAdmin ? currentUserOperator : currentUser?.role === 'charter_operator' ? currentUserOperator : globalOperatorFilter} />
+                <ExtrasManagement allBoats={allBoats} locationFilter={globalLocationFilter} operatorFilter={isOperatorAdmin ? currentUserOperator : currentUser?.role === 'charter_operator' ? currentUserOperator : globalOperatorFilter} />
               </div>
             </TabsContent>
           }
