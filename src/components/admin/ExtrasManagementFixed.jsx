@@ -13,12 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Sparkles, Copy } from 'lucide-react';
 import ExtraForm from './ExtraForm';
 
-const OPERATOR_STORAGE_KEY = 'filu_operators';
-function loadOperators() {
-  try { const raw = localStorage.getItem(OPERATOR_STORAGE_KEY); if (raw) return JSON.parse(raw); } catch {}
-  return [{ id: 'filu', name: 'FILU', color: '#1e88e5' }];
-}
-
 const emptyForm = {
   name: '',
   description: '',
@@ -58,7 +52,10 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
     queryFn: () => base44.entities.BoatInventory.list(),
   });
 
-  const allOperators = loadOperators();
+  const { data: allOperators = [] } = useQuery({
+    queryKey: ['operators'],
+    queryFn: () => base44.entities.CharterOperator.list()
+  });
 
   const isChartOperator = currentUser?.role === 'charter_operator';
   const isUserRestricted = currentUser && !isRealSuperAdmin && currentUser.operator;
@@ -252,8 +249,8 @@ export default function ExtrasManagementFixed({ allBoats = [], locationFilter = 
                 {canEdit && (
                   <>
                     {isSuperAdmin && (
-                      <Button variant="outline" size="sm" onClick={() => handleSuperAdminCopy(extra)} className="h-8 px-2 text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border-indigo-500/30" title="Create copy for operator">
-                        <Copy className="h-3 w-3 mr-1" /> Copy for Operator
+                      <Button variant="outline" size="sm" onClick={() => handleSuperAdminCopy(extra)} className="h-8 px-2 text-indigo-600 hover:bg-indigo-50 border-indigo-200" title="Create copy for operator">
+                        <Copy className="h-4 w-4" />
                       </Button>
                     )}
                     <Button variant="outline" size="sm" onClick={() => openEdit(extra)} className="flex-1 h-8 text-xs bg-white/5 text-white/70 hover:text-white border-white/10 hover:bg-white/10">
