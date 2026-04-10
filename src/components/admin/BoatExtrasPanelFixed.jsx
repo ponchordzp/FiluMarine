@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
+import InlineExtraForm from './InlineExtraForm';
 
 // boat = boat record (for card mode), inline = true means controlled via formData/onChange (no direct DB save)
 export default function BoatExtrasPanelFixed({ boat, inline = false, formData, onChange, disabled = false }) {
@@ -125,7 +126,7 @@ export default function BoatExtrasPanelFixed({ boat, inline = false, formData, o
           </button>
         </div>
       ))}
-      {availableExtras.length > 0 && !disabled && (
+      {!disabled && (
         <div className="flex items-center gap-2 pt-1">
           <select
             value={selectedExtraId}
@@ -134,13 +135,18 @@ export default function BoatExtrasPanelFixed({ boat, inline = false, formData, o
               const ex = allExtras.find(x => x.id === e.target.value);
               setCustomPrice(ex?.price?.toString() || '0');
             }}
-            className="flex-1 h-7 text-xs rounded-md border border-input bg-background px-2 focus:outline-none focus:ring-1 focus:ring-ring"
+            disabled={availableExtras.length === 0}
+            className="flex-1 h-7 text-xs rounded-md border border-input bg-background px-2 focus:outline-none focus:ring-1 focus:ring-ring disabled:opacity-50"
           >
-            <option value="">Select extra...</option>
+            <option value="">{availableExtras.length > 0 ? "Select extra..." : "No extras left..."}</option>
             {availableExtras.map(e => (
               <option key={e.id} value={e.id}>{e.name}</option>
             ))}
           </select>
+          <InlineExtraForm onSuccess={(newExtra) => {
+            setSelectedExtraId(newExtra.id);
+            setCustomPrice('0');
+          }} />
           <div className="flex items-center gap-1">
             <span className="text-xs text-slate-500">$</span>
             <Input
