@@ -218,7 +218,7 @@ export default function BookingSummary({ experience, onBack, onConfirm, bookingD
                       <p className="text-sm font-medium text-slate-500 mb-2">Alcohol Upgrades</p>
                       {bookingData.alcohol_upgrades.map(id => {
                         const upgrade = (selectedBoat?.alcohol_upgrades || []).find(u => u.id === id);
-                        const title = ALCOHOL_UPGRADES_LIST.find(i => i.id === id)?.name;
+                        const title = upgrade?.name || ALCOHOL_UPGRADES_LIST.find(i => i.id === id)?.name;
                         return title ? (
                           <div key={id} className="flex justify-between text-sm">
                             <span className="text-slate-600">{title}</span>

@@ -46,7 +46,9 @@ export default function AlcoholUpgradesCustomer({ boat, selectedItems, onToggleI
             <div className="grid sm:grid-cols-2 gap-3">
               {availableUpgrades.map(upgrade => {
                 const baseItem = ALCOHOL_UPGRADES_LIST.find(i => i.id === upgrade.id);
-                if (!baseItem) return null;
+                const itemName = upgrade.name || baseItem?.name;
+                if (!itemName) return null;
+                
                 const isSelected = selectedItems.includes(upgrade.id);
                 const price = upgrade.price || 0;
 
@@ -66,7 +68,7 @@ export default function AlcoholUpgradesCustomer({ boat, selectedItems, onToggleI
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium leading-tight ${isSelected ? 'text-indigo-300' : 'text-white/90'}`}>
-                        {baseItem.name}
+                        {itemName}
                       </p>
                       <p className={`text-xs font-semibold mt-0.5 ${isSelected ? 'text-indigo-400' : 'text-white/60'}`}>
                         ${price.toLocaleString()} {currency}

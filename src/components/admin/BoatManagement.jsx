@@ -28,6 +28,7 @@ import { useSectionLocks, SectionLockButton, InfoLabel, TimestampButton } from '
 import ImportExpeditionsButton from './ImportExpeditionsButton';
 import ImportExtraGuestsButton from './ImportExtraGuestsButton';
 import ImportEquipmentButton from './ImportEquipmentButton';
+import ImportAlcoholUpgradesButton from './ImportAlcoholUpgradesButton';
 import AlcoholUpgradesManager from './AlcoholUpgradesManager';
 import { GlassWater } from 'lucide-react';
 
@@ -1711,6 +1712,7 @@ export default function BoatManagement({ restrictToBoat = null, readOnlyMode = f
                     <ImportExpeditionsButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} isSuperAdmin={isSuperAdmin} defaultOperator={lockedOperator || defaultOperator} />
                     <ImportExtraGuestsButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} isSuperAdmin={isSuperAdmin} defaultOperator={lockedOperator || defaultOperator} />
                     <ImportEquipmentButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} isSuperAdmin={isSuperAdmin} defaultOperator={lockedOperator || defaultOperator} />
+                    <ImportAlcoholUpgradesButton currentBoat={boat} boats={boats} onImport={handleEditAndScroll} isSuperAdmin={isSuperAdmin} defaultOperator={lockedOperator || defaultOperator} />
                   </div>
                 )}
                 <div className="mt-2 p-2 bg-slate-50 rounded-lg border">
