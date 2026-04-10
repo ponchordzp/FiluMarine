@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Eye, EyeOff, X, Check, Clock } from 'lucide-react';
+import { Plus, Edit, Trash2, Eye, EyeOff, X, Check, Clock, Copy } from 'lucide-react';
 
 const COMMON_INCLUDES = [
 'Fishing equipment',
@@ -66,6 +66,32 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
     queryKey: ['expeditions'],
     queryFn: () => base44.entities.Expedition.list('sort_order')
   });
+
+  const { data: operators = [] } = useQuery({
+    queryKey: ['operators'],
+    queryFn: () => base44.entities.CharterOperator.list()
+  });
+
+  const [copyDialogOpen, setCopyDialogOpen] = useState(false);
+  const [expToCopy, setExpToCopy] = useState(null);
+  const [selectedCopyOperator, setSelectedCopyOperator] = useState('');
+
+  const handleSuperAdminCopy = (exp) => {
+    setExpToCopy(exp);
+    setSelectedCopyOperator('');
+    setCopyDialogOpen(true);
+  };
+
+  const submitCopy = () => {
+    if (!selectedCopyOperator) return;
+    const finalData = { ...expToCopy, operator: selectedCopyOperator };
+    delete finalData.id;
+    createMutation.mutate(finalData, {
+      onSuccess: () => {
+        setCopyDialogOpen(false);
+      }
+    });
+  };
 
   // Filter: superadmin sees everything; operator sees global + their own copies
   // If an operator has their own copy of an expedition_id, prefer that over the global one
@@ -240,6 +266,11 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
                 </div>
               )}
               <div className="flex gap-2 pt-1">
+                {isSuperAdmin && (
+                  <Button variant="outline" size="sm" onClick={() => handleSuperAdminCopy(exp)} className="h-8 px-2 text-indigo-600 hover:bg-indigo-50 border-indigo-200" title="Create copy for operator">
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button variant="outline" size="sm" onClick={() => handleEdit(exp)} className="flex-1 h-8 text-xs">
                   <Edit className="h-3 w-3 mr-1" /> Edit
                 </Button>
@@ -258,6 +289,38 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
           </Card>
         ))}
       </div>
+
+      <Dialog open={copyDialogOpen} onOpenChange={setCopyDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Operator Copy</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <p className="text-sm text-slate-600">
+              Create a unique copy of <strong>{expToCopy?.title}</strong> for a specific operator. They will be able to customize their own version without affecting the global expedition.
+            </p>
+            <div>
+              <Label>Select Operator</Label>
+              <Select value={selectedCopyOperator} onValueChange={setSelectedCopyOperator}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select an operator..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {operators.map(op => (
+                    <SelectItem key={op.name} value={op.name}>{op.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2 pt-4">
+              <Button variant="outline" onClick={() => setCopyDialogOpen(false)}>Cancel</Button>
+              <Button onClick={submitCopy} disabled={!selectedCopyOperator || createMutation.isPending}>
+                Create Copy
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Add/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={(open) => {if (!open) resetForm();setDialogOpen(open);}}>
