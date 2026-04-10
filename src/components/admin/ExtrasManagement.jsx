@@ -221,7 +221,7 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
           const isGlobal = !extra.allowed_operators || extra.allowed_operators.length === 0;
           const userOp = currentUser?.operator || 'FILU';
           const isOwner = !isGlobal && extra.allowed_operators.some(o => o.toLowerCase() === userOp.toLowerCase());
-          const canEdit = isSuperAdmin || isOwner;
+          const canEdit = (currentUser?.role === 'superadmin') || isOwner;
 
           return (
           <div key={extra.id} className="flex items-start gap-4 p-4 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
@@ -266,13 +266,13 @@ export default function ExtrasManagement({ allBoats = [], locationFilter = 'all'
               {extra.description && <p className="text-sm text-white/50 mt-1">{extra.description}</p>}
             </div>
             <div className="flex flex-col gap-2 ml-4 flex-shrink-0">
-              {canEdit ? (
-                <>
-                  {isSuperAdmin && (
-                    <Button variant="outline" size="sm" className="h-8 text-xs text-indigo-400 bg-indigo-400/10 border-indigo-400/30 hover:bg-indigo-400/20 px-2" onClick={() => handleSuperAdminCopy(extra)} title="Create copy for operator">
-                      <Copy className="h-3 w-3 mr-1" /> Copy for Operator
-                    </Button>
-                  )}
+            {canEdit ? (
+              <>
+                {(currentUser?.role === 'superadmin') && (
+                  <Button variant="outline" size="sm" className="h-8 px-2 text-indigo-400 bg-indigo-400/10 border-indigo-400/30 hover:bg-indigo-400/20" onClick={() => handleSuperAdminCopy(extra)} title="Create copy for operator">
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                )}
                   <Button size="sm" variant="ghost" className="text-white/40 hover:text-white bg-white/5 h-8 w-8 p-0" onClick={() => openEdit(extra)}>
                     <Pencil className="h-4 w-4" />
                   </Button>
