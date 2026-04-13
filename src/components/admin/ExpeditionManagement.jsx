@@ -358,6 +358,11 @@ export default function ExpeditionManagement({ operatorFilter = 'all' }) {
               <Textarea rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} placeholder="Describe this expedition..." />
             </div>
 
+            <div>
+              <Label>Ideal For</Label>
+              <Input value={formData.ideal_for || ''} onChange={(e) => setFormData({ ...formData, ideal_for: e.target.value })} placeholder="e.g. Couples, families and friend groups" />
+            </div>
+
             {/* Image */}
             <div>
               <Label>Expedition Image</Label>
