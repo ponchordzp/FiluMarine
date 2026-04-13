@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronRight, Plus, X, Check, Shield, Building2, Anchor, Users, Filter } from 'lucide-react';
+import { ChevronDown, ChevronRight, Plus, X, Check, Shield, Building2, Anchor, Users, Filter, Lock, LockOpen, Save } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -73,8 +73,9 @@ function loadPermissions() {
     const raw = localStorage.getItem(PERMISSIONS_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      parsed.superadmin = ALL_TABS.map((t) => t.value);
-      return parsed;
+      const merged = { ...DEFAULT_PERMISSIONS, ...parsed };
+      merged.superadmin = ALL_TABS.map((t) => t.value);
+      return merged;
     }
   } catch {}
   return { ...DEFAULT_PERMISSIONS };
@@ -228,6 +229,9 @@ export default function RolePermissionsManager() {
   const [newRoleName, setNewRoleName] = useState('');
   const [addingRole, setAddingRole] = useState(false);
 
+  const [isLocked, setIsLocked] = useState(true);
+  const [hasChanges, setHasChanges] = useState(false);
+
   useEffect(() => {
     setPermissions(loadPermissions());
     setCustomRoles(loadCustomRoles());
@@ -235,51 +239,83 @@ export default function RolePermissionsManager() {
   }, []);
 
   const handleChange = (roleKey, tabs) => {
-    const updated = { ...permissions, [roleKey]: tabs };
-    savePermissions(updated);
-    setPermissions(updated);
+    setPermissions(prev => ({ ...prev, [roleKey]: tabs }));
+    setHasChanges(true);
   };
 
   const handleToggleOperatorFilter = (roleKey) => {
-    const updated = { ...operatorFilterAccess, [roleKey]: !operatorFilterAccess[roleKey] };
-    saveOperatorFilterAccess(updated);
-    setOperatorFilterAccess(updated);
+    setOperatorFilterAccess(prev => ({ ...prev, [roleKey]: !prev[roleKey] }));
+    setHasChanges(true);
   };
 
   const handleAddRole = () => {
     if (!newRoleName.trim()) return;
     const key = newRoleName.trim().toLowerCase().replace(/\s+/g, '_');
     const newRole = { key, label: newRoleName.trim(), icon: Users, iconColor: 'text-slate-600', color: 'bg-slate-100 text-slate-800', locked: false };
-    const updatedRoles = [...customRoles, newRole];
-    saveCustomRoles(updatedRoles);
-    setCustomRoles(updatedRoles);
-    handleChange(key, [...(permissions.crew || [])]);
+    
+    setCustomRoles(prev => [...prev, newRole]);
+    setPermissions(prev => ({ ...prev, [key]: [...(prev.crew || DEFAULT_PERMISSIONS.crew)] }));
+    
     setNewRoleName('');
     setAddingRole(false);
+    setHasChanges(true);
   };
 
   const handleDeleteCustomRole = (key) => {
     if (!window.confirm('Remove this custom role?')) return;
-    const updatedRoles = customRoles.filter((r) => r.key !== key);
-    saveCustomRoles(updatedRoles);
-    setCustomRoles(updatedRoles);
-    const { [key]: _, ...rest } = permissions;
-    savePermissions(rest);
-    setPermissions(rest);
+    setCustomRoles(prev => prev.filter((r) => r.key !== key));
+    setPermissions(prev => {
+      const { [key]: _, ...rest } = prev;
+      return rest;
+    });
+    setHasChanges(true);
+  };
+
+  const handleSave = () => {
+    savePermissions(permissions);
+    saveCustomRoles(customRoles);
+    saveOperatorFilterAccess(operatorFilterAccess);
+    setHasChanges(false);
+    setIsLocked(true);
+  };
+
+  const handleCancel = () => {
+    setPermissions(loadPermissions());
+    setCustomRoles(loadCustomRoles());
+    setOperatorFilterAccess(loadOperatorFilterAccess());
+    setHasChanges(false);
+    setIsLocked(true);
+    setAddingRole(false);
   };
 
   const allRoles = [...BUILT_IN_ROLES, ...customRoles];
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <p className="text-blue-950 text-sm font-bold">Role Tab Permissions</p>
           <p className="text-blue-950 mt-0.5 text-xs">Configure tab access and operator filter visibility per role</p>
         </div>
-        <Button size="sm" variant="outline" onClick={() => setAddingRole(true)} className="gap-1.5 text-xs">
-          <Plus className="h-3.5 w-3.5" />New Role
-        </Button>
+        <div className="flex items-center gap-2">
+          {isLocked ? (
+            <Button size="sm" variant="outline" onClick={() => setIsLocked(false)} className="gap-1.5 text-xs">
+              <Lock className="h-3.5 w-3.5" /> Unlock to Edit
+            </Button>
+          ) : (
+            <>
+              <Button size="sm" variant="outline" onClick={handleCancel} className="gap-1.5 text-xs text-slate-600">
+                <X className="h-3.5 w-3.5" /> Cancel
+              </Button>
+              <Button size="sm" onClick={handleSave} disabled={!hasChanges} className="gap-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white">
+                <Save className="h-3.5 w-3.5" /> Save Changes
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setAddingRole(true)} className="gap-1.5 text-xs border-indigo-200 text-indigo-700 hover:bg-indigo-50">
+                <Plus className="h-3.5 w-3.5" /> New Role
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="flex items-center gap-2 p-2 rounded-lg bg-indigo-50 border border-indigo-200">
@@ -313,10 +349,10 @@ export default function RolePermissionsManager() {
               icon={iconComponent}
               iconColor={role.iconColor}
               colorClass={role.color}
-              locked={role.locked}
+              locked={isLocked || role.locked}
               permissions={permissions}
               onChange={handleChange}
-              onDelete={role.locked ? null : handleDeleteCustomRole}
+              onDelete={(isLocked || role.locked) ? null : handleDeleteCustomRole}
               operatorFilterAccess={operatorFilterAccess}
               onToggleOperatorFilter={handleToggleOperatorFilter}
             />
