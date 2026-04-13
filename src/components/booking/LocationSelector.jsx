@@ -5,6 +5,13 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import WeatherWidget from './WeatherWidget';
 
+const isHiddenForOperator = (catalog, operator) => {
+  if (!catalog) return true;
+  if (catalog.visible === false) return true;
+  if (operator && (catalog.hidden_for_operators || []).includes(operator)) return true;
+  return false;
+};
+
 const FALLBACK_LOCATIONS = [
   {
     location_id: 'ixtapa_zihuatanejo',
@@ -38,6 +45,11 @@ export default function LocationSelector({ onSelectLocation }) {
   const { data: dbBoats = [] } = useQuery({
     queryKey: ['all-boats'],
     queryFn: () => base44.entities.BoatInventory.list(),
+  });
+
+  const { data: dbExpeditions = [] } = useQuery({
+    queryKey: ['all-expeditions'],
+    queryFn: () => base44.entities.Expedition.list(),
   });
 
   const locations = dbLocations.length > 0
@@ -185,20 +197,22 @@ export default function LocationSelector({ onSelectLocation }) {
                     });
                     const boatCount = locationBoatsList.length;
                     
-                    const uniqueExperiences = new Set();
+                    const validExpeditions = new Set();
                     locationBoatsList.forEach(boat => {
-                      if (Array.isArray(boat.available_expeditions)) {
-                        boat.available_expeditions.forEach(e => {
-                          if (e) uniqueExperiences.add(e);
-                        });
-                      }
-                      if (Array.isArray(boat.expedition_pricing)) {
-                        boat.expedition_pricing.forEach(e => {
-                          if (e && e.expedition_type) uniqueExperiences.add(e.expedition_type);
-                        });
-                      }
+                      (boat.available_expeditions || []).forEach(expId => {
+                        if (!expId) return;
+                        if (!validExpeditions.has(expId)) {
+                          const opCatalog = dbExpeditions.find(e => e.expedition_id === expId && e.operator && e.operator.toLowerCase() === (boat.operator || '').toLowerCase());
+                          const globalCatalog = dbExpeditions.find(e => e.expedition_id === expId && !e.operator);
+                          const catalog = opCatalog || globalCatalog || dbExpeditions.find(e => e.expedition_id === expId);
+                          
+                          if (catalog && !isHiddenForOperator(catalog, boat.operator)) {
+                            validExpeditions.add(expId);
+                          }
+                        }
+                      });
                     });
-                    const experienceCount = uniqueExperiences.size;
+                    const experienceCount = validExpeditions.size;
 
                     return (
                       <div className="flex flex-wrap gap-2">
