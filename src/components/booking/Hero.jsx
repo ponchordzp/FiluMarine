@@ -6,7 +6,7 @@ import { ChevronDown, MessageCircle, Anchor, Search, MapPin } from 'lucide-react
 import { motion } from 'framer-motion';
 
 export default function Hero({ onScrollToExperiences, location, locationName, onChangeLocation, backgroundImage }) {
-  const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine.";
+  const whatsappLink = "https://wa.me/524464795085?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine.";
   const heroBg = backgroundImage || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80';
 
   return (
