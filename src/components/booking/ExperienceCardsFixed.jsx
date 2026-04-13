@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Clock, Users, Fish, Waves, Sun, Anchor, ChevronDown } from 'lucide-react';
+import { Clock, Users, Fish, Waves, Sun, Anchor, ChevronDown, Phone, MessageCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { motion } from 'framer-motion';
 
@@ -290,6 +290,30 @@ export default function ExperienceCardsFixed({ onSelectExperience, selectedBoat,
                 />
               ))}
             </div>
+
+            {/* Direct Booking Cards */}
+            <div className="mt-12 bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-light text-white mb-2">Prefer to book directly?</h3>
+                <p className="text-white/60">Our team is ready to help you plan your perfect experience.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                <a href="tel:+524464795085" className="group flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 border border-blue-500/30 p-6 rounded-2xl transition-all duration-300 hover:scale-105">
+                  <Phone className="h-6 w-6 text-blue-400 group-hover:text-blue-300" />
+                  <div className="text-left">
+                    <p className="text-white/90 font-medium">Call Us</p>
+                    <p className="text-white/60 text-sm">+52 446 479 5085</p>
+                  </div>
+                </a>
+                <a href="https://wa.me/524464795085?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine." target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 hover:from-emerald-500/30 hover:to-emerald-600/30 border border-emerald-500/30 p-6 rounded-2xl transition-all duration-300 hover:scale-105">
+                  <MessageCircle className="h-6 w-6 text-emerald-400 group-hover:text-emerald-300" />
+                  <div className="text-left">
+                    <p className="text-white/90 font-medium">WhatsApp</p>
+                    <p className="text-white/60 text-sm">+52 446 479 5085</p>
+                  </div>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -348,6 +372,30 @@ export default function ExperienceCardsFixed({ onSelectExperience, selectedBoat,
               />
             );
           })}
+        </div>
+
+        {/* Direct Booking Cards */}
+        <div className="mt-8 bg-white/5 border border-white/10 rounded-3xl p-6 md:p-8 backdrop-blur-xl">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-light text-white mb-2">Prefer to book directly?</h3>
+            <p className="text-white/60">Our team is ready to help you plan your perfect experience.</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <a href="tel:+524464795085" className="group flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500/20 to-blue-600/20 hover:from-blue-500/30 hover:to-blue-600/30 border border-blue-500/30 p-6 rounded-2xl transition-all duration-300 hover:scale-105">
+              <Phone className="h-6 w-6 text-blue-400 group-hover:text-blue-300" />
+              <div className="text-left">
+                <p className="text-white/90 font-medium">Call Us</p>
+                <p className="text-white/60 text-sm">+52 446 479 5085</p>
+              </div>
+            </a>
+            <a href="https://wa.me/524464795085?text=Hello!%20I'm%20interested%20in%20booking%20a%20boat%20experience%20with%20Filu%20Marine." target="_blank" rel="noopener noreferrer" className="group flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-500/20 to-emerald-600/20 hover:from-emerald-500/30 hover:to-emerald-600/30 border border-emerald-500/30 p-6 rounded-2xl transition-all duration-300 hover:scale-105">
+              <MessageCircle className="h-6 w-6 text-emerald-400 group-hover:text-emerald-300" />
+              <div className="text-left">
+                <p className="text-white/90 font-medium">WhatsApp</p>
+                <p className="text-white/60 text-sm">+52 446 479 5085</p>
+              </div>
+            </a>
+          </div>
         </div>
       </div>
     </section>
