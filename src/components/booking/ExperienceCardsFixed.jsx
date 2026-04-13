@@ -54,8 +54,13 @@ const defaultDurations = {
 function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) {
   const [expanded, setExpanded] = useState(false);
   const [expandedDesc, setExpandedDesc] = useState(false);
+  const [expandedIdeal, setExpandedIdeal] = useState(false);
+  const [expandedBoats, setExpandedBoats] = useState(false);
+
   const Icon = getExpIcon(exp.expedition_id);
   const includes = exp.includes || [];
+  const idealText = getIdealFor(exp);
+  const boatsText = boatNames.length > 0 ? boatNames.join(', ') : 'All Fleet';
 
   return (
     <motion.div
@@ -125,15 +130,32 @@ function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) 
         )}
 
         {/* Details list */}
-        <div className="flex flex-col gap-2.5 pt-4 border-t border-white/10 mb-6 flex-shrink-0">
-          <div className="h-5 flex items-center gap-2 text-sm text-white/70">
-            <Users className="h-4 w-4 text-white/50 flex-shrink-0" />
-            <span className="truncate">{getIdealFor(exp)}</span>
+        <div className="flex flex-col gap-3 pt-4 border-t border-white/10 mb-6 flex-shrink-0">
+          {/* Ideal for dropdown */}
+          <div 
+            className="flex items-start justify-between cursor-pointer group/ideal"
+            onClick={(e) => { e.stopPropagation(); setExpandedIdeal(!expandedIdeal); }}
+          >
+            <div className="flex items-start gap-2 text-sm text-white/70 pr-2">
+              <Users className="h-4 w-4 text-white/50 flex-shrink-0 mt-0.5" />
+              <span className={`${expandedIdeal ? '' : 'line-clamp-2'}`}>{idealText}</span>
+            </div>
+            <ChevronDown className={`h-3.5 w-3.5 text-white/50 flex-shrink-0 transition-transform duration-200 mt-1 group-hover/ideal:text-white/80 ${expandedIdeal ? '' : '-rotate-90'}`} />
           </div>
           
-          <div className="h-5 flex items-center gap-2 text-sm text-white/70">
-            <Anchor className="h-4 w-4 flex-shrink-0 text-white/50" />
-            <span className="truncate">{boatNames.length > 0 ? boatNames.join(', ') : 'All Fleet'}</span>
+          {/* Available boats dropdown */}
+          <div 
+            className="flex items-start justify-between cursor-pointer group/boats"
+            onClick={(e) => { e.stopPropagation(); setExpandedBoats(!expandedBoats); }}
+          >
+            <div className="flex items-start gap-2 text-sm text-white/70 pr-2">
+              <Anchor className="h-4 w-4 text-white/50 flex-shrink-0 mt-0.5" />
+              <div className="flex flex-col">
+                <span className="font-medium text-white/90">Available Boats</span>
+                <span className={`${expandedBoats ? '' : 'line-clamp-2'} text-white/60`}>{boatsText}</span>
+              </div>
+            </div>
+            <ChevronDown className={`h-3.5 w-3.5 text-white/50 flex-shrink-0 transition-transform duration-200 mt-1 group-hover/boats:text-white/80 ${expandedBoats ? '' : '-rotate-90'}`} />
           </div>
         </div>
 
@@ -175,7 +197,7 @@ export default function ExperienceCardsFixed({ onSelectExperience, selectedBoat,
     return matchLocation && matchStatus && matchMode;
   }), [dbBoats, location]);
 
-  // Always compute locationExpeditions (must be before any conditional return)
+  // Always compute locationExpeditions unconditionally
   const locationExpeditions = useMemo(() => {
     if (selectedBoat) return [];
     const expMap = new Map();
