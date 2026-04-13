@@ -298,7 +298,7 @@ export default function BookingSearch() {
                 <p className="text-xs text-white/25">Contact us on WhatsApp</p>
               </div>
               <a
-                href="https://wa.me/525513782169"
+                href="https://wa.me/524464795085"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all hover:opacity-80"
