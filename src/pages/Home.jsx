@@ -76,6 +76,7 @@ const generateConfirmationCode = (location) => {
 };
 
 export default function Home() {
+  // Vite re-trigger comment
   const [step, setStep] = useState('location'); // location, landing, boat_selector, calendar, pickup, addons, summary, confirmation
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [selectedExperience, setSelectedExperience] = useState(null);
