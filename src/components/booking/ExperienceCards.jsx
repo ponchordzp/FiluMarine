@@ -12,6 +12,20 @@ const getExpIcon = (expId = '') => {
   return Fish;
 };
 
+const getIdealFor = (exp) => {
+  if (exp.ideal_for) return `Ideal for: ${exp.ideal_for}`;
+  const id = exp.expedition_id || '';
+  if (id.includes('snorkel')) return 'Ideal for: Ocean explorers and underwater enthusiasts';
+  if (id.includes('sunset')) return 'Ideal for: Couples, romantics, and photography lovers';
+  if (id.includes('leisure') || id.includes('coastal')) return 'Ideal for: Couples, families, and friend groups looking to relax';
+  if (id.includes('fishing')) {
+    if (id.includes('half')) return 'Ideal for: Casual anglers and families';
+    if (id.includes('full') || id.includes('extended')) return 'Ideal for: Serious anglers and fishing aficionados';
+    return 'Ideal for: Fishing enthusiasts of all levels';
+  }
+  return 'Ideal for: Everyone looking for a great time on the water';
+};
+
 const getDepartureTimes = (p) => {
   if (!p) return [];
   if (p.pickup_departures?.length > 0) {
@@ -28,6 +42,12 @@ const getPickupLocations = (p) => {
     return [...new Set(p.pickup_departures.map(d => d.pickup_location).filter(Boolean))];
   if (p.pickup_location) return [p.pickup_location];
   return [];
+};
+
+const defaultDurations = {
+  half_day_fishing: 5, full_day_fishing: 8,
+  extended_fishing: 10, snorkeling: 5,
+  coastal_leisure: 5, sunset_tour: 3,
 };
 
 // Card component shared between both views
@@ -108,7 +128,7 @@ function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) 
         <div className="flex flex-col gap-2.5 pt-4 border-t border-white/10 mb-6 flex-shrink-0">
           <div className="h-5 flex items-center gap-2 text-sm text-white/70">
             <Users className="h-4 w-4 text-white/50 flex-shrink-0" />
-            <span className="truncate">{exp.ideal_for || 'Everyone'}</span>
+            <span className="truncate">{getIdealFor(exp)}</span>
           </div>
           
           <div className="h-5 flex items-center gap-2 text-sm text-white/70">
@@ -129,6 +149,13 @@ function ExpCard({ exp, onSelect, index, departureTimes = [], boatNames = [] }) 
   );
 }
 
+const isHiddenForOperator = (catalog, operator) => {
+  if (!catalog) return true;
+  if (catalog.visible === false) return true;
+  if (operator && (catalog.hidden_for_operators || []).includes(operator)) return true;
+  return false;
+};
+
 export default function ExperienceCards({ onSelectExperience, selectedBoat, location }) {
   const { data: dbBoats = [] } = useQuery({
     queryKey: ['boats-for-exp', location],
@@ -148,13 +175,27 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
     return matchLocation && matchStatus && matchMode;
   }), [dbBoats, location]);
 
-  // helper: is expedition hidden for a given operator?
-  const isHiddenForOperator = (catalog, operator) => {
-    if (!catalog) return true;
-    if (catalog.visible === false) return true;
-    if (operator && (catalog.hidden_for_operators || []).includes(operator)) return true;
-    return false;
-  };
+  // Always compute locationExpeditions unconditionally
+  const locationExpeditions = useMemo(() => {
+    if (selectedBoat) return [];
+    const expMap = new Map();
+    activeBoats.forEach(boat => {
+      (boat.available_expeditions || []).forEach(expId => {
+        if (!expMap.has(expId)) {
+          const opCatalog = dbExpeditions.find(e => e.expedition_id === expId && e.operator && e.operator.toLowerCase() === (boat.operator || '').toLowerCase());
+          const globalCatalog = dbExpeditions.find(e => e.expedition_id === expId && !e.operator);
+          const catalog = opCatalog || globalCatalog || dbExpeditions.find(e => e.expedition_id === expId);
+
+          if (catalog && !isHiddenForOperator(catalog, boat.operator)) {
+            const pricing = (boat.expedition_pricing || []).find(p => p.expedition_type === expId);
+            const duration_hours = pricing?.duration_hours || parseFloat(catalog.duration) || defaultDurations[expId] || 5;
+            expMap.set(expId, { ...catalog, title: catalog.title || expId.replace(/_/g, ' '), duration_hours });
+          }
+        }
+      });
+    });
+    return Array.from(expMap.values()).sort((a, b) => b.duration_hours - a.duration_hours);
+  }, [activeBoats, dbExpeditions, selectedBoat]);
 
   // ── BOAT-SELECTED VIEW ──────────────────────────────────────────────────
   if (selectedBoat) {
@@ -166,11 +207,6 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
       if (isHiddenForOperator(catalog, selectedBoat.operator)) return null;
       const pricing = (selectedBoat.expedition_pricing || []).find(p => p.expedition_type === expType);
       const departureTimes = getDepartureTimes(pricing);
-      const defaultDurations = {
-        half_day_fishing: 5, full_day_fishing: 8,
-        extended_fishing: 10, snorkeling: 5,
-        coastal_leisure: 5, sunset_tour: 3,
-      };
       const durationHours = pricing?.duration_hours || parseFloat(catalog?.duration) || defaultDurations[expType] || 5;
 
       return {
@@ -237,34 +273,6 @@ export default function ExperienceCards({ onSelectExperience, selectedBoat, loca
   }
 
   // ── GENERIC LOCATION VIEW ───────────────────────────────────────────────
-  // Collect all unique expedition_ids offered by active boats at this location
-  const locationExpeditions = useMemo(() => {
-    const expMap = new Map();
-    activeBoats.forEach(boat => {
-      (boat.available_expeditions || []).forEach(expId => {
-        if (!expMap.has(expId)) {
-          const opCatalog = dbExpeditions.find(e => e.expedition_id === expId && e.operator && e.operator.toLowerCase() === (boat.operator || '').toLowerCase());
-          const globalCatalog = dbExpeditions.find(e => e.expedition_id === expId && !e.operator);
-          const catalog = opCatalog || globalCatalog || dbExpeditions.find(e => e.expedition_id === expId);
-
-          if (catalog && !isHiddenForOperator(catalog, boat.operator)) {
-            const pricing = (boat.expedition_pricing || []).find(p => p.expedition_type === expId);
-            const defaultDurations = {
-              half_day_fishing: 5, full_day_fishing: 8,
-              extended_fishing: 10, snorkeling: 5,
-              coastal_leisure: 5, sunset_tour: 3,
-            };
-            const duration_hours = pricing?.duration_hours || parseFloat(catalog.duration) || defaultDurations[expId] || 5;
-
-            expMap.set(expId, { ...catalog, title: catalog.title || expId.replace(/_/g, ' '), duration_hours });
-          }
-        }
-      });
-    });
-    return Array.from(expMap.values()).sort((a, b) => b.duration_hours - a.duration_hours);
-  }, [activeBoats, dbExpeditions]);
-
-  // For each expedition, gather boat names + departure times from all offering boats
   const getExpMeta = (expId) => {
     const boatsWithExp = activeBoats.filter(b => (b.available_expeditions || []).includes(expId));
     const boatNames = boatsWithExp.map(b => b.name);
