@@ -21,7 +21,7 @@ const pickupLocationNames = {
 };
 
 export default function Confirmation({ booking, experience, onBackToMain }) {
-  const whatsappLink = "https://wa.me/525513782169?text=Hello!%20I%20have%20a%20booking%20with%20confirmation%20code:%20" + booking.confirmation_code;
+  const whatsappLink = "https://wa.me/524464795085?text=Hello!%20I%20have%20a%20booking%20with%20confirmation%20code:%20" + booking.confirmation_code;
   const pickupLocationDisplay = pickupLocationNames[booking.pickup_location] || booking.pickup_location || booking.location?.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || 'To be determined';
 
   return (
@@ -173,11 +173,7 @@ export default function Confirmation({ booking, experience, onBackToMain }) {
               <span>Contact us on WhatsApp</span>
             </a>
           </Button>
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6987f0afff96227dd3af0e68/fc470a313_image.png" 
-            alt="WhatsApp QR Code" 
-            className="w-32 h-32 mx-auto mt-4"
-          />
+          {/* WhatsApp QR code removed since number changed and no new QR was provided */}
         </motion.div>
 
         {/* Back to Main Page */}
