@@ -177,16 +177,25 @@ export default function LocationSelector({ onSelectLocation }) {
                   {/* Stats Badges */}
                   {(() => {
                     const locId = location.location_id || location.id;
-                    const locationBoatsList = dbBoats.filter(b => b.location === locId && b.status !== 'inactive');
+                    const locationBoatsList = dbBoats.filter(b => {
+                      const matchLocation = (b.location || '').toLowerCase().trim() === (locId || '').toLowerCase().trim();
+                      const matchStatus = !b.status || b.status === 'active';
+                      const matchMode = b.boat_mode !== 'maintenance_only';
+                      return matchLocation && matchStatus && matchMode;
+                    });
                     const boatCount = locationBoatsList.length;
                     
                     const uniqueExperiences = new Set();
                     locationBoatsList.forEach(boat => {
-                      if (boat.available_expeditions) {
-                        boat.available_expeditions.forEach(e => uniqueExperiences.add(e));
+                      if (Array.isArray(boat.available_expeditions)) {
+                        boat.available_expeditions.forEach(e => {
+                          if (e) uniqueExperiences.add(e);
+                        });
                       }
-                      if (boat.expedition_pricing) {
-                        boat.expedition_pricing.forEach(e => uniqueExperiences.add(e.expedition_type));
+                      if (Array.isArray(boat.expedition_pricing)) {
+                        boat.expedition_pricing.forEach(e => {
+                          if (e && e.expedition_type) uniqueExperiences.add(e.expedition_type);
+                        });
                       }
                     });
                     const experienceCount = uniqueExperiences.size;
