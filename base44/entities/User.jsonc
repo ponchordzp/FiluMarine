@@ -17,5 +17,8 @@
       "type": "string",
       "description": "Operator name this user belongs to (e.g. FILU, SEASTHEDAY)"
     }
-  }
+  },
+  "required": [
+    "operator"
+  ]
 }

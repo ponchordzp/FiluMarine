@@ -1,0 +1,46 @@
+{
+  "name": "CustomerAddOnRequest",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "Reference to the booking"
+    },
+    "customer_email": {
+      "type": "string"
+    },
+    "customer_name": {
+      "type": "string"
+    },
+    "boat_name": {
+      "type": "string"
+    },
+    "trip_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "requested_items": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Add-on IDs requested"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "booking_id",
+    "customer_email"
+  ]
+}

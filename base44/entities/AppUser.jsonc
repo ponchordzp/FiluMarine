@@ -1,0 +1,76 @@
+{
+  "name": "AppUser",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string",
+      "description": "Unique username for login"
+    },
+    "password_hash": {
+      "type": "string",
+      "description": "Hashed password (SHA-256 hex)"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Display name"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "superadmin",
+        "operator_admin",
+        "admin",
+        "crew"
+      ],
+      "default": "crew",
+      "description": "User role: superadmin (full access), operator_admin (full access for their operator fleet), admin (boat owner), crew (maintenance)"
+    },
+    "assigned_boat": {
+      "type": "string",
+      "description": "Boat name this user is assigned to (for admin and crew roles)"
+    },
+    "operator": {
+      "type": "string",
+      "description": "Operator name this user belongs to"
+    },
+    "email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the user can log in"
+    },
+    "last_login": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last login timestamp"
+    },
+    "bank_name": {
+      "type": "string",
+      "description": "Bank name for direct deposit (e.g. BBVA, Banamex)"
+    },
+    "bank_account_clabe": {
+      "type": "string",
+      "description": "18-digit CLABE for wire transfers"
+    },
+    "bank_account_number": {
+      "type": "string",
+      "description": "Account number (if different from CLABE)"
+    },
+    "bank_account_holder": {
+      "type": "string",
+      "description": "Name on the bank account"
+    },
+    "bank_notes": {
+      "type": "string",
+      "description": "Additional bank/payment notes"
+    }
+  },
+  "required": [
+    "username",
+    "password_hash",
+    "role"
+  ]
+}

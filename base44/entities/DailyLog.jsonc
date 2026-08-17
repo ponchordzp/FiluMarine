@@ -1,0 +1,94 @@
+{
+  "name": "DailyLog",
+  "type": "object",
+  "properties": {
+    "boat_id": {
+      "type": "string",
+      "description": "Reference to the boat"
+    },
+    "boat_name": {
+      "type": "string",
+      "description": "Name of the boat"
+    },
+    "log_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of this daily log"
+    },
+    "fuel_quantity": {
+      "type": "number",
+      "default": 0,
+      "description": "Fuel consumed today"
+    },
+    "fuel_unit": {
+      "type": "string",
+      "enum": [
+        "gallons",
+        "liters"
+      ],
+      "default": "gallons"
+    },
+    "fuel_price_per_unit": {
+      "type": "number",
+      "default": 0
+    },
+    "supplies_used": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "Supplies consumed today"
+    },
+    "checks_completed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Daily check items completed"
+    },
+    "checks_failed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Daily check items that failed or need attention"
+    },
+    "cleaning_done": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was the boat cleaned today"
+    },
+    "notes": {
+      "type": "string",
+      "description": "General notes for this log"
+    },
+    "logged_by": {
+      "type": "string",
+      "description": "Name of crew who logged this"
+    },
+    "total_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Total cost for this day (fuel + supplies)"
+    }
+  },
+  "required": [
+    "boat_id",
+    "boat_name",
+    "log_date"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "CustomerUser",
+  "type": "object",
+  "properties": {
+    "username": {
+      "type": "string",
+      "description": "Unique username"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "password_hash": {
+      "type": "string",
+      "description": "SHA-256 hashed password"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Display name"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone / WhatsApp number"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "username",
+    "email",
+    "password_hash"
+  ]
+}

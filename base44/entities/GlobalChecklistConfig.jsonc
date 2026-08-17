@@ -1,0 +1,43 @@
+{
+  "name": "GlobalChecklistConfig",
+  "type": "object",
+  "properties": {
+    "engine_type": {
+      "type": "string",
+      "enum": [
+        "inboard",
+        "outboard"
+      ],
+      "description": "Which engine type this config applies to"
+    },
+    "overrides": {
+      "type": "object",
+      "description": "Map of item id -> { label, interval, removed } overrides",
+      "additionalProperties": true
+    },
+    "added_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "section_id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "interval": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Global items added by SuperAdmin (appear in all boats of this engine type)"
+    }
+  },
+  "required": [
+    "engine_type"
+  ]
+}

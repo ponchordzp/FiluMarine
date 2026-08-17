@@ -1,0 +1,70 @@
+{
+  "name": "JoinFiluApplication",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Applicant full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Applicant email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone / WhatsApp"
+    },
+    "boat_type": {
+      "type": "string",
+      "description": "Boat type"
+    },
+    "boat_model": {
+      "type": "string",
+      "description": "Boat model"
+    },
+    "boat_size": {
+      "type": "string",
+      "description": "Boat size range in feet"
+    },
+    "boat_status": {
+      "type": "string",
+      "description": "Boat condition"
+    },
+    "boat_year": {
+      "type": "string",
+      "description": "Year manufactured"
+    },
+    "boat_name": {
+      "type": "string",
+      "description": "Boat name"
+    },
+    "location": {
+      "type": "string",
+      "description": "Current marina/location"
+    },
+    "message": {
+      "type": "string",
+      "description": "Applicant message"
+    },
+    "review_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_review",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "SuperAdmin review status"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "SuperAdmin internal notes"
+    }
+  },
+  "required": [
+    "name",
+    "email",
+    "phone"
+  ]
+}

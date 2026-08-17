@@ -1,0 +1,97 @@
+{
+  "name": "PersonalTrip",
+  "type": "object",
+  "properties": {
+    "boat_id": {
+      "type": "string",
+      "description": "Reference to the boat"
+    },
+    "boat_name": {
+      "type": "string",
+      "description": "Name of the boat"
+    },
+    "trip_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the trip"
+    },
+    "duration_hours": {
+      "type": "number",
+      "description": "Trip duration in hours"
+    },
+    "engine_hours_used": {
+      "type": "number",
+      "default": 0,
+      "description": "Engine hours consumed during this trip"
+    },
+    "distance_km": {
+      "type": "number",
+      "default": 0,
+      "description": "Distance traveled in kilometers"
+    },
+    "fuel_quantity": {
+      "type": "number",
+      "default": 0,
+      "description": "Fuel used in gallons or liters"
+    },
+    "fuel_unit": {
+      "type": "string",
+      "enum": [
+        "gallons",
+        "liters"
+      ],
+      "default": "gallons",
+      "description": "Unit of fuel measurement"
+    },
+    "fuel_price_per_unit": {
+      "type": "number",
+      "default": 0,
+      "description": "Price per gallon or liter"
+    },
+    "supplies_used": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          }
+        }
+      },
+      "description": "List of supplies used during trip"
+    },
+    "additional_expenses": {
+      "type": "number",
+      "default": 0,
+      "description": "Snacks, drinks, or other miscellaneous expenses"
+    },
+    "additional_expenses_notes": {
+      "type": "string",
+      "description": "Notes about additional expenses"
+    },
+    "guests": {
+      "type": "number",
+      "default": 1,
+      "description": "Number of people on trip"
+    },
+    "destination": {
+      "type": "string",
+      "description": "Trip destination"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Trip notes"
+    }
+  },
+  "required": [
+    "boat_id",
+    "boat_name",
+    "trip_date"
+  ]
+}

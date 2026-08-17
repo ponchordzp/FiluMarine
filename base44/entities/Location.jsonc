@@ -1,0 +1,44 @@
+{
+  "name": "Location",
+  "type": "object",
+  "properties": {
+    "location_id": {
+      "type": "string",
+      "description": "Unique identifier e.g. ixtapa_zihuatanejo, acapulco, cancun"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name e.g. Ixtapa-Zihuatanejo"
+    },
+    "state": {
+      "type": "string",
+      "description": "State or region e.g. Guerrero"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description shown on the location card"
+    },
+    "coordinates": {
+      "type": "string",
+      "description": "GPS coordinates displayed on card e.g. 17.6617\u00b0N, 101.5528\u00b0W"
+    },
+    "image": {
+      "type": "string",
+      "description": "Main card image URL"
+    },
+    "visible": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this location is shown to users on the home page"
+    },
+    "sort_order": {
+      "type": "number",
+      "default": 0,
+      "description": "Display order"
+    }
+  },
+  "required": [
+    "location_id",
+    "name"
+  ]
+}

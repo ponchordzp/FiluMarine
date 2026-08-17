@@ -1,0 +1,52 @@
+{
+  "name": "BookingExpense",
+  "type": "object",
+  "properties": {
+    "booking_id": {
+      "type": "string",
+      "description": "Reference to the booking"
+    },
+    "fuel_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Fuel expenses"
+    },
+    "crew_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Crew wages"
+    },
+    "maintenance_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Maintenance and repairs"
+    },
+    "cleaning_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Cleaning expenses"
+    },
+    "supplies_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Supplies and provisions"
+    },
+    "fees_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Platform / operator fees"
+    },
+    "other_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Other expenses"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes about expenses"
+    }
+  },
+  "required": [
+    "booking_id"
+  ]
+}
